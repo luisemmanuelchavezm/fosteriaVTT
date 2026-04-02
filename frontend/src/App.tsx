@@ -5,6 +5,7 @@ import heroImg from "./assets/hero.png";
 import "./App.css";
 
 function App() {
+  // comentario de prueba  
   const [count, setCount] = useState(0)
 
   return (
