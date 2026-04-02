@@ -38,10 +38,10 @@
     "typescript-eslint": "^8.57.0",
     "vite": "^8.0.1"
   },
-  "lint-staged": {
-    "*.{ts,tsx,js,jsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ]
-  }
+    "lint-staged": {
+      "src/**/*.{ts,tsx,js,jsx}": [
+        "npx eslint --fix",
+        "npx prettier --write"
+      ]
+    }
 }
