@@ -2,13 +2,18 @@ name: CI - Code Quality
 
 on:
   push:
-    branches: ["main"]
+    branches: 
+      - "main"
+      - "feature/**" 
   pull_request:
-    branches: ["main"]
+    branches: 
+      - "main"
 
 jobs:
   quality:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout
@@ -26,6 +31,7 @@ jobs:
       - name: Run Checkstyle
         run: |
           cd backend
+          chmod +x mvnw
           ./mvnw checkstyle:check
 
       # -------------------
@@ -34,7 +40,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Install frontend deps
         run: |
@@ -50,3 +56,19 @@ jobs:
         run: |
           cd frontend
           npx prettier --check .
+
+      # -------------------
+      # Codacy Analysis (Corregida la indentación)
+      # -------------------
+      - name: Run Codacy Analysis Scan
+        uses: codacy/codacy-analysis-cli-action@v4
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          verbose: true
+          output: results.sarif
+          format: sarif
+
+      - name: Upload SARIF results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
