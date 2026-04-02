@@ -1,0 +1,52 @@
+name: CI - Code Quality
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # -------------------
+      # JAVA - CHECKSTYLE
+      # -------------------
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Run Checkstyle
+        run: |
+          cd backend
+          ./mvnw checkstyle:check
+
+      # -------------------
+      # NODE - ESLINT + PRETTIER
+      # -------------------
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install frontend deps
+        run: |
+          cd frontend
+          npm ci
+
+      - name: Run ESLint
+        run: |
+          cd frontend
+          npx eslint . --ext .ts,.tsx
+
+      - name: Check Prettier formatting
+        run: |
+          cd frontend
+          npx prettier --check .
