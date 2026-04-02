@@ -1,12 +1,13 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  plugins: [react()],
-  // @ts-ignore - Esto es para que TS no se queje si no encuentra la propiedad 'test'
+  plugins: [react() as any],
   test: {
-    globals: true,
     environment: 'jsdom',
-    setupFiles: './src/setupTests.ts',
+    globals: true,
+    setupFiles: ['./src/setupTests.ts'],
+    // Aseguramos que busque en la carpeta que creaste
+    include: ['src/**/*.{test,spec}.{ts,tsx}'], 
   },
-})
+});
