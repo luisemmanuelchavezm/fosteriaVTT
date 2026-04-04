@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -7,7 +7,7 @@
 :root {
   /* Seteamos Metal Mania como la fuente global */
   --font-metal: "Metal Mania", system-ui;
-  
+
   --sans: var(--font-metal);
   --heading: var(--font-metal);
   --mono: ui-monospace, Consolas, monospace;
@@ -22,7 +22,8 @@
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --shadow:
+    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
   /* Aplicación global de la fuente */
   font: 18px/145% var(--sans);
@@ -51,7 +52,8 @@
     --accent-bg: rgba(192, 132, 252, 0.15);
     --accent-border: rgba(192, 132, 252, 0.5);
     --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+    --shadow:
+      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
   }
 }
 
@@ -62,14 +64,15 @@ body {
 }
 
 #root {
-  width: 100%; 
+  width: 100%;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
 }
 
-h1, h2 {
+h1,
+h2 {
   font-family: var(--heading);
   font-weight: 400; /* Metal Mania suele verse mejor en weight normal */
   color: var(--text-h);
@@ -95,4 +98,6 @@ h2 {
   }
 }
 
-p { margin: 0; }
+p {
+  margin: 0;
+}
