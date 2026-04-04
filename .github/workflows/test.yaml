@@ -2,11 +2,11 @@ name: CI - Automated Testing
 
 on:
   push:
-    branches: 
+    branches:
       - "main"
-      - "feature/**" 
+      - "feature/**"
   pull_request:
-    branches: 
+    branches:
       - "main"
 
 # He comentado todos los jobs para que no fallen mientras desarrollas los tests.

@@ -1,5 +1,5 @@
 ---
 exclude_paths:
-  - '**/node_modules/**'
-  - '**/target/**'
-  - '.husky/**'
+  - "**/node_modules/**"
+  - "**/target/**"
+  - ".husky/**"

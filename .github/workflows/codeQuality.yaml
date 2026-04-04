@@ -2,11 +2,11 @@ name: CI - Code Quality
 
 on:
   push:
-    branches: 
+    branches:
       - "main"
-      - "feature/**" 
+      - "feature/**"
   pull_request:
-    branches: 
+    branches:
       - "main"
 
 jobs:
@@ -57,7 +57,7 @@ jobs:
           cd frontend
           npx prettier --check .
 
-      # ------------------- 
+      # -------------------
       # Codacy Analysis
       # -------------------
       - name: Run Codacy Analysis Scan
