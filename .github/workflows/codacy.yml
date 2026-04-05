@@ -2,18 +2,13 @@ name: Codacy Analysis And Coverage
 
 on:
   push:
-    branches:
-      - "main"
-      - "feature/*"
+    branches: ["main", "feature/*"]
   pull_request:
-    branches:
-      - "main"
+    branches: ["main"]
 
 jobs:
   codacy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,14 +27,6 @@ jobs:
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm ci
@@ -51,6 +38,12 @@ jobs:
       - name: Generate backend coverage
         working-directory: backend
         run: ./mvnw clean verify
+        env:
+          # Evita el fallo de ApplicationContext inyectando H2
+          SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+          SPRING_DATASOURCE_USERNAME: sa
+          SPRING_DATASOURCE_PASSWORD: 
 
       - name: Run Codacy Analysis Scan
         uses: codacy/codacy-analysis-cli-action@v4
@@ -58,7 +51,7 @@ jobs:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           verbose: true
 
-      - name: Upload frontend and backend coverage to Codacy
+      - name: Upload coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}

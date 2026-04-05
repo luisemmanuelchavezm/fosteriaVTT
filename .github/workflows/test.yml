@@ -2,19 +2,13 @@ name: CI - Automated Testing
 
 on:
   push:
-    branches:
-      - "main"
-      - "feature/*"
+    branches: ["main", "feature/*"]
   pull_request:
-    branches:
-      - "main"
+    branches: ["main"]
 
 jobs:
   backend-tests:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -26,24 +20,25 @@ jobs:
           java-version: "21"
           cache: "maven"
 
-      - name: Run backend tests with JaCoCo
+      - name: Run backend tests
+        working-directory: backend
         run: ./mvnw clean verify
+        env:
+          # Solución al error de JDBC URL
+          SPRING_DATASOURCE_URL: jdbc:h2:mem:testdb
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.h2.Driver
+          SPRING_DATASOURCE_USERNAME: sa
+          SPRING_DATASOURCE_PASSWORD: 
 
-      - name: Upload JaCoCo coverage artifacts
+      - name: Upload JaCoCo artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: backend-jacoco-report
-          path: |
-            backend/target/site/jacoco/
-            backend/target/jacoco.exec
-          retention-days: 7
+          path: backend/target/site/jacoco/
 
   frontend-unit-tests:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -56,24 +51,22 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
+        working-directory: frontend
         run: npm ci
 
-      - name: Run frontend unit and integration tests with coverage
+      - name: Run unit tests
+        working-directory: frontend
         run: npm run test:coverage -- --run
 
-      - name: Upload frontend coverage artifacts
+      - name: Upload frontend artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage-report
           path: frontend/coverage/
-          retention-days: 7
 
   e2e-tests:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -82,16 +75,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
+        working-directory: frontend
         run: npm ci
 
-      - name: Install Playwright browsers
+      - name: Install Playwright
+        working-directory: frontend
         run: npx playwright install --with-deps chromium
 
-      - name: Run Playwright tests
+      - name: Run E2E tests
+        working-directory: frontend
         run: npm run test:e2e -- src/tests/e2e/auth.spec.ts
 
       - name: Upload Playwright report
@@ -100,4 +94,3 @@ jobs:
         with:
           name: playwright-report
           path: frontend/playwright-report/
-          retention-days: 7
