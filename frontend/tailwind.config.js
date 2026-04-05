@@ -4,7 +4,6 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // Ahora puedes usar la clase 'font-metal'
         metal: ['"Metal Mania"', "system-ui"],
       },
     },
