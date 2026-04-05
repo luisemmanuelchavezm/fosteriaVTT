@@ -4,106 +4,100 @@ on:
   push:
     branches:
       - "main"
-      - 'feature/*'
+      - "feature/*"
   pull_request:
     branches:
       - "main"
 
-# He comentado todos los jobs para que no fallen mientras desarrollas los tests.
-# Para reactivarlos, simplemente borra el '#' de las líneas de abajo.
-
 jobs:
-#  # -------------------------------------------------------
-#  # JOB 1: BACKEND (JUnit 5, Mockito, JaCoCo)
-#  # -------------------------------------------------------
-#  backend-tests:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v4
-#
-#      - name: Set up Java 21
-#        uses: actions/setup-java@v4
-#        with:
-#          distribution: 'temurin'
-#          java-version: '21'
-#          cache: 'maven'
-#
-#      - name: Run JUnit Tests & JaCoCo Report
-#        run: |
-#          cd backend
-#          chmod +x mvnw
-#          ./mvnw clean verify
-#
-#      - name: Upload JaCoCo Coverage Report
-#        if: always()
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: jacoco-report
-#          path: backend/target/site/jacoco/
-#          retention-days: 7
-#
-#  # -------------------------------------------------------
-#  # JOB 2: FRONTEND (Vitest, React Testing Library)
-#  # -------------------------------------------------------
-#  frontend-unit-tests:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v4
-#
-#      - name: Set up Node 24
-#        uses: actions/setup-node@v4
-#        with:
-#          node-version: 24
-#          cache: 'npm'
-#          cache-dependency-path: frontend/package.json
-#
-#      - name: Install dependencies
-#        run: |
-#          cd frontend
-#          npm ci
-#
-#      - name: Run Vitest
-#        run: |
-#          cd frontend
-#          npm test -- --run
-#
-#  # -------------------------------------------------------
-#  # JOB 3: E2E (Playwright)
-#  # -------------------------------------------------------
-#  e2e-tests:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v4
-#
-#      - name: Set up Node 24
-#        uses: actions/setup-node@v4
-#        with:
-#          node-version: 24
-#          cache: 'npm'
-#          cache-dependency-path: frontend/package.json
-#
-#      - name: Install dependencies
-#        run: |
-#          cd frontend
-#          npm ci
-#
-#      - name: Install Playwright Browsers
-#        run: |
-#          cd frontend
-#          npx playwright install --with-deps
-#
-#      - name: Run Playwright Tests
-#        run: |
-#          cd frontend
-#          npx playwright test
-#
-#      - name: Upload Playwright Report
-#        if: failure()
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: playwright-report
-#          path: frontend/playwright-report/
-#          retention-days: 7
+  backend-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+          cache: "maven"
+
+      - name: Run backend tests with JaCoCo
+        run: ./mvnw clean verify
+
+      - name: Upload JaCoCo coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jacoco-report
+          path: |
+            backend/target/site/jacoco/
+            backend/target/jacoco.exec
+          retention-days: 7
+
+  frontend-unit-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run frontend unit and integration tests with coverage
+        run: npm run test:coverage -- --run
+
+      - name: Upload frontend coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage-report
+          path: frontend/coverage/
+          retention-days: 7
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        run: npm run test:e2e -- src/tests/e2e/auth.spec.ts
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend/playwright-report/
+          retention-days: 7
