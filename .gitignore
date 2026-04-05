@@ -2,3 +2,13 @@ node_modules/
 dist/
 .env
 target/
+coverage/
+lcov.info
+lcov-report/
+frontend/coverage/
+
+backend/target/
+playwright-report/
+frontend/playwright-report/
+test-results/
+frontend/test-results/

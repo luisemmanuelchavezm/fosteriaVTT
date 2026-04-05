@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Testing and coverage
+coverage/
+lcov.info
+lcov-report/
+playwright-report/
+test-results/
