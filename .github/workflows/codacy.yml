@@ -2,9 +2,12 @@ name: Codacy Security Analysis
 
 on:
   push:
-    branches: ["main", "feature/**"]
+    branches:
+      - "main"
+      - "feature/**"
   pull_request:
-    branches: ["main"]
+    branches:
+      - "main"
 
 jobs:
   codacy:

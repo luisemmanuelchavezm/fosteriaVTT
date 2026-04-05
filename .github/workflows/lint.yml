@@ -1,0 +1,46 @@
+name: Lint & Style Check
+
+on:
+  push:
+    branches:
+      - "main"
+      - "feature/**"
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # --- JAVA STYLE ---
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Run Checkstyle
+        run: |
+          cd backend
+          chmod +x mvnw
+          ./mvnw checkstyle:check
+
+      # --- NODE STYLE ---
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install & Lint Frontend
+        run: |
+          cd frontend
+          npm ci
+          npx eslint . --ext .ts,.tsx
+          npx prettier --check .
