@@ -15,10 +15,18 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
+    private final String secret;
+    private final long expiration;
 
-    private String secret = "NDk0YjE4YmI3ZTM1ZGJhM2Y4ZTM1YmY2ZGM5YTEyMzQ1Njc4OWFiY2RlZmAxMjM0NTY3ODlhYmNkZWY=";
-
-    private long expiration = 86400000;
+    public JwtUtil(
+            @Value("${app.jwt.secret}")
+            String secret,
+            @Value("${app.jwt.expiration}")
+            long expiration
+    ) {
+        this.secret = secret;
+        this.expiration = expiration;
+    }
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
