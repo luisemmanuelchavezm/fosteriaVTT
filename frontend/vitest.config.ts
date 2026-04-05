@@ -8,10 +8,15 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: "src/setupTests.ts",
-    // Patrón ultra-específico para que NO diga "No tests found"
     include: [
       "src/tests/**/*.{test,spec}.{ts,tsx}",
       "src/**/*.{test,spec}.{ts,tsx}",
     ],
+    exclude: ["src/tests/e2e/**"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "lcov", "cobertura"],
+      reportsDirectory: "coverage",
+    },
   },
 });
