@@ -28,6 +28,7 @@ public class Usuario {
     @Column(nullable = false)
     private String password;
 
+    @Builder.Default
     @Column
     private String avatar = "https://res.cloudinary.com/doxqtmi46/image/upload/w_400,h_400,c_fill,g_auto,f_auto/v1775176044/Dame_el_personaje_202604030019_jop3pc.jpg";
     
@@ -35,6 +36,7 @@ public class Usuario {
     @Builder.Default
     private List<Campaña> campañasParticipadas = new ArrayList<>();
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Rol role = Rol.USER;
