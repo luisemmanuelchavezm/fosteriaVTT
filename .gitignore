@@ -1,4 +1,33 @@
+# --- Dependencias y Build ---
 node_modules/
+**/node_modules/
 dist/
-.env
+**/dist/
 target/
+**/target/
+
+# --- Variables de Entorno (¡Seguridad!) ---
+.env
+.env.*
+!.env.example
+
+# --- Testing & Coverage (Frontend & Backend) ---
+coverage/
+**/coverage/
+lcov.info
+lcov-report/
+**/jacoco.exec
+**/site/jacoco/
+
+# --- Playwright (E2E) ---
+playwright-report/
+**/playwright-report/
+test-results/
+**/test-results/
+test-results-snapshots/
+
+# --- Herramientas e IDEs ---
+.vscode/
+.idea/
+.DS_Store
+.husky/_
