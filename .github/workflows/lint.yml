@@ -3,11 +3,11 @@ name: Lint & Style Check
 on:
   push:
     branches:
-      - "main"
-      - "**"
+      - 'main'
+      - 'feature/*'
   pull_request:
     branches:
-      - "main"
+      - 'main'
 
 jobs:
   lint:

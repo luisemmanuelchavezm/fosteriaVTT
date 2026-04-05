@@ -3,11 +3,11 @@ name: Codacy Security Analysis
 on:
   push:
     branches:
-      - "main"
-      - "feature/**"
+      - 'main'
+      - 'feature/*'
   pull_request:
     branches:
-      - "main"
+      - 'main'
 
 jobs:
   codacy:
