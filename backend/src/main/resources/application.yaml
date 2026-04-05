@@ -27,4 +27,4 @@ app:
     expiration: ${JWT_EXPIRATION:}
 
 server:
-  port: 8080
+  port: ${PORT:8080}
