@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import { buildApiUrl } from "../lib/api";
 
 interface FormState {
   username: string;
@@ -45,8 +46,9 @@ export default function AuthPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const endpoint =
-      mode === "register" ? "/api/auth/register" : "/api/auth/login";
+    const endpoint = buildApiUrl(
+      mode === "register" ? "/api/auth/register" : "/api/auth/login",
+    );
     const body =
       mode === "register"
         ? {

@@ -9,6 +9,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import LoginScreen from "../../../screens/LoginScreen";
+import { buildApiUrl } from "../../../lib/api";
 
 vi.mock("../../../components/LogoLayout", () => ({
   default: ({ children }: { children: React.ReactNode }) => (
@@ -87,7 +88,7 @@ describe("LoginScreen", () => {
     fireEvent.click(screen.getByRole("button", { name: "Entrar" }));
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith("/api/auth/login", {
+      expect(fetch).toHaveBeenCalledWith(buildApiUrl("/api/auth/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: "daria", password: "12345678" }),
