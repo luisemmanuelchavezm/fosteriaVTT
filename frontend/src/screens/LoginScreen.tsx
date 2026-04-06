@@ -4,6 +4,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card } from "../components/ui/card";
 import LogoLayout from "../components/LogoLayout";
+import { buildApiUrl } from "../lib/api";
 
 interface FormState {
   username: string;
@@ -38,7 +39,7 @@ export default function LoginScreen({
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch(buildApiUrl("/api/auth/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

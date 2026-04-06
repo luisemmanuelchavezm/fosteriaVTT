@@ -5,6 +5,7 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card } from "../components/ui/card";
 import LogoLayout from "../components/LogoLayout";
+import { buildApiUrl } from "../lib/api";
 
 interface FormState {
   username: string;
@@ -84,7 +85,7 @@ export default function RegisterScreen({
 
     setIsLoading(true);
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch(buildApiUrl("/api/auth/register"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
