@@ -3,8 +3,6 @@ name: CI - Automated Testing
 on:
   push:
     branches: ["main", "feature/*"]
-  pull_request:
-    branches: ["main"]
 
 jobs:
   backend-tests:
