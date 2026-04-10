@@ -1,0 +1,49 @@
+name: Deploy To Render
+
+on:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify tag belongs to main
+        id: verify-main
+        shell: bash
+        run: |
+          git fetch origin main --depth=1
+
+          if git branch -r --contains "$GITHUB_SHA" | grep -q "origin/main"; then
+            echo "is_main=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_main=false" >> "$GITHUB_OUTPUT"
+            echo "The pushed tag does not point to a commit contained in origin/main."
+          fi
+
+      - name: Trigger Render deploy
+        if: steps.verify-main.outputs.is_main == 'true'
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        shell: bash
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "Missing RENDER_DEPLOY_HOOK_URL secret"
+            exit 1
+          fi
+
+          curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
+
+      - name: Skip deploy
+        if: steps.verify-main.outputs.is_main != 'true'
+        run: echo "Skipping Render deploy because the tag is not based on main."
