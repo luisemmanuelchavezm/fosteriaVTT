@@ -28,7 +28,19 @@ test("permite iniciar sesión y llegar a home", async ({ page }) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify({ token: "jwt-token", username: "daria" }),
+      body: JSON.stringify({
+        token: "jwt-token",
+        username: "daria",
+        avatar: "",
+      }),
+    });
+  });
+
+  await page.route("**/api/campanas/ultimas", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([]),
     });
   });
 
@@ -37,11 +49,15 @@ test("permite iniciar sesión y llegar a home", async ({ page }) => {
   await page.getByPlaceholder("Tu contraseña").fill("12345678");
   await page.getByRole("button", { name: "Entrar" }).click();
 
-  await expect(page.getByText("¡Bienvenido daria!")).toBeVisible();
-  await expect(page.getByText("¡Bienvenido a FosteriaVTT!")).toBeVisible({
-    timeout: 2000,
+  await expect(
+    page.getByRole("heading", { name: "Crea una campaña" }),
+  ).toBeVisible({
+    timeout: 4000,
   });
   await expect(
-    page.getByText("Hola daria, estás logueado correctamente."),
+    page.getByRole("heading", { name: "Últimas partidas" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Abrir menu de usuario" }),
   ).toBeVisible();
 });
