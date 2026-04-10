@@ -1,8 +1,13 @@
 package com.fosteriaVTT.fosteriaVTT_backend.Personaje;
 
+import com.fosteriaVTT.fosteriaVTT_backend.common.SistemaDeJuego;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.PagedResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PersonajeResumenResponse;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,8 +24,28 @@ public class PersonajeService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<PersonajeResumenResponse> obtenerPersonajesOrdenadosPorUso(String username) {
-		return personajeRepository.findByUsuarioUsernameOrderByUsadoDesc(username).stream()
+	public PagedResponse<PersonajeResumenResponse> obtenerPersonajesOrdenadosPorUso(
+			String username,
+			String nombre,
+			List<String> sistemas,
+			int page,
+			int size
+	) {
+		String nombreNormalizado = normalizarFiltro(nombre);
+		List<SistemaDeJuego> sistemasNormalizados = sistemas == null ? List.of() : sistemas.stream()
+				.map(SistemaDeJuego::fromValue)
+				.flatMap(java.util.Optional::stream)
+				.toList();
+		Page<Personaje> resultPage = personajeRepository.buscarPorFiltros(
+				username,
+				nombreNormalizado,
+				sistemasNormalizados,
+				sistemasNormalizados.isEmpty(),
+				PageRequest.of(Math.max(page, 0), Math.max(size, 1))
+		);
+
+		return new PagedResponse<>(
+				resultPage.getContent().stream()
 				.map(personaje -> new PersonajeResumenResponse(
 						personaje.getId(),
 						personaje.getNombre(),
@@ -28,7 +53,9 @@ public class PersonajeService {
 						personaje.getSistemaDeJuego().getDisplayName(),
 						personaje.getUsado()
 				))
-				.toList();
+				.toList(),
+				resultPage.hasNext()
+		);
 	}
 
 	@Transactional
@@ -38,5 +65,9 @@ public class PersonajeService {
 
 		personaje.setUsado(LocalDateTime.now());
 		personajeRepository.save(personaje);
+	}
+
+	private String normalizarFiltro(String valor) {
+		return valor == null ? "" : valor.trim().toLowerCase(Locale.ROOT);
 	}
 }

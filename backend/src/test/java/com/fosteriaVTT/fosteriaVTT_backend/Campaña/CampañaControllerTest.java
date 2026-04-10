@@ -1,6 +1,7 @@
 package com.fosteriaVTT.fosteriaVTT_backend.Campaña;
 
 import com.fosteriaVTT.fosteriaVTT_backend.dto.CampañaResumenResponse;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.PagedResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,44 +89,63 @@ class CampañaControllerTest {
                 .andExpect(jsonPath("$[0].nombre").value("Crónicas de la Bruma"))
                 .andExpect(jsonPath("$[1].sistemaDeJuego").value("Call Of Cthulhu"))
                 .andExpect(jsonPath("$[0].dmUsername").value("dmuno"));
-            }
+    }
 
-            @Test
-            void obtieneLasCampañasOrdenadasPorUltimoAccesoDelUsuarioAutenticado() {
-            List<CampañaResumenResponse> campañas = List.of(
+    @Test
+    void obtieneLasCampañasOrdenadasPorUltimoAccesoDelUsuarioAutenticado() {
+        List<CampañaResumenResponse> campañas = List.of(
                 new CampañaResumenResponse(1L, "Crónicas de la Bruma", "https://img.test/1", "Dungeons and Dragons", "dmuno", ULTIMO_ACCESO),
                 new CampañaResumenResponse(2L, "La llamada", "https://img.test/2", "Call Of Cthulhu", "dmdos", ULTIMO_ACCESO.minusDays(1))
-            );
-            TestingAuthenticationToken authentication =
+        );
+        PagedResponse<CampañaResumenResponse> pagedResponse = new PagedResponse<>(campañas, true);
+        TestingAuthenticationToken authentication =
                 new TestingAuthenticationToken("daria", null);
-            authentication.setAuthenticated(true);
+        authentication.setAuthenticated(true);
 
-            when(campañaService.obtenerCampañasOrdenadasPorUltimoAcceso("daria")).thenReturn(campañas);
+        when(campañaService.obtenerCampañasOrdenadasPorUltimoAcceso("daria", null, null, null, 0, 15))
+                .thenReturn(pagedResponse);
 
-            List<CampañaResumenResponse> response = campañaController.obtenerCampañas(authentication);
+        PagedResponse<CampañaResumenResponse> response = campañaController.obtenerCampañas(authentication, null, null, null, 0, 15);
 
-            assertEquals(campañas, response);
-            verify(campañaService).obtenerCampañasOrdenadasPorUltimoAcceso("daria");
-            }
+        assertEquals(pagedResponse, response);
+        verify(campañaService).obtenerCampañasOrdenadasPorUltimoAcceso("daria", null, null, null, 0, 15);
+    }
 
-            @Test
-            void endpointDevuelveLasCampañasOrdenadasPorUltimoAcceso() throws Exception {
-            List<CampañaResumenResponse> campañas = List.of(
+    @Test
+    void endpointDevuelveLasCampañasOrdenadasPorUltimoAcceso() throws Exception {
+        List<CampañaResumenResponse> campañas = List.of(
                 new CampañaResumenResponse(1L, "Crónicas de la Bruma", "https://img.test/1", "Dungeons and Dragons", "dmuno", ULTIMO_ACCESO),
                 new CampañaResumenResponse(2L, "La llamada", "https://img.test/2", "Call Of Cthulhu", "dmdos", ULTIMO_ACCESO.minusDays(1))
-            );
-            TestingAuthenticationToken authentication =
+        );
+        PagedResponse<CampañaResumenResponse> pagedResponse = new PagedResponse<>(campañas, true);
+        TestingAuthenticationToken authentication =
                 new TestingAuthenticationToken("daria", null);
-            authentication.setAuthenticated(true);
+        authentication.setAuthenticated(true);
 
-            when(campañaService.obtenerCampañasOrdenadasPorUltimoAcceso("daria")).thenReturn(campañas);
+        when(campañaService.obtenerCampañasOrdenadasPorUltimoAcceso("daria", "cron", List.of("Dungeons and Dragons"), "dmu", 1, 15))
+                .thenReturn(pagedResponse);
 
-            mockMvc.perform(get("/api/campanas")
+        mockMvc.perform(get("/api/campanas")
+                .param("nombre", "cron")
+                .param("sistemas", "Dungeons and Dragons")
+                .param("dm", "dmu")
+                .param("page", "1")
+                .param("size", "15")
                 .principal(authentication)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].nombre").value("Crónicas de la Bruma"))
-                .andExpect(jsonPath("$[0].ultimaVezAccedido").exists())
-                .andExpect(jsonPath("$[1].sistemaDeJuego").value("Call Of Cthulhu"));
+                .andExpect(jsonPath("$.items[0].nombre").value("Crónicas de la Bruma"))
+                .andExpect(jsonPath("$.items[0].ultimaVezAccedido").exists())
+                .andExpect(jsonPath("$.items[1].sistemaDeJuego").value("Call Of Cthulhu"))
+                .andExpect(jsonPath("$.hasMore").value(true));
+
+        verify(campañaService).obtenerCampañasOrdenadasPorUltimoAcceso(
+                "daria",
+                "cron",
+                List.of("Dungeons and Dragons"),
+                "dmu",
+                1,
+                15
+        );
     }
 }
