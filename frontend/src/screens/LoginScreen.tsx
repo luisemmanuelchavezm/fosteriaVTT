@@ -12,13 +12,15 @@ interface FormState {
 }
 
 interface LoginScreenProps {
-  onLoginSuccess: (token: string, username: string) => void;
+  onLoginSuccess: (token: string, username: string, avatarUrl: string) => void;
   onSwitchToRegister: () => void;
+  onGoHome?: () => void;
 }
 
 export default function LoginScreen({
   onLoginSuccess,
   onSwitchToRegister,
+  onGoHome,
 }: LoginScreenProps) {
   const [form, setForm] = useState<FormState>({ username: "", password: "" });
   const [message, setMessage] = useState<string>("");
@@ -55,9 +57,10 @@ export default function LoginScreen({
       }
 
       localStorage.setItem("jwtToken", data.token);
+      localStorage.setItem("avatar", data.avatar);
       setMessage(`¡Bienvenido ${data.username ?? form.username}!`);
       setTimeout(() => {
-        onLoginSuccess(data.token, data.username ?? form.username);
+        onLoginSuccess(data.token, data.username ?? form.username, data.avatar);
       }, 1000);
       setForm({ username: "", password: "" });
     } catch (error) {
@@ -68,7 +71,7 @@ export default function LoginScreen({
   };
 
   return (
-    <LogoLayout>
+    <LogoLayout onLogoClick={onGoHome}>
       {/* Contenedor del formulario */}
       <div className="relative z-10 w-full max-w-3xl mt-16">
         <Card className="border-none shadow-2xl overflow-hidden bg-transparent">

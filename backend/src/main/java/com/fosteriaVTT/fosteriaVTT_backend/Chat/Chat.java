@@ -1,7 +1,6 @@
 package com.fosteriaVTT.fosteriaVTT_backend.Chat;
 
-import com.fosteriaVTT.fosteriaVTT_backend.Campaña.Campaña;
-import com.fosteriaVTT.fosteriaVTT_backend.Usuario.Usuario;
+import com.fosteriaVTT.fosteriaVTT_backend.Jugador.Jugador;
 import com.fosteriaVTT.fosteriaVTT_backend.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,10 +25,6 @@ public class Chat extends BaseEntity {
     private String mensaje;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "campaña_id", nullable = false)
-    private Campaña campaña;
+    @JoinColumn(name = "jugador_id", nullable = false)
+    private Jugador jugador;
 }

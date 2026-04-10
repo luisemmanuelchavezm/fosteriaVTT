@@ -99,7 +99,11 @@ describe("LoginScreen", () => {
 
     await waitFor(
       () => {
-        expect(onLoginSuccess).toHaveBeenCalledWith("jwt-token", "daria");
+        expect(onLoginSuccess).toHaveBeenCalledWith(
+          "jwt-token",
+          "daria",
+          undefined,
+        );
       },
       { timeout: 1500 },
     );

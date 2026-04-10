@@ -21,7 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 public class SecurityConfig {
 
-    private final CustomUserDetailsService userDetailsService;
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final String[] allowedOrigins;
 
@@ -30,7 +30,6 @@ public class SecurityConfig {
         JwtAuthenticationFilter jwtAuthenticationFilter,
         @Value("${app.cors.allowed-origins:}") String allowedOrigins
     ) {
-        this.userDetailsService = userDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.allowedOrigins = Arrays.stream(allowedOrigins.split(","))
             .map(String::trim)

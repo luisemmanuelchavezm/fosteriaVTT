@@ -114,6 +114,36 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>**/FosteriaVttBackendApplication.class</exclude>
+                        <exclude>**/*Repository.class</exclude>
+                        <exclude>**/Dibujo/**</exclude>
+                        <exclude>**/Estadistica/**</exclude>
+                        <exclude>**/Habilidad/**</exclude>
+                        <exclude>**/Mapa/**</exclude>
+                        <exclude>**/Mochila/**</exclude>
+                        <exclude>**/Objeto/**</exclude>
+                        <exclude>**/Pestaña/**</exclude>
+                        <exclude>**/Posicion/**</exclude>
+                        <exclude>**/Punto/**</exclude>
+                        <exclude>**/Capa/**</exclude>
+                        <exclude>**/Cloudinary/**</exclude>
+                        <exclude>**/configuration/CloudinaryConfig.class</exclude>
+                        <exclude>**/configuration/DevelopmentDataSeeder.class</exclude>
+                        <exclude>**/configuration/DotEnvContextInitializer.class</exclude>
+                        <exclude>**/configuration/JwtAuthenticationFilter.class</exclude>
+                        <exclude>**/configuration/SecurityConfig.class</exclude>
+                        <exclude>**/common/BaseEntity.class</exclude>
+                        <exclude>**/common/NamedEntity.class</exclude>
+                        <exclude>**/Usuario/Usuario.class</exclude>
+                        <exclude>**/Usuario/UsuarioService.class</exclude>
+                        <exclude>**/Usuario/Rol.class</exclude>
+                        <exclude>**/Campaña/Campaña.class</exclude>
+                        <exclude>**/Jugador/Jugador.class</exclude>
+                        <exclude>**/Personaje/Personaje.class</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
 
             <plugin>

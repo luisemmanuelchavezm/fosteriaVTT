@@ -3,20 +3,57 @@ import "./App.css";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import HomeScreen from "./screens/HomeScreen";
+import CharactersScreen from "./screens/CharactersScreen";
+import CampaignsScreen from "./screens/CampaignsScreen.tsx";
 
-type AuthMode = "login" | "register" | "home";
+type AuthMode = "login" | "register" | "home" | "campaigns" | "characters";
 
 function App() {
   const storedToken = localStorage.getItem("jwtToken");
   const storedUsername = localStorage.getItem("username") || "Usuario";
+  const storedAvatar = localStorage.getItem("avatar") || "";
   const [token, setToken] = useState<string | null>(storedToken);
   const [username, setUsername] = useState<string>(storedUsername);
+  const [avatarUrl, setAvatarUrl] = useState<string>(storedAvatar);
   const [mode, setMode] = useState<AuthMode>(storedToken ? "home" : "login");
 
-  const handleLoginSuccess = (newToken: string, user: string) => {
+  const handleGoHome = () => {
+    if (token) {
+      setMode("home");
+      return;
+    }
+
+    setMode("login");
+  };
+
+  const handleGoCharacters = () => {
+    if (token) {
+      setMode("characters");
+      return;
+    }
+
+    setMode("login");
+  };
+
+  const handleGoCampaigns = () => {
+    if (token) {
+      setMode("campaigns");
+      return;
+    }
+
+    setMode("login");
+  };
+
+  const handleLoginSuccess = (
+    newToken: string,
+    user: string,
+    newAvatarUrl: string,
+  ) => {
     setToken(newToken);
     setUsername(user);
+    setAvatarUrl(newAvatarUrl);
     localStorage.setItem("username", user);
+    localStorage.setItem("avatar", newAvatarUrl);
     setMode("home");
   };
 
@@ -26,9 +63,11 @@ function App() {
 
   const handleLogout = () => {
     setToken(null);
-    setUsername("");
+    setUsername("Usuario");
+    setAvatarUrl("");
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("username");
+    localStorage.removeItem("avatar");
     setMode("login");
   };
 
@@ -38,16 +77,45 @@ function App() {
         <LoginScreen
           onLoginSuccess={handleLoginSuccess}
           onSwitchToRegister={() => setMode("register")}
+          onGoHome={handleGoHome}
         />
       )}
       {mode === "register" && (
         <RegisterScreen
           onRegisterSuccess={handleRegisterSuccess}
           onSwitchToLogin={() => setMode("login")}
+          onGoHome={handleGoHome}
         />
       )}
       {mode === "home" && token && (
-        <HomeScreen username={username} onLogout={handleLogout} />
+        <HomeScreen
+          username={username}
+          avatarUrl={avatarUrl}
+          onLogout={handleLogout}
+          onGoHome={handleGoHome}
+          onGoCampaigns={handleGoCampaigns}
+          onGoCharacters={handleGoCharacters}
+        />
+      )}
+      {mode === "campaigns" && token && (
+        <CampaignsScreen
+          username={username}
+          avatarUrl={avatarUrl}
+          onLogout={handleLogout}
+          onGoHome={handleGoHome}
+          onGoCampaigns={handleGoCampaigns}
+          onGoCharacters={handleGoCharacters}
+        />
+      )}
+      {mode === "characters" && token && (
+        <CharactersScreen
+          username={username}
+          avatarUrl={avatarUrl}
+          onLogout={handleLogout}
+          onGoHome={handleGoHome}
+          onGoCampaigns={handleGoCampaigns}
+          onGoCharacters={handleGoCharacters}
+        />
       )}
     </>
   );

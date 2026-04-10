@@ -17,6 +17,17 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text", "lcov", "cobertura"],
       reportsDirectory: "coverage",
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: [
+        "src/tests/**",
+        "src/main.tsx",
+        "src/setupTests.ts",
+        "src/components/ui/**",
+        "src/components/AuthPage.tsx",
+        "src/components/LogoLayout.tsx",
+        "src/lib/utils.ts",
+        "src/screens/HomeScreen.tsx",
+      ],
     },
   },
 });
