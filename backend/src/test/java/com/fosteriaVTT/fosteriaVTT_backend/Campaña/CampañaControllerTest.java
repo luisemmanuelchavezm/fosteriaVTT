@@ -111,6 +111,17 @@ class CampañaControllerTest {
         verify(campañaService).obtenerCampañasOrdenadasPorUltimoAcceso("daria", null, null, null, 0, 15);
     }
 
+        @Test
+        void lanzaUnauthorizedSiNoHayAutenticacionEnCampañasPaginadas() {
+                ResponseStatusException exception = assertThrows(
+                                ResponseStatusException.class,
+                                () -> campañaController.obtenerCampañas(null, null, null, null, 0, 15)
+                );
+
+                assertEquals(401, exception.getStatusCode().value());
+                assertEquals("Usuario no autenticado", exception.getReason());
+        }
+
     @Test
     void endpointDevuelveLasCampañasOrdenadasPorUltimoAcceso() throws Exception {
         List<CampañaResumenResponse> campañas = List.of(
