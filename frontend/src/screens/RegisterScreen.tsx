@@ -22,11 +22,13 @@ interface FormErrors {
 interface RegisterScreenProps {
   onRegisterSuccess: () => void;
   onSwitchToLogin: () => void;
+  onGoHome?: () => void;
 }
 
 export default function RegisterScreen({
   onRegisterSuccess,
   onSwitchToLogin,
+  onGoHome,
 }: RegisterScreenProps) {
   const [form, setForm] = useState<FormState>({
     username: "",
@@ -129,7 +131,7 @@ export default function RegisterScreen({
         backgroundAttachment: "fixed",
       }}
     >
-      <LogoLayout>
+      <LogoLayout onLogoClick={onGoHome}>
         <div className="relative z-10 w-full max-w-md mt-16 mx-4">
           <Card className="border-none shadow-2xl overflow-hidden bg-transparent">
             <div
