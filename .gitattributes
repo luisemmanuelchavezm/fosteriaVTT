@@ -1,0 +1,24 @@
+* text=auto
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+*.java text eol=crlf
+*.xml text eol=crlf
+*.yml text eol=crlf
+*.yaml text eol=crlf
+*.properties text eol=crlf
+*.md text eol=crlf
+*.txt text eol=crlf
+*.json text eol=crlf
+*.ts text eol=crlf
+*.tsx text eol=crlf
+*.js text eol=crlf
+*.jsx text eol=crlf
+*.css text eol=crlf
+*.scss text eol=crlf
+*.html text eol=crlf
+
+/backend/mvnw text eol=lf
+/backend/Dockerfile text eol=lf
