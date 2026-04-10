@@ -1,15 +1,8 @@
 package com.fosteriaVTT.fosteriaVTT_backend.Habilidad;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.fosteriaVTT.fosteriaVTT_backend.Personaje.Personaje;
 import com.fosteriaVTT.fosteriaVTT_backend.common.NamedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,13 +26,4 @@ public class Habilidad extends NamedEntity {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String descripcion;
-
-    @ManyToMany
-    @JoinTable(
-        name = "personaje_habilidad",
-        joinColumns = @JoinColumn(name = "habilidad_id"),
-        inverseJoinColumns = @JoinColumn(name = "personaje_id")
-    )
-    @Builder.Default
-    private List<Personaje> personajes = new ArrayList<>();
 }

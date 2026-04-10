@@ -3,9 +3,6 @@ package com.fosteriaVTT.fosteriaVTT_backend.Campaña;
 import com.fosteriaVTT.fosteriaVTT_backend.common.NamedEntity;
 import com.fosteriaVTT.fosteriaVTT_backend.common.SistemaDeJuego;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fosteriaVTT.fosteriaVTT_backend.Usuario.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,15 +15,6 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class Campaña extends NamedEntity {
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "usuario_campaña",
-        joinColumns = @JoinColumn(name = "campaña_id"), 
-        inverseJoinColumns = @JoinColumn(name = "usuario_id")
-    )
-    @Builder.Default 
-    private List<Usuario> jugadores = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

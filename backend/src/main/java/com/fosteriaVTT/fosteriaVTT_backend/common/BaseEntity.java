@@ -1,5 +1,7 @@
 package com.fosteriaVTT.fosteriaVTT_backend.common;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -23,4 +25,17 @@ public abstract class BaseEntity {
     // Le decimos al ID que use ese generador
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "fosteria_gen")
     private Long id;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }
