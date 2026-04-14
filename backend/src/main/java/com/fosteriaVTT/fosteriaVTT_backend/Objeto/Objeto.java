@@ -19,6 +19,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Objeto extends NamedEntity {
 
+    @Column(length = 500)
+    private String indice;
+
     private String formula;
 
     @Column(length = 500)

@@ -1,0 +1,447 @@
+{
+  "clases": [
+    {
+      "id": "barbaro",
+      "nombre": "Barbaro",
+      "insignia": "Ba",
+      "descripcion": "Guerrero feroz que sobrevive gracias a su rabia, su aguante y su fuerza bruta.",
+      "puntosGolpe": {
+        "dadoGolpe": "1d12 por nivel de barbaro",
+        "primerNivel": "12 + tu modificador de Constitucion",
+        "nivelesSuperiores": "1d12 (o 7) + tu modificador de Constitucion por cada nivel despues del primero"
+      },
+      "competencias": {
+        "armaduras": ["Armaduras ligeras", "Armaduras medias", "Escudos"],
+        "armas": ["Armas simples", "Armas marciales"],
+        "herramientas": [],
+        "salvaciones": ["Fuerza", "Constitucion"],
+        "habilidades": ["Elige dos entre Trato con Animales, Atletismo, Intimidacion, Naturaleza, Percepcion y Supervivencia"]
+      },
+      "equipamiento": {
+        "fijos": [
+          { "id": "barbaro-pack", "etiqueta": "Pack de explorador", "cantidad": 1, "objeto": { "nombre": "Pack de explorador" } },
+          { "id": "barbaro-jabalina", "etiqueta": "Jabalina", "cantidad": 4, "objeto": { "nombre": "Jabalina" } }
+        ],
+        "gruposEleccion": [
+          {
+            "id": "barbaro-arma-principal",
+            "etiqueta": "Arma principal",
+            "opciones": [
+              { "id": "barbaro-gran-hacha", "etiqueta": "Gran hacha", "cantidad": 1, "objeto": { "nombre": "Gran hacha" } },
+              { "id": "barbaro-arma-marcial", "etiqueta": "Cualquier arma marcial cuerpo a cuerpo", "cantidad": 1, "catalogo": "AMCuerpo" }
+            ]
+          },
+          {
+            "id": "barbaro-armamento-secundario",
+            "etiqueta": "Armamento secundario",
+            "opciones": [
+              { "id": "barbaro-dos-hachas", "etiqueta": "Dos hachas de mano", "cantidad": 2, "objeto": { "nombre": "Hacha de mano" } },
+              { "id": "barbaro-arma-simple", "etiqueta": "Cualquier arma simple", "cantidad": 1, "catalogo": "ASimple" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bardo",
+      "nombre": "Bardo",
+      "insignia": "Bd",
+      "descripcion": "Artista y mago de apoyo que mezcla inspiracion, ingenio y magia versatil.",
+      "puntosGolpe": { "dadoGolpe": "1d8 por nivel de bardo", "primerNivel": "8 + tu modificador de Constitucion", "nivelesSuperiores": "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero" },
+      "competencias": { "armaduras": ["Armaduras ligeras"], "armas": ["Armas simples", "Ballestas de mano", "Espadas cortas", "Espadas largas", "Rapiers"], "herramientas": ["Tres instrumentos musicales a eleccion"], "salvaciones": ["Destreza", "Carisma"], "habilidades": ["Elige tres habilidades cualesquiera"] },
+      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+    },
+    {
+      "id": "clerigo",
+      "nombre": "Clerigo",
+      "insignia": "Cl",
+      "descripcion": "Canaliza poder divino para proteger, sanar o castigar segun el dominio de su fe.",
+      "puntosGolpe": { "dadoGolpe": "1d8 por nivel de clerigo", "primerNivel": "8 + tu modificador de Constitucion", "nivelesSuperiores": "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero" },
+      "competencias": { "armaduras": ["Armaduras ligeras", "Armaduras medias", "Escudos"], "armas": ["Armas simples"], "herramientas": [], "salvaciones": ["Sabiduria", "Carisma"], "habilidades": ["Elige dos entre Historia, Perspicacia, Medicina, Persuasion y Religion"] },
+      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+    },
+    {
+      "id": "druida",
+      "nombre": "Druida",
+      "insignia": "Dr",
+      "descripcion": "Guardian de la naturaleza que usa magia primigenia y asume formas animales.",
+      "puntosGolpe": { "dadoGolpe": "1d8 por nivel de druida", "primerNivel": "8 + tu modificador de Constitucion", "nivelesSuperiores": "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero" },
+      "competencias": { "armaduras": ["Armaduras ligeras", "Armaduras medias", "Escudos (sin metal)"], "armas": ["Bastones", "Dagas", "Dardos", "Hondas", "Jabalinas", "Lanzas", "Mazas", "Cimitarras", "Hoces"], "herramientas": ["Kit de herborista"], "salvaciones": ["Inteligencia", "Sabiduria"], "habilidades": ["Elige dos entre Arcano, Trato con Animales, Perspicacia, Medicina, Naturaleza, Percepcion, Religion y Supervivencia"] },
+      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+    },
+    {
+      "id": "guerrero",
+      "nombre": "Guerrero",
+      "insignia": "Gu",
+      "descripcion": "Especialista marcial flexible que domina casi cualquier estilo de combate.",
+      "puntosGolpe": { "dadoGolpe": "1d10 por nivel de guerrero", "primerNivel": "10 + tu modificador de Constitucion", "nivelesSuperiores": "1d10 (o 6) + tu modificador de Constitucion por cada nivel despues del primero" },
+      "competencias": { "armaduras": ["Todas las armaduras", "Escudos"], "armas": ["Armas simples", "Armas marciales"], "herramientas": [], "salvaciones": ["Fuerza", "Constitucion"], "habilidades": ["Elige dos entre Acrobacias, Atletismo, Historia, Perspicacia, Intimidacion, Percepcion, Supervivencia y Trato con Animales"] },
+      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+    },
+    {
+      "id": "monje",
+      "nombre": "Monje",
+      "insignia": "Mo",
+      "descripcion": "Combatiente agil que canaliza ki para moverse, resistir y golpear con precision.",
+      "puntosGolpe": { "dadoGolpe": "1d8 por nivel de monje", "primerNivel": "8 + tu modificador de Constitucion", "nivelesSuperiores": "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero" },
+      "competencias": { "armaduras": [], "armas": ["Armas simples", "Espadas cortas"], "herramientas": ["Una herramienta de artesano o un instrumento musical a eleccion"], "salvaciones": ["Fuerza", "Destreza"], "habilidades": ["Elige dos entre Acrobacias, Atletismo, Historia, Perspicacia, Religion y Sigilo"] },
+      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+    },
+    {
+      "id": "paladin",
+      "nombre": "Paladin",
+      "insignia": "Pa",
+      "descripcion": "Campeon sagrado que combina resistencia marcial, auras y castigos divinos.",
+      "puntosGolpe": { "dadoGolpe": "1d10 por nivel de paladin", "primerNivel": "10 + tu modificador de Constitucion", "nivelesSuperiores": "1d10 (o 6) + tu modificador de Constitucion por cada nivel despues del primero" },
+      "competencias": { "armaduras": ["Todas las armaduras", "Escudos"], "armas": ["Armas simples", "Armas marciales"], "herramientas": [], "salvaciones": ["Sabiduria", "Carisma"], "habilidades": ["Elige dos entre Atletismo, Perspicacia, Intimidacion, Medicina, Persuasion y Religion"] },
+      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+    },
+    {
+      "id": "explorador",
+      "nombre": "Explorador",
+      "insignia": "Ex",
+      "descripcion": "Acechador de fronteras que sobresale rastreando, explorando y combatiendo a distancia.",
+      "puntosGolpe": { "dadoGolpe": "1d10 por nivel de explorador", "primerNivel": "10 + tu modificador de Constitucion", "nivelesSuperiores": "1d10 (o 6) + tu modificador de Constitucion por cada nivel despues del primero" },
+      "competencias": { "armaduras": ["Armaduras ligeras", "Armaduras medias", "Escudos"], "armas": ["Armas simples", "Armas marciales"], "herramientas": [], "salvaciones": ["Fuerza", "Destreza"], "habilidades": ["Elige tres entre Trato con Animales, Atletismo, Perspicacia, Investigacion, Naturaleza, Percepcion, Sigilo y Supervivencia"] },
+      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+    },
+    {
+      "id": "picaro",
+      "nombre": "Picaro",
+      "insignia": "Pi",
+      "descripcion": "Especialista en precision, sigilo y recursos sucios, ideal para infiltrar o rematar.",
+      "puntosGolpe": { "dadoGolpe": "1d8 por nivel de picaro", "primerNivel": "8 + tu modificador de Constitucion", "nivelesSuperiores": "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero" },
+      "competencias": { "armaduras": ["Armaduras ligeras"], "armas": ["Armas simples", "Ballestas de mano", "Espadas cortas", "Espadas largas", "Rapiers"], "herramientas": ["Herramientas de ladron"], "salvaciones": ["Destreza", "Inteligencia"], "habilidades": ["Elige cuatro entre Acrobacias, Atletismo, Engaño, Interpretacion, Intimidacion, Investigacion, Juego de manos, Perspicacia, Percepcion, Persuasion y Sigilo"] },
+      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+    },
+    {
+      "id": "hechicero",
+      "nombre": "Hechicero",
+      "insignia": "He",
+      "descripcion": "Lanzador innato cuya magia surge de una sangre, don o evento extraordinario.",
+      "puntosGolpe": { "dadoGolpe": "1d6 por nivel de hechicero", "primerNivel": "6 + tu modificador de Constitucion", "nivelesSuperiores": "1d6 (o 4) + tu modificador de Constitucion por cada nivel despues del primero" },
+      "competencias": { "armaduras": [], "armas": ["Ballestas ligeras", "Bastones", "Dagas", "Dardos", "Hondas"], "herramientas": [], "salvaciones": ["Constitucion", "Carisma"], "habilidades": ["Elige dos entre Arcano, Engaño, Intimidacion, Perspicacia, Persuasion y Religion"] },
+      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+    },
+    {
+      "id": "brujo",
+      "nombre": "Brujo",
+      "insignia": "Br",
+      "descripcion": "Conjurador que obtiene poder gracias a un pacto con una entidad sobrenatural.",
+      "puntosGolpe": { "dadoGolpe": "1d8 por nivel de brujo", "primerNivel": "8 + tu modificador de Constitucion", "nivelesSuperiores": "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero" },
+      "competencias": { "armaduras": ["Armaduras ligeras"], "armas": ["Armas simples"], "herramientas": [], "salvaciones": ["Sabiduria", "Carisma"], "habilidades": ["Elige dos entre Arcano, Engaño, Historia, Intimidacion, Investigacion, Naturaleza y Religion"] },
+      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+    },
+    {
+      "id": "mago",
+      "nombre": "Mago",
+      "insignia": "Ma",
+      "descripcion": "Erudito arcano que prepara hechizos desde el estudio y la disciplina intelectual.",
+      "puntosGolpe": { "dadoGolpe": "1d6 por nivel de mago", "primerNivel": "6 + tu modificador de Constitucion", "nivelesSuperiores": "1d6 (o 4) + tu modificador de Constitucion por cada nivel despues del primero" },
+      "competencias": { "armaduras": [], "armas": ["Ballestas ligeras", "Bastones", "Dagas", "Dardos", "Hondas"], "herramientas": [], "salvaciones": ["Inteligencia", "Sabiduria"], "habilidades": ["Elige dos entre Arcano, Historia, Investigacion, Medicina, Perspicacia y Religion"] },
+      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+    },
+    {
+      "id": "artifice",
+      "nombre": "Artifice",
+      "insignia": "Ar",
+      "descripcion": "Inventor magico que combina herramientas, ingenio y objetos imbuidos para resolver problemas.",
+      "puntosGolpe": { "dadoGolpe": "1d8 por nivel de artifice", "primerNivel": "8 + tu modificador de Constitucion", "nivelesSuperiores": "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero" },
+      "competencias": { "armaduras": ["Armaduras ligeras", "Armaduras medias", "Escudos"], "armas": ["Armas simples"], "herramientas": ["Herramientas de ladron", "Herramientas de hojalatero", "Un tipo de herramientas de artesano a eleccion"], "salvaciones": ["Constitucion", "Inteligencia"], "habilidades": ["Elige dos entre Arcano, Historia, Investigacion, Juego de manos, Medicina, Naturaleza y Percepcion"] },
+      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+    }
+  ],
+  "trasfondos": [
+    {
+      "id": "acolito",
+      "nombre": "Acolito",
+      "descripcion": "Has dedicado tu vida al servicio de un templo y actuas como puente entre lo sagrado y la gente comun.",
+      "competenciasHabilidades": ["Perspicacia", "Religion"],
+      "competenciasHerramientas": [],
+      "resumenIdiomas": ["2 idiomas a eleccion"],
+      "nombreRasgo": "Refugio del fiel",
+      "descripcionRasgo": "Los templos afines a tu fe suelen ofrecerte cobijo, cuidados basicos y un trato respetuoso a ti y a tu grupo.",
+      "elecciones": [
+        { "id": "acolyte-languages", "etiqueta": "Idiomas", "resumen": "2 idiomas a eleccion", "catalogo": "languages", "cantidad": 2 }
+      ],
+      "equipamiento": {
+        "fijos": [
+          { "id": "acolito-simbolo", "etiqueta": "Simbolo sagrado", "cantidad": 1, "objeto": { "nombre": "Simbolo sagrado" } },
+          { "id": "acolito-devocionario", "etiqueta": "Devocionario o rueda de oraciones", "cantidad": 1, "objeto": { "nombre": "Devocionario o rueda de oraciones" } },
+          { "id": "acolito-incienso", "etiqueta": "Vara de incienso", "cantidad": 5, "objeto": { "nombre": "Vara de incienso" } },
+          { "id": "acolito-vestiduras", "etiqueta": "Vestiduras", "cantidad": 1, "objeto": { "nombre": "Vestiduras" } },
+          { "id": "acolito-ropa", "etiqueta": "Ropa comun", "cantidad": 1, "objeto": { "nombre": "Ropa comun" } },
+          { "id": "acolito-po", "etiqueta": "Piezas de oro", "cantidad": 15, "objeto": { "nombre": "Piezas de oro" } }
+        ],
+        "gruposEleccion": []
+      }
+    },
+    {
+      "id": "criminal",
+      "nombre": "Criminal",
+      "descripcion": "Te criaste fuera de la ley y todavia conservas contactos en el submundo y oficio para moverte en el.",
+      "competenciasHabilidades": ["Sigilo", "Juego de manos"],
+      "competenciasHerramientas": ["Herramientas de ladron", "1 tipo de juego a eleccion"],
+      "resumenIdiomas": [],
+      "nombreRasgo": "Contacto criminal",
+      "descripcionRasgo": "Mantienes un enlace fiable con una red delictiva capaz de mover mensajes e informacion por ti.",
+      "elecciones": [
+        { "id": "criminal-game", "etiqueta": "Tipo de juego", "resumen": "1 tipo de juego a eleccion", "catalogo": "games", "cantidad": 1 }
+      ],
+      "equipamiento": {
+        "fijos": [
+          { "id": "criminal-palanca", "etiqueta": "Palanca", "cantidad": 1, "objeto": { "nombre": "Palanca" } },
+          { "id": "criminal-ropa", "etiqueta": "Ropa comun oscura con capucha", "cantidad": 1, "objeto": { "nombre": "Ropa comun oscura con capucha" } },
+          { "id": "criminal-po", "etiqueta": "Piezas de oro", "cantidad": 15, "objeto": { "nombre": "Piezas de oro" } }
+        ],
+        "gruposEleccion": []
+      }
+    },
+    {
+      "id": "charlatan",
+      "nombre": "Charlatan",
+      "descripcion": "Vives del engaño, las identidades falsas y la capacidad de vender humo como si fuera oro.",
+      "competenciasHabilidades": ["Engaño", "Juego de manos"],
+      "competenciasHerramientas": ["Kit de disfraz", "Kit de falsificacion"],
+      "resumenIdiomas": [],
+      "nombreRasgo": "Identidad falsa",
+      "descripcionRasgo": "Dispones de una identidad alternativa creible y sabes preparar documentos convincentes para sostenerla.",
+      "elecciones": [],
+      "equipamiento": {
+        "fijos": [
+          { "id": "charlatan-ropa", "etiqueta": "Ropa elegante", "cantidad": 1, "objeto": { "nombre": "Ropa elegante" } },
+          { "id": "charlatan-falsificacion", "etiqueta": "Kit de falsificacion", "cantidad": 1, "objeto": { "nombre": "Kit de falsificacion" } },
+          { "id": "charlatan-herramientas", "etiqueta": "Herramientas de timo", "cantidad": 1, "objeto": { "nombre": "Herramientas de timo" } },
+          { "id": "charlatan-po", "etiqueta": "Piezas de oro", "cantidad": 15, "objeto": { "nombre": "Piezas de oro" } }
+        ],
+        "gruposEleccion": []
+      }
+    },
+    {
+      "id": "artista",
+      "nombre": "Artista",
+      "descripcion": "Tu talento escenico te abre puertas, atrae publico y te permite ganarte la vida con tu presencia.",
+      "competenciasHabilidades": ["Acrobacias", "Interpretacion"],
+      "competenciasHerramientas": ["Kit de disfraz", "1 instrumento musical a eleccion"],
+      "resumenIdiomas": [],
+      "nombreRasgo": "Popularidad",
+      "descripcionRasgo": "Sueles encontrar un lugar donde actuar a cambio de comida, alojamiento y reconocimiento local.",
+      "elecciones": [
+        { "id": "artist-instrument", "etiqueta": "Instrumento musical", "resumen": "1 instrumento musical a eleccion", "catalogo": "instruments", "cantidad": 1 }
+      ],
+      "equipamiento": {
+        "fijos": [
+          { "id": "artista-instrumento", "etiqueta": "Instrumento musical", "cantidad": 1, "objeto": { "nombre": "Instrumento musical" } },
+          { "id": "artista-admirador", "etiqueta": "Objeto de un admirador", "cantidad": 1, "objeto": { "nombre": "Objeto de un admirador" } },
+          { "id": "artista-disfraz", "etiqueta": "Disfraz", "cantidad": 1, "objeto": { "nombre": "Disfraz" } },
+          { "id": "artista-po", "etiqueta": "Piezas de oro", "cantidad": 15, "objeto": { "nombre": "Piezas de oro" } }
+        ],
+        "gruposEleccion": []
+      }
+    },
+    {
+      "id": "heroe-del-pueblo",
+      "nombre": "Heroe del Pueblo",
+      "descripcion": "Procedes de origen humilde, pero tu comunidad te recuerda como alguien que dio un paso al frente cuando hacia falta.",
+      "competenciasHabilidades": ["Trato con animales", "Supervivencia"],
+      "competenciasHerramientas": ["1 tipo de herramientas de artesano a eleccion", "Vehiculos terrestres"],
+      "resumenIdiomas": [],
+      "nombreRasgo": "Hospitalidad rustica",
+      "descripcionRasgo": "La gente comun suele darte refugio y ayudarte a ocultarte mientras no les arrastres a un peligro directo.",
+      "elecciones": [
+        { "id": "folk-hero-artisan-tool", "etiqueta": "Herramientas de artesano", "resumen": "1 tipo de herramientas de artesano a eleccion", "catalogo": "artisanTools", "cantidad": 1 }
+      ],
+      "equipamiento": {
+        "fijos": [
+          { "id": "heroe-herramientas", "etiqueta": "Juego de herramientas de artesano", "cantidad": 1, "objeto": { "nombre": "Juego de herramientas de artesano" } },
+          { "id": "heroe-pala", "etiqueta": "Pala", "cantidad": 1, "objeto": { "nombre": "Pala" } },
+          { "id": "heroe-olla", "etiqueta": "Olla de hierro", "cantidad": 1, "objeto": { "nombre": "Olla de hierro" } },
+          { "id": "heroe-ropa", "etiqueta": "Ropa comun", "cantidad": 1, "objeto": { "nombre": "Ropa comun" } },
+          { "id": "heroe-po", "etiqueta": "Piezas de oro", "cantidad": 10, "objeto": { "nombre": "Piezas de oro" } }
+        ],
+        "gruposEleccion": []
+      }
+    },
+    {
+      "id": "artesano-del-gremio",
+      "nombre": "Artesano del Gremio",
+      "descripcion": "Tu oficio esta respaldado por un gremio que te aporta identidad profesional, contactos y cierta proteccion.",
+      "competenciasHabilidades": ["Perspicacia", "Persuasion"],
+      "competenciasHerramientas": ["1 tipo de herramientas de artesano a eleccion"],
+      "resumenIdiomas": ["1 idioma a eleccion"],
+      "nombreRasgo": "Miembro del gremio",
+      "descripcionRasgo": "Puedes apoyarte en las casas gremiales y en otros profesionales del oficio para conseguir ayuda basica y contactos.",
+      "elecciones": [
+        { "id": "guild-artisan-tool", "etiqueta": "Herramientas de artesano", "resumen": "1 tipo de herramientas de artesano a eleccion", "catalogo": "artisanTools", "cantidad": 1 },
+        { "id": "guild-language", "etiqueta": "Idioma", "resumen": "1 idioma a eleccion", "catalogo": "languages", "cantidad": 1 }
+      ],
+      "equipamiento": {
+        "fijos": [
+          { "id": "gremio-herramientas", "etiqueta": "Juego de herramientas de artesano", "cantidad": 1, "objeto": { "nombre": "Juego de herramientas de artesano" } },
+          { "id": "gremio-carta", "etiqueta": "Carta de presentacion del gremio", "cantidad": 1, "objeto": { "nombre": "Carta de presentacion del gremio" } },
+          { "id": "gremio-ropa", "etiqueta": "Ropa de viaje", "cantidad": 1, "objeto": { "nombre": "Ropa de viaje" } },
+          { "id": "gremio-po", "etiqueta": "Piezas de oro", "cantidad": 15, "objeto": { "nombre": "Piezas de oro" } }
+        ],
+        "gruposEleccion": []
+      }
+    },
+    {
+      "id": "ermitano",
+      "nombre": "Ermitano",
+      "descripcion": "Pasaste anos apartado del mundo buscando paz, respuestas o un descubrimiento que solo el aislamiento podia darte.",
+      "competenciasHabilidades": ["Medicina", "Religion"],
+      "competenciasHerramientas": ["Kit de herborista"],
+      "resumenIdiomas": ["1 idioma a eleccion"],
+      "nombreRasgo": "Descubrimiento",
+      "descripcionRasgo": "Tu retiro te dejo una revelacion importante cuyo alcance concreto se define en la campaña.",
+      "elecciones": [
+        { "id": "hermit-language", "etiqueta": "Idioma", "resumen": "1 idioma a eleccion", "catalogo": "languages", "cantidad": 1 }
+      ],
+      "equipamiento": {
+        "fijos": [
+          { "id": "ermitano-pergaminos", "etiqueta": "Estuche de pergaminos con notas", "cantidad": 1, "objeto": { "nombre": "Estuche de pergaminos con notas" } },
+          { "id": "ermitano-manta", "etiqueta": "Manta de invierno", "cantidad": 1, "objeto": { "nombre": "Manta de invierno" } },
+          { "id": "ermitano-ropa", "etiqueta": "Ropa comun", "cantidad": 1, "objeto": { "nombre": "Ropa comun" } },
+          { "id": "ermitano-kit", "etiqueta": "Kit de herborista", "cantidad": 1, "objeto": { "nombre": "Kit de herborista" } },
+          { "id": "ermitano-po", "etiqueta": "Piezas de oro", "cantidad": 5, "objeto": { "nombre": "Piezas de oro" } }
+        ],
+        "gruposEleccion": []
+      }
+    },
+    {
+      "id": "noble",
+      "nombre": "Noble",
+      "descripcion": "Tu apellido, modales y posicion social te abren puertas que para otros siguen cerradas.",
+      "competenciasHabilidades": ["Historia", "Persuasion"],
+      "competenciasHerramientas": ["1 tipo de juego a eleccion"],
+      "resumenIdiomas": ["1 idioma a eleccion"],
+      "nombreRasgo": "Posicion de privilegio",
+      "descripcionRasgo": "Tu presencia suele ser bien recibida en entornos aristocraticos y puedes solicitar audiencias con otros nobles.",
+      "elecciones": [
+        { "id": "noble-game", "etiqueta": "Tipo de juego", "resumen": "1 tipo de juego a eleccion", "catalogo": "games", "cantidad": 1 },
+        { "id": "noble-language", "etiqueta": "Idioma", "resumen": "1 idioma a eleccion", "catalogo": "languages", "cantidad": 1 }
+      ],
+      "equipamiento": {
+        "fijos": [
+          { "id": "noble-ropa", "etiqueta": "Ropa elegante", "cantidad": 1, "objeto": { "nombre": "Ropa elegante" } },
+          { "id": "noble-anillo", "etiqueta": "Anillo de sello", "cantidad": 1, "objeto": { "nombre": "Anillo de sello" } },
+          { "id": "noble-pedigri", "etiqueta": "Pergamino de pedigrí", "cantidad": 1, "objeto": { "nombre": "Pergamino de pedigrí" } },
+          { "id": "noble-po", "etiqueta": "Piezas de oro", "cantidad": 25, "objeto": { "nombre": "Piezas de oro" } }
+        ],
+        "gruposEleccion": []
+      }
+    },
+    {
+      "id": "forastero",
+      "nombre": "Forastero",
+      "descripcion": "Te formaste lejos de la civilizacion y sabes sobrevivir alli donde otros solo ven terreno hostil.",
+      "competenciasHabilidades": ["Atletismo", "Supervivencia"],
+      "competenciasHerramientas": ["1 instrumento musical a eleccion"],
+      "resumenIdiomas": ["1 idioma a eleccion"],
+      "nombreRasgo": "Vagabundo",
+      "descripcionRasgo": "Recuerdas caminos, mapas y recursos naturales con facilidad, lo que te ayuda a guiar al grupo.",
+      "elecciones": [
+        { "id": "outlander-instrument", "etiqueta": "Instrumento musical", "resumen": "1 instrumento musical a eleccion", "catalogo": "instruments", "cantidad": 1 },
+        { "id": "outlander-language", "etiqueta": "Idioma", "resumen": "1 idioma a eleccion", "catalogo": "languages", "cantidad": 1 }
+      ],
+      "equipamiento": {
+        "fijos": [
+          { "id": "forastero-baston", "etiqueta": "Baston", "cantidad": 1, "objeto": { "nombre": "Baston" } },
+          { "id": "forastero-trampa", "etiqueta": "Trampa de caza", "cantidad": 1, "objeto": { "nombre": "Trampa de caza" } },
+          { "id": "forastero-trofeo", "etiqueta": "Trofeo de un animal cazado", "cantidad": 1, "objeto": { "nombre": "Trofeo de un animal cazado" } },
+          { "id": "forastero-ropa", "etiqueta": "Ropa de viaje", "cantidad": 1, "objeto": { "nombre": "Ropa de viaje" } },
+          { "id": "forastero-po", "etiqueta": "Piezas de oro", "cantidad": 10, "objeto": { "nombre": "Piezas de oro" } }
+        ],
+        "gruposEleccion": []
+      }
+    },
+    {
+      "id": "sabio",
+      "nombre": "Sabio",
+      "descripcion": "Has invertido tu vida en el estudio y sabes donde buscar respuestas cuando no las tienes en la cabeza.",
+      "competenciasHabilidades": ["Arcano", "Historia"],
+      "competenciasHerramientas": [],
+      "resumenIdiomas": ["2 idiomas a eleccion"],
+      "nombreRasgo": "Investigador",
+      "descripcionRasgo": "Sueles conocer bibliotecas, academias o expertos que pueden completar la informacion que te falta.",
+      "elecciones": [
+        { "id": "sage-languages", "etiqueta": "Idiomas", "resumen": "2 idiomas a eleccion", "catalogo": "languages", "cantidad": 2 }
+      ],
+      "equipamiento": {
+        "fijos": [
+          { "id": "sabio-tinta", "etiqueta": "Frasco de tinta negra", "cantidad": 1, "objeto": { "nombre": "Frasco de tinta negra" } },
+          { "id": "sabio-pluma", "etiqueta": "Pluma", "cantidad": 1, "objeto": { "nombre": "Pluma" } },
+          { "id": "sabio-cuchillo", "etiqueta": "Cuchillo pequeño", "cantidad": 1, "objeto": { "nombre": "Cuchillo pequeño" } },
+          { "id": "sabio-carta", "etiqueta": "Carta de un colega fallecido", "cantidad": 1, "objeto": { "nombre": "Carta de un colega fallecido" } },
+          { "id": "sabio-ropa", "etiqueta": "Ropa comun", "cantidad": 1, "objeto": { "nombre": "Ropa comun" } },
+          { "id": "sabio-po", "etiqueta": "Piezas de oro", "cantidad": 10, "objeto": { "nombre": "Piezas de oro" } }
+        ],
+        "gruposEleccion": []
+      }
+    },
+    {
+      "id": "marinero",
+      "nombre": "Marinero",
+      "descripcion": "Las cubiertas, la sal y la disciplina de un barco forman parte de tu vida tanto como cualquier puerto.",
+      "competenciasHabilidades": ["Atletismo", "Percepcion"],
+      "competenciasHerramientas": ["Herramientas de navegante", "Vehiculos acuaticos"],
+      "resumenIdiomas": [],
+      "nombreRasgo": "Pasaje de barco",
+      "descripcionRasgo": "Sueles conseguir traslado maritimo para ti y tus compañeros a cambio de colaborar durante la travesia.",
+      "elecciones": [],
+      "equipamiento": {
+        "fijos": [
+          { "id": "marinero-amuleto", "etiqueta": "Amuleto de la suerte", "cantidad": 1, "objeto": { "nombre": "Amuleto de la suerte" } },
+          { "id": "marinero-cuerda", "etiqueta": "Cuerda de seda", "cantidad": 1, "objeto": { "nombre": "Cuerda de seda" } },
+          { "id": "marinero-ropa", "etiqueta": "Ropa comun", "cantidad": 1, "objeto": { "nombre": "Ropa comun" } },
+          { "id": "marinero-po", "etiqueta": "Piezas de oro", "cantidad": 10, "objeto": { "nombre": "Piezas de oro" } }
+        ],
+        "gruposEleccion": []
+      }
+    },
+    {
+      "id": "soldado",
+      "nombre": "Soldado",
+      "descripcion": "Te formaron para obedecer, combatir y moverte dentro de una estructura militar o mercenaria.",
+      "competenciasHabilidades": ["Atletismo", "Intimidacion"],
+      "competenciasHerramientas": ["1 tipo de juego a eleccion", "Vehiculos terrestres"],
+      "resumenIdiomas": [],
+      "nombreRasgo": "Rango militar",
+      "descripcionRasgo": "Los soldados afines reconocen tu experiencia y suelen darte cierto margen dentro de instalaciones militares.",
+      "elecciones": [
+        { "id": "soldier-game", "etiqueta": "Tipo de juego", "resumen": "1 tipo de juego a eleccion", "catalogo": "games", "cantidad": 1 }
+      ],
+      "equipamiento": {
+        "fijos": [
+          { "id": "soldado-insignia", "etiqueta": "Insignia de rango", "cantidad": 1, "objeto": { "nombre": "Insignia de rango" } },
+          { "id": "soldado-trofeo", "etiqueta": "Trofeo de un enemigo caido", "cantidad": 1, "objeto": { "nombre": "Trofeo de un enemigo caido" } },
+          { "id": "soldado-juego", "etiqueta": "Juego de dados o cartas", "cantidad": 1, "objeto": { "nombre": "Juego de dados o cartas" } },
+          { "id": "soldado-ropa", "etiqueta": "Ropa comun", "cantidad": 1, "objeto": { "nombre": "Ropa comun" } },
+          { "id": "soldado-po", "etiqueta": "Piezas de oro", "cantidad": 10, "objeto": { "nombre": "Piezas de oro" } }
+        ],
+        "gruposEleccion": []
+      }
+    },
+    {
+      "id": "huerfano",
+      "nombre": "Huerfano",
+      "descripcion": "Aprendiste a sobrevivir en las calles apoyandote en el instinto, la rapidez y los atajos urbanos.",
+      "competenciasHabilidades": ["Sigilo", "Juego de manos"],
+      "competenciasHerramientas": ["Herramientas de ladron", "Kit de disfraz"],
+      "resumenIdiomas": [],
+      "nombreRasgo": "Secretos de la ciudad",
+      "descripcionRasgo": "Conoces rutas secundarias y pasajes ocultos que os ayudan a desplazaros con rapidez por asentamientos urbanos.",
+      "elecciones": [],
+      "equipamiento": {
+        "fijos": [
+          { "id": "huerfano-cuchillo", "etiqueta": "Cuchillo pequeño", "cantidad": 1, "objeto": { "nombre": "Cuchillo pequeño" } },
+          { "id": "huerfano-mapa", "etiqueta": "Mapa de la ciudad", "cantidad": 1, "objeto": { "nombre": "Mapa de la ciudad" } },
+          { "id": "huerfano-raton", "etiqueta": "Raton mascota", "cantidad": 1, "objeto": { "nombre": "Raton mascota" } },
+          { "id": "huerfano-recuerdo", "etiqueta": "Recuerdo de tus padres", "cantidad": 1, "objeto": { "nombre": "Recuerdo de tus padres" } },
+          { "id": "huerfano-po", "etiqueta": "Piezas de oro", "cantidad": 10, "objeto": { "nombre": "Piezas de oro" } }
+        ],
+        "gruposEleccion": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,294 @@
+{
+  "razas": [
+    {
+      "id": "dragonborn",
+      "nombre": "Draconido",
+      "descripcion": "Nacidos de dragones, como proclama su nombre, los draconidos caminan con orgullo por un mundo que a menudo los recibe con temor e incomprension. Moldeados por deidades draconicas o por los propios dragones, surgieron a partir de huevos de dragon como una raza singular que combina los mejores rasgos de los dragones y de los humanoides. Algunos sirven fielmente a los dragones verdaderos, otros llenan las filas de grandes ejercitos y otros vagan por el mundo en busca de un destino propio.",
+      "velocidad": 30,
+      "tamano": "Mediano",
+      "edad": "Los draconidos jovenes crecen con rapidez. Caminan horas despues de salir del huevo, alcanzan un desarrollo parecido al de un nino humano de 10 anos a los 3 anos y llegan a la adultez a los 15. Viven alrededor de 80 anos.",
+      "alineamiento": "Su herencia y su educacion hacen que muchos draconidos desarrollen un sentido intenso del honor, del deber o de la ambicion personal.",
+      "idiomas": ["Comun", "Draconico"],
+      "aumentoCaracteristicas": ["+2 Fuerza", "+1 Carisma"],
+      "competencias": [],
+      "rasgos": [
+        { "nombre": "Linaje draconico", "descripcion": "Tienes ascendencia draconica. Elige un tipo de dragon de la tabla de linajes draconicos. Tu arma de aliento y tu resistencia al dano vienen determinadas por ese tipo de dragon." },
+        { "nombre": "Arma de aliento", "descripcion": "Puedes usar tu accion para exhalar energia destructiva. El tamano, la forma, el tipo de dano y la tirada de salvacion dependen de tu linaje draconico. La CD de la salvacion es 8 + tu modificador de Constitucion + tu bonificador de competencia. Un objetivo recibe 2d6 de dano si falla la tirada, o la mitad si la supera. El dano aumenta a 3d6 a nivel 6, 4d6 a nivel 11 y 5d6 a nivel 16. Tras usar este rasgo, no puedes volver a usarlo hasta completar un descanso corto o largo." },
+        { "nombre": "Resistencia al dano", "descripcion": "Tienes resistencia al tipo de dano asociado a tu linaje draconico." }
+      ],
+      "elecciones": [
+        { "id": "dragonborn-ancestor", "etiqueta": "Linaje draconico", "resumen": "Elige tu tipo de dragon para determinar el dano, la forma del aliento y la resistencia elemental", "catalogo": "draconicAncestors", "cantidad": 1 }
+      ],
+      "subrazas": []
+    },
+    {
+      "id": "dwarf",
+      "nombre": "Enano",
+      "descripcion": "Reinos ricos en una grandeza antigua, salones excavados en las raices de las montanas, el eco de picos y martillos en minas profundas y forjas ardientes, un compromiso feroz con el clan y la tradicion, y un odio ancestral hacia goblins y orcos: esos hilos comunes unen a todos los enanos. En ciudades ocultas de la Infraoscuridad tambien habitan los duergar o enanos grises, marcados por siglos de cautiverio y tormento a manos de los azotamentes.",
+      "velocidad": 25,
+      "tamano": "Mediano",
+      "edad": "Los enanos maduran al mismo ritmo que los humanos, pero no se les considera jovenes hasta cumplir 50 anos. Su esperanza de vida ronda los 350 anos.",
+      "alineamiento": "Su vida de clan, su apego a la tradicion y su sentido del deber hacen que muchos enanos se inclinen hacia el orden.",
+      "idiomas": ["Comun", "Enano"],
+      "aumentoCaracteristicas": ["+2 Constitucion"],
+      "competencias": [
+        "Armas: hacha de batalla, hacha de mano, martillo ligero y martillo de guerra",
+        "Herramientas: una competencia a elegir entre herramientas de herrero, suministros de cervecero o herramientas de albañil"
+      ],
+      "rasgos": [
+        { "nombre": "Velocidad enana", "descripcion": "Tu velocidad base al caminar es de 25 pies. Tu velocidad no se reduce por llevar armadura pesada." },
+        { "nombre": "Vision en la oscuridad", "descripcion": "Acostumbrado a la vida bajo tierra, puedes ver en luz tenue a 60 pies como si fuera luz brillante, y en oscuridad como si fuera luz tenue. En la oscuridad solo distingues tonos de gris." },
+        { "nombre": "Resistencia enana", "descripcion": "Tienes ventaja en tiradas de salvacion contra veneno y resistencia al dano de veneno." },
+        { "nombre": "Conocimiento de la piedra", "descripcion": "Siempre que hagas una prueba de Inteligencia (Historia) relacionada con el origen de trabajos en piedra, se te considera competente en Historia y duplicas tu bonificador de competencia en lugar del bonificador normal." }
+      ],
+      "elecciones": [
+        {
+          "id": "dwarf-tool",
+          "etiqueta": "Competencia con herramientas",
+          "resumen": "Elige una sola competencia entre herramientas de herrero, suministros de cervecero o herramientas de albanil",
+          "catalogo": "artisanTools",
+          "cantidad": 1,
+          "opciones": ["Herramientas de herrero", "Suministros de cervecero", "Herramientas de albanil"]
+        }
+      ],
+      "subrazas": [
+        {
+          "id": "hill-dwarf",
+          "nombre": "Enano de las colinas",
+          "descripcion": "Como enano de las colinas, posees sentidos agudos, intuicion profunda y una resistencia extraordinaria. Los enanos dorados de Faerun y muchos clanes exiliados de Krynn pertenecen a este linaje.",
+          "aumentoCaracteristicas": ["+1 Sabiduria"],
+          "competencias": [],
+          "rasgos": [
+            { "nombre": "Dureza enana", "descripcion": "Tu maximo de puntos de golpe aumenta en 1 y vuelve a aumentar en 1 cada vez que subes de nivel." }
+          ]
+        },
+        {
+          "id": "mountain-dwarf",
+          "nombre": "Enano de las montanas",
+          "descripcion": "Como enano de las montanas, eres fuerte y resistente, acostumbrado a una vida dura en terreno abrupto. Sueles ser mas alto que otros enanos y mostrar una complexion mas clara. Los enanos escudo de Faerun y clanes nobles de Dragonlance suelen pertenecer a este linaje.",
+          "aumentoCaracteristicas": ["+2 Fuerza"],
+          "competencias": ["Armaduras: armaduras ligeras y medias"],
+          "rasgos": []
+        }
+      ]
+    },
+    {
+      "id": "elf",
+      "nombre": "Elfo",
+      "descripcion": "Criaturas de gran sensibilidad y larga memoria, los elfos mezclan gracia, curiosidad y una afinidad natural con la magia y la percepcion.",
+      "velocidad": 30,
+      "tamano": "Mediano",
+      "edad": "Alcanzan la madurez fisica mas o menos al mismo ritmo que los humanos, aunque no se consideran adultos hasta cerca de los 100 anos y pueden superar los 700.",
+      "alineamiento": "Su amor por la libertad y la autoexpresion hace que muchos elfos se inclinen hacia el caos benigno.",
+      "idiomas": ["Comun", "Elfico"],
+      "aumentoCaracteristicas": ["+2 Destreza"],
+      "competencias": ["Habilidad: Percepcion"],
+      "rasgos": [
+        { "nombre": "Vision en la oscuridad", "descripcion": "Tu vista entrenada te permite ver en penumbra y oscuridad hasta 60 pies." },
+        { "nombre": "Ascendencia feerica", "descripcion": "Tienes ventaja en tiradas de salvacion contra ser hechizado y la magia no puede dormirte." },
+        { "nombre": "Trance", "descripcion": "No necesitas dormir. Meditas profundamente durante 4 horas para obtener el descanso equivalente a una noche de sueño." }
+      ],
+      "elecciones": [],
+      "subrazas": [
+        {
+          "id": "high-elf",
+          "nombre": "Alto elfo",
+          "descripcion": "Asociados a la erudicion y a las grandes tradiciones arcanas, combinan refinamiento cultural y curiosidad intelectual.",
+          "aumentoCaracteristicas": ["+1 Inteligencia"],
+          "competencias": ["Armas: espada larga, espada corta, arco corto y arco largo"],
+          "rasgos": [
+            { "nombre": "Truco de mago", "descripcion": "Conoces un truco de mago a tu eleccion. Inteligencia es tu caracteristica para lanzarlo." }
+          ],
+          "elecciones": [
+            { "id": "high-elf-cantrip", "etiqueta": "Truco de mago", "resumen": "Elige un truco de la lista de mago", "catalogo": "wizardCantrips", "cantidad": 1 },
+            { "id": "high-elf-language", "etiqueta": "Idioma adicional", "resumen": "Elige un idioma adicional", "catalogo": "languages", "cantidad": 1 }
+          ]
+        },
+        {
+          "id": "wood-elf",
+          "nombre": "Elfo de los bosques",
+          "descripcion": "Veloces y discretos, se sienten en casa entre arboles, senderos ocultos y cacerias silenciosas.",
+          "aumentoCaracteristicas": ["+1 Sabiduria"],
+          "competencias": ["Armas: espada larga, espada corta, arco corto y arco largo"],
+          "rasgos": [
+            { "nombre": "Pies ligeros", "descripcion": "Tu velocidad base aumenta a 35 pies." },
+            { "nombre": "Mascara de la naturaleza", "descripcion": "Puedes intentar ocultarte incluso cuando solo estas ligeramente oscurecido por follaje, lluvia intensa, nieve, niebla u otros fenomenos naturales." }
+          ]
+        },
+        {
+          "id": "dark-elf",
+          "nombre": "Elfo oscuro",
+          "descripcion": "Criados en el inframundo, los drow dominan la oscuridad, la astucia y una magia innata inquietante.",
+          "aumentoCaracteristicas": ["+1 Carisma"],
+          "competencias": ["Armas: estoque, espada corta y ballesta de mano"],
+          "rasgos": [
+            { "nombre": "Vision en la oscuridad superior", "descripcion": "Tu vision en la oscuridad alcanza 120 pies." },
+            { "nombre": "Sensibilidad solar", "descripcion": "Tienes desventaja en tiradas de ataque y Percepcion basadas en la vista cuando tu objetivo o lo que intentas percibir esta bajo luz solar directa." },
+            { "nombre": "Magia drow", "descripcion": "Conoces luces danzantes. A niveles superiores tambien puedes lanzar fuego feerico y oscuridad una vez por descanso prolongado." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gnome",
+      "nombre": "Gnomo",
+      "descripcion": "Un zumbido constante de actividad llena las madrigueras y barrios donde los gnomos forman comunidades muy unidas. Sonidos mas fuertes interrumpen ese murmullo: engranajes que chirrian, pequenas explosiones, gritos de sorpresa y, sobre todo, estallidos de risa. Los gnomos disfrutan intensamente de la invencion, la exploracion, la investigacion, la creacion y el juego. En la Infraoscuridad tambien existen los gnomos profundos o svirfneblin, parientes mas reservados cuya inventiva suele orientarse a la piedra y la supervivencia.",
+      "velocidad": 25,
+      "tamano": "Pequeño",
+      "edad": "Los gnomos maduran al mismo ritmo que los humanos y suelen asentarse en la vida adulta alrededor de los 40 anos. Pueden vivir entre 350 y casi 500 anos.",
+      "alineamiento": "Su curiosidad, entusiasmo y gusto por la autoexpresion hacen que muchos gnomos se orienten a enfoques bondadosos y poco rigidos.",
+      "idiomas": ["Comun", "Gnomico"],
+      "aumentoCaracteristicas": ["+2 Inteligencia"],
+      "competencias": [],
+      "rasgos": [
+        { "nombre": "Vision en la oscuridad", "descripcion": "Acostumbrado a la vida subterranea, puedes ver en luz tenue a 60 pies como si fuera luz brillante, y en oscuridad como si fuera luz tenue. En la oscuridad solo distingues tonos de gris." },
+        { "nombre": "Astucia gnomica", "descripcion": "Tienes ventaja en todas las tiradas de salvacion de Inteligencia, Sabiduria y Carisma contra magia." }
+      ],
+      "elecciones": [],
+      "subrazas": [
+        {
+          "id": "forest-gnome",
+          "nombre": "Gnomo del bosque",
+          "descripcion": "Mas discretos y cercanos a la naturaleza, combinan magia menor, sigilo y un humor dificil de prever.",
+          "aumentoCaracteristicas": ["+1 Destreza"],
+          "competencias": [],
+          "rasgos": [
+            { "nombre": "Ilusionista nato", "descripcion": "Conoces el truco ilusion menor; la caracteristica para lanzarlo es Inteligencia." },
+            { "nombre": "Hablar con bestias pequeñas", "descripcion": "Puedes comunicar ideas simples a bestias pequeñas o menores mediante sonidos y gestos." }
+          ]
+        },
+        {
+          "id": "rock-gnome",
+          "nombre": "Gnomo de las rocas",
+          "descripcion": "Como gnomo de las rocas, posees una inventiva natural y una resistencia mayores que las de otros gnomos. La mayoria de los gnomos de muchos mundos de D&D pertenecen a esta subraza, incluidos los gnomos manitas de Dragonlance.",
+          "aumentoCaracteristicas": ["+1 Constitucion"],
+          "competencias": ["Herramientas: herramientas de manitas"],
+          "rasgos": [
+            { "nombre": "Conocimiento del artifice", "descripcion": "Siempre que hagas una prueba de Inteligencia (Historia) relacionada con objetos magicos, alquimicos o dispositivos tecnologicos, puedes duplicar tu bonificador de competencia en lugar de aplicar el normal." },
+            { "nombre": "Manitas", "descripcion": "Usando tus herramientas de manitas, puedes dedicar 1 hora y 10 po en materiales a construir un pequeno dispositivo mecanico (CA 5, 1 PG). Deja de funcionar pasadas 24 horas, salvo que emplees 1 hora en repararlo, o cuando uses tu accion para desmontarlo. Puedes tener hasta tres dispositivos activos a la vez. Al crearlo, elige entre juguete mecanico, encendedor o caja de musica." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "half-elf",
+      "nombre": "Semielfo",
+      "descripcion": "Caminando entre dos mundos sin pertenecer del todo a ninguno, los semielfos combinan lo que algunos consideran las mejores cualidades de sus progenitores humanos y elfos: curiosidad, inventiva y ambicion humanas atemperadas por sentidos refinados, amor por la naturaleza y sensibilidad artistica elfica. Muchos semielfos acaban llevando vidas de viaje, aventura o independencia, al no encajar plenamente en ninguna de las dos sociedades.",
+      "velocidad": 30,
+      "tamano": "Mediano",
+      "edad": "Los semielfos maduran al mismo ritmo que los humanos y alcanzan la adultez alrededor de los 20 anos. Viven mucho mas que los humanos y a menudo superan los 180 anos.",
+      "alineamiento": "Su origen y sus experiencias hacen que los semielfos sean especialmente variados y poco propensos a encajar en moldes rigidos.",
+      "idiomas": ["Comun", "Elfico", "1 idioma a eleccion"],
+      "aumentoCaracteristicas": ["+2 Carisma", "+1 a otras dos caracteristicas distintas"],
+      "competencias": [],
+      "rasgos": [
+        { "nombre": "Vision en la oscuridad", "descripcion": "Gracias a tu sangre elfica, puedes ver en luz tenue a 60 pies como si fuera luz brillante, y en oscuridad como si fuera luz tenue. En la oscuridad solo distingues tonos de gris." },
+        { "nombre": "Ascendencia feerica", "descripcion": "Tienes ventaja en tiradas de salvacion contra ser hechizado y la magia no puede dormirte." },
+        { "nombre": "Versatilidad en habilidades", "descripcion": "Obtienes competencia en dos habilidades a tu eleccion." }
+      ],
+      "elecciones": [
+        { "id": "half-elf-language", "etiqueta": "Idioma adicional", "resumen": "Elige un idioma adicional de tu eleccion", "catalogo": "languages", "cantidad": 1 },
+        { "id": "half-elf-skills", "etiqueta": "Versatilidad en habilidades", "resumen": "Elige dos habilidades distintas", "catalogo": "skills", "cantidad": 2 },
+        { "id": "half-elf-abilities", "etiqueta": "Aumentos de caracteristica", "resumen": "Elige dos caracteristicas distintas para recibir +1. No puedes elegir Carisma", "catalogo": "abilityScores", "cantidad": 2 }
+      ],
+      "subrazas": []
+    },
+    {
+      "id": "halfling",
+      "nombre": "Mediano",
+      "descripcion": "La comodidad del hogar es el objetivo de la vida de la mayoria de los medianos: un lugar donde vivir en paz y tranquilidad, lejos de monstruos depredadores y ejercitos enfrentados; un fuego encendido y una buena comida; buena bebida y buena conversacion. Aunque algunos viven siempre en comunidades agricolas remotas, otros forman bandas nomadas atraidas por el camino abierto y el horizonte lejano. Incluso esos viajeros aman la paz, la mesa, el hogar y la lumbre, aunque su hogar sea un carro o una balsa descendiendo por el rio.",
+      "velocidad": 25,
+      "tamano": "Pequeño",
+      "edad": "Un mediano alcanza la adultez a los 20 anos y por lo general vive hasta mediados de su segundo siglo de vida.",
+      "alineamiento": "Su gusto por la convivencia, la paz y las relaciones cordiales hace que muchos medianos se orienten hacia el bien.",
+      "idiomas": ["Comun", "Mediano"],
+      "aumentoCaracteristicas": ["+2 Destreza"],
+      "competencias": [],
+      "rasgos": [
+        { "nombre": "Afortunado", "descripcion": "Cuando sacas un 1 en el d20 en una tirada de ataque, prueba de caracteristica o tirada de salvacion, puedes repetir el dado y debes usar el nuevo resultado." },
+        { "nombre": "Valiente", "descripcion": "Tienes ventaja en tiradas de salvacion contra estar asustado." },
+        { "nombre": "Agilidad mediana", "descripcion": "Puedes moverte a traves del espacio de cualquier criatura que sea de un tamano mayor que el tuyo." }
+      ],
+      "elecciones": [],
+      "subrazas": [
+        {
+          "id": "lightfoot-halfling",
+          "nombre": "Mediano piesligeros",
+          "descripcion": "Como mediano piesligeros, puedes ocultarte con facilidad incluso usando a otras personas como cobertura. Sueles ser sociable y llevarte bien con los demas. En muchos mundos son los medianos mas propensos a la vida errante y al viaje.",
+          "aumentoCaracteristicas": ["+1 Carisma"],
+          "competencias": [],
+          "rasgos": [
+            { "nombre": "Sigilo natural", "descripcion": "Puedes intentar ocultarte incluso cuando solo estas oculto por una criatura que sea al menos una categoria de tamano mayor que tu." }
+          ]
+        },
+        {
+          "id": "stout-halfling",
+          "nombre": "Mediano robusto",
+          "descripcion": "Como mediano robusto, eres mas duro que la media y posees cierta resistencia al veneno. Algunos afirman que los robustos tienen sangre enana en las venas.",
+          "aumentoCaracteristicas": ["+1 Constitucion"],
+          "competencias": [],
+          "rasgos": [
+            { "nombre": "Resistencia robusta", "descripcion": "Tienes ventaja en tiradas de salvacion contra veneno y resistencia al dano de veneno." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "half-orc",
+      "nombre": "Semiorco",
+      "descripcion": "Los semiorcos cargan con una herencia orca que se traduce en presencia intimidante, fuerza bruta y una resistencia feroz. Muchos aprenden desde temprano a imponerse al mundo o a resistirlo sin ceder.",
+      "velocidad": 30,
+      "tamano": "Mediano",
+      "edad": "Los semiorcos maduran algo mas rapido que los humanos y alcanzan la adultez alrededor de los 14 anos. Envejecen con mayor rapidez y rara vez viven mas de 75 anos.",
+      "alineamiento": "Su vida y sus experiencias pesan mas que su sangre, aunque muchos desarrollan una moral directa, practica y centrada en sobrevivir.",
+      "idiomas": ["Comun", "Orco"],
+      "aumentoCaracteristicas": ["+2 Fuerza", "+1 Constitucion"],
+      "competencias": ["Habilidad: Intimidacion"],
+      "rasgos": [
+        { "nombre": "Vision en la oscuridad", "descripcion": "Gracias a tu sangre orca, puedes ver en luz tenue a 60 pies como si fuera luz brillante, y en oscuridad como si fuera luz tenue. En la oscuridad solo distingues tonos de gris." },
+        { "nombre": "Resistencia implacable", "descripcion": "Cuando te reducen a 0 puntos de golpe pero no mueres en el acto, puedes quedarte a 1 punto de golpe una vez por descanso prolongado." },
+        { "nombre": "Ataques salvajes", "descripcion": "Cuando consigues un golpe critico con un ataque cuerpo a cuerpo con arma, puedes tirar un dado adicional del dano del arma y sumarlo al dano extra del critico." }
+      ],
+      "elecciones": [],
+      "subrazas": []
+    },
+    {
+      "id": "human",
+      "nombre": "Humano",
+      "descripcion": "En la mayoria de los mundos, los humanos son la mas joven de las razas comunes, llegados tarde a la escena del mundo y de vida corta en comparacion con enanos, elfos y dragones. Quizas por eso se esfuerzan por lograr tanto como pueden en el tiempo que se les concede. Innovadores, pioneros y conquistadores, los humanos levantan imperios, comercian, exploran y transforman el mundo a una velocidad que otras razas encuentran desconcertante.",
+      "velocidad": 30,
+      "tamano": "Mediano",
+      "edad": "Los humanos alcanzan la adultez al final de la adolescencia y viven menos de un siglo.",
+      "alineamiento": "Su amplitud cultural y personal hace que puedan encajar practicamente en cualquier alineamiento.",
+      "idiomas": ["Comun", "1 idioma a eleccion"],
+      "aumentoCaracteristicas": ["+1 a todas las caracteristicas"],
+      "competencias": [],
+      "rasgos": [
+        
+      ],
+      "elecciones": [
+        { "id": "human-language", "etiqueta": "Idioma adicional", "resumen": "Elige el idioma adicional que conoce tu humano", "catalogo": "languages", "cantidad": 1 }
+      ],
+      "subrazas": []
+    },
+    {
+      "id": "tiefling",
+      "nombre": "Tiefling",
+      "descripcion": "Ser recibido con miradas y susurros, sufrir insultos o violencia en la calle, ver desconfianza y miedo en todos los ojos: ese es el destino frecuente de un tiefling. Y lo mas cruel es que saben que esa reaccion nace de un pacto hecho generaciones atras que infundio la esencia de Asmodeo, senor supremo de los Nueve Infiernos, en su linaje. Su aspecto y su naturaleza no son culpa suya, sino el resultado de un pecado antiguo por el que siguen siendo juzgados.",
+      "velocidad": 30,
+      "tamano": "Mediano",
+      "edad": "Los tieflings maduran al mismo ritmo que los humanos, aunque suelen vivir algunos anos mas.",
+      "alineamiento": "Al crecer bajo prejuicios y expectativas ajenas, muchos tieflings desarrollan una fuerte independencia moral.",
+      "idiomas": ["Comun", "Infernal"],
+      "aumentoCaracteristicas": ["+2 Carisma", "+1 Inteligencia"],
+      "competencias": [],
+      "rasgos": [
+        { "nombre": "Vision en la oscuridad", "descripcion": "Gracias a tu herencia infernal, puedes ver en luz tenue a 60 pies como si fuera luz brillante, y en oscuridad como si fuera luz tenue. En la oscuridad solo distingues tonos de gris." },
+        { "nombre": "Resistencia infernal", "descripcion": "Tienes resistencia al dano de fuego." },
+        { "nombre": "Legado infernal", "descripcion": "Conoces el truco taumaturgia. Cuando alcanzas el nivel 3, puedes lanzar repreension infernal como conjuro de nivel 2 una vez con este rasgo y recuperas su uso al completar un descanso largo. Cuando alcanzas el nivel 5, puedes lanzar oscuridad una vez con este rasgo y recuperas su uso al completar un descanso largo. Carisma es tu caracteristica para lanzar estos conjuros." }
+      ],
+      "elecciones": [],
+      "subrazas": []
+    }
+  ]
+}

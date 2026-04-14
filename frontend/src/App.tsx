@@ -5,8 +5,15 @@ import RegisterScreen from "./screens/RegisterScreen";
 import HomeScreen from "./screens/HomeScreen";
 import CharactersScreen from "./screens/CharactersScreen";
 import CampaignsScreen from "./screens/CampaignsScreen.tsx";
+import CreateDndCharacterScreen from "./screens/personaje/CreateDndCharacterScreen";
 
-type AuthMode = "login" | "register" | "home" | "campaigns" | "characters";
+type AuthMode =
+  | "login"
+  | "register"
+  | "home"
+  | "campaigns"
+  | "characters"
+  | "character-create-dnd";
 
 function App() {
   const storedToken = localStorage.getItem("jwtToken");
@@ -38,6 +45,15 @@ function App() {
   const handleGoCampaigns = () => {
     if (token) {
       setMode("campaigns");
+      return;
+    }
+
+    setMode("login");
+  };
+
+  const handleGoCreateDndCharacter = () => {
+    if (token) {
+      setMode("character-create-dnd");
       return;
     }
 
@@ -109,6 +125,17 @@ function App() {
       )}
       {mode === "characters" && token && (
         <CharactersScreen
+          username={username}
+          avatarUrl={avatarUrl}
+          onLogout={handleLogout}
+          onGoHome={handleGoHome}
+          onGoCampaigns={handleGoCampaigns}
+          onGoCharacters={handleGoCharacters}
+          onCreateDndCharacter={handleGoCreateDndCharacter}
+        />
+      )}
+      {mode === "character-create-dnd" && token && (
+        <CreateDndCharacterScreen
           username={username}
           avatarUrl={avatarUrl}
           onLogout={handleLogout}

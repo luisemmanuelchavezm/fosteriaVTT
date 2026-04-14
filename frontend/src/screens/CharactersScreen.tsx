@@ -11,6 +11,7 @@ interface CharactersScreenProps {
   onGoHome: () => void;
   onGoCampaigns: () => void;
   onGoCharacters: () => void;
+  onCreateDndCharacter?: () => void;
 }
 
 interface CharacterSummary {
@@ -59,6 +60,7 @@ export default function CharactersScreen({
   onGoHome,
   onGoCampaigns,
   onGoCharacters,
+  onCreateDndCharacter,
 }: CharactersScreenProps) {
   const [characters, setCharacters] = useState<CharacterSummary[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -68,6 +70,7 @@ export default function CharactersScreen({
   const [debouncedNameQuery, setDebouncedNameQuery] = useState("");
   const [selectedSystems, setSelectedSystems] = useState<string[]>([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const createCardRef = useRef<HTMLButtonElement | null>(null);
   const filtersContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -254,11 +257,12 @@ export default function CharactersScreen({
   };
 
   const handleCreateClick = () => {
-    createCardRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-    createCardRef.current?.focus();
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCreateDnd = () => {
+    setIsCreateModalOpen(false);
+    onCreateDndCharacter?.();
   };
 
   const handleNavChange = (tab: NavTab) => {
@@ -285,6 +289,82 @@ export default function CharactersScreen({
           avatarUrl={avatarUrl}
           onLogout={onLogout}
         />
+
+        {isCreateModalOpen ? (
+          <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+            <div className="w-full max-w-2xl rounded-[30px] border border-white/15 bg-stone-950/95 p-6 text-stone-50 shadow-[0_30px_80px_rgba(0,0,0,0.55)] md:p-8">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.28em] text-amber-200/80">
+                    Nuevo personaje
+                  </p>
+                  <h3 className="mt-2 text-2xl font-bold text-white md:text-3xl">
+                    Elige el sistema de juego
+                  </h3>
+                  <p className="mt-2 text-sm text-stone-300">
+                    Por ahora la creación guiada está disponible para Dungeons
+                    and Dragons.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsCreateModalOpen(false)}
+                  aria-label="Cerrar modal de creacion"
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/10 text-xl text-white transition hover:bg-white/20"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+                <button
+                  type="button"
+                  onClick={handleCreateDnd}
+                  className="group rounded-[24px] border border-amber-200/40 bg-amber-200/10 p-5 text-left transition hover:border-amber-200/70 hover:bg-amber-200/15"
+                >
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-200/20 text-lg font-bold text-amber-100">
+                    D&D
+                  </div>
+                  <h4 className="mt-4 text-lg font-semibold text-white">
+                    Dungeons and Dragons
+                  </h4>
+                  <p className="mt-2 text-sm text-stone-300">
+                    Crear personaje por fases.
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  disabled
+                  className="rounded-[24px] border border-white/10 bg-white/5 p-5 text-left opacity-60"
+                >
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold text-stone-200">
+                    COC
+                  </div>
+                  <h4 className="mt-4 text-lg font-semibold text-white">
+                    Call of Cthulhu
+                  </h4>
+                  <p className="mt-2 text-sm text-stone-300">Próximamente.</p>
+                </button>
+
+                <button
+                  type="button"
+                  disabled
+                  className="rounded-[24px] border border-white/10 bg-white/5 p-5 text-left opacity-60"
+                >
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold text-stone-200">
+                    VTM
+                  </div>
+                  <h4 className="mt-4 text-lg font-semibold text-white">
+                    Vampire: The Masquerade
+                  </h4>
+                  <p className="mt-2 text-sm text-stone-300">Próximamente.</p>
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <div className="relative z-10 w-full px-4 pt-28 pb-32 md:px-8 md:pb-36">
           <div className="rounded-[32px] border border-white/15 bg-stone-950/70 p-6 text-stone-50 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-md md:p-8">
@@ -449,6 +529,7 @@ export default function CharactersScreen({
                 <button
                   ref={createCardRef}
                   type="button"
+                  onClick={handleCreateClick}
                   aria-label="Crear un nuevo personaje"
                   className="flex min-h-[250px] items-center justify-center rounded-[24px] border border-dashed border-white/15 bg-white shadow-xl transition duration-300 hover:scale-[1.03] hover:shadow-[0_20px_35px_rgba(255,255,255,0.18)]"
                 >

@@ -3,5 +3,7 @@ package com.fosteriaVTT.fosteriaVTT_backend.Objeto;
 public enum TipoObjeto {
     ARMA,
     ARMADURA,
-    CONSUMIBLE
+    CONSUMIBLE,
+    MISCELANEO,
+    DINERO
 }

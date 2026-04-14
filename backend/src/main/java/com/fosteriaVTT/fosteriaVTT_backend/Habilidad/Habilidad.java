@@ -3,6 +3,7 @@ package com.fosteriaVTT.fosteriaVTT_backend.Habilidad;
 import com.fosteriaVTT.fosteriaVTT_backend.common.NamedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,12 +18,20 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Habilidad extends NamedEntity {
 
+    @Column(length = 50)
+    private String clase;
+
+    private Integer nivel;
+
     @Column(length = 500)
     private String imagen;
 
-    @Column(nullable = false)
     private String formula;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String descripcion;
+
+    @Size(max = 300)
+    @Column(length = 300)
+    private String tags;
 }
