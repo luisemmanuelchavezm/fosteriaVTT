@@ -1,5 +1,6 @@
 import { buildApiUrl } from "../../../lib/api";
 import type {
+  CreateDndCharacterRequest,
   DndBackgroundDetail,
   DndBackgroundSummary,
   DndClassDetail,
@@ -96,4 +97,107 @@ export async function fetchClassSkills(
   }
 
   return (await response.json()) as ClassSkillGroup[];
+}
+
+export interface CreatedCharacterResponse {
+  id: number;
+  nombre: string;
+  retrato: string;
+  sistemaDeJuego: string;
+  usado: string;
+}
+
+export interface CharacterClassLevelResponse {
+  nombre: string;
+  nivel: number;
+}
+
+export interface CharacterAbilityResponse {
+  id: number;
+  nombre: string;
+  formula: string | null;
+  descripcion: string | null;
+  tags: string | null;
+}
+
+export interface CharacterInventoryItemResponse {
+  id: number;
+  nombre: string;
+  cantidad: number;
+  equipado: boolean;
+  tags: string;
+  tipoObjeto: string;
+}
+
+export interface DndCharacterDetailResponse {
+  id: number;
+  nombre: string;
+  retrato: string;
+  sistemaDeJuego: string;
+  raza: string | null;
+  subraza: string | null;
+  clases: CharacterClassLevelResponse[];
+  caracteristicaLanzamientoConjuros: string | null;
+  estadisticas: Record<string, number>;
+  habilidades: CharacterAbilityResponse[];
+  mochila: CharacterInventoryItemResponse[];
+  usado: string;
+}
+
+export function fetchDndCharacterDetail(
+  token: string,
+  characterId: number | string,
+  signal?: AbortSignal,
+) {
+  return fetchDndResource<DndCharacterDetailResponse>(
+    token,
+    `/api/personajes/${characterId}`,
+    signal,
+  );
+}
+
+export async function markCharacterAsUsed(
+  token: string,
+  characterId: number | string,
+) {
+  const response = await fetch(
+    buildApiUrl(`/api/personajes/${characterId}/usar`),
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("No se pudo actualizar el uso del personaje");
+  }
+}
+
+export async function createDndCharacter(
+  token: string,
+  payload: CreateDndCharacterRequest,
+  portrait: File,
+) {
+  const formData = new FormData();
+  formData.append(
+    "payload",
+    new Blob([JSON.stringify(payload)], { type: "application/json" }),
+  );
+  formData.append("portrait", portrait);
+
+  const response = await fetch(buildApiUrl("/api/personajes/dnd"), {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error("No se pudo crear el personaje");
+  }
+
+  return (await response.json()) as CreatedCharacterResponse;
 }

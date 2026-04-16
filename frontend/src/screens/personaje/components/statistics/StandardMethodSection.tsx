@@ -5,16 +5,19 @@ import {
   PANEL_CLASSES,
   SELECT_CLASSES,
 } from "../../utils/statisticsUtils";
+import ValidationMessage from "../ValidationMessage";
 
 interface StandardMethodSectionProps {
   standardAssignments: Record<string, string>;
   usedStandardValues: string[];
+  fieldErrors?: Record<string, string>;
   onAssignmentChange: (statId: string, value: string) => void;
 }
 
 export default function StandardMethodSection({
   standardAssignments,
   usedStandardValues,
+  fieldErrors = {},
   onAssignmentChange,
 }: StandardMethodSectionProps) {
   return (
@@ -30,6 +33,7 @@ export default function StandardMethodSection({
       <div className="mt-5 grid grid-cols-6 gap-3">
         {ABILITY_STATS.map((stat) => {
           const selectedValue = standardAssignments[stat.id] ?? "";
+          const fieldError = fieldErrors[stat.id];
 
           return (
             <div key={`standard-${stat.id}`} className={PARCHMENT_CARD_CLASSES}>
@@ -42,7 +46,9 @@ export default function StandardMethodSection({
                   onChange={(event) =>
                     onAssignmentChange(stat.id, event.target.value)
                   }
-                  className={`${SELECT_CLASSES} pr-10`}
+                  className={`${SELECT_CLASSES} pr-10 ${
+                    fieldError ? "border-rose-400/70 focus:border-rose-300" : ""
+                  }`}
                 >
                   <option value="" className="bg-stone-950 text-white">
                     Asigna una puntuacion
@@ -64,6 +70,7 @@ export default function StandardMethodSection({
                   ▾
                 </span>
               </div>
+              {fieldError ? <ValidationMessage message={fieldError} /> : null}
             </div>
           );
         })}

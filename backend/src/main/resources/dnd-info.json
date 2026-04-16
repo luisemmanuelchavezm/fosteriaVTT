@@ -49,7 +49,61 @@
       "descripcion": "Artista y mago de apoyo que mezcla inspiracion, ingenio y magia versatil.",
       "puntosGolpe": { "dadoGolpe": "1d8 por nivel de bardo", "primerNivel": "8 + tu modificador de Constitucion", "nivelesSuperiores": "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero" },
       "competencias": { "armaduras": ["Armaduras ligeras"], "armas": ["Armas simples", "Ballestas de mano", "Espadas cortas", "Espadas largas", "Rapiers"], "herramientas": ["Tres instrumentos musicales a eleccion"], "salvaciones": ["Destreza", "Carisma"], "habilidades": ["Elige tres habilidades cualesquiera"] },
-      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+      "lanzamientoConjuros": { "modo": "conocidos", "caracteristica": "Carisma", "niveles": [
+        { "nivel": 1, "trucosConocidos": 2, "conjurosConocidos": 4, "espaciosConjuro": [2,0,0,0,0,0,0,0,0] },
+        { "nivel": 2, "trucosConocidos": 2, "conjurosConocidos": 5, "espaciosConjuro": [3,0,0,0,0,0,0,0,0] },
+        { "nivel": 3, "trucosConocidos": 2, "conjurosConocidos": 6, "espaciosConjuro": [4,2,0,0,0,0,0,0,0] },
+        { "nivel": 4, "trucosConocidos": 3, "conjurosConocidos": 7, "espaciosConjuro": [4,3,0,0,0,0,0,0,0] },
+        { "nivel": 5, "trucosConocidos": 3, "conjurosConocidos": 8, "espaciosConjuro": [4,3,2,0,0,0,0,0,0] },
+        { "nivel": 6, "trucosConocidos": 3, "conjurosConocidos": 9, "espaciosConjuro": [4,3,3,0,0,0,0,0,0] },
+        { "nivel": 7, "trucosConocidos": 3, "conjurosConocidos": 10, "espaciosConjuro": [4,3,3,1,0,0,0,0,0] },
+        { "nivel": 8, "trucosConocidos": 3, "conjurosConocidos": 11, "espaciosConjuro": [4,3,3,2,0,0,0,0,0] },
+        { "nivel": 9, "trucosConocidos": 3, "conjurosConocidos": 12, "espaciosConjuro": [4,3,3,3,1,0,0,0,0] },
+        { "nivel": 10, "trucosConocidos": 4, "conjurosConocidos": 14, "espaciosConjuro": [4,3,3,3,2,0,0,0,0] },
+        { "nivel": 11, "trucosConocidos": 4, "conjurosConocidos": 15, "espaciosConjuro": [4,3,3,3,2,1,0,0,0] },
+        { "nivel": 12, "trucosConocidos": 4, "conjurosConocidos": 15, "espaciosConjuro": [4,3,3,3,2,1,0,0,0] },
+        { "nivel": 13, "trucosConocidos": 4, "conjurosConocidos": 16, "espaciosConjuro": [4,3,3,3,2,1,1,0,0] },
+        { "nivel": 14, "trucosConocidos": 4, "conjurosConocidos": 18, "espaciosConjuro": [4,3,3,3,2,1,1,0,0] },
+        { "nivel": 15, "trucosConocidos": 4, "conjurosConocidos": 19, "espaciosConjuro": [4,3,3,3,2,1,1,1,0] },
+        { "nivel": 16, "trucosConocidos": 4, "conjurosConocidos": 19, "espaciosConjuro": [4,3,3,3,2,1,1,1,0] },
+        { "nivel": 17, "trucosConocidos": 4, "conjurosConocidos": 20, "espaciosConjuro": [4,3,3,3,2,1,1,1,1] },
+        { "nivel": 18, "trucosConocidos": 4, "conjurosConocidos": 22, "espaciosConjuro": [4,3,3,3,3,1,1,1,1] },
+        { "nivel": 19, "trucosConocidos": 4, "conjurosConocidos": 22, "espaciosConjuro": [4,3,3,3,3,2,1,1,1] },
+        { "nivel": 20, "trucosConocidos": 4, "conjurosConocidos": 22, "espaciosConjuro": [4,3,3,3,3,2,2,1,1] }
+      ] },
+      "equipamiento": {
+        "fijos": [
+          { "id": "bardo-cuero", "etiqueta": "Armadura de cuero", "cantidad": 1, "objeto": { "nombre": "Armadura de cuero" } },
+          { "id": "bardo-daga", "etiqueta": "Daga", "cantidad": 1, "objeto": { "nombre": "Daga" } }
+        ],
+        "gruposEleccion": [
+          {
+            "id": "bardo-arma-principal",
+            "etiqueta": "Arma principal",
+            "opciones": [
+              { "id": "bardo-rapier", "etiqueta": "Estoque", "cantidad": 1, "objeto": { "nombre": "Estoque" } },
+              { "id": "bardo-espada-larga", "etiqueta": "Espada larga", "cantidad": 1, "objeto": { "nombre": "Espada larga" } },
+              { "id": "bardo-arma-simple", "etiqueta": "Cualquier arma simple", "cantidad": 1, "catalogo": "ASimple" }
+            ]
+          },
+          {
+            "id": "bardo-pack",
+            "etiqueta": "Pack inicial",
+            "opciones": [
+              { "id": "bardo-pack-diplomatico", "etiqueta": "Pack de diplomatico", "cantidad": 1, "objeto": { "nombre": "Pack de diplomatico" } },
+              { "id": "bardo-pack-artista", "etiqueta": "Pack de artista", "cantidad": 1, "objeto": { "nombre": "Pack de artista" } }
+            ]
+          },
+          {
+            "id": "bardo-instrumento",
+            "etiqueta": "Instrumento musical",
+            "opciones": [
+              { "id": "bardo-laud", "etiqueta": "Laud", "cantidad": 1, "objeto": { "nombre": "Laud" } },
+              { "id": "bardo-otro-instrumento", "etiqueta": "Cualquier otro instrumento musical", "cantidad": 1, "objeto": { "nombre": "Instrumento musical" } }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "clerigo",
@@ -58,7 +112,69 @@
       "descripcion": "Canaliza poder divino para proteger, sanar o castigar segun el dominio de su fe.",
       "puntosGolpe": { "dadoGolpe": "1d8 por nivel de clerigo", "primerNivel": "8 + tu modificador de Constitucion", "nivelesSuperiores": "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero" },
       "competencias": { "armaduras": ["Armaduras ligeras", "Armaduras medias", "Escudos"], "armas": ["Armas simples"], "herramientas": [], "salvaciones": ["Sabiduria", "Carisma"], "habilidades": ["Elige dos entre Historia, Perspicacia, Medicina, Persuasion y Religion"] },
-      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+      "lanzamientoConjuros": { "modo": "preparados", "caracteristica": "Sabiduria", "formulaConjurosPreparados": "Modificador de Sabiduria + nivel de clerigo (minimo 1)", "niveles": [
+        { "nivel": 1, "trucosConocidos": 3, "espaciosConjuro": [2,0,0,0,0,0,0,0,0] },
+        { "nivel": 2, "trucosConocidos": 3, "espaciosConjuro": [3,0,0,0,0,0,0,0,0] },
+        { "nivel": 3, "trucosConocidos": 3, "espaciosConjuro": [4,2,0,0,0,0,0,0,0] },
+        { "nivel": 4, "trucosConocidos": 4, "espaciosConjuro": [4,3,0,0,0,0,0,0,0] },
+        { "nivel": 5, "trucosConocidos": 4, "espaciosConjuro": [4,3,2,0,0,0,0,0,0] },
+        { "nivel": 6, "trucosConocidos": 4, "espaciosConjuro": [4,3,3,0,0,0,0,0,0] },
+        { "nivel": 7, "trucosConocidos": 4, "espaciosConjuro": [4,3,3,1,0,0,0,0,0] },
+        { "nivel": 8, "trucosConocidos": 4, "espaciosConjuro": [4,3,3,2,0,0,0,0,0] },
+        { "nivel": 9, "trucosConocidos": 4, "espaciosConjuro": [4,3,3,3,1,0,0,0,0] },
+        { "nivel": 10, "trucosConocidos": 5, "espaciosConjuro": [4,3,3,3,2,0,0,0,0] },
+        { "nivel": 11, "trucosConocidos": 5, "espaciosConjuro": [4,3,3,3,2,1,0,0,0] },
+        { "nivel": 12, "trucosConocidos": 5, "espaciosConjuro": [4,3,3,3,2,1,0,0,0] },
+        { "nivel": 13, "trucosConocidos": 5, "espaciosConjuro": [4,3,3,3,2,1,1,0,0] },
+        { "nivel": 14, "trucosConocidos": 5, "espaciosConjuro": [4,3,3,3,2,1,1,0,0] },
+        { "nivel": 15, "trucosConocidos": 5, "espaciosConjuro": [4,3,3,3,2,1,1,1,0] },
+        { "nivel": 16, "trucosConocidos": 5, "espaciosConjuro": [4,3,3,3,2,1,1,1,0] },
+        { "nivel": 17, "trucosConocidos": 5, "espaciosConjuro": [4,3,3,3,2,1,1,1,1] },
+        { "nivel": 18, "trucosConocidos": 5, "espaciosConjuro": [4,3,3,3,3,1,1,1,1] },
+        { "nivel": 19, "trucosConocidos": 5, "espaciosConjuro": [4,3,3,3,3,2,1,1,1] },
+        { "nivel": 20, "trucosConocidos": 5, "espaciosConjuro": [4,3,3,3,3,2,2,1,1] }
+      ] },
+      "equipamiento": {
+        "fijos": [
+          { "id": "clerigo-escudo", "etiqueta": "Escudo", "cantidad": 1, "objeto": { "nombre": "Escudo" } },
+          { "id": "clerigo-simbolo", "etiqueta": "Simbolo sagrado", "cantidad": 1, "objeto": { "nombre": "Simbolo sagrado" } }
+        ],
+        "gruposEleccion": [
+          {
+            "id": "clerigo-arma-principal",
+            "etiqueta": "Arma principal",
+            "opciones": [
+              { "id": "clerigo-maza", "etiqueta": "Maza", "cantidad": 1, "objeto": { "nombre": "Maza" } },
+              { "id": "clerigo-martillo-guerra", "etiqueta": "Martillo de guerra (si eres competente)", "cantidad": 1, "objeto": { "nombre": "Martillo de guerra" } }
+            ]
+          },
+          {
+            "id": "clerigo-armadura",
+            "etiqueta": "Proteccion",
+            "opciones": [
+              { "id": "clerigo-cota-escamas", "etiqueta": "Armadura de escamas", "cantidad": 1, "objeto": { "nombre": "Armadura de escamas" } },
+              { "id": "clerigo-cuero", "etiqueta": "Armadura de cuero", "cantidad": 1, "objeto": { "nombre": "Armadura de cuero" } },
+              { "id": "clerigo-cota-malla", "etiqueta": "Cota de malla (si eres competente)", "cantidad": 1, "objeto": { "nombre": "Cota de malla" } }
+            ]
+          },
+          {
+            "id": "clerigo-arma-secundaria",
+            "etiqueta": "Arma secundaria",
+            "opciones": [
+              { "id": "clerigo-ballesta", "etiqueta": "Ballesta ligera y 20 virotes", "cantidad": 1, "objeto": { "nombre": "Ballesta ligera y 20 virotes" } },
+              { "id": "clerigo-arma-simple", "etiqueta": "Cualquier arma simple", "cantidad": 1, "catalogo": "ASimple" }
+            ]
+          },
+          {
+            "id": "clerigo-pack",
+            "etiqueta": "Pack inicial",
+            "opciones": [
+              { "id": "clerigo-pack-sacerdote", "etiqueta": "Pack de sacerdote", "cantidad": 1, "objeto": { "nombre": "Pack de sacerdote" } },
+              { "id": "clerigo-pack-explorador", "etiqueta": "Pack de explorador", "cantidad": 1, "objeto": { "nombre": "Pack de explorador" } }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "druida",
@@ -67,7 +183,53 @@
       "descripcion": "Guardian de la naturaleza que usa magia primigenia y asume formas animales.",
       "puntosGolpe": { "dadoGolpe": "1d8 por nivel de druida", "primerNivel": "8 + tu modificador de Constitucion", "nivelesSuperiores": "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero" },
       "competencias": { "armaduras": ["Armaduras ligeras", "Armaduras medias", "Escudos (sin metal)"], "armas": ["Bastones", "Dagas", "Dardos", "Hondas", "Jabalinas", "Lanzas", "Mazas", "Cimitarras", "Hoces"], "herramientas": ["Kit de herborista"], "salvaciones": ["Inteligencia", "Sabiduria"], "habilidades": ["Elige dos entre Arcano, Trato con Animales, Perspicacia, Medicina, Naturaleza, Percepcion, Religion y Supervivencia"] },
-      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+      "lanzamientoConjuros": { "modo": "preparados", "caracteristica": "Sabiduria", "formulaConjurosPreparados": "Modificador de Sabiduria + nivel de druida (minimo 1)", "niveles": [
+        { "nivel": 1, "trucosConocidos": 2, "espaciosConjuro": [2,0,0,0,0,0,0,0,0] },
+        { "nivel": 2, "trucosConocidos": 2, "espaciosConjuro": [3,0,0,0,0,0,0,0,0] },
+        { "nivel": 3, "trucosConocidos": 2, "espaciosConjuro": [4,2,0,0,0,0,0,0,0] },
+        { "nivel": 4, "trucosConocidos": 3, "espaciosConjuro": [4,3,0,0,0,0,0,0,0] },
+        { "nivel": 5, "trucosConocidos": 3, "espaciosConjuro": [4,3,2,0,0,0,0,0,0] },
+        { "nivel": 6, "trucosConocidos": 3, "espaciosConjuro": [4,3,3,0,0,0,0,0,0] },
+        { "nivel": 7, "trucosConocidos": 3, "espaciosConjuro": [4,3,3,1,0,0,0,0,0] },
+        { "nivel": 8, "trucosConocidos": 3, "espaciosConjuro": [4,3,3,2,0,0,0,0,0] },
+        { "nivel": 9, "trucosConocidos": 3, "espaciosConjuro": [4,3,3,3,1,0,0,0,0] },
+        { "nivel": 10, "trucosConocidos": 4, "espaciosConjuro": [4,3,3,3,2,0,0,0,0] },
+        { "nivel": 11, "trucosConocidos": 4, "espaciosConjuro": [4,3,3,3,2,1,0,0,0] },
+        { "nivel": 12, "trucosConocidos": 4, "espaciosConjuro": [4,3,3,3,2,1,0,0,0] },
+        { "nivel": 13, "trucosConocidos": 4, "espaciosConjuro": [4,3,3,3,2,1,1,0,0] },
+        { "nivel": 14, "trucosConocidos": 4, "espaciosConjuro": [4,3,3,3,2,1,1,0,0] },
+        { "nivel": 15, "trucosConocidos": 4, "espaciosConjuro": [4,3,3,3,2,1,1,1,0] },
+        { "nivel": 16, "trucosConocidos": 4, "espaciosConjuro": [4,3,3,3,2,1,1,1,0] },
+        { "nivel": 17, "trucosConocidos": 4, "espaciosConjuro": [4,3,3,3,2,1,1,1,1] },
+        { "nivel": 18, "trucosConocidos": 4, "espaciosConjuro": [4,3,3,3,3,1,1,1,1] },
+        { "nivel": 19, "trucosConocidos": 4, "espaciosConjuro": [4,3,3,3,3,2,1,1,1] },
+        { "nivel": 20, "trucosConocidos": 4, "espaciosConjuro": [4,3,3,3,3,2,2,1,1] }
+      ] },
+      "equipamiento": {
+        "fijos": [
+          { "id": "druida-cuero", "etiqueta": "Armadura de cuero", "cantidad": 1, "objeto": { "nombre": "Armadura de cuero" } },
+          { "id": "druida-pack-explorador", "etiqueta": "Pack de explorador", "cantidad": 1, "objeto": { "nombre": "Pack de explorador" } },
+          { "id": "druida-foco", "etiqueta": "Foco druida", "cantidad": 1, "objeto": { "nombre": "Foco druida" } }
+        ],
+        "gruposEleccion": [
+          {
+            "id": "druida-defensa",
+            "etiqueta": "Defensa o arma",
+            "opciones": [
+              { "id": "druida-escudo-madera", "etiqueta": "Escudo de madera", "cantidad": 1, "objeto": { "nombre": "Escudo de madera" } },
+              { "id": "druida-arma-simple", "etiqueta": "Cualquier arma simple", "cantidad": 1, "catalogo": "ASimple" }
+            ]
+          },
+          {
+            "id": "druida-arma-principal",
+            "etiqueta": "Arma principal",
+            "opciones": [
+              { "id": "druida-cimitarra", "etiqueta": "Cimitarra", "cantidad": 1, "objeto": { "nombre": "Cimitarra" } },
+              { "id": "druida-arma-simple-cuerpo", "etiqueta": "Cualquier arma simple cuerpo a cuerpo", "cantidad": 1, "objeto": { "nombre": "Arma simple cuerpo a cuerpo" } }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "guerrero",
@@ -76,7 +238,43 @@
       "descripcion": "Especialista marcial flexible que domina casi cualquier estilo de combate.",
       "puntosGolpe": { "dadoGolpe": "1d10 por nivel de guerrero", "primerNivel": "10 + tu modificador de Constitucion", "nivelesSuperiores": "1d10 (o 6) + tu modificador de Constitucion por cada nivel despues del primero" },
       "competencias": { "armaduras": ["Todas las armaduras", "Escudos"], "armas": ["Armas simples", "Armas marciales"], "herramientas": [], "salvaciones": ["Fuerza", "Constitucion"], "habilidades": ["Elige dos entre Acrobacias, Atletismo, Historia, Perspicacia, Intimidacion, Percepcion, Supervivencia y Trato con Animales"] },
-      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+      "equipamiento": {
+        "fijos": [],
+        "gruposEleccion": [
+          {
+            "id": "guerrero-armadura",
+            "etiqueta": "Proteccion y ataque a distancia",
+            "opciones": [
+              { "id": "guerrero-cota-malla", "etiqueta": "Cota de malla", "cantidad": 1, "objeto": { "nombre": "Cota de malla" } },
+              { "id": "guerrero-cuero-arco", "etiqueta": "Armadura de cuero, arco largo y 20 flechas", "cantidad": 1, "objeto": { "nombre": "Armadura de cuero, arco largo y 20 flechas" } }
+            ]
+          },
+          {
+            "id": "guerrero-armamento-principal",
+            "etiqueta": "Armamento principal",
+            "opciones": [
+              { "id": "guerrero-arma-escudo", "etiqueta": "Un arma marcial y un escudo", "cantidad": 1, "objeto": { "nombre": "Arma marcial y escudo" } },
+              { "id": "guerrero-dos-armas", "etiqueta": "Dos armas marciales", "cantidad": 1, "objeto": { "nombre": "Dos armas marciales" } }
+            ]
+          },
+          {
+            "id": "guerrero-respaldo",
+            "etiqueta": "Armamento de respaldo",
+            "opciones": [
+              { "id": "guerrero-ballesta", "etiqueta": "Ballesta ligera y 20 virotes", "cantidad": 1, "objeto": { "nombre": "Ballesta ligera y 20 virotes" } },
+              { "id": "guerrero-dos-hachas", "etiqueta": "Dos hachas de mano", "cantidad": 2, "objeto": { "nombre": "Hacha de mano" } }
+            ]
+          },
+          {
+            "id": "guerrero-pack",
+            "etiqueta": "Pack inicial",
+            "opciones": [
+              { "id": "guerrero-pack-calabozo", "etiqueta": "Pack de calabozo", "cantidad": 1, "objeto": { "nombre": "Pack de calabozo" } },
+              { "id": "guerrero-pack-explorador", "etiqueta": "Pack de explorador", "cantidad": 1, "objeto": { "nombre": "Pack de explorador" } }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "monje",
@@ -85,7 +283,29 @@
       "descripcion": "Combatiente agil que canaliza ki para moverse, resistir y golpear con precision.",
       "puntosGolpe": { "dadoGolpe": "1d8 por nivel de monje", "primerNivel": "8 + tu modificador de Constitucion", "nivelesSuperiores": "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero" },
       "competencias": { "armaduras": [], "armas": ["Armas simples", "Espadas cortas"], "herramientas": ["Una herramienta de artesano o un instrumento musical a eleccion"], "salvaciones": ["Fuerza", "Destreza"], "habilidades": ["Elige dos entre Acrobacias, Atletismo, Historia, Perspicacia, Religion y Sigilo"] },
-      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+      "equipamiento": {
+        "fijos": [
+          { "id": "monje-dardos", "etiqueta": "Dardos", "cantidad": 10, "objeto": { "nombre": "Dardo" } }
+        ],
+        "gruposEleccion": [
+          {
+            "id": "monje-arma-principal",
+            "etiqueta": "Arma principal",
+            "opciones": [
+              { "id": "monje-espada-corta", "etiqueta": "Espada corta", "cantidad": 1, "objeto": { "nombre": "Espada corta" } },
+              { "id": "monje-arma-simple", "etiqueta": "Cualquier arma simple", "cantidad": 1, "catalogo": "ASimple" }
+            ]
+          },
+          {
+            "id": "monje-pack",
+            "etiqueta": "Pack inicial",
+            "opciones": [
+              { "id": "monje-pack-calabozo", "etiqueta": "Pack de calabozo", "cantidad": 1, "objeto": { "nombre": "Pack de calabozo" } },
+              { "id": "monje-pack-explorador", "etiqueta": "Pack de explorador", "cantidad": 1, "objeto": { "nombre": "Pack de explorador" } }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "paladin",
@@ -94,7 +314,60 @@
       "descripcion": "Campeon sagrado que combina resistencia marcial, auras y castigos divinos.",
       "puntosGolpe": { "dadoGolpe": "1d10 por nivel de paladin", "primerNivel": "10 + tu modificador de Constitucion", "nivelesSuperiores": "1d10 (o 6) + tu modificador de Constitucion por cada nivel despues del primero" },
       "competencias": { "armaduras": ["Todas las armaduras", "Escudos"], "armas": ["Armas simples", "Armas marciales"], "herramientas": [], "salvaciones": ["Sabiduria", "Carisma"], "habilidades": ["Elige dos entre Atletismo, Perspicacia, Intimidacion, Medicina, Persuasion y Religion"] },
-      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+      "lanzamientoConjuros": { "modo": "preparados", "caracteristica": "Carisma", "formulaConjurosPreparados": "Modificador de Carisma + la mitad de tu nivel de paladin, redondeado hacia abajo (minimo 1)", "niveles": [
+        { "nivel": 1, "trucosConocidos": 0, "espaciosConjuro": [0,0,0,0,0,0,0,0,0] },
+        { "nivel": 2, "trucosConocidos": 0, "espaciosConjuro": [2,0,0,0,0,0,0,0,0] },
+        { "nivel": 3, "trucosConocidos": 0, "espaciosConjuro": [3,0,0,0,0,0,0,0,0] },
+        { "nivel": 4, "trucosConocidos": 0, "espaciosConjuro": [3,0,0,0,0,0,0,0,0] },
+        { "nivel": 5, "trucosConocidos": 0, "espaciosConjuro": [4,2,0,0,0,0,0,0,0] },
+        { "nivel": 6, "trucosConocidos": 0, "espaciosConjuro": [4,2,0,0,0,0,0,0,0] },
+        { "nivel": 7, "trucosConocidos": 0, "espaciosConjuro": [4,3,0,0,0,0,0,0,0] },
+        { "nivel": 8, "trucosConocidos": 0, "espaciosConjuro": [4,3,0,0,0,0,0,0,0] },
+        { "nivel": 9, "trucosConocidos": 0, "espaciosConjuro": [4,3,2,0,0,0,0,0,0] },
+        { "nivel": 10, "trucosConocidos": 0, "espaciosConjuro": [4,3,2,0,0,0,0,0,0] },
+        { "nivel": 11, "trucosConocidos": 0, "espaciosConjuro": [4,3,3,0,0,0,0,0,0] },
+        { "nivel": 12, "trucosConocidos": 0, "espaciosConjuro": [4,3,3,0,0,0,0,0,0] },
+        { "nivel": 13, "trucosConocidos": 0, "espaciosConjuro": [4,3,3,1,0,0,0,0,0] },
+        { "nivel": 14, "trucosConocidos": 0, "espaciosConjuro": [4,3,3,1,0,0,0,0,0] },
+        { "nivel": 15, "trucosConocidos": 0, "espaciosConjuro": [4,3,3,2,0,0,0,0,0] },
+        { "nivel": 16, "trucosConocidos": 0, "espaciosConjuro": [4,3,3,2,0,0,0,0,0] },
+        { "nivel": 17, "trucosConocidos": 0, "espaciosConjuro": [4,3,3,3,1,0,0,0,0] },
+        { "nivel": 18, "trucosConocidos": 0, "espaciosConjuro": [4,3,3,3,1,0,0,0,0] },
+        { "nivel": 19, "trucosConocidos": 0, "espaciosConjuro": [4,3,3,3,2,0,0,0,0] },
+        { "nivel": 20, "trucosConocidos": 0, "espaciosConjuro": [4,3,3,3,2,0,0,0,0] }
+      ] },
+      "equipamiento": {
+        "fijos": [
+          { "id": "paladin-cota-malla", "etiqueta": "Cota de malla", "cantidad": 1, "objeto": { "nombre": "Cota de malla" } },
+          { "id": "paladin-simbolo", "etiqueta": "Simbolo sagrado", "cantidad": 1, "objeto": { "nombre": "Simbolo sagrado" } }
+        ],
+        "gruposEleccion": [
+          {
+            "id": "paladin-armamento-principal",
+            "etiqueta": "Armamento principal",
+            "opciones": [
+              { "id": "paladin-arma-escudo", "etiqueta": "Un arma marcial y un escudo", "cantidad": 1, "objeto": { "nombre": "Arma marcial y escudo" } },
+              { "id": "paladin-dos-armas", "etiqueta": "Dos armas marciales", "cantidad": 1, "objeto": { "nombre": "Dos armas marciales" } }
+            ]
+          },
+          {
+            "id": "paladin-secundaria",
+            "etiqueta": "Armamento secundario",
+            "opciones": [
+              { "id": "paladin-jabalinas", "etiqueta": "Cinco jabalinas", "cantidad": 5, "objeto": { "nombre": "Jabalina" } },
+              { "id": "paladin-simple-cuerpo", "etiqueta": "Cualquier arma simple cuerpo a cuerpo", "cantidad": 1, "objeto": { "nombre": "Arma simple cuerpo a cuerpo" } }
+            ]
+          },
+          {
+            "id": "paladin-pack",
+            "etiqueta": "Pack inicial",
+            "opciones": [
+              { "id": "paladin-pack-sacerdote", "etiqueta": "Pack de sacerdote", "cantidad": 1, "objeto": { "nombre": "Pack de sacerdote" } },
+              { "id": "paladin-pack-explorador", "etiqueta": "Pack de explorador", "cantidad": 1, "objeto": { "nombre": "Pack de explorador" } }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "explorador",
@@ -103,7 +376,59 @@
       "descripcion": "Acechador de fronteras que sobresale rastreando, explorando y combatiendo a distancia.",
       "puntosGolpe": { "dadoGolpe": "1d10 por nivel de explorador", "primerNivel": "10 + tu modificador de Constitucion", "nivelesSuperiores": "1d10 (o 6) + tu modificador de Constitucion por cada nivel despues del primero" },
       "competencias": { "armaduras": ["Armaduras ligeras", "Armaduras medias", "Escudos"], "armas": ["Armas simples", "Armas marciales"], "herramientas": [], "salvaciones": ["Fuerza", "Destreza"], "habilidades": ["Elige tres entre Trato con Animales, Atletismo, Perspicacia, Investigacion, Naturaleza, Percepcion, Sigilo y Supervivencia"] },
-      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+      "lanzamientoConjuros": { "modo": "conocidos", "caracteristica": "Sabiduria", "niveles": [
+        { "nivel": 1, "trucosConocidos": 0, "conjurosConocidos": 0, "espaciosConjuro": [0,0,0,0,0,0,0,0,0] },
+        { "nivel": 2, "trucosConocidos": 0, "conjurosConocidos": 2, "espaciosConjuro": [2,0,0,0,0,0,0,0,0] },
+        { "nivel": 3, "trucosConocidos": 0, "conjurosConocidos": 3, "espaciosConjuro": [3,0,0,0,0,0,0,0,0] },
+        { "nivel": 4, "trucosConocidos": 0, "conjurosConocidos": 3, "espaciosConjuro": [3,0,0,0,0,0,0,0,0] },
+        { "nivel": 5, "trucosConocidos": 0, "conjurosConocidos": 4, "espaciosConjuro": [4,2,0,0,0,0,0,0,0] },
+        { "nivel": 6, "trucosConocidos": 0, "conjurosConocidos": 4, "espaciosConjuro": [4,2,0,0,0,0,0,0,0] },
+        { "nivel": 7, "trucosConocidos": 0, "conjurosConocidos": 5, "espaciosConjuro": [4,3,0,0,0,0,0,0,0] },
+        { "nivel": 8, "trucosConocidos": 0, "conjurosConocidos": 5, "espaciosConjuro": [4,3,0,0,0,0,0,0,0] },
+        { "nivel": 9, "trucosConocidos": 0, "conjurosConocidos": 6, "espaciosConjuro": [4,3,2,0,0,0,0,0,0] },
+        { "nivel": 10, "trucosConocidos": 0, "conjurosConocidos": 6, "espaciosConjuro": [4,3,2,0,0,0,0,0,0] },
+        { "nivel": 11, "trucosConocidos": 0, "conjurosConocidos": 7, "espaciosConjuro": [4,3,3,0,0,0,0,0,0] },
+        { "nivel": 12, "trucosConocidos": 0, "conjurosConocidos": 7, "espaciosConjuro": [4,3,3,0,0,0,0,0,0] },
+        { "nivel": 13, "trucosConocidos": 0, "conjurosConocidos": 8, "espaciosConjuro": [4,3,3,1,0,0,0,0,0] },
+        { "nivel": 14, "trucosConocidos": 0, "conjurosConocidos": 8, "espaciosConjuro": [4,3,3,1,0,0,0,0,0] },
+        { "nivel": 15, "trucosConocidos": 0, "conjurosConocidos": 9, "espaciosConjuro": [4,3,3,2,0,0,0,0,0] },
+        { "nivel": 16, "trucosConocidos": 0, "conjurosConocidos": 9, "espaciosConjuro": [4,3,3,2,0,0,0,0,0] },
+        { "nivel": 17, "trucosConocidos": 0, "conjurosConocidos": 10, "espaciosConjuro": [4,3,3,3,1,0,0,0,0] },
+        { "nivel": 18, "trucosConocidos": 0, "conjurosConocidos": 10, "espaciosConjuro": [4,3,3,3,1,0,0,0,0] },
+        { "nivel": 19, "trucosConocidos": 0, "conjurosConocidos": 11, "espaciosConjuro": [4,3,3,3,2,0,0,0,0] },
+        { "nivel": 20, "trucosConocidos": 0, "conjurosConocidos": 11, "espaciosConjuro": [4,3,3,3,2,0,0,0,0] }
+      ] },
+      "equipamiento": {
+        "fijos": [
+          { "id": "explorador-arco", "etiqueta": "Arco largo y aljaba con 20 flechas", "cantidad": 1, "objeto": { "nombre": "Arco largo y aljaba con 20 flechas" } }
+        ],
+        "gruposEleccion": [
+          {
+            "id": "explorador-armadura",
+            "etiqueta": "Armadura",
+            "opciones": [
+              { "id": "explorador-cota-escamas", "etiqueta": "Armadura de escamas", "cantidad": 1, "objeto": { "nombre": "Armadura de escamas" } },
+              { "id": "explorador-cuero", "etiqueta": "Armadura de cuero", "cantidad": 1, "objeto": { "nombre": "Armadura de cuero" } }
+            ]
+          },
+          {
+            "id": "explorador-armas",
+            "etiqueta": "Armas cuerpo a cuerpo",
+            "opciones": [
+              { "id": "explorador-dos-espadas-cortas", "etiqueta": "Dos espadas cortas", "cantidad": 2, "objeto": { "nombre": "Espada corta" } },
+              { "id": "explorador-dos-armas-simples", "etiqueta": "Dos armas simples cuerpo a cuerpo", "cantidad": 1, "objeto": { "nombre": "Dos armas simples cuerpo a cuerpo" } }
+            ]
+          },
+          {
+            "id": "explorador-pack",
+            "etiqueta": "Pack inicial",
+            "opciones": [
+              { "id": "explorador-pack-calabozo", "etiqueta": "Pack de calabozo", "cantidad": 1, "objeto": { "nombre": "Pack de calabozo" } },
+              { "id": "explorador-pack-explorador", "etiqueta": "Pack de explorador", "cantidad": 1, "objeto": { "nombre": "Pack de explorador" } }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "picaro",
@@ -112,7 +437,40 @@
       "descripcion": "Especialista en precision, sigilo y recursos sucios, ideal para infiltrar o rematar.",
       "puntosGolpe": { "dadoGolpe": "1d8 por nivel de picaro", "primerNivel": "8 + tu modificador de Constitucion", "nivelesSuperiores": "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero" },
       "competencias": { "armaduras": ["Armaduras ligeras"], "armas": ["Armas simples", "Ballestas de mano", "Espadas cortas", "Espadas largas", "Rapiers"], "herramientas": ["Herramientas de ladron"], "salvaciones": ["Destreza", "Inteligencia"], "habilidades": ["Elige cuatro entre Acrobacias, Atletismo, Engaño, Interpretacion, Intimidacion, Investigacion, Juego de manos, Perspicacia, Percepcion, Persuasion y Sigilo"] },
-      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+      "equipamiento": {
+        "fijos": [
+          { "id": "picaro-cuero", "etiqueta": "Armadura de cuero", "cantidad": 1, "objeto": { "nombre": "Armadura de cuero" } },
+          { "id": "picaro-dagas", "etiqueta": "Dos dagas", "cantidad": 2, "objeto": { "nombre": "Daga" } },
+          { "id": "picaro-herramientas", "etiqueta": "Herramientas de ladron", "cantidad": 1, "objeto": { "nombre": "Herramientas de ladron" } }
+        ],
+        "gruposEleccion": [
+          {
+            "id": "picaro-arma-principal",
+            "etiqueta": "Arma principal",
+            "opciones": [
+              { "id": "picaro-estoque", "etiqueta": "Estoque", "cantidad": 1, "objeto": { "nombre": "Estoque" } },
+              { "id": "picaro-espada-corta", "etiqueta": "Espada corta", "cantidad": 1, "objeto": { "nombre": "Espada corta" } }
+            ]
+          },
+          {
+            "id": "picaro-arma-secundaria",
+            "etiqueta": "Arma secundaria",
+            "opciones": [
+              { "id": "picaro-arco", "etiqueta": "Arco corto y aljaba con 20 flechas", "cantidad": 1, "objeto": { "nombre": "Arco corto y aljaba con 20 flechas" } },
+              { "id": "picaro-espada-corta-extra", "etiqueta": "Espada corta", "cantidad": 1, "objeto": { "nombre": "Espada corta" } }
+            ]
+          },
+          {
+            "id": "picaro-pack",
+            "etiqueta": "Pack inicial",
+            "opciones": [
+              { "id": "picaro-pack-ladron", "etiqueta": "Pack de ladron", "cantidad": 1, "objeto": { "nombre": "Pack de ladron" } },
+              { "id": "picaro-pack-calabozo", "etiqueta": "Pack de calabozo", "cantidad": 1, "objeto": { "nombre": "Pack de calabozo" } },
+              { "id": "picaro-pack-explorador", "etiqueta": "Pack de explorador", "cantidad": 1, "objeto": { "nombre": "Pack de explorador" } }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "hechicero",
@@ -121,7 +479,59 @@
       "descripcion": "Lanzador innato cuya magia surge de una sangre, don o evento extraordinario.",
       "puntosGolpe": { "dadoGolpe": "1d6 por nivel de hechicero", "primerNivel": "6 + tu modificador de Constitucion", "nivelesSuperiores": "1d6 (o 4) + tu modificador de Constitucion por cada nivel despues del primero" },
       "competencias": { "armaduras": [], "armas": ["Ballestas ligeras", "Bastones", "Dagas", "Dardos", "Hondas"], "herramientas": [], "salvaciones": ["Constitucion", "Carisma"], "habilidades": ["Elige dos entre Arcano, Engaño, Intimidacion, Perspicacia, Persuasion y Religion"] },
-      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+      "lanzamientoConjuros": { "modo": "conocidos", "caracteristica": "Carisma", "niveles": [
+        { "nivel": 1, "trucosConocidos": 4, "conjurosConocidos": 2, "espaciosConjuro": [2,0,0,0,0,0,0,0,0] },
+        { "nivel": 2, "trucosConocidos": 4, "conjurosConocidos": 3, "espaciosConjuro": [3,0,0,0,0,0,0,0,0] },
+        { "nivel": 3, "trucosConocidos": 4, "conjurosConocidos": 4, "espaciosConjuro": [4,2,0,0,0,0,0,0,0] },
+        { "nivel": 4, "trucosConocidos": 5, "conjurosConocidos": 5, "espaciosConjuro": [4,3,0,0,0,0,0,0,0] },
+        { "nivel": 5, "trucosConocidos": 5, "conjurosConocidos": 6, "espaciosConjuro": [4,3,2,0,0,0,0,0,0] },
+        { "nivel": 6, "trucosConocidos": 5, "conjurosConocidos": 7, "espaciosConjuro": [4,3,3,0,0,0,0,0,0] },
+        { "nivel": 7, "trucosConocidos": 5, "conjurosConocidos": 8, "espaciosConjuro": [4,3,3,1,0,0,0,0,0] },
+        { "nivel": 8, "trucosConocidos": 5, "conjurosConocidos": 9, "espaciosConjuro": [4,3,3,2,0,0,0,0,0] },
+        { "nivel": 9, "trucosConocidos": 5, "conjurosConocidos": 10, "espaciosConjuro": [4,3,3,3,1,0,0,0,0] },
+        { "nivel": 10, "trucosConocidos": 6, "conjurosConocidos": 11, "espaciosConjuro": [4,3,3,3,2,0,0,0,0] },
+        { "nivel": 11, "trucosConocidos": 6, "conjurosConocidos": 12, "espaciosConjuro": [4,3,3,3,2,1,0,0,0] },
+        { "nivel": 12, "trucosConocidos": 6, "conjurosConocidos": 12, "espaciosConjuro": [4,3,3,3,2,1,0,0,0] },
+        { "nivel": 13, "trucosConocidos": 6, "conjurosConocidos": 13, "espaciosConjuro": [4,3,3,3,2,1,1,0,0] },
+        { "nivel": 14, "trucosConocidos": 6, "conjurosConocidos": 13, "espaciosConjuro": [4,3,3,3,2,1,1,0,0] },
+        { "nivel": 15, "trucosConocidos": 6, "conjurosConocidos": 14, "espaciosConjuro": [4,3,3,3,2,1,1,1,0] },
+        { "nivel": 16, "trucosConocidos": 6, "conjurosConocidos": 14, "espaciosConjuro": [4,3,3,3,2,1,1,1,0] },
+        { "nivel": 17, "trucosConocidos": 6, "conjurosConocidos": 15, "espaciosConjuro": [4,3,3,3,2,1,1,1,1] },
+        { "nivel": 18, "trucosConocidos": 6, "conjurosConocidos": 15, "espaciosConjuro": [4,3,3,3,3,1,1,1,1] },
+        { "nivel": 19, "trucosConocidos": 6, "conjurosConocidos": 15, "espaciosConjuro": [4,3,3,3,3,2,1,1,1] },
+        { "nivel": 20, "trucosConocidos": 6, "conjurosConocidos": 15, "espaciosConjuro": [4,3,3,3,3,2,2,1,1] }
+      ] },
+      "equipamiento": {
+        "fijos": [
+          { "id": "hechicero-dagas", "etiqueta": "Dos dagas", "cantidad": 2, "objeto": { "nombre": "Daga" } }
+        ],
+        "gruposEleccion": [
+          {
+            "id": "hechicero-arma",
+            "etiqueta": "Arma o ballesta",
+            "opciones": [
+              { "id": "hechicero-ballesta", "etiqueta": "Ballesta ligera y 20 virotes", "cantidad": 1, "objeto": { "nombre": "Ballesta ligera y 20 virotes" } },
+              { "id": "hechicero-arma-simple", "etiqueta": "Cualquier arma simple", "cantidad": 1, "catalogo": "ASimple" }
+            ]
+          },
+          {
+            "id": "hechicero-foco",
+            "etiqueta": "Foco de conjuro",
+            "opciones": [
+              { "id": "hechicero-bolsa", "etiqueta": "Bolsa de componentes", "cantidad": 1, "objeto": { "nombre": "Bolsa de componentes" } },
+              { "id": "hechicero-foco-arcano", "etiqueta": "Foco arcano", "cantidad": 1, "objeto": { "nombre": "Foco arcano" } }
+            ]
+          },
+          {
+            "id": "hechicero-pack",
+            "etiqueta": "Pack inicial",
+            "opciones": [
+              { "id": "hechicero-pack-calabozo", "etiqueta": "Pack de calabozo", "cantidad": 1, "objeto": { "nombre": "Pack de calabozo" } },
+              { "id": "hechicero-pack-explorador", "etiqueta": "Pack de explorador", "cantidad": 1, "objeto": { "nombre": "Pack de explorador" } }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "brujo",
@@ -130,7 +540,61 @@
       "descripcion": "Conjurador que obtiene poder gracias a un pacto con una entidad sobrenatural.",
       "puntosGolpe": { "dadoGolpe": "1d8 por nivel de brujo", "primerNivel": "8 + tu modificador de Constitucion", "nivelesSuperiores": "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero" },
       "competencias": { "armaduras": ["Armaduras ligeras"], "armas": ["Armas simples"], "herramientas": [], "salvaciones": ["Sabiduria", "Carisma"], "habilidades": ["Elige dos entre Arcano, Engaño, Historia, Intimidacion, Investigacion, Naturaleza y Religion"] },
-      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+      "lanzamientoConjuros": { "modo": "pacto", "caracteristica": "Carisma", "niveles": [
+        { "nivel": 1, "trucosConocidos": 2, "conjurosConocidos": 2, "ranurasPacto": 1, "nivelRanuraPacto": 1, "arcanosMisticos": [0,0,0,0], "invocacionesConocidas": 0 },
+        { "nivel": 2, "trucosConocidos": 2, "conjurosConocidos": 3, "ranurasPacto": 2, "nivelRanuraPacto": 1, "arcanosMisticos": [0,0,0,0], "invocacionesConocidas": 2 },
+        { "nivel": 3, "trucosConocidos": 2, "conjurosConocidos": 4, "ranurasPacto": 2, "nivelRanuraPacto": 2, "arcanosMisticos": [0,0,0,0], "invocacionesConocidas": 2 },
+        { "nivel": 4, "trucosConocidos": 3, "conjurosConocidos": 5, "ranurasPacto": 2, "nivelRanuraPacto": 2, "arcanosMisticos": [0,0,0,0], "invocacionesConocidas": 2 },
+        { "nivel": 5, "trucosConocidos": 3, "conjurosConocidos": 6, "ranurasPacto": 2, "nivelRanuraPacto": 3, "arcanosMisticos": [0,0,0,0], "invocacionesConocidas": 3 },
+        { "nivel": 6, "trucosConocidos": 3, "conjurosConocidos": 7, "ranurasPacto": 2, "nivelRanuraPacto": 3, "arcanosMisticos": [0,0,0,0], "invocacionesConocidas": 3 },
+        { "nivel": 7, "trucosConocidos": 3, "conjurosConocidos": 8, "ranurasPacto": 2, "nivelRanuraPacto": 4, "arcanosMisticos": [0,0,0,0], "invocacionesConocidas": 4 },
+        { "nivel": 8, "trucosConocidos": 3, "conjurosConocidos": 9, "ranurasPacto": 2, "nivelRanuraPacto": 4, "arcanosMisticos": [0,0,0,0], "invocacionesConocidas": 4 },
+        { "nivel": 9, "trucosConocidos": 3, "conjurosConocidos": 10, "ranurasPacto": 2, "nivelRanuraPacto": 5, "arcanosMisticos": [0,0,0,0], "invocacionesConocidas": 5 },
+        { "nivel": 10, "trucosConocidos": 4, "conjurosConocidos": 10, "ranurasPacto": 2, "nivelRanuraPacto": 5, "arcanosMisticos": [0,0,0,0], "invocacionesConocidas": 5 },
+        { "nivel": 11, "trucosConocidos": 4, "conjurosConocidos": 11, "ranurasPacto": 3, "nivelRanuraPacto": 5, "arcanosMisticos": [1,0,0,0], "invocacionesConocidas": 5 },
+        { "nivel": 12, "trucosConocidos": 4, "conjurosConocidos": 11, "ranurasPacto": 3, "nivelRanuraPacto": 5, "arcanosMisticos": [1,0,0,0], "invocacionesConocidas": 6 },
+        { "nivel": 13, "trucosConocidos": 4, "conjurosConocidos": 12, "ranurasPacto": 3, "nivelRanuraPacto": 5, "arcanosMisticos": [1,1,0,0], "invocacionesConocidas": 6 },
+        { "nivel": 14, "trucosConocidos": 4, "conjurosConocidos": 12, "ranurasPacto": 3, "nivelRanuraPacto": 5, "arcanosMisticos": [1,1,0,0], "invocacionesConocidas": 6 },
+        { "nivel": 15, "trucosConocidos": 4, "conjurosConocidos": 13, "ranurasPacto": 3, "nivelRanuraPacto": 5, "arcanosMisticos": [1,1,1,0], "invocacionesConocidas": 7 },
+        { "nivel": 16, "trucosConocidos": 4, "conjurosConocidos": 13, "ranurasPacto": 3, "nivelRanuraPacto": 5, "arcanosMisticos": [1,1,1,0], "invocacionesConocidas": 7 },
+        { "nivel": 17, "trucosConocidos": 4, "conjurosConocidos": 14, "ranurasPacto": 4, "nivelRanuraPacto": 5, "arcanosMisticos": [1,1,1,1], "invocacionesConocidas": 7 },
+        { "nivel": 18, "trucosConocidos": 4, "conjurosConocidos": 14, "ranurasPacto": 4, "nivelRanuraPacto": 5, "arcanosMisticos": [1,1,1,1], "invocacionesConocidas": 8 },
+        { "nivel": 19, "trucosConocidos": 4, "conjurosConocidos": 15, "ranurasPacto": 4, "nivelRanuraPacto": 5, "arcanosMisticos": [1,1,1,1], "invocacionesConocidas": 8 },
+        { "nivel": 20, "trucosConocidos": 4, "conjurosConocidos": 15, "ranurasPacto": 4, "nivelRanuraPacto": 5, "arcanosMisticos": [1,1,1,1], "invocacionesConocidas": 8 }
+      ] },
+      "equipamiento": {
+        "fijos": [
+          { "id": "brujo-cuero", "etiqueta": "Armadura de cuero", "cantidad": 1, "objeto": { "nombre": "Armadura de cuero" } },
+          { "id": "brujo-arma-simple", "etiqueta": "Un arma simple", "cantidad": 1, "catalogo": "ASimple" },
+          { "id": "brujo-dagas", "etiqueta": "Dos dagas", "cantidad": 2, "objeto": { "nombre": "Daga" } }
+        ],
+        "gruposEleccion": [
+          {
+            "id": "brujo-arma",
+            "etiqueta": "Arma o ballesta",
+            "opciones": [
+              { "id": "brujo-ballesta", "etiqueta": "Ballesta ligera y 20 virotes", "cantidad": 1, "objeto": { "nombre": "Ballesta ligera y 20 virotes" } },
+              { "id": "brujo-arma-simple-extra", "etiqueta": "Cualquier arma simple", "cantidad": 1, "catalogo": "ASimple" }
+            ]
+          },
+          {
+            "id": "brujo-foco",
+            "etiqueta": "Foco de conjuro",
+            "opciones": [
+              { "id": "brujo-bolsa", "etiqueta": "Bolsa de componentes", "cantidad": 1, "objeto": { "nombre": "Bolsa de componentes" } },
+              { "id": "brujo-foco-arcano", "etiqueta": "Foco arcano", "cantidad": 1, "objeto": { "nombre": "Foco arcano" } }
+            ]
+          },
+          {
+            "id": "brujo-pack",
+            "etiqueta": "Pack inicial",
+            "opciones": [
+              { "id": "brujo-pack-erudito", "etiqueta": "Pack de erudito", "cantidad": 1, "objeto": { "nombre": "Pack de erudito" } },
+              { "id": "brujo-pack-calabozo", "etiqueta": "Pack de calabozo", "cantidad": 1, "objeto": { "nombre": "Pack de calabozo" } }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "mago",
@@ -139,7 +603,59 @@
       "descripcion": "Erudito arcano que prepara hechizos desde el estudio y la disciplina intelectual.",
       "puntosGolpe": { "dadoGolpe": "1d6 por nivel de mago", "primerNivel": "6 + tu modificador de Constitucion", "nivelesSuperiores": "1d6 (o 4) + tu modificador de Constitucion por cada nivel despues del primero" },
       "competencias": { "armaduras": [], "armas": ["Ballestas ligeras", "Bastones", "Dagas", "Dardos", "Hondas"], "herramientas": [], "salvaciones": ["Inteligencia", "Sabiduria"], "habilidades": ["Elige dos entre Arcano, Historia, Investigacion, Medicina, Perspicacia y Religion"] },
-      "equipamiento": { "fijos": [], "gruposEleccion": [] }
+      "lanzamientoConjuros": { "modo": "grimorio", "caracteristica": "Inteligencia", "formulaConjurosPreparados": "Modificador de Inteligencia + nivel de mago (minimo 1)", "niveles": [
+        { "nivel": 1, "trucosConocidos": 3, "conjurosEnLibro": 6, "espaciosConjuro": [2,0,0,0,0,0,0,0,0] },
+        { "nivel": 2, "trucosConocidos": 3, "conjurosEnLibro": 8, "espaciosConjuro": [3,0,0,0,0,0,0,0,0] },
+        { "nivel": 3, "trucosConocidos": 3, "conjurosEnLibro": 10, "espaciosConjuro": [4,2,0,0,0,0,0,0,0] },
+        { "nivel": 4, "trucosConocidos": 4, "conjurosEnLibro": 12, "espaciosConjuro": [4,3,0,0,0,0,0,0,0] },
+        { "nivel": 5, "trucosConocidos": 4, "conjurosEnLibro": 14, "espaciosConjuro": [4,3,2,0,0,0,0,0,0] },
+        { "nivel": 6, "trucosConocidos": 4, "conjurosEnLibro": 16, "espaciosConjuro": [4,3,3,0,0,0,0,0,0] },
+        { "nivel": 7, "trucosConocidos": 4, "conjurosEnLibro": 18, "espaciosConjuro": [4,3,3,1,0,0,0,0,0] },
+        { "nivel": 8, "trucosConocidos": 4, "conjurosEnLibro": 20, "espaciosConjuro": [4,3,3,2,0,0,0,0,0] },
+        { "nivel": 9, "trucosConocidos": 4, "conjurosEnLibro": 22, "espaciosConjuro": [4,3,3,3,1,0,0,0,0] },
+        { "nivel": 10, "trucosConocidos": 5, "conjurosEnLibro": 24, "espaciosConjuro": [4,3,3,3,2,0,0,0,0] },
+        { "nivel": 11, "trucosConocidos": 5, "conjurosEnLibro": 26, "espaciosConjuro": [4,3,3,3,2,1,0,0,0] },
+        { "nivel": 12, "trucosConocidos": 5, "conjurosEnLibro": 28, "espaciosConjuro": [4,3,3,3,2,1,0,0,0] },
+        { "nivel": 13, "trucosConocidos": 5, "conjurosEnLibro": 30, "espaciosConjuro": [4,3,3,3,2,1,1,0,0] },
+        { "nivel": 14, "trucosConocidos": 5, "conjurosEnLibro": 32, "espaciosConjuro": [4,3,3,3,2,1,1,0,0] },
+        { "nivel": 15, "trucosConocidos": 5, "conjurosEnLibro": 34, "espaciosConjuro": [4,3,3,3,2,1,1,1,0] },
+        { "nivel": 16, "trucosConocidos": 5, "conjurosEnLibro": 36, "espaciosConjuro": [4,3,3,3,2,1,1,1,0] },
+        { "nivel": 17, "trucosConocidos": 5, "conjurosEnLibro": 38, "espaciosConjuro": [4,3,3,3,2,1,1,1,1] },
+        { "nivel": 18, "trucosConocidos": 5, "conjurosEnLibro": 40, "espaciosConjuro": [4,3,3,3,3,1,1,1,1] },
+        { "nivel": 19, "trucosConocidos": 5, "conjurosEnLibro": 42, "espaciosConjuro": [4,3,3,3,3,2,1,1,1] },
+        { "nivel": 20, "trucosConocidos": 5, "conjurosEnLibro": 44, "espaciosConjuro": [4,3,3,3,3,2,2,1,1] }
+      ] },
+      "equipamiento": {
+        "fijos": [
+          { "id": "mago-libro", "etiqueta": "Libro de conjuros", "cantidad": 1, "objeto": { "nombre": "Libro de conjuros" } }
+        ],
+        "gruposEleccion": [
+          {
+            "id": "mago-arma",
+            "etiqueta": "Arma basica",
+            "opciones": [
+              { "id": "mago-baston", "etiqueta": "Baston", "cantidad": 1, "objeto": { "nombre": "Baston" } },
+              { "id": "mago-daga", "etiqueta": "Daga", "cantidad": 1, "objeto": { "nombre": "Daga" } }
+            ]
+          },
+          {
+            "id": "mago-foco",
+            "etiqueta": "Foco de conjuro",
+            "opciones": [
+              { "id": "mago-bolsa", "etiqueta": "Bolsa de componentes", "cantidad": 1, "objeto": { "nombre": "Bolsa de componentes" } },
+              { "id": "mago-foco-arcano", "etiqueta": "Foco arcano", "cantidad": 1, "objeto": { "nombre": "Foco arcano" } }
+            ]
+          },
+          {
+            "id": "mago-pack",
+            "etiqueta": "Pack inicial",
+            "opciones": [
+              { "id": "mago-pack-erudito", "etiqueta": "Pack de erudito", "cantidad": 1, "objeto": { "nombre": "Pack de erudito" } },
+              { "id": "mago-pack-explorador", "etiqueta": "Pack de explorador", "cantidad": 1, "objeto": { "nombre": "Pack de explorador" } }
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "artifice",

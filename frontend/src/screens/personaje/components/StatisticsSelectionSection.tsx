@@ -1,12 +1,17 @@
+import { useEffect } from "react";
 import "@3d-dice/dice-box/dist/style.css";
 import DiceMethodSection from "./statistics/DiceMethodSection";
 import PointBuyMethodSection from "./statistics/PointBuyMethodSection";
 import StandardMethodSection from "./statistics/StandardMethodSection";
 import StatisticsSummaryGrid from "./statistics/StatisticsSummaryGrid";
 import { useStatisticsSelection } from "../hooks/useStatisticsSelection";
-import type { RaceSelectionSnapshot } from "../types";
+import type {
+  CharacterStatisticsSnapshot,
+  RaceSelectionSnapshot,
+} from "../types";
 import { computeRaceAbilityBonuses } from "../utils/raceBonuses";
 import {
+  ABILITY_STATS,
   METHOD_OPTIONS,
   PANEL_CLASSES,
   SELECT_CLASSES,
@@ -14,17 +19,51 @@ import {
 
 interface StatisticsSelectionSectionProps {
   raceSelection: RaceSelectionSnapshot | null;
+  onSelectionChange?: (selection: CharacterStatisticsSnapshot) => void;
+  fieldErrors?: Record<string, string>;
+  hasError?: boolean;
 }
 
 export default function StatisticsSelectionSection({
   raceSelection,
+  onSelectionChange,
+  fieldErrors = {},
+  hasError = false,
 }: StatisticsSelectionSectionProps) {
   const racialBonuses = computeRaceAbilityBonuses(raceSelection);
   const statistics = useStatisticsSelection(racialBonuses.bonuses);
 
+  useEffect(() => {
+    onSelectionChange?.({
+      selectedMethod: statistics.selectedMethod,
+      diceRounds: statistics.diceRounds,
+      standardAssignments: statistics.standardAssignments,
+      pointBuyScores: statistics.pointBuyScores,
+      customScores: statistics.customScores,
+      resolvedScores: ABILITY_STATS.reduce<Record<string, number | null>>(
+        (accumulator, stat) => {
+          accumulator[stat.id] = statistics.getStatNumericValue(stat.id);
+          return accumulator;
+        },
+        {},
+      ),
+    });
+  }, [
+    onSelectionChange,
+    statistics.customScores,
+    statistics.diceRounds,
+    statistics.pointBuyScores,
+    statistics.selectedMethod,
+    statistics.standardAssignments,
+  ]);
+
   return (
     <section className="mt-10">
-      <div className="rounded-[28px] border border-stone-300/10 bg-[linear-gradient(180deg,rgba(12,10,9,0.72),rgba(41,37,36,0.18))] p-6">
+      <div
+        className={`rounded-[28px] border bg-[linear-gradient(180deg,rgba(12,10,9,0.72),rgba(41,37,36,0.18))] p-6 transition ${
+          hasError ? "border-rose-400/45" : "border-stone-300/10"
+        }`}
+      >
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-white">Estadisticas</h2>
@@ -75,6 +114,7 @@ export default function StatisticsSelectionSection({
           renderStatValue={statistics.renderStatValue}
           getStatNumericValue={statistics.getStatNumericValue}
           onCustomScoreChange={statistics.handleCustomScoreChange}
+          fieldErrors={fieldErrors}
         />
 
         <div className="mt-8 space-y-6">
@@ -98,6 +138,7 @@ export default function StatisticsSelectionSection({
             <StandardMethodSection
               standardAssignments={statistics.standardAssignments}
               usedStandardValues={statistics.usedStandardValues}
+              fieldErrors={fieldErrors}
               onAssignmentChange={statistics.handleStandardAssignmentChange}
             />
           ) : null}

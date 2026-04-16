@@ -168,6 +168,7 @@ public class DndInfoService {
                         clase.descripcion(),
                         clase.puntosGolpe(),
                         clase.competencias(),
+                        clase.lanzamientoConjuros(),
                         resolverEquipamiento(clase.equipamiento())
                 ))
                 .findFirst();

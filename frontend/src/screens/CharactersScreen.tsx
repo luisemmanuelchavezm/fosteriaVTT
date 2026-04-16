@@ -3,6 +3,7 @@ import HomeNavbar, { type NavTab } from "../components/HomeNavbar";
 import LogoLayout from "../components/LogoLayout";
 import UserMenu from "../components/UserMenu";
 import { buildApiUrl } from "../lib/api";
+import { markCharacterAsUsed } from "./personaje/utils/dndApi";
 
 interface CharactersScreenProps {
   username: string;
@@ -12,6 +13,7 @@ interface CharactersScreenProps {
   onGoCampaigns: () => void;
   onGoCharacters: () => void;
   onCreateDndCharacter?: () => void;
+  onOpenDndCharacterSheet?: (characterId: string) => void;
 }
 
 interface CharacterSummary {
@@ -61,6 +63,7 @@ export default function CharactersScreen({
   onGoCampaigns,
   onGoCharacters,
   onCreateDndCharacter,
+  onOpenDndCharacterSheet,
 }: CharactersScreenProps) {
   const [characters, setCharacters] = useState<CharacterSummary[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -263,6 +266,24 @@ export default function CharactersScreen({
   const handleCreateDnd = () => {
     setIsCreateModalOpen(false);
     onCreateDndCharacter?.();
+  };
+
+  const handleOpenCharacter = async (character: CharacterSummary) => {
+    if (character.system !== "Dungeons and Dragons") {
+      return;
+    }
+
+    const token = localStorage.getItem("jwtToken");
+
+    if (token) {
+      try {
+        await markCharacterAsUsed(token, character.id);
+      } catch {
+        // La navegación no debe bloquearse si falla la marca de uso.
+      }
+    }
+
+    onOpenDndCharacterSheet?.(character.id);
   };
 
   const handleNavChange = (tab: NavTab) => {
@@ -475,6 +496,10 @@ export default function CharactersScreen({
                   <button
                     key={character.id}
                     type="button"
+                    onClick={() => {
+                      void handleOpenCharacter(character);
+                    }}
+                    disabled={character.system !== "Dungeons and Dragons"}
                     className="grid min-h-[250px] overflow-hidden rounded-[24px] border border-amber-200/35 bg-stone-900 text-left shadow-xl transition duration-300 hover:-translate-y-1 hover:border-amber-200/70"
                   >
                     <div className="grid h-full md:grid-cols-[1fr_1fr]">

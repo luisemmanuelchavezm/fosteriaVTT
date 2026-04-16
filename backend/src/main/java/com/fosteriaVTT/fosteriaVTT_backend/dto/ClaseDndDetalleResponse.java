@@ -7,6 +7,7 @@ public record ClaseDndDetalleResponse(
         String descripcion,
         ClaseDndPuntosGolpeResponse puntosGolpe,
         ClaseDndCompetenciasResponse competencias,
+        ClaseDndLanzamientoConjurosResponse lanzamientoConjuros,
         EquipamientoDndResponse equipamiento
 ) {
 }

@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
-import type { DndClassSummary } from "../types";
+import type { ClassSkillChoiceGroup, DndClassSummary } from "../types";
+import ValidationMessage from "./ValidationMessage";
 
 interface ClassSelectionSectionProps {
   filteredClasses: DndClassSummary[];
@@ -7,8 +8,19 @@ interface ClassSelectionSectionProps {
   classSearch: string;
   isLoadingClasses: boolean;
   classesError: string | null;
+  selectionError?: string;
+  selectedClassName?: string | null;
+  classSkillChoices?: ClassSkillChoiceGroup[];
+  selectedClassSkillChoices?: Record<string, string[]>;
+  classSkillErrors?: Record<string, string>;
+  hasError?: boolean;
   onClassSearchChange: (value: string) => void;
   onClassClick: (item: DndClassSummary) => void;
+  onClassSkillChoiceChange?: (
+    choiceId: string,
+    choiceIndex: number,
+    value: string,
+  ) => void;
 }
 
 export default function ClassSelectionSection({
@@ -17,11 +29,23 @@ export default function ClassSelectionSection({
   classSearch,
   isLoadingClasses,
   classesError,
+  selectionError,
+  selectedClassName = null,
+  classSkillChoices = [],
+  selectedClassSkillChoices = {},
+  classSkillErrors = {},
+  hasError = false,
   onClassSearchChange,
   onClassClick,
+  onClassSkillChoiceChange,
 }: ClassSelectionSectionProps) {
   return (
-    <section className="mt-10">
+    <section
+      data-validation-error={hasError ? "true" : undefined}
+      className={`mt-10 rounded-[28px] border p-6 transition ${
+        hasError ? "border-rose-400/45 bg-rose-950/10" : "border-transparent"
+      }`}
+    >
       <div className="flex flex-col gap-4">
         <h2 className="text-center text-2xl font-bold text-white">Clases</h2>
         <div className="relative w-full md:ml-auto md:max-w-[340px]">
@@ -31,7 +55,11 @@ export default function ClassSelectionSection({
             value={classSearch}
             onChange={(event) => onClassSearchChange(event.target.value)}
             placeholder="Buscar por nombre"
-            className="h-12 w-full rounded-full border border-stone-300/15 bg-black/30 pl-11 pr-5 text-sm text-white outline-none transition placeholder:text-stone-400 focus:border-amber-300/50"
+            className={`h-12 w-full rounded-full border bg-black/30 pl-11 pr-5 text-sm text-white outline-none transition placeholder:text-stone-400 ${
+              hasError
+                ? "border-rose-400/45 focus:border-rose-300"
+                : "border-stone-300/15 focus:border-amber-300/50"
+            }`}
           />
         </div>
       </div>
@@ -76,6 +104,97 @@ export default function ClassSelectionSection({
           );
         })}
       </div>
+
+      {selectionError ? (
+        <ValidationMessage message={selectionError} className="mt-4" />
+      ) : null}
+
+      {classSkillChoices.length > 0 && onClassSkillChoiceChange ? (
+        <div className="mt-6 rounded-[24px] border border-stone-300/10 bg-[linear-gradient(180deg,rgba(12,10,9,0.72),rgba(41,37,36,0.18))] p-5">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-200/80">
+            Competencias de clase
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-stone-300">
+            Selecciona las habilidades iniciales de{" "}
+            {selectedClassName ?? "la clase"}.
+          </p>
+
+          <div className="mt-5 space-y-4">
+            {classSkillChoices.map((choice) =>
+              (selectedClassSkillChoices[choice.id] ?? []).map(
+                (value, index) => {
+                  const fieldError = classSkillErrors[`${choice.id}-${index}`];
+                  const usedValues = Object.entries(selectedClassSkillChoices)
+                    .flatMap(([groupId, groupValues]) =>
+                      groupValues
+                        .map((groupValue, groupIndex) => ({
+                          groupId,
+                          groupIndex,
+                          groupValue,
+                        }))
+                        .filter(({ groupValue }) => groupValue.trim() !== ""),
+                    )
+                    .filter(
+                      ({ groupId, groupIndex }) =>
+                        !(groupId === choice.id && groupIndex === index),
+                    )
+                    .map(({ groupValue }) => groupValue);
+
+                  return (
+                    <div key={`${choice.id}-${index}`}>
+                      {index === 0 ? (
+                        <p className="mb-2 text-sm font-semibold text-white">
+                          {choice.etiqueta}
+                        </p>
+                      ) : null}
+                      <div
+                        data-validation-error={fieldError ? "true" : undefined}
+                        className="relative"
+                      >
+                        <select
+                          value={value}
+                          onChange={(event) =>
+                            onClassSkillChoiceChange(
+                              choice.id,
+                              index,
+                              event.target.value,
+                            )
+                          }
+                          className={`h-12 w-full appearance-none rounded-[18px] border bg-black/45 px-4 pr-10 text-sm text-stone-100 outline-none transition ${
+                            fieldError
+                              ? "border-rose-400/70 focus:border-rose-300"
+                              : "border-stone-300/15 focus:border-amber-300/50 focus:bg-stone-950"
+                          }`}
+                        >
+                          <option value="" className="bg-stone-950 text-white">
+                            Selecciona una habilidad
+                          </option>
+                          {choice.opciones.map((option) => (
+                            <option
+                              key={`${choice.id}-${option}`}
+                              value={option}
+                              disabled={usedValues.includes(option)}
+                              className="bg-stone-950 text-white"
+                            >
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                        <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-stone-300">
+                          ▾
+                        </span>
+                      </div>
+                      {fieldError ? (
+                        <ValidationMessage message={fieldError} />
+                      ) : null}
+                    </div>
+                  );
+                },
+              ),
+            )}
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

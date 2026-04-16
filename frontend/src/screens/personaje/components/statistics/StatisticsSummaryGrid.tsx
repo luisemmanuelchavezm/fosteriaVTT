@@ -4,12 +4,14 @@ import {
   STAT_BOX_CLASSES,
   type StatsMethod,
 } from "../../utils/statisticsUtils";
+import ValidationMessage from "../ValidationMessage";
 
 interface StatisticsSummaryGridProps {
   selectedMethod: StatsMethod;
   renderStatValue: (statId: string) => string | number;
   getStatNumericValue: (statId: string) => number | null;
   onCustomScoreChange: (statId: string, value: string) => void;
+  fieldErrors?: Record<string, string>;
 }
 
 export default function StatisticsSummaryGrid({
@@ -17,18 +19,22 @@ export default function StatisticsSummaryGrid({
   renderStatValue,
   getStatNumericValue,
   onCustomScoreChange,
+  fieldErrors = {},
 }: StatisticsSummaryGridProps) {
   return (
     <div className="mt-8 grid grid-cols-6 gap-3">
       {ABILITY_STATS.map((stat) => {
         const numericValue = getStatNumericValue(stat.id);
+        const fieldError = fieldErrors[stat.id];
 
         return (
           <div key={stat.id}>
             <p className="mb-2 text-center text-sm font-semibold uppercase tracking-[0.18em] text-amber-100">
               {stat.name}
             </p>
-            <div className={STAT_BOX_CLASSES}>
+            <div
+              className={`${STAT_BOX_CLASSES} ${fieldError ? "border-rose-400" : ""}`}
+            >
               {selectedMethod === "custom" ? (
                 <input
                   type="text"
@@ -52,6 +58,12 @@ export default function StatisticsSummaryGrid({
                   : "-"}
               </p>
             </div>
+            {fieldError ? (
+              <ValidationMessage
+                message={fieldError}
+                className="mt-2 justify-center"
+              />
+            ) : null}
           </div>
         );
       })}

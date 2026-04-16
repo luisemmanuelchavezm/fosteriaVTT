@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface HabilidadRepository extends JpaRepository<Habilidad, Long> {
-    List<Habilidad> findByClaseOrderByNivelAscIdAsc(String clase);
+	List<Habilidad> findByNombreIgnoreCaseOrderByIdAsc(String nombre);
 }

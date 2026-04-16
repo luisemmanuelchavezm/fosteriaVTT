@@ -18,6 +18,7 @@ export function useCreateDndCharacter() {
   const [activePhaseIndex, setActivePhaseIndex] = useState(0);
   const [name, setName] = useState("");
   const [classSearch, setClassSearch] = useState("");
+  const [portraitFile, setPortraitFile] = useState<File | null>(null);
   const [portraitPreview, setPortraitPreview] = useState<string | null>(null);
   const [availableClasses, setAvailableClasses] = useState<DndClassSummary[]>(
     [],
@@ -336,6 +337,7 @@ export function useCreateDndCharacter() {
       return;
     }
 
+    setPortraitFile(file);
     const reader = new FileReader();
     reader.onload = () => {
       setPortraitPreview(
@@ -379,6 +381,7 @@ export function useCreateDndCharacter() {
     setName,
     classSearch,
     setClassSearch,
+    portraitFile,
     portraitPreview,
     filteredClasses,
     availableBackgrounds,

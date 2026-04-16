@@ -9,5 +9,5 @@ public record TrasfondoDndEleccionResponse(
         String catalogo,
         int cantidad,
         List<String> opciones
-) {
+) implements CatalogoDndEleccion {
 }

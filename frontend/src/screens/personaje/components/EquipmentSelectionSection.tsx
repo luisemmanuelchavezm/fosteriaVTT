@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import ValidationMessage from "./ValidationMessage";
 import {
   buildEquipmentMeta,
   formatEquipmentOption,
 } from "../utils/equipmentUtils";
-import type { DndEquipment } from "../types";
+import type { DndEquipment, EquipmentSelectionSnapshot } from "../types";
 
 const PANEL_CLASSES =
   "rounded-[24px] border border-stone-300/10 bg-[linear-gradient(180deg,rgba(12,10,9,0.72),rgba(41,37,36,0.18))]";
@@ -17,6 +18,12 @@ interface EquipmentSelectionSectionProps {
   isLoadingBackgroundEquipment: boolean;
   classEquipmentError: string | null;
   backgroundEquipmentError: string | null;
+  onCreateCharacter?: () => void;
+  onSelectionChange?: (selection: EquipmentSelectionSnapshot) => void;
+  fieldErrors?: Record<string, string>;
+  hasError?: boolean;
+  isCreating?: boolean;
+  isCreateDisabled?: boolean;
 }
 
 type SelectedGroupState = Record<string, number | null>;
@@ -32,6 +39,7 @@ function EquipmentOriginCard({
   originName,
   selectedGroups,
   selectedCatalogByGroup,
+  fieldErrors,
   onSelectGroupItem,
   onSelectCatalogItem,
 }: {
@@ -40,6 +48,7 @@ function EquipmentOriginCard({
   originName: string;
   selectedGroups: SelectedGroupState;
   selectedCatalogByGroup: SelectedCatalogByGroup;
+  fieldErrors: Record<string, string>;
   onSelectGroupItem: (selectionKey: string, optionIndex: number) => void;
   onSelectCatalogItem: (
     selectionKey: string,
@@ -87,133 +96,164 @@ function EquipmentOriginCard({
 
         {equipment.gruposEleccion.length > 0 ? (
           <div className="mt-5 space-y-4">
-            {equipment.gruposEleccion.map((group, groupIndex) => (
-              <div
-                key={`${originId}-${group.id}`}
-                className="rounded-[18px] border border-stone-300/10 bg-black/20 p-4"
-              >
-                <p className="text-sm font-semibold text-amber-100">
-                  {group.etiqueta}
-                </p>
-                <div className="mt-3 space-y-3 text-sm leading-6 text-stone-200/90">
-                  {group.opciones.map((item, optionIndex) => {
-                    const selectionKey = buildSelectionKey(originId, group.id);
-                    const isSelected =
-                      selectedGroups[selectionKey] === optionIndex;
-                    const catalogItems = item.opcionesCatalogo ?? [];
-                    const selectedCatalogId =
-                      selectedCatalogByGroup[selectionKey] ?? null;
-                    const selectedCatalogItem =
-                      catalogItems.find(
-                        (catalogItem) => catalogItem.id === selectedCatalogId,
-                      ) ?? null;
+            {equipment.gruposEleccion.map((group, groupIndex) =>
+              (() => {
+                const selectionKey = buildSelectionKey(originId, group.id);
+                const groupError = fieldErrors[selectionKey];
 
-                    return (
-                      <label
-                        key={item.id}
-                        className={`block rounded-[18px] border p-4 transition ${
-                          isSelected
-                            ? "border-amber-300/45 bg-amber-300/10"
-                            : "border-stone-300/10 bg-stone-950/35 hover:border-amber-300/20"
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <input
-                            type="radio"
-                            name={selectionKey}
-                            checked={isSelected}
-                            onChange={() =>
-                              onSelectGroupItem(selectionKey, optionIndex)
-                            }
-                            className="sr-only"
-                          />
-                          <span
-                            className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${
+                return (
+                  <div
+                    key={`${originId}-${group.id}`}
+                    data-validation-error={groupError ? "true" : undefined}
+                    className={`rounded-[18px] border bg-black/20 p-4 ${
+                      groupError ? "border-rose-400/45" : "border-stone-300/10"
+                    }`}
+                  >
+                    <p className="text-sm font-semibold text-amber-100">
+                      {group.etiqueta}
+                    </p>
+                    <div className="mt-3 space-y-3 text-sm leading-6 text-stone-200/90">
+                      {group.opciones.map((item, optionIndex) => {
+                        const isSelected =
+                          selectedGroups[selectionKey] === optionIndex;
+                        const catalogItems = item.opcionesCatalogo ?? [];
+                        const selectedCatalogId =
+                          selectedCatalogByGroup[selectionKey] ?? null;
+                        const catalogError =
+                          fieldErrors[`${selectionKey}:catalog`];
+                        const selectedCatalogItem =
+                          catalogItems.find(
+                            (catalogItem) =>
+                              catalogItem.id === selectedCatalogId,
+                          ) ?? null;
+
+                        return (
+                          <label
+                            key={item.id}
+                            className={`block rounded-[18px] border p-4 transition ${
                               isSelected
-                                ? "border-amber-300 bg-amber-300 text-stone-950"
-                                : "border-stone-400/50 bg-stone-950 text-transparent"
+                                ? "border-amber-300/45 bg-amber-300/10"
+                                : "border-stone-300/10 bg-stone-950/35 hover:border-amber-300/20"
                             }`}
                           >
-                            ✓
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <p className="font-semibold text-white">
-                              {formatEquipmentOption(item)}
-                            </p>
-                            {buildEquipmentMeta(item.objeto).map((meta) => (
-                              <p
-                                key={`${item.id}-${meta}`}
-                                className="mt-1 text-xs leading-5 text-stone-400"
+                            <div className="flex items-start gap-3">
+                              <input
+                                type="radio"
+                                name={selectionKey}
+                                checked={isSelected}
+                                onChange={() =>
+                                  onSelectGroupItem(selectionKey, optionIndex)
+                                }
+                                className="sr-only"
+                              />
+                              <span
+                                className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${
+                                  isSelected
+                                    ? "border-amber-300 bg-amber-300 text-stone-950"
+                                    : "border-stone-400/50 bg-stone-950 text-transparent"
+                                }`}
                               >
-                                {meta}
-                              </p>
-                            ))}
-                            {catalogItems.length > 0 && isSelected ? (
-                              <div className="mt-4 space-y-2">
-                                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200/75">
-                                  Escoge la opcion concreta
+                                ✓
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <p className="font-semibold text-white">
+                                  {formatEquipmentOption(item)}
                                 </p>
-                                <select
-                                  value={selectedCatalogId ?? ""}
-                                  onChange={(event) => {
-                                    const value = event.target.value;
-                                    onSelectCatalogItem(
-                                      selectionKey,
-                                      value ? Number(value) : null,
-                                    );
-                                  }}
-                                  className="h-11 w-full rounded-[16px] border border-stone-300/15 bg-stone-950/80 px-4 text-sm text-white outline-none transition focus:border-amber-300/45"
-                                >
-                                  <option
-                                    value=""
-                                    className="bg-stone-950 text-white"
+                                {buildEquipmentMeta(item.objeto).map((meta) => (
+                                  <p
+                                    key={`${item.id}-${meta}`}
+                                    className="mt-1 text-xs leading-5 text-stone-400"
                                   >
-                                    Selecciona una opcion
-                                  </option>
-                                  {catalogItems.map((catalogItem) => (
-                                    <option
-                                      key={catalogItem.id}
-                                      value={catalogItem.id}
-                                      className="bg-stone-950 text-white"
+                                    {meta}
+                                  </p>
+                                ))}
+                                {catalogItems.length > 0 && isSelected ? (
+                                  <div className="mt-4 space-y-2">
+                                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200/75">
+                                      Escoge la opcion concreta
+                                    </p>
+                                    <select
+                                      value={selectedCatalogId ?? ""}
+                                      onChange={(event) => {
+                                        const value = event.target.value;
+                                        onSelectCatalogItem(
+                                          selectionKey,
+                                          value ? Number(value) : null,
+                                        );
+                                      }}
+                                      data-validation-error={
+                                        catalogError ? "true" : undefined
+                                      }
+                                      className={`h-11 w-full rounded-[16px] border bg-stone-950/80 px-4 text-sm text-white outline-none transition ${
+                                        catalogError
+                                          ? "border-rose-400/70 focus:border-rose-300"
+                                          : "border-stone-300/15 focus:border-amber-300/45"
+                                      }`}
                                     >
-                                      {catalogItem.nombre}
-                                    </option>
-                                  ))}
-                                </select>
-                                {selectedCatalogItem ? (
-                                  <div className="space-y-1 text-xs leading-5 text-stone-300">
-                                    {buildEquipmentMeta(
-                                      selectedCatalogItem,
-                                    ).map((meta) => (
-                                      <p
-                                        key={`${selectedCatalogItem.id}-${meta}`}
+                                      <option
+                                        value=""
+                                        className="bg-stone-950 text-white"
                                       >
-                                        {meta}
-                                      </p>
-                                    ))}
-                                    {selectedCatalogItem.descripcion ? (
-                                      <p>
-                                        {selectedCatalogItem.descripcion.replace(
-                                          /\*\*/g,
-                                          "",
-                                        )}
-                                      </p>
+                                        Selecciona una opcion
+                                      </option>
+                                      {catalogItems.map((catalogItem) => (
+                                        <option
+                                          key={catalogItem.id}
+                                          value={catalogItem.id}
+                                          className="bg-stone-950 text-white"
+                                        >
+                                          {catalogItem.nombre}
+                                        </option>
+                                      ))}
+                                    </select>
+                                    {catalogError ? (
+                                      <ValidationMessage
+                                        message={catalogError}
+                                        className="mt-0"
+                                      />
+                                    ) : null}
+                                    {selectedCatalogItem ? (
+                                      <div className="space-y-1 text-xs leading-5 text-stone-300">
+                                        {buildEquipmentMeta(
+                                          selectedCatalogItem,
+                                        ).map((meta) => (
+                                          <p
+                                            key={`${selectedCatalogItem.id}-${meta}`}
+                                          >
+                                            {meta}
+                                          </p>
+                                        ))}
+                                        {selectedCatalogItem.descripcion ? (
+                                          <p>
+                                            {selectedCatalogItem.descripcion.replace(
+                                              /\*\*/g,
+                                              "",
+                                            )}
+                                          </p>
+                                        ) : null}
+                                      </div>
                                     ) : null}
                                   </div>
                                 ) : null}
                               </div>
-                            ) : null}
-                          </div>
-                        </div>
-                      </label>
-                    );
-                  })}
-                </div>
-                <p className="mt-3 text-xs text-stone-400">
-                  Grupo {groupIndex + 1}
-                </p>
-              </div>
-            ))}
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                    {groupError ? (
+                      <ValidationMessage
+                        message={groupError}
+                        className="mt-3"
+                      />
+                    ) : null}
+                    <p className="mt-3 text-xs text-stone-400">
+                      Grupo {groupIndex + 1}
+                    </p>
+                  </div>
+                );
+              })(),
+            )}
           </div>
         ) : null}
       </div>
@@ -230,10 +270,23 @@ export default function EquipmentSelectionSection({
   isLoadingBackgroundEquipment,
   classEquipmentError,
   backgroundEquipmentError,
+  onCreateCharacter,
+  onSelectionChange,
+  fieldErrors = {},
+  hasError = false,
+  isCreating = false,
+  isCreateDisabled = false,
 }: EquipmentSelectionSectionProps) {
   const [selectedGroups, setSelectedGroups] = useState<SelectedGroupState>({});
   const [selectedCatalogByGroup, setSelectedCatalogByGroup] =
     useState<SelectedCatalogByGroup>({});
+
+  useEffect(() => {
+    onSelectionChange?.({
+      selectedGroups,
+      selectedCatalogByGroup,
+    });
+  }, [onSelectionChange, selectedCatalogByGroup, selectedGroups]);
 
   const hasAnySelection =
     classEquipment !== null ||
@@ -266,12 +319,30 @@ export default function EquipmentSelectionSection({
 
   return (
     <section className="mt-10 space-y-5">
-      <div className="rounded-[28px] border border-stone-300/10 bg-[linear-gradient(180deg,rgba(12,10,9,0.72),rgba(41,37,36,0.18))] p-6">
-        <h2 className="text-2xl font-bold text-white">Equipamiento</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-stone-300">
-          Aqui se reune el equipamiento inicial que te aportan la clase y el
-          trasfondo elegidos.
-        </p>
+      <div
+        className={`rounded-[28px] border bg-[linear-gradient(180deg,rgba(12,10,9,0.72),rgba(41,37,36,0.18))] p-6 transition ${
+          hasError ? "border-rose-400/45" : "border-stone-300/10"
+        }`}
+      >
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-white">Equipamiento</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-stone-300">
+              Aqui se reune el equipamiento inicial que te aportan la clase y el
+              trasfondo elegidos.
+            </p>
+          </div>
+          {onCreateCharacter ? (
+            <button
+              type="button"
+              onClick={onCreateCharacter}
+              disabled={isCreateDisabled}
+              className="inline-flex items-center justify-center rounded-full border border-amber-300/35 bg-[linear-gradient(90deg,rgba(28,25,23,0.92),rgba(245,158,11,0.12))] px-5 py-3 text-sm font-semibold text-amber-100 transition hover:border-amber-300/60 hover:bg-[linear-gradient(90deg,rgba(41,37,36,0.96),rgba(245,158,11,0.18))]"
+            >
+              {isCreating ? "Creando personaje..." : "Crear personaje"}
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {isLoadingClassEquipment ? (
@@ -295,6 +366,7 @@ export default function EquipmentSelectionSection({
           originName={classEquipmentName}
           selectedGroups={selectedGroups}
           selectedCatalogByGroup={selectedCatalogByGroup}
+          fieldErrors={fieldErrors}
           onSelectGroupItem={handleSelectGroupItem}
           onSelectCatalogItem={handleSelectCatalogItem}
         />
@@ -323,6 +395,7 @@ export default function EquipmentSelectionSection({
           originName={backgroundEquipmentName}
           selectedGroups={selectedGroups}
           selectedCatalogByGroup={selectedCatalogByGroup}
+          fieldErrors={fieldErrors}
           onSelectGroupItem={handleSelectGroupItem}
           onSelectCatalogItem={handleSelectCatalogItem}
         />

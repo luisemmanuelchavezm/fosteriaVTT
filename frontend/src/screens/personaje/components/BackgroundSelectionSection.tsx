@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import type {
+  BackgroundSelectionSnapshot,
   DndBackgroundChoice,
   DndBackgroundDetail,
   DndBackgroundSummary,
 } from "../types";
+import ValidationMessage from "./ValidationMessage";
 
 const PANEL_CLASSES =
   "rounded-[24px] border border-stone-300/10 bg-[linear-gradient(180deg,rgba(12,10,9,0.72),rgba(41,37,36,0.18))]";
@@ -15,11 +17,14 @@ interface BackgroundSelectionSectionProps {
   backgrounds: DndBackgroundSummary[];
   selectedBackgroundId: string;
   selectedBackground: DndBackgroundDetail | null;
+  onSelectionChange?: (selection: BackgroundSelectionSnapshot) => void;
   onSelectedBackgroundChange: (backgroundId: string) => void;
   isLoadingBackgrounds: boolean;
   backgroundsError: string | null;
   isLoadingBackgroundInfo: boolean;
   backgroundInfoError: string | null;
+  fieldErrors?: Record<string, string>;
+  hasError?: boolean;
 }
 function buildInitialChoiceState(background: DndBackgroundDetail | null) {
   if (!background) {
@@ -73,10 +78,12 @@ function formatEquipmentItem(
 function ChoicePickerGroup({
   choice,
   values,
+  errors,
   onChange,
 }: {
   choice: DndBackgroundChoice;
   values: string[];
+  errors?: Record<string, string>;
   onChange: (choiceId: string, choiceIndex: number, value: string) => void;
 }) {
   const options = choice.opciones;
@@ -88,6 +95,7 @@ function ChoicePickerGroup({
 
       <div className="mt-4">
         {values.map((value, index) => {
+          const fieldError = errors?.[`${choice.id}-${index}`];
           const usedValues = values.filter(
             (selectedValue, selectedIndex) =>
               selectedIndex !== index && selectedValue !== "",
@@ -96,6 +104,7 @@ function ChoicePickerGroup({
           return (
             <div
               key={`${choice.id}-${index}`}
+              data-validation-error={fieldError ? "true" : undefined}
               className="relative border-t border-stone-300/10 pt-3 first:border-t-0 first:pt-0"
             >
               <select
@@ -103,7 +112,9 @@ function ChoicePickerGroup({
                 onChange={(event) =>
                   onChange(choice.id, index, event.target.value)
                 }
-                className={`${SELECT_CLASSES} pr-10`}
+                className={`${SELECT_CLASSES} pr-10 ${
+                  fieldError ? "border-rose-400/70 focus:border-rose-300" : ""
+                }`}
               >
                 <option value="" className="bg-stone-950 text-white">
                   Selecciona una opcion
@@ -122,6 +133,7 @@ function ChoicePickerGroup({
               <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-stone-300">
                 ▾
               </span>
+              {fieldError ? <ValidationMessage message={fieldError} /> : null}
             </div>
           );
         })}
@@ -134,11 +146,14 @@ export default function BackgroundSelectionSection({
   backgrounds,
   selectedBackgroundId,
   selectedBackground,
+  onSelectionChange,
   onSelectedBackgroundChange,
   isLoadingBackgrounds,
   backgroundsError,
   isLoadingBackgroundInfo,
   backgroundInfoError,
+  fieldErrors = {},
+  hasError = false,
 }: BackgroundSelectionSectionProps) {
   const [selectedChoices, setSelectedChoices] = useState<
     Record<string, string[]>
@@ -147,6 +162,19 @@ export default function BackgroundSelectionSection({
   useEffect(() => {
     setSelectedChoices(buildInitialChoiceState(selectedBackground));
   }, [selectedBackground]);
+
+  useEffect(() => {
+    onSelectionChange?.({
+      selectedBackgroundId,
+      selectedBackground,
+      selectedChoices,
+    });
+  }, [
+    onSelectionChange,
+    selectedBackground,
+    selectedBackgroundId,
+    selectedChoices,
+  ]);
 
   const languageChoices = useMemo(
     () =>
@@ -197,7 +225,11 @@ export default function BackgroundSelectionSection({
 
   return (
     <section className="mt-10">
-      <div className="rounded-[28px] border border-stone-300/10 bg-[linear-gradient(180deg,rgba(12,10,9,0.72),rgba(41,37,36,0.18))] p-6">
+      <div
+        className={`rounded-[28px] border bg-[linear-gradient(180deg,rgba(12,10,9,0.72),rgba(41,37,36,0.18))] p-6 transition ${
+          hasError ? "border-rose-400/45" : "border-stone-300/10"
+        }`}
+      >
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-white">Trasfondos</h2>
@@ -220,7 +252,14 @@ export default function BackgroundSelectionSection({
                 id="background-select"
                 value={selectedBackgroundId}
                 onChange={(event) => handleBackgroundChange(event.target.value)}
-                className={`${SELECT_CLASSES} pr-10`}
+                data-validation-error={
+                  fieldErrors.background ? "true" : undefined
+                }
+                className={`${SELECT_CLASSES} pr-10 ${
+                  fieldErrors.background
+                    ? "border-rose-400/70 focus:border-rose-300"
+                    : ""
+                }`}
               >
                 <option value="" className="bg-stone-950 text-white">
                   Elige un trasfondo
@@ -239,6 +278,9 @@ export default function BackgroundSelectionSection({
                 ▾
               </span>
             </div>
+            {fieldErrors.background ? (
+              <ValidationMessage message={fieldErrors.background} />
+            ) : null}
             {isLoadingBackgrounds ? (
               <p className="mt-3 text-sm text-stone-300">
                 Cargando trasfondos disponibles...
@@ -310,6 +352,7 @@ export default function BackgroundSelectionSection({
                             selectedChoices[choice.id] ??
                             Array.from({ length: choice.cantidad }, () => "")
                           }
+                          errors={fieldErrors}
                           onChange={handleChoiceChange}
                         />
                       ))}
@@ -343,6 +386,7 @@ export default function BackgroundSelectionSection({
                             selectedChoices[choice.id] ??
                             Array.from({ length: choice.cantidad }, () => "")
                           }
+                          errors={fieldErrors}
                           onChange={handleChoiceChange}
                         />
                       ))}

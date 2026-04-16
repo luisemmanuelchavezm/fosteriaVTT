@@ -1,3 +1,5 @@
+import type { DiceRound, StatsMethod } from "./utils/statisticsUtils";
+
 export interface InitialEquipmentItem {
   id: number;
   nombre: string;
@@ -80,6 +82,12 @@ export interface DndBackgroundDetail extends DndBackgroundSummary {
   equipamiento: DndEquipment;
 }
 
+export interface BackgroundSelectionSnapshot {
+  selectedBackgroundId: string;
+  selectedBackground: DndBackgroundDetail | null;
+  selectedChoices: Record<string, string[]>;
+}
+
 export interface DndRaceTrait {
   titulo: string;
   descripcion: string;
@@ -130,4 +138,39 @@ export interface RaceSelectionSnapshot {
   selectedSubraceId: string;
   selectedSubrace: DndSubraceDetail | null;
   selectedChoices: Record<string, string[]>;
+}
+
+export interface CharacterStatisticsSnapshot {
+  selectedMethod: StatsMethod;
+  diceRounds: DiceRound[];
+  standardAssignments: Record<string, string>;
+  pointBuyScores: Record<string, number>;
+  customScores: Record<string, string>;
+  resolvedScores: Record<string, number | null>;
+}
+
+export interface EquipmentSelectionSnapshot {
+  selectedGroups: Record<string, number | null>;
+  selectedCatalogByGroup: Record<string, number | null>;
+}
+
+export interface ClassSkillChoiceGroup {
+  id: string;
+  etiqueta: string;
+  cantidad: number;
+  opciones: string[];
+}
+
+export interface CreateDndCharacterRequest {
+  nombre: string;
+  claseId: string;
+  trasfondoId: string;
+  razaId: string;
+  subrazaId: string | null;
+  estadisticas: Record<string, number>;
+  competenciasClase: string[];
+  eleccionesTrasfondo: Record<string, string[]>;
+  eleccionesRaza: Record<string, string[]>;
+  gruposEquipamiento: Record<string, number>;
+  catalogosEquipamiento: Record<string, number>;
 }

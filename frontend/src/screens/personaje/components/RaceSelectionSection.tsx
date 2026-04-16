@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { buildApiUrl } from "../../../lib/api";
+import ValidationMessage from "./ValidationMessage";
 import type {
   DndRaceChoice,
   DndRaceDetail,
@@ -11,6 +12,8 @@ import type {
 
 interface RaceSelectionSectionProps {
   onSelectionChange?: (selection: RaceSelectionSnapshot) => void;
+  fieldErrors?: Record<string, string>;
+  hasError?: boolean;
 }
 
 const PANEL_CLASSES =
@@ -138,12 +141,14 @@ function TraitAccordion({
   traits,
   choices = [],
   selectedChoices = {},
+  fieldErrors = {},
   onChange,
 }: {
   title: string;
   traits: DndRaceTrait[];
   choices?: DndRaceChoice[];
   selectedChoices?: Record<string, string[]>;
+  fieldErrors?: Record<string, string>;
   onChange?: (choiceId: string, index: number, value: string) => void;
 }) {
   if (traits.length === 0) {
@@ -166,6 +171,7 @@ function TraitAccordion({
           return (
             <details
               key={`${title}-${trait.titulo}`}
+              open={attachedChoices.length > 0}
               className="rounded-[18px] border border-stone-300/10 bg-black/20 p-4 open:border-amber-300/25 open:bg-stone-950/35"
             >
               <summary className="cursor-pointer list-none text-sm font-semibold text-white">
@@ -186,6 +192,7 @@ function TraitAccordion({
                         selectedChoices[choice.id] ??
                         Array.from({ length: choice.cantidad }, () => "")
                       }
+                      fieldErrors={fieldErrors}
                       onChange={onChange}
                       showHeading={false}
                       showSummary={false}
@@ -197,6 +204,39 @@ function TraitAccordion({
           );
         })}
       </div>
+
+      {choices.filter(
+        (choice) =>
+          !traits.some(
+            (trait) =>
+              getChoiceTargetTitle(choice).toLowerCase() ===
+              trait.titulo.toLowerCase(),
+          ),
+      ).length > 0 ? (
+        <div className="mt-5 space-y-4 border-t border-stone-300/10 pt-5">
+          {choices
+            .filter(
+              (choice) =>
+                !traits.some(
+                  (trait) =>
+                    getChoiceTargetTitle(choice).toLowerCase() ===
+                    trait.titulo.toLowerCase(),
+                ),
+            )
+            .map((choice) => (
+              <ChoicePickerGroup
+                key={`orphan-${title}-${choice.id}`}
+                choice={choice}
+                values={
+                  selectedChoices[choice.id] ??
+                  Array.from({ length: choice.cantidad }, () => "")
+                }
+                fieldErrors={fieldErrors}
+                onChange={onChange!}
+              />
+            ))}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -206,12 +246,14 @@ function SummaryChoiceCard({
   items,
   choices,
   selectedChoices,
+  fieldErrors,
   onChange,
 }: {
   title: string;
   items: string[];
   choices: DndRaceChoice[];
   selectedChoices: Record<string, string[]>;
+  fieldErrors: Record<string, string>;
   onChange: (choiceId: string, index: number, value: string) => void;
 }) {
   if (items.length === 0 && choices.length === 0) {
@@ -244,6 +286,7 @@ function SummaryChoiceCard({
                 selectedChoices[choice.id] ??
                 Array.from({ length: choice.cantidad }, () => "")
               }
+              fieldErrors={fieldErrors}
               onChange={onChange}
               showSummary={false}
               labelAsListItem
@@ -259,11 +302,13 @@ function ChoiceSection({
   title,
   choices,
   selectedChoices,
+  fieldErrors,
   onChange,
 }: {
   title: string;
   choices: DndRaceChoice[];
   selectedChoices: Record<string, string[]>;
+  fieldErrors: Record<string, string>;
   onChange: (choiceId: string, index: number, value: string) => void;
 }) {
   if (choices.length === 0) {
@@ -284,6 +329,7 @@ function ChoiceSection({
               selectedChoices[choice.id] ??
               Array.from({ length: choice.cantidad }, () => "")
             }
+            fieldErrors={fieldErrors}
             onChange={onChange}
           />
         ))}
@@ -295,6 +341,7 @@ function ChoiceSection({
 function ChoicePickerGroup({
   choice,
   values,
+  fieldErrors,
   onChange,
   showHeading = true,
   showSummary = true,
@@ -302,6 +349,7 @@ function ChoicePickerGroup({
 }: {
   choice: DndRaceChoice;
   values: string[];
+  fieldErrors?: Record<string, string>;
   onChange: (choiceId: string, index: number, value: string) => void;
   showHeading?: boolean;
   showSummary?: boolean;
@@ -333,6 +381,7 @@ function ChoicePickerGroup({
 
       <div className={showHeading || showSummary ? "mt-4" : "mt-0"}>
         {values.map((value, index) => {
+          const fieldError = fieldErrors?.[`${choice.id}-${index}`];
           const usedValues = values.filter(
             (selectedValue, selectedIndex) =>
               selectedIndex !== index && selectedValue !== "",
@@ -344,6 +393,7 @@ function ChoicePickerGroup({
           return (
             <div
               key={`${choice.id}-${index}`}
+              data-validation-error={fieldError ? "true" : undefined}
               className={`relative border-t border-stone-300/10 pt-3 first:border-t-0 first:pt-0 ${labelAsListItem ? "ml-4" : ""}`}
             >
               <select
@@ -351,7 +401,9 @@ function ChoicePickerGroup({
                 onChange={(event) =>
                   onChange(choice.id, index, event.target.value)
                 }
-                className={`${SELECT_CLASSES} pr-10`}
+                className={`${SELECT_CLASSES} pr-10 ${
+                  fieldError ? "border-rose-400/70 focus:border-rose-300" : ""
+                }`}
               >
                 <option value="" className="bg-stone-950 text-white">
                   Selecciona una opcion
@@ -369,6 +421,7 @@ function ChoicePickerGroup({
               <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-stone-300">
                 ▾
               </span>
+              {fieldError ? <ValidationMessage message={fieldError} /> : null}
             </div>
           );
         })}
@@ -379,6 +432,8 @@ function ChoicePickerGroup({
 
 export default function RaceSelectionSection({
   onSelectionChange,
+  fieldErrors = {},
+  hasError = false,
 }: RaceSelectionSectionProps) {
   const [availableRaces, setAvailableRaces] = useState<DndRaceSummary[]>([]);
   const [isLoadingRaces, setIsLoadingRaces] = useState(false);
@@ -613,7 +668,11 @@ export default function RaceSelectionSection({
 
   return (
     <section className="mt-10">
-      <div className="rounded-[28px] border border-stone-300/10 bg-[linear-gradient(180deg,rgba(12,10,9,0.72),rgba(41,37,36,0.18))] p-6">
+      <div
+        className={`rounded-[28px] border bg-[linear-gradient(180deg,rgba(12,10,9,0.72),rgba(41,37,36,0.18))] p-6 transition ${
+          hasError ? "border-rose-400/45" : "border-stone-300/10"
+        }`}
+      >
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="text-2xl font-bold text-white">Raza</h2>
@@ -635,7 +694,11 @@ export default function RaceSelectionSection({
                 id="race-select"
                 value={selectedRaceId}
                 onChange={(event) => handleRaceChange(event.target.value)}
-                className={`${SELECT_CLASSES} pr-10`}
+                className={`${SELECT_CLASSES} pr-10 ${
+                  fieldErrors.race
+                    ? "border-rose-400/70 focus:border-rose-300"
+                    : ""
+                }`}
               >
                 <option value="" className="bg-stone-950 text-white">
                   Elige una raza
@@ -654,6 +717,9 @@ export default function RaceSelectionSection({
                 ▾
               </span>
             </div>
+            {fieldErrors.race ? (
+              <ValidationMessage message={fieldErrors.race} />
+            ) : null}
             {isLoadingRaces ? (
               <p className="mt-3 text-sm text-stone-300">
                 Cargando razas disponibles...
@@ -694,6 +760,7 @@ export default function RaceSelectionSection({
                 items={visibleRaceAbilityBonuses}
                 choices={raceChoiceGroups.abilityChoices}
                 selectedChoices={selectedChoices}
+                fieldErrors={fieldErrors}
                 onChange={handleChoiceChange}
               />
               <div className={INFO_CARD_CLASSES}>
@@ -717,6 +784,7 @@ export default function RaceSelectionSection({
                 items={visibleRaceLanguages}
                 choices={raceChoiceGroups.languageChoices}
                 selectedChoices={selectedChoices}
+                fieldErrors={fieldErrors}
                 onChange={handleChoiceChange}
               />
               <SummaryChoiceCard
@@ -724,6 +792,7 @@ export default function RaceSelectionSection({
                 items={visibleRaceOtherCompetencies}
                 choices={raceChoiceGroups.competencyChoices}
                 selectedChoices={selectedChoices}
+                fieldErrors={fieldErrors}
                 onChange={handleChoiceChange}
               />
               <SummaryChoiceCard
@@ -731,6 +800,7 @@ export default function RaceSelectionSection({
                 items={visibleRaceSkillCompetencies}
                 choices={raceChoiceGroups.skillChoices}
                 selectedChoices={selectedChoices}
+                fieldErrors={fieldErrors}
                 onChange={handleChoiceChange}
               />
             </div>
@@ -739,6 +809,7 @@ export default function RaceSelectionSection({
               title="Elecciones de raza"
               choices={raceChoiceGroups.otherChoices}
               selectedChoices={selectedChoices}
+              fieldErrors={fieldErrors}
               onChange={handleChoiceChange}
             />
 
@@ -757,7 +828,11 @@ export default function RaceSelectionSection({
                     onChange={(event) =>
                       handleSubraceChange(event.target.value)
                     }
-                    className={`${SELECT_CLASSES} pr-10`}
+                    className={`${SELECT_CLASSES} pr-10 ${
+                      fieldErrors.subrace
+                        ? "border-rose-400/70 focus:border-rose-300"
+                        : ""
+                    }`}
                   >
                     <option value="" className="bg-stone-950 text-white">
                       Elige una subraza
@@ -776,6 +851,9 @@ export default function RaceSelectionSection({
                     ▾
                   </span>
                 </div>
+                {fieldErrors.subrace ? (
+                  <ValidationMessage message={fieldErrors.subrace} />
+                ) : null}
               </div>
             ) : null}
 
@@ -784,6 +862,7 @@ export default function RaceSelectionSection({
               traits={selectedRace.rasgos}
               choices={raceChoiceGroups.traitChoices}
               selectedChoices={selectedChoices}
+              fieldErrors={fieldErrors}
               onChange={handleChoiceChange}
             />
 
@@ -804,6 +883,15 @@ export default function RaceSelectionSection({
                     items={selectedSubrace.aumentoCaracteristicas}
                     choices={subraceChoiceGroups.abilityChoices}
                     selectedChoices={selectedChoices}
+                    fieldErrors={fieldErrors}
+                    onChange={handleChoiceChange}
+                  />
+                  <SummaryChoiceCard
+                    title="Idiomas de subraza"
+                    items={[]}
+                    choices={subraceChoiceGroups.languageChoices}
+                    selectedChoices={selectedChoices}
+                    fieldErrors={fieldErrors}
                     onChange={handleChoiceChange}
                   />
                   <SummaryChoiceCard
@@ -811,6 +899,7 @@ export default function RaceSelectionSection({
                     items={visibleSubraceOtherCompetencies}
                     choices={subraceChoiceGroups.competencyChoices}
                     selectedChoices={selectedChoices}
+                    fieldErrors={fieldErrors}
                     onChange={handleChoiceChange}
                   />
                   <SummaryChoiceCard
@@ -818,6 +907,7 @@ export default function RaceSelectionSection({
                     items={visibleSubraceSkillCompetencies}
                     choices={subraceChoiceGroups.skillChoices}
                     selectedChoices={selectedChoices}
+                    fieldErrors={fieldErrors}
                     onChange={handleChoiceChange}
                   />
                 </div>
@@ -827,6 +917,7 @@ export default function RaceSelectionSection({
                   traits={selectedSubrace.rasgos}
                   choices={subraceChoiceGroups.traitChoices}
                   selectedChoices={selectedChoices}
+                  fieldErrors={fieldErrors}
                   onChange={handleChoiceChange}
                 />
 
@@ -834,6 +925,7 @@ export default function RaceSelectionSection({
                   title="Elecciones de subraza"
                   choices={subraceChoiceGroups.otherChoices}
                   selectedChoices={selectedChoices}
+                  fieldErrors={fieldErrors}
                   onChange={handleChoiceChange}
                 />
               </div>

@@ -1,10 +1,13 @@
 import { ImagePlus, Shield } from "lucide-react";
 import type { RefObject } from "react";
+import ValidationMessage from "./ValidationMessage";
 
 interface CharacterIdentitySectionProps {
   name: string;
   portraitPreview: string | null;
   fileInputRef: RefObject<HTMLInputElement | null>;
+  portraitError?: string;
+  nameError?: string;
   onNameChange: (value: string) => void;
   onPortraitSelection: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onOpenFilePicker: () => void;
@@ -14,6 +17,8 @@ export default function CharacterIdentitySection({
   name,
   portraitPreview,
   fileInputRef,
+  portraitError,
+  nameError,
   onNameChange,
   onPortraitSelection,
   onOpenFilePicker,
@@ -35,7 +40,12 @@ export default function CharacterIdentitySection({
         <button
           type="button"
           onClick={onOpenFilePicker}
-          className="mt-3 flex min-h-[210px] w-full flex-col items-center justify-center overflow-hidden rounded-[28px] border border-dashed border-stone-300/20 bg-[linear-gradient(180deg,rgba(28,25,23,0.65),rgba(12,10,9,0.3))] text-center transition hover:border-amber-300/40 hover:bg-stone-950/55"
+          data-validation-error={portraitError ? "true" : undefined}
+          className={`mt-3 flex min-h-[210px] w-full flex-col items-center justify-center overflow-hidden rounded-[28px] border border-dashed bg-[linear-gradient(180deg,rgba(28,25,23,0.65),rgba(12,10,9,0.3))] text-center transition hover:bg-stone-950/55 ${
+            portraitError
+              ? "border-red-500/80 ring-2 ring-red-600/60"
+              : "border-stone-300/20 hover:border-amber-300/40"
+          }`}
         >
           {portraitPreview ? (
             <img
@@ -55,6 +65,7 @@ export default function CharacterIdentitySection({
             </>
           )}
         </button>
+        {portraitError ? <ValidationMessage message={portraitError} /> : null}
       </div>
 
       <div>
@@ -67,8 +78,14 @@ export default function CharacterIdentitySection({
           value={name}
           onChange={(event) => onNameChange(event.target.value)}
           placeholder="Escribe el nombre del personaje"
-          className="mt-3 h-14 w-full rounded-[20px] border border-stone-300/15 bg-black/30 px-5 text-base text-white outline-none transition placeholder:text-stone-400 focus:border-amber-300/50"
+          data-validation-error={nameError ? "true" : undefined}
+          className={`mt-3 h-14 w-full rounded-[20px] border bg-black/30 px-5 text-base text-white outline-none transition placeholder:text-stone-400 ${
+            nameError
+              ? "border-rose-400/70 focus:border-rose-300"
+              : "border-stone-300/15 focus:border-amber-300/50"
+          }`}
         />
+        {nameError ? <ValidationMessage message={nameError} /> : null}
       </div>
     </div>
   );

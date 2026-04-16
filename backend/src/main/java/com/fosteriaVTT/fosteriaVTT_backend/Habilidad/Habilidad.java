@@ -18,11 +18,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Habilidad extends NamedEntity {
 
-    @Column(length = 50)
-    private String clase;
-
-    private Integer nivel;
-
     @Column(length = 500)
     private String imagen;
 
@@ -31,7 +26,7 @@ public class Habilidad extends NamedEntity {
     @Column(columnDefinition = "TEXT")
     private String descripcion;
 
-    @Size(max = 300)
-    @Column(length = 300)
+    @Size(max = 1000)
+    @Column(length = 1000)
     private String tags;
 }

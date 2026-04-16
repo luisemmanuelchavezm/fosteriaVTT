@@ -11,5 +11,5 @@ public record RazaDndEleccionResponse(
         String adjuntarATitulo,
         List<String> opciones,
         List<String> excluirOpciones
-) {
+) implements CatalogoDndEleccion {
 }
