@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  secureRandomBase36,
+  secureRandomInt,
+} from "../../../../lib/secureRandom";
+import {
   buildScoreFromDiceValues,
   createDiceRound,
   createInitialAssignments,
@@ -28,10 +32,7 @@ const STAT_DICE_COUNT = 4;
 const STAT_DICE_FACES = 6;
 
 function rollLocally(diceCount: number, diceFaces: number) {
-  return Array.from(
-    { length: diceCount },
-    () => Math.floor(Math.random() * diceFaces) + 1,
-  );
+  return Array.from({ length: diceCount }, () => secureRandomInt(1, diceFaces));
 }
 
 function extractDiceValues(payload: unknown): number[] {
@@ -93,9 +94,7 @@ export function useStatisticsSelection(racialBonuses: Record<string, number>) {
   const roundAnimationTimeoutRef = useRef<number | null>(null);
   const diceClearTimeoutRef = useRef<number | null>(null);
   const diceBoxInitPromiseRef = useRef<DiceBoxInitPromise | null>(null);
-  const diceBoxHostIdRef = useRef(
-    `stats-dice-box-${Math.random().toString(36).slice(2, 10)}`,
-  );
+  const diceBoxHostIdRef = useRef(`stats-dice-box-${secureRandomBase36(8)}`);
   const diceBoxInstanceRef = useRef<DiceBoxInstance | null>(null);
   const [selectedMethod, setSelectedMethod] = useState<StatsMethod>("dice");
   const [diceRounds, setDiceRounds] = useState<DiceRound[]>(() => [

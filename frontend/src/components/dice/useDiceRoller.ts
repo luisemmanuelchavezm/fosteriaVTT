@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { secureRandomBase36, secureRandomInt } from "../../lib/secureRandom";
 
 interface DiceBoxInstance {
   init?: () => Promise<void>;
@@ -91,10 +92,7 @@ function parseRollExpression(
 }
 
 function rollLocally(diceCount: number, diceFaces: number) {
-  return Array.from(
-    { length: diceCount },
-    () => Math.floor(Math.random() * diceFaces) + 1,
-  );
+  return Array.from({ length: diceCount }, () => secureRandomInt(1, diceFaces));
 }
 
 async function waitForDiceBoxHost(hostId: string, attempts = 10) {
@@ -113,9 +111,7 @@ async function waitForDiceBoxHost(hostId: string, attempts = 10) {
 }
 
 export function useDiceRoller() {
-  const diceBoxHostIdRef = useRef(
-    `sheet-dice-box-${Math.random().toString(36).slice(2, 10)}`,
-  );
+  const diceBoxHostIdRef = useRef(`sheet-dice-box-${secureRandomBase36(8)}`);
   const diceBoxInstanceRef = useRef<DiceBoxInstance | null>(null);
   const summaryTimeoutRef = useRef<number | null>(null);
   const diceClearTimeoutRef = useRef<number | null>(null);

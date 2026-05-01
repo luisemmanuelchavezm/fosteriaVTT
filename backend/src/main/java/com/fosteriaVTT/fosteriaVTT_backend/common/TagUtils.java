@@ -75,16 +75,16 @@ public final class TagUtils {
 		}
 
 		String normalizedPrefix = normalizeText(prefix);
-		for (String rawTag : tags.split(",")) {
-			String[] parts = rawTag.trim().split(";", 2);
-			if (parts.length != 2 || !normalizeText(parts[0]).equals(normalizedPrefix)) {
-				continue;
+		String extractedValue = null;
+		String[] splitTags = tags.split(",");
+		for (int index = 0; index < splitTags.length && extractedValue == null; index++) {
+			String[] parts = splitTags[index].trim().split(";", 2);
+			if (parts.length == 2 && normalizeText(parts[0]).equals(normalizedPrefix)) {
+				extractedValue = humanizeTagValue(parts[1]);
 			}
-
-			return humanizeTagValue(parts[1]);
 		}
 
-		return null;
+		return extractedValue;
 	}
 
 	public static String normalizeTagValue(String value) {

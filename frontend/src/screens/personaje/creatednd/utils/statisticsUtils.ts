@@ -1,3 +1,5 @@
+import { secureRandomBase36 } from "../../../../lib/secureRandom";
+
 export const PANEL_CLASSES =
   "rounded-[24px] border border-stone-300/10 bg-[linear-gradient(180deg,rgba(12,10,9,0.72),rgba(41,37,36,0.18))]";
 
@@ -92,7 +94,7 @@ export function createInitialDiceSlots(): DiceSlot[] {
 
 export function createDiceRound(label: number): DiceRound {
   return {
-    id: `dice-round-${label}-${Math.random().toString(36).slice(2, 10)}`,
+    id: `dice-round-${label}-${secureRandomBase36(8)}`,
     label,
     slots: createInitialDiceSlots(),
   };

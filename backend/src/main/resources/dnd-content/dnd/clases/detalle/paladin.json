@@ -370,7 +370,6 @@
                                                                      {
                                                                          "id":  "paladin-dos-armas",
                                                                          "etiqueta":  "Dos armas marciales",
-                                                                         "cantidad":  1,
                                                                          "objeto":  {
                                                                                         "nombre":  "Dos armas marciales"
                                                                                     },

@@ -41,6 +41,7 @@ import {
   splitCharacterCompetencies,
   uniqueNormalizedValues,
 } from "../utils";
+import { secureRandomInt } from "../../../../lib/secureRandom";
 import type { DetailTab } from "../data";
 
 const HEALTH_TOTAL_STAT = "Puntos de vida";
@@ -869,7 +870,7 @@ export function useDndCharacterSheetController(
             : `${usedDice}${entry.die} - ${Math.abs(constitutionModifier * usedDice)}`;
       const faces = Number.parseInt(entry.die.replace(/\D+/g, ""), 10);
       const rolledTotal = Array.from({ length: usedDice }, () =>
-        Number.isNaN(faces) ? 0 : Math.floor(Math.random() * faces) + 1,
+        Number.isNaN(faces) ? 0 : secureRandomInt(1, faces),
       ).reduce((total, value) => total + value, 0);
       totalHealedAmount += Math.max(
         0,
