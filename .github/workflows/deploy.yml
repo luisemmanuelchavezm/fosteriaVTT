@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: Trigger Render deploy
-        if: secrets.RENDER_DEPLOY_HOOK_URL != ''
+        if: ${{ secrets.RENDER_DEPLOY_HOOK_URL != '' }}
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         shell: bash
@@ -27,5 +27,5 @@ jobs:
           curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
 
       - name: Skip deploy (missing Render hook)
-        if: secrets.RENDER_DEPLOY_HOOK_URL == ''
+        if: ${{ secrets.RENDER_DEPLOY_HOOK_URL == '' }}
         run: echo "Skipping Render deploy because RENDER_DEPLOY_HOOK_URL is not configured."
