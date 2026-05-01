@@ -38,6 +38,6 @@ jobs:
       - name: Install & Lint Frontend
         run: |
           cd frontend
-          npm ci
+          HUSKY=0 npm ci
           npx eslint . --ext .ts,.tsx
           npx prettier --check .

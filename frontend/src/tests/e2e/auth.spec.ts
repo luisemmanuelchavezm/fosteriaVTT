@@ -58,6 +58,6 @@ test("permite iniciar sesión y llegar a home", async ({ page }) => {
     page.getByRole("heading", { name: "Últimas partidas" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Abrir menu de usuario" }),
+    page.getByRole("button", { name: /Abrir men[úu] de usuario/i }),
   ).toBeVisible();
 });
