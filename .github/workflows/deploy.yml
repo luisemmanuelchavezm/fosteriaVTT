@@ -32,17 +32,16 @@ jobs:
           fi
 
       - name: Trigger Render deploy
-        if: steps.verify-main.outputs.is_main == 'true'
+        if: steps.verify-main.outputs.is_main == 'true' && secrets.RENDER_DEPLOY_HOOK_URL != ''
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         shell: bash
         run: |
-          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
-            echo "Missing RENDER_DEPLOY_HOOK_URL secret"
-            exit 1
-          fi
-
           curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
+
+      - name: Skip deploy (missing Render hook)
+        if: steps.verify-main.outputs.is_main == 'true' && secrets.RENDER_DEPLOY_HOOK_URL == ''
+        run: echo "Skipping Render deploy because RENDER_DEPLOY_HOOK_URL is not configured."
 
       - name: Skip deploy
         if: steps.verify-main.outputs.is_main != 'true'
