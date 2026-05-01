@@ -1,5 +1,7 @@
 package com.fosteriaVTT.fosteriaVTT_backend.dto;
 
+import java.util.List;
+
 public record ClaseDndDetalleResponse(
         String id,
         String nombre,
@@ -8,6 +10,8 @@ public record ClaseDndDetalleResponse(
         ClaseDndPuntosGolpeResponse puntosGolpe,
         ClaseDndCompetenciasResponse competencias,
         ClaseDndLanzamientoConjurosResponse lanzamientoConjuros,
+        List<ClaseDndSubclaseResponse> subclases,
+        List<ClaseDndEleccionResponse> elecciones,
         EquipamientoDndResponse equipamiento
 ) {
 }

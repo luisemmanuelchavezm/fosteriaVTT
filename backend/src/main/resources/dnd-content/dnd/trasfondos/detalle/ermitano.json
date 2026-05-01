@@ -1,0 +1,73 @@
+{
+    "id":  "ermitano",
+    "nombre":  "Ermitano",
+    "descripcion":  "Pasaste anos apartado del mundo buscando paz, respuestas o un descubrimiento que solo el aislamiento podia darte.",
+    "competenciasHabilidades":  [
+                                    "Medicina",
+                                    "Religión"
+                                ],
+    "competenciasHerramientas":  [
+                                     "Kit de herborista"
+                                 ],
+    "resumenIdiomas":  [
+                           "1 idioma a eleccion"
+                       ],
+    "nombreRasgo":  "Descubrimiento",
+    "descripcionRasgo":  "Tu retiro te dejo una revelacion importante cuyo alcance concreto se define en la campaña.",
+    "elecciones":  [
+                       {
+                           "id":  "hermit-language",
+                           "etiqueta":  "Idioma",
+                           "resumen":  "1 idioma a eleccion",
+                           "catalogo":  "idiomas",
+                           "cantidad":  1
+                       }
+                   ],
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "ermitano-pergaminos",
+                                           "etiqueta":  "Estuche de pergaminos con notas",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Estuche de pergaminos con notas"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "ermitano-manta",
+                                           "etiqueta":  "Manta de invierno",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Manta de invierno"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "ermitano-ropa",
+                                           "etiqueta":  "Ropa comun",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Ropa comun"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "ermitano-kit",
+                                           "etiqueta":  "Kit de herborista",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Kit de herborista"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "ermitano-po",
+                                           "etiqueta":  "Piezas de oro",
+                                           "cantidad":  5,
+                                           "objeto":  {
+                                                          "nombre":  "Piezas de oro"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+
+                                            ]
+                     }
+}

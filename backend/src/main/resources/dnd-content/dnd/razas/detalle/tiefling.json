@@ -1,0 +1,37 @@
+{
+    "id":  "tiefling",
+    "nombre":  "Tiefling",
+    "descripcion":  "Ser recibido con miradas y susurros, sufrir insultos o violencia en la calle, ver desconfianza y miedo en todos los ojos: ese es el destino frecuente de un tiefling. Y lo mas cruel es que saben que esa reaccion nace de un pacto hecho generaciones atras que infundio la esencia de Asmodeo, senor supremo de los Nueve Infiernos, en su linaje. Su aspecto y su naturaleza no son culpa suya, sino el resultado de un pecado antiguo por el que siguen siendo juzgados.",
+    "velocidad":  30,
+    "tamano":  "Mediano",
+    "edad":  "Los tieflings maduran al mismo ritmo que los humanos, aunque suelen vivir algunos anos mas.",
+    "alineamiento":  "Al crecer bajo prejuicios y expectativas ajenas, muchos tieflings desarrollan una fuerte independencia moral.",
+    "idiomas":  [
+                    "Comun",
+                    "Infernal"
+                ],
+    "aumentoCaracteristicas":  [
+                                   "+2 Carisma",
+                                   "+1 Inteligencia"
+                               ],
+    "competencias":  [
+
+                     ],
+    "rasgos":  [
+                   {
+                       "nombre":  "Vision en la oscuridad",
+                       "descripcion":  "Gracias a tu herencia infernal, puedes ver en luz tenue a 60 pies como si fuera luz brillante, y en oscuridad como si fuera luz tenue. En la oscuridad solo distingues tonos de gris."
+                   },
+                   {
+                       "nombre":  "Resistencia infernal",
+                       "descripcion":  "Tienes resistencia al dano de fuego."
+                   },
+                   {
+                       "nombre":  "Legado infernal",
+                       "descripcion":  "Conoces el truco taumaturgia. Cuando alcanzas el nivel 3, puedes lanzar repreension infernal como conjuro de nivel 2 una vez con este rasgo y recuperas su uso al completar un descanso largo. Cuando alcanzas el nivel 5, puedes lanzar oscuridad una vez con este rasgo y recuperas su uso al completar un descanso largo. Carisma es tu caracteristica para lanzar estos conjuros."
+                   }
+               ],
+    "elecciones":  [
+
+                   ]
+}

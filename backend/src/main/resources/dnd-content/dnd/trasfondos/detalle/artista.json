@@ -1,0 +1,66 @@
+{
+    "id":  "artista",
+    "nombre":  "Artista",
+    "descripcion":  "Tu talento escenico te abre puertas, atrae publico y te permite ganarte la vida con tu presencia.",
+    "competenciasHabilidades":  [
+                                    "Acrobacias",
+                                    "Interpretacion"
+                                ],
+    "competenciasHerramientas":  [
+                                     "Kit de disfraz",
+                                     "1 instrumento musical a eleccion"
+                                 ],
+    "resumenIdiomas":  [
+
+                       ],
+    "nombreRasgo":  "Popularidad",
+    "descripcionRasgo":  "Sueles encontrar un lugar donde actuar a cambio de comida, alojamiento y reconocimiento local.",
+    "elecciones":  [
+                       {
+                           "id":  "artist-instrument",
+                           "etiqueta":  "Instrumento musical",
+                           "resumen":  "1 instrumento musical a eleccion",
+                           "catalogo":  "instrumentos",
+                           "cantidad":  1
+                       }
+                   ],
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "artista-instrumento",
+                                           "etiqueta":  "Instrumento musical",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Instrumento musical"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "artista-admirador",
+                                           "etiqueta":  "Objeto de un admirador",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Objeto de un admirador"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "artista-disfraz",
+                                           "etiqueta":  "Disfraz",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Disfraz"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "artista-po",
+                                           "etiqueta":  "Piezas de oro",
+                                           "cantidad":  15,
+                                           "objeto":  {
+                                                          "nombre":  "Piezas de oro"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+
+                                            ]
+                     }
+}

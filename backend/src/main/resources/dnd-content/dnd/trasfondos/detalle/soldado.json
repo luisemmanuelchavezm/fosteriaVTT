@@ -1,0 +1,74 @@
+{
+    "id":  "soldado",
+    "nombre":  "Soldado",
+    "descripcion":  "Te formaron para obedecer, combatir y moverte dentro de una estructura militar o mercenaria.",
+    "competenciasHabilidades":  [
+                                    "Atletismo",
+                                    "Intimidacion"
+                                ],
+    "competenciasHerramientas":  [
+                                     "1 tipo de juego a eleccion",
+                                     "Vehiculos terrestres"
+                                 ],
+    "resumenIdiomas":  [
+
+                       ],
+    "nombreRasgo":  "Rango militar",
+    "descripcionRasgo":  "Los soldados afines reconocen tu experiencia y suelen darte cierto margen dentro de instalaciones militares.",
+    "elecciones":  [
+                       {
+                           "id":  "soldier-game",
+                           "etiqueta":  "Tipo de juego",
+                           "resumen":  "1 tipo de juego a eleccion",
+                           "catalogo":  "juegos",
+                           "cantidad":  1
+                       }
+                   ],
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "soldado-insignia",
+                                           "etiqueta":  "Insignia de rango",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Insignia de rango"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "soldado-trofeo",
+                                           "etiqueta":  "Trofeo de un enemigo caido",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Trofeo de un enemigo caido"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "soldado-juego",
+                                           "etiqueta":  "Juego de dados o cartas",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Juego de dados o cartas"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "soldado-ropa",
+                                           "etiqueta":  "Ropa comun",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Ropa comun"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "soldado-po",
+                                           "etiqueta":  "Piezas de oro",
+                                           "cantidad":  10,
+                                           "objeto":  {
+                                                          "nombre":  "Piezas de oro"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+
+                                            ]
+                     }
+}

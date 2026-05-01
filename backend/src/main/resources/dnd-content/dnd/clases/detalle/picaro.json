@@ -1,0 +1,137 @@
+{
+    "id":  "picaro",
+    "nombre":  "Pícaro",
+    "insignia":  "Pi",
+    "descripcion":  "Especialista en precision, sigilo y recursos sucios, ideal para infiltrar o rematar.",
+    "puntosGolpe":  {
+                        "dadoGolpe":  "1d8 por nivel de picaro",
+                        "primerNivel":  "8 + tu modificador de Constitucion",
+                        "nivelesSuperiores":  "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero"
+                    },
+    "competencias":  {
+                         "armaduras":  [
+                                           "Armaduras ligeras"
+                                       ],
+                         "armas":  [
+                                       "Armas simples",
+                                       "Ballestas de mano",
+                                       "Espadas cortas",
+                                       "Espadas largas",
+                                       "Rapiers"
+                                   ],
+                         "herramientas":  [
+                                              "Herramientas de ladron"
+                                          ],
+                         "salvaciones":  [
+                                             "Destreza",
+                                             "Inteligencia"
+                                         ],
+                         "habilidades":  [
+                                             "Elige cuatro entre Acrobacias, Atletismo, Engaño, Interpretacion, Intimidacion, Investigacion, Juego de manos, Perspicacia, Percepcion, Persuasión y Sigilo"
+                                         ]
+                     },
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "picaro-cuero",
+                                           "etiqueta":  "Armadura de cuero",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Armadura de cuero"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "picaro-dagas",
+                                           "etiqueta":  "Dos dagas",
+                                           "cantidad":  2,
+                                           "objeto":  {
+                                                          "nombre":  "Daga"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "picaro-herramientas",
+                                           "etiqueta":  "Herramientas de ladron",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Herramientas de ladron"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+                                                {
+                                                    "id":  "picaro-arma-principal",
+                                                    "etiqueta":  "Arma principal",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "picaro-estoque",
+                                                                         "etiqueta":  "Estoque",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Estoque"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "picaro-espada-corta",
+                                                                         "etiqueta":  "Espada corta",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Espada corta"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                },
+                                                {
+                                                    "id":  "picaro-arma-secundaria",
+                                                    "etiqueta":  "Arma secundaria",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "picaro-arco",
+                                                                         "etiqueta":  "Arco corto y aljaba con 20 flechas",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Arco corto y aljaba con 20 flechas"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "picaro-espada-corta-extra",
+                                                                         "etiqueta":  "Espada corta",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Espada corta"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                },
+                                                {
+                                                    "id":  "picaro-pack",
+                                                    "etiqueta":  "Pack inicial",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "picaro-pack-ladron",
+                                                                         "etiqueta":  "Pack de ladron",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Pack de ladron"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "picaro-pack-calabozo",
+                                                                         "etiqueta":  "Pack de calabozo",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Pack de calabozo"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "picaro-pack-explorador",
+                                                                         "etiqueta":  "Pack de explorador",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Pack de explorador"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                }
+                                            ]
+                     }
+}

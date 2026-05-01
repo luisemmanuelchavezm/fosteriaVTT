@@ -1,7 +1,10 @@
 package com.fosteriaVTT.fosteriaVTT_backend.common;
 
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -138,5 +141,99 @@ public final class TagUtils {
 		}
 
 		return result;
+	}
+
+	public static String mergeTags(String... tagGroups) {
+		LinkedHashSet<String> tags = new LinkedHashSet<>();
+		for (String group : tagGroups) {
+			if (group == null || group.isBlank()) {
+				continue;
+			}
+			for (String rawTag : group.split(",")) {
+				String tag = rawTag.trim();
+				if (!tag.isBlank()) {
+					tags.add(tag);
+				}
+			}
+		}
+		return String.join(",", tags);
+	}
+
+	public static String updateClassTags(String currentTags, String className, int targetLevel, String subclassName) {
+		String updatedTags = updateClassLevelTag(currentTags, className, targetLevel);
+		if (subclassName == null || subclassName.isBlank()) {
+			return updatedTags;
+		}
+		return mergeTags(updatedTags, "Subclase;" + normalizeTagValue(subclassName));
+	}
+
+	public static String updateClassTagsAfterLevelDown(
+			String currentTags,
+			String className,
+			int targetLevel,
+			String subclassName,
+			Integer subclassUnlockLevel
+	) {
+		List<String> tags = new ArrayList<>();
+		for (String rawTag : (currentTags == null ? "" : currentTags).split(",")) {
+			String tag = rawTag.trim();
+			if (tag.isBlank()) {
+				continue;
+			}
+			if (isClassTagFor(tag, className)) {
+				if (targetLevel > 0) {
+					tags.add(buildClassLevelTag(className, targetLevel));
+				}
+				continue;
+			}
+			if (subclassName != null
+					&& !subclassName.isBlank()
+					&& subclassUnlockLevel != null
+					&& targetLevel < subclassUnlockLevel
+					&& tag.equalsIgnoreCase("Subclase;" + normalizeTagValue(subclassName))) {
+				continue;
+			}
+			tags.add(tag);
+		}
+		return mergeTags(String.join(",", tags));
+	}
+
+	private static String updateClassLevelTag(String currentTags, String className, int targetLevel) {
+		List<String> tags = new ArrayList<>();
+		boolean updatedClass = false;
+		for (String rawTag : (currentTags == null ? "" : currentTags).split(",")) {
+			String tag = rawTag.trim();
+			if (tag.isBlank()) {
+				continue;
+			}
+			if (isClassTagFor(tag, className)) {
+				if (targetLevel > 0) {
+					tags.add(buildClassLevelTag(className, targetLevel));
+				}
+				updatedClass = true;
+				continue;
+			}
+			tags.add(tag);
+		}
+		if (!updatedClass && targetLevel > 0) {
+			tags.add(buildClassLevelTag(className, targetLevel));
+		}
+		return mergeTags(String.join(",", tags));
+	}
+
+	private static boolean isClassTagFor(String tag, String className) {
+		if (tag == null || tag.isBlank()) {
+			return false;
+		}
+		String cleanClassName = cleanValue(className);
+		if (cleanClassName.isBlank() || tag.length() < 3 || Character.toUpperCase(tag.charAt(0)) != 'C') {
+			return false;
+		}
+		String[] parts = tag.substring(1).split(";", 2);
+		return parts.length == 2 && normalizeText(parts[0]).equals(normalizeText(cleanClassName));
+	}
+
+	private static String buildClassLevelTag(String className, int targetLevel) {
+		return "C" + cleanValue(className) + ";" + targetLevel;
 	}
 }

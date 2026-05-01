@@ -1,0 +1,72 @@
+{
+    "id":  "artesano-del-gremio",
+    "nombre":  "Artesano del Gremio",
+    "descripcion":  "Tu oficio esta respaldado por un gremio que te aporta identidad profesional, contactos y cierta proteccion.",
+    "competenciasHabilidades":  [
+                                    "Perspicacia",
+                                    "Persuasión"
+                                ],
+    "competenciasHerramientas":  [
+                                     "1 tipo de herramientas de artesano a eleccion"
+                                 ],
+    "resumenIdiomas":  [
+                           "1 idioma a eleccion"
+                       ],
+    "nombreRasgo":  "Miembro del gremio",
+    "descripcionRasgo":  "Puedes apoyarte en las casas gremiales y en otros profesionales del oficio para conseguir ayuda basica y contactos.",
+    "elecciones":  [
+                       {
+                           "id":  "guild-artisan-tool",
+                           "etiqueta":  "Herramientas de artesano",
+                           "resumen":  "1 tipo de herramientas de artesano a eleccion",
+                           "catalogo":  "herramientasArtesano",
+                           "cantidad":  1
+                       },
+                       {
+                           "id":  "guild-language",
+                           "etiqueta":  "Idioma",
+                           "resumen":  "1 idioma a eleccion",
+                           "catalogo":  "idiomas",
+                           "cantidad":  1
+                       }
+                   ],
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "gremio-herramientas",
+                                           "etiqueta":  "Juego de herramientas de artesano",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Juego de herramientas de artesano"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "gremio-carta",
+                                           "etiqueta":  "Carta de presentacion del gremio",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Carta de presentacion del gremio"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "gremio-ropa",
+                                           "etiqueta":  "Ropa de viaje",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Ropa de viaje"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "gremio-po",
+                                           "etiqueta":  "Piezas de oro",
+                                           "cantidad":  15,
+                                           "objeto":  {
+                                                          "nombre":  "Piezas de oro"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+
+                                            ]
+                     }
+}

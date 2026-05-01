@@ -1,0 +1,32 @@
+{
+    "id":  "gnome",
+    "nombre":  "Gnomo",
+    "descripcion":  "Un zumbido constante de actividad llena las madrigueras y barrios donde los gnomos forman comunidades muy unidas. Sonidos mas fuertes interrumpen ese murmullo: engranajes que chirrian, pequenas explosiones, gritos de sorpresa y, sobre todo, estallidos de risa. Los gnomos disfrutan intensamente de la invencion, la exploracion, la investigacion, la creacion y el juego. En la Infraoscuridad tambien existen los gnomos profundos o svirfneblin, parientes mas reservados cuya inventiva suele orientarse a la piedra y la supervivencia.",
+    "velocidad":  25,
+    "tamano":  "Pequeño",
+    "edad":  "Los gnomos maduran al mismo ritmo que los humanos y suelen asentarse en la vida adulta alrededor de los 40 anos. Pueden vivir entre 350 y casi 500 anos.",
+    "alineamiento":  "Su curiosidad, entusiasmo y gusto por la autoexpresion hacen que muchos gnomos se orienten a enfoques bondadosos y poco rigidos.",
+    "idiomas":  [
+                    "Comun",
+                    "Gnomico"
+                ],
+    "aumentoCaracteristicas":  [
+                                   "+2 Inteligencia"
+                               ],
+    "competencias":  [
+
+                     ],
+    "rasgos":  [
+                   {
+                       "nombre":  "Vision en la oscuridad",
+                       "descripcion":  "Acostumbrado a la vida subterranea, puedes ver en luz tenue a 60 pies como si fuera luz brillante, y en oscuridad como si fuera luz tenue. En la oscuridad solo distingues tonos de gris."
+                   },
+                   {
+                       "nombre":  "Astucia gnomica",
+                       "descripcion":  "Tienes ventaja en todas las tiradas de salvacion de Inteligencia, Sabiduria y Carisma contra magia."
+                   }
+               ],
+    "elecciones":  [
+
+                   ]
+}

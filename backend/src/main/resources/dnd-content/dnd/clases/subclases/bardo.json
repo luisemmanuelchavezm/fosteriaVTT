@@ -1,0 +1,16 @@
+[
+  {
+    "id": "lore",
+    "nombre": "Colegio del saber",
+    "descripcion": "Bardo erudito que destaca en habilidades, secretos mágicos y control verbal.",
+    "nivelDesbloqueo": 3,
+    "tablas": []
+  },
+  {
+    "id": "valor",
+    "nombre": "Colegio del valor",
+    "descripcion": "Bardo marcial que inspira en primera línea y combina apoyo con combate.",
+    "nivelDesbloqueo": 3,
+    "tablas": []
+  }
+]

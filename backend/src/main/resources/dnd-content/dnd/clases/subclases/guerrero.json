@@ -1,0 +1,23 @@
+[
+  {
+    "id": "campeon",
+    "nombre": "Campeon",
+    "descripcion": "Guerrero simple y eficaz basado en críticos, físico superior y aguante.",
+    "nivelDesbloqueo": 3,
+    "tablas": []
+  },
+  {
+    "id": "maestrobatalla",
+    "nombre": "Maestro de batalla",
+    "descripcion": "Táctico marcial que usa maniobras, superioridad y lectura del combate.",
+    "nivelDesbloqueo": 3,
+    "tablas": []
+  },
+  {
+    "id": "caballeroarcano",
+    "nombre": "Caballero arcano",
+    "descripcion": "Guerrero que mezcla armas con magia de abjuración y evocación.",
+    "nivelDesbloqueo": 3,
+    "tablas": []
+  }
+]

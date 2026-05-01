@@ -1,0 +1,29 @@
+[
+    {
+        "id": "ladron",
+        "nombre": "Ladrón",
+        "descripcion": "Ratero, saqueador e infiltrador que exprime objetos, escalada, sigilo y reflejos fulminantes al abrir un combate.",
+        "nivelDesbloqueo": 3,
+        "tablas": []
+    },
+    {
+        "id": "asesino",
+        "nombre": "Asesino",
+        "descripcion": "Especialista en disfraces, venenos e infiltración que busca abrir el combate con un impacto crítico y definitivo.",
+        "nivelDesbloqueo": 3,
+        "tablas": []
+    },
+    {
+        "id": "embaucadorarcano",
+        "nombre": "Embaucador arcano",
+        "descripcion": "Pícaro que mezcla sigilo y juego de manos con magia de encantamiento e ilusión, usando Mano de mago como herramienta de precisión.",
+        "nivelDesbloqueo": 3,
+        "tablas": [
+            {
+                "titulo": "Lanzamiento de conjuros del Embaucador Arcano",
+                "columnas": ["Nivel de pícaro", "Trucos", "Conjuros", "Nivel 1", "Nivel 2", "Nivel 3", "Nivel 4"],
+                "filas": [["3", "3", "3", "2", "-", "-", "-"], ["4", "3", "4", "3", "-", "-", "-"], ["5", "3", "4", "3", "-", "-", "-"], ["6", "3", "4", "3", "-", "-", "-"], ["7", "3", "5", "4", "2", "-", "-"], ["8", "3", "6", "4", "2", "-", "-"], ["9", "3", "6", "4", "2", "-", "-"], ["10", "4", "7", "4", "3", "-", "-"], ["11", "4", "8", "4", "3", "-", "-"], ["12", "4", "8", "4", "3", "-", "-"], ["13", "4", "9", "4", "3", "2", "-"], ["14", "4", "10", "4", "3", "2", "-"], ["15", "4", "10", "4", "3", "2", "-"], ["16", "4", "11", "4", "3", "3", "-"], ["17", "4", "11", "4", "3", "3", "-"], ["18", "4", "11", "4", "3", "3", "-"], ["19", "4", "12", "4", "3", "3", "1"], ["20", "4", "13", "4", "3", "3", "1"]]
+            }
+        ]
+    }
+]

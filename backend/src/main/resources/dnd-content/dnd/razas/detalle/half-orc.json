@@ -1,0 +1,37 @@
+{
+    "id":  "half-orc",
+    "nombre":  "Semiorco",
+    "descripcion":  "Los semiorcos cargan con una herencia orca que se traduce en presencia intimidante, fuerza bruta y una resistencia feroz. Muchos aprenden desde temprano a imponerse al mundo o a resistirlo sin ceder.",
+    "velocidad":  30,
+    "tamano":  "Mediano",
+    "edad":  "Los semiorcos maduran algo mas rapido que los humanos y alcanzan la adultez alrededor de los 14 anos. Envejecen con mayor rapidez y rara vez viven mas de 75 anos.",
+    "alineamiento":  "Su vida y sus experiencias pesan mas que su sangre, aunque muchos desarrollan una moral directa, practica y centrada en sobrevivir.",
+    "idiomas":  [
+                    "Comun",
+                    "Orco"
+                ],
+    "aumentoCaracteristicas":  [
+                                   "+2 Fuerza",
+                                   "+1 Constitucion"
+                               ],
+    "competencias":  [
+                         "Habilidad: Intimidacion"
+                     ],
+    "rasgos":  [
+                   {
+                       "nombre":  "Vision en la oscuridad",
+                       "descripcion":  "Gracias a tu sangre orca, puedes ver en luz tenue a 60 pies como si fuera luz brillante, y en oscuridad como si fuera luz tenue. En la oscuridad solo distingues tonos de gris."
+                   },
+                   {
+                       "nombre":  "Resistencia implacable",
+                       "descripcion":  "Cuando te reducen a 0 puntos de golpe pero no mueres en el acto, puedes quedarte a 1 punto de golpe una vez por descanso prolongado."
+                   },
+                   {
+                       "nombre":  "Ataques salvajes",
+                       "descripcion":  "Cuando consigues un golpe critico con un ataque cuerpo a cuerpo con arma, puedes tirar un dado adicional del dano del arma y sumarlo al dano extra del critico."
+                   }
+               ],
+    "elecciones":  [
+
+                   ]
+}

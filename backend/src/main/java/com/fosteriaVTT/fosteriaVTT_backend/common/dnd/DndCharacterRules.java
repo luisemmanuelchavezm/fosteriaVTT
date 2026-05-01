@@ -1,7 +1,9 @@
-package com.fosteriaVTT.fosteriaVTT_backend.common;
+package com.fosteriaVTT.fosteriaVTT_backend.common.dnd;
 
+import com.fosteriaVTT.fosteriaVTT_backend.common.TagUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.CatalogoDndEleccion;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndDetalleResponse;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndSubclaseResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.RazaDndDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.SubrazaDndDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.TrasfondoDndDetalleResponse;
@@ -48,7 +50,9 @@ public final class DndCharacterRules {
 			Map.entry("Percepcion", "Sabiduria"),
 			Map.entry("Perspicacia", "Sabiduria"),
 			Map.entry("Persuasion", "Carisma"),
+			Map.entry("Persuasión", "Carisma"),
 			Map.entry("Religion", "Inteligencia"),
+			Map.entry("Religión", "Inteligencia"),
 			Map.entry("Sigilo", "Destreza"),
 			Map.entry("Supervivencia", "Sabiduria"),
 			Map.entry("Trato con Animales", "Sabiduria")
@@ -90,6 +94,22 @@ public final class DndCharacterRules {
 		return cleaned.isBlank() ? Optional.empty() : Optional.of(cleaned);
 	}
 
+	public static String normalizeChoiceCatalogId(String catalog) {
+		String cleaned = TagUtils.cleanValue(catalog);
+		String normalized = TagUtils.normalizeText(cleaned);
+		if (normalized.startsWith("classcantrips:")) {
+			String classId = TagUtils.normalizeTagValue(cleaned.substring(cleaned.indexOf(':') + 1));
+			return classId.isBlank() ? "" : "classCantrips:" + classId;
+		}
+		return switch (normalized) {
+			case "puntuacionescaracteristica" -> "puntuacionesCaracteristica";
+			case "herramientasartesano" -> "herramientasArtesano";
+			case "trucosdemago" -> "classCantrips:mago";
+			case "ancestrosdraconicos" -> "ancestrosDraconicos";
+			default -> cleaned;
+		};
+	}
+
 	public static Set<String> resolveSkillCompetencies(
 			List<String> classSkills,
 			TrasfondoDndDetalleResponse background,
@@ -105,10 +125,10 @@ public final class DndCharacterRules {
 		if (subrace != null) {
 			addSkillCompetencies(result, subrace.competencias());
 		}
-		addSelectedByCatalog(result, background.elecciones(), backgroundChoices, "skills", DndCharacterRules::normalizeCanonicalSkill);
-		addSelectedByCatalog(result, race.elecciones(), raceChoices, "skills", DndCharacterRules::normalizeCanonicalSkill);
+		addSelectedByCatalog(result, background.elecciones(), backgroundChoices, "habilidades", DndCharacterRules::normalizeCanonicalSkill);
+		addSelectedByCatalog(result, race.elecciones(), raceChoices, "habilidades", DndCharacterRules::normalizeCanonicalSkill);
 		if (subrace != null) {
-			addSelectedByCatalog(result, subrace.elecciones(), raceChoices, "skills", DndCharacterRules::normalizeCanonicalSkill);
+			addSelectedByCatalog(result, subrace.elecciones(), raceChoices, "habilidades", DndCharacterRules::normalizeCanonicalSkill);
 		}
 		return result;
 	}
@@ -127,16 +147,17 @@ public final class DndCharacterRules {
 				languages.add(cleaned);
 			}
 		}
-		addSelectedByCatalog(languages, race.elecciones(), raceChoices, "languages", DndCharacterRules::normalizeLanguage);
+		addSelectedByCatalog(languages, race.elecciones(), raceChoices, "idiomas", DndCharacterRules::normalizeLanguage);
 		if (subrace != null) {
-			addSelectedByCatalog(languages, subrace.elecciones(), raceChoices, "languages", DndCharacterRules::normalizeLanguage);
+			addSelectedByCatalog(languages, subrace.elecciones(), raceChoices, "idiomas", DndCharacterRules::normalizeLanguage);
 		}
-		addSelectedByCatalog(languages, background.elecciones(), backgroundChoices, "languages", DndCharacterRules::normalizeLanguage);
+		addSelectedByCatalog(languages, background.elecciones(), backgroundChoices, "idiomas", DndCharacterRules::normalizeLanguage);
 		return languages;
 	}
 
 	public static String buildCharacterTags(
 			ClaseDndDetalleResponse characterClass,
+			ClaseDndSubclaseResponse subclass,
 			RazaDndDetalleResponse race,
 			SubrazaDndDetalleResponse subrace,
 			TrasfondoDndDetalleResponse background,
@@ -145,6 +166,9 @@ public final class DndCharacterRules {
 	) {
 		Set<String> tags = new LinkedHashSet<>();
 		tags.add("C" + TagUtils.cleanValue(characterClass.nombre()) + ";1");
+		if (subclass != null) {
+			tags.add("Subclase;" + TagUtils.normalizeTagValue(subclass.nombre()));
+		}
 		tags.add("Raza;" + TagUtils.normalizeTagValue(race.nombre()));
 		if (subrace != null) {
 			tags.add("Subraza;" + TagUtils.normalizeTagValue(subrace.nombre()));
@@ -165,6 +189,23 @@ public final class DndCharacterRules {
 
 	public static int calculateModifier(int value) {
 		return Math.floorDiv(value - 10, 2);
+	}
+
+	public static int calculateProficiencyBonus(int totalLevel) {
+		int safeLevel = Math.max(1, Math.min(20, totalLevel));
+		if (safeLevel >= 17) {
+			return 6;
+		}
+		if (safeLevel >= 13) {
+			return 5;
+		}
+		if (safeLevel >= 9) {
+			return 4;
+		}
+		if (safeLevel >= 5) {
+			return 3;
+		}
+		return 2;
 	}
 
 	public static <T> Map<String, T> safeMap(Map<String, T> values) {
@@ -201,7 +242,7 @@ public final class DndCharacterRules {
 			Function<String, Optional<String>> normalizer
 	) {
 		for (T choice : choices) {
-			if (!catalog.equalsIgnoreCase(choice.catalogo())) {
+			if (!normalizeChoiceCatalogId(catalog).equalsIgnoreCase(normalizeChoiceCatalogId(choice.catalogo()))) {
 				continue;
 			}
 			for (String value : selectedChoices.getOrDefault(choice.id(), List.of())) {

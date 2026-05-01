@@ -1,0 +1,16 @@
+[
+    {
+        "id": "berserker",
+        "nombre": "Senda del berserker",
+        "descripcion": "Entrega total a la furia hasta convertirla en frenesí, presencia intimidante y represalias violentas.",
+        "nivelDesbloqueo": 3,
+        "tablas": []
+    },
+    {
+        "id": "totemico",
+        "nombre": "Senda del guerrero totémico",
+        "descripcion": "Bárbaro espiritual que canaliza tótems animales para obtener sentidos rituales, resistencia y dones sobrenaturales.",
+        "nivelDesbloqueo": 3,
+        "tablas": []
+    }
+]

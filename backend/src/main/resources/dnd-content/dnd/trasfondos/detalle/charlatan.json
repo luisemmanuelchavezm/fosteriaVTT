@@ -1,0 +1,60 @@
+{
+    "id":  "charlatan",
+    "nombre":  "Charlatan",
+    "descripcion":  "Vives del engaño, las identidades falsas y la capacidad de vender humo como si fuera oro.",
+    "competenciasHabilidades":  [
+                                    "Engaño",
+                                    "Juego de manos"
+                                ],
+    "competenciasHerramientas":  [
+                                     "Kit de disfraz",
+                                     "Kit de falsificacion"
+                                 ],
+    "resumenIdiomas":  [
+
+                       ],
+    "nombreRasgo":  "Identidad falsa",
+    "descripcionRasgo":  "Dispones de una identidad alternativa creible y sabes preparar documentos convincentes para sostenerla.",
+    "elecciones":  [
+
+                   ],
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "charlatan-ropa",
+                                           "etiqueta":  "Ropa elegante",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Ropa elegante"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "charlatan-falsificacion",
+                                           "etiqueta":  "Kit de falsificacion",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Kit de falsificacion"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "charlatan-herramientas",
+                                           "etiqueta":  "Herramientas de timo",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Herramientas de timo"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "charlatan-po",
+                                           "etiqueta":  "Piezas de oro",
+                                           "cantidad":  15,
+                                           "objeto":  {
+                                                          "nombre":  "Piezas de oro"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+
+                                            ]
+                     }
+}

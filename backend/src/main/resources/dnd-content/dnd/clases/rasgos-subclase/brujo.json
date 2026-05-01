@@ -1,0 +1,107 @@
+[
+  {
+    "subclaseId": "archifeerico",
+    "nivel": 1,
+    "nombre": "Conjuros adicionales del señor feérico",
+    "formula": null,
+    "descripcion": "Tu patrón feérico amplía tu lista de conjuros con opciones de sueño, engaño, control y glamour sobrenatural."
+  },
+  {
+    "subclaseId": "archifeerico",
+    "nivel": 1,
+    "nombre": "Presencia feérica",
+    "formula": "Acción; cubo de 10 pies; hechizado o asustado hasta el final de tu siguiente turno",
+    "descripcion": "Proyectas la seductora y terrible presencia de los feéricos para alterar emocionalmente a quienes te rodean."
+  },
+  {
+    "subclaseId": "archifeerico",
+    "nivel": 6,
+    "nombre": "Escape brumoso",
+    "formula": "Reacción al recibir daño; invisibilidad y teletransporte 60 pies",
+    "descripcion": "Te desvaneces en una niebla tenue para escapar del peligro y reaparecer en una posición segura."
+  },
+  {
+    "subclaseId": "archifeerico",
+    "nivel": 10,
+    "nombre": "Defensas seductoras",
+    "formula": null,
+    "descripcion": "No puedes ser hechizado y puedes devolver un intento de hechizo contra quien trate de hechizarte."
+  },
+  {
+    "subclaseId": "archifeerico",
+    "nivel": 14,
+    "nombre": "Delirio oscuro",
+    "formula": "Acción; 60 pies; hechizado o asustado durante 1 minuto con concentración",
+    "descripcion": "Encierras a una criatura en un reino ilusorio que solo ella puede percibir hasta que el efecto termine o reciba daño."
+  },
+  {
+    "subclaseId": "infernal",
+    "nivel": 1,
+    "nombre": "Conjuros adicionales del infernal",
+    "formula": null,
+    "descripcion": "Tu patrón infernal amplía tu lista de conjuros con fuego, imposición y devastación mágica."
+  },
+  {
+    "subclaseId": "infernal",
+    "nivel": 1,
+    "nombre": "Bendición del oscuro",
+    "formula": "PG temporales = CAR + nivel de brujo",
+    "descripcion": "Cuando reduces a una criatura hostil a 0 puntos de golpe, obtienes puntos de golpe temporales."
+  },
+  {
+    "subclaseId": "infernal",
+    "nivel": 6,
+    "nombre": "La suerte del oscuro",
+    "formula": "Añades 1d10 a una prueba o salvación",
+    "descripcion": "Invocas a tu patrón para alterar el destino a tu favor después de ver la tirada y antes de resolverla."
+  },
+  {
+    "subclaseId": "infernal",
+    "nivel": 10,
+    "nombre": "Resistencia infernal",
+    "formula": "Resistencia a un tipo de daño elegido al terminar un descanso",
+    "descripcion": "Tu patrón te permite cambiar la resistencia elemental que soportas entre descansos."
+  },
+  {
+    "subclaseId": "infernal",
+    "nivel": 14,
+    "nombre": "Arrastrar por el infierno",
+    "formula": "Una vez por descanso largo; al impactar, destierras brevemente a la víctima",
+    "descripcion": "Tu objetivo cae a una visión infernal de pesadilla y, si no es un infernal, vuelve marcado por un daño psíquico devastador."
+  },
+  {
+    "subclaseId": "granantiguo",
+    "nivel": 1,
+    "nombre": "Conjuros adicionales del primigenio",
+    "formula": null,
+    "descripcion": "Tu patrón cósmico amplía tu lista de conjuros con susurros, telepatía, control mental y poder aberrante."
+  },
+  {
+    "subclaseId": "granantiguo",
+    "nivel": 1,
+    "nombre": "Mente iluminada",
+    "formula": "Telepatía con criaturas a 30 pies que comprendan al menos un idioma",
+    "descripcion": "Tus conocimientos ultraterrenos te permiten proyectar pensamientos directamente a otras mentes."
+  },
+  {
+    "subclaseId": "granantiguo",
+    "nivel": 6,
+    "nombre": "Salvaguarda entrópica",
+    "formula": "Reacción; desventaja al ataque contra ti y ventaja en tu siguiente ataque si falla",
+    "descripcion": "Retuerces el azar para frustrar la agresión enemiga y convertir ese fallo en una apertura a tu favor."
+  },
+  {
+    "subclaseId": "granantiguo",
+    "nivel": 10,
+    "nombre": "Escudo mental",
+    "formula": null,
+    "descripcion": "Tus pensamientos no pueden leerse sin permiso, resistes el daño psíquico y reflejas ese dolor a quien te lo inflija."
+  },
+  {
+    "subclaseId": "granantiguo",
+    "nivel": 14,
+    "nombre": "Crear siervo",
+    "formula": null,
+    "descripcion": "Infectas la mente de un humanoide incapacitado con la magia de tu patrón hasta esclavizarlo y comunicarte con él telepáticamente."
+  }
+]

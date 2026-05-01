@@ -1,0 +1,81 @@
+{
+    "id":  "sabio",
+    "nombre":  "Sabio",
+    "descripcion":  "Has invertido tu vida en el estudio y sabes donde buscar respuestas cuando no las tienes en la cabeza.",
+    "competenciasHabilidades":  [
+                                    "Arcano",
+                                    "Historia"
+                                ],
+    "competenciasHerramientas":  [
+
+                                 ],
+    "resumenIdiomas":  [
+                           "2 idiomas a eleccion"
+                       ],
+    "nombreRasgo":  "Investigador",
+    "descripcionRasgo":  "Sueles conocer bibliotecas, academias o expertos que pueden completar la informacion que te falta.",
+    "elecciones":  [
+                       {
+                           "id":  "sage-languages",
+                           "etiqueta":  "Idiomas",
+                           "resumen":  "2 idiomas a eleccion",
+                           "catalogo":  "idiomas",
+                           "cantidad":  2
+                       }
+                   ],
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "sabio-tinta",
+                                           "etiqueta":  "Frasco de tinta negra",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Frasco de tinta negra"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "sabio-pluma",
+                                           "etiqueta":  "Pluma",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Pluma"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "sabio-cuchillo",
+                                           "etiqueta":  "Cuchillo pequeño",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Cuchillo pequeño"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "sabio-carta",
+                                           "etiqueta":  "Carta de un colega fallecido",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Carta de un colega fallecido"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "sabio-ropa",
+                                           "etiqueta":  "Ropa comun",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Ropa comun"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "sabio-po",
+                                           "etiqueta":  "Piezas de oro",
+                                           "cantidad":  10,
+                                           "objeto":  {
+                                                          "nombre":  "Piezas de oro"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+
+                                            ]
+                     }
+}

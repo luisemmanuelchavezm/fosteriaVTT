@@ -1,0 +1,22 @@
+[
+  {
+    "id": "draconico",
+    "nombre": "Linaje draconico",
+    "descripcion": "Hechicero cuya magia procede de una herencia dracónica que endurece su cuerpo y despierta afinidades elementales.",
+    "nivelDesbloqueo": 1,
+    "tablas": [
+      {
+        "titulo": "Linaje dracónico",
+        "columnas": ["Dragón", "Tipo de daño"],
+        "filas": [["Azul", "Relámpago"], ["Blanco", "Frío"], ["Bronce", "Relámpago"], ["Cobre", "Ácido"], ["Negro", "Ácido"], ["Oro", "Fuego"], ["Oropel", "Fuego"], ["Plata", "Frío"], ["Rojo", "Fuego"], ["Verde", "Veneno"]]
+      }
+    ]
+  },
+  {
+    "id": "magiasalvaje",
+    "nombre": "Magia salvaje",
+    "descripcion": "Hechicero caótico que canaliza magia impredecible, manipula la suerte y desata sobrecargas descontroladas.",
+    "nivelDesbloqueo": 1,
+    "tablas": []
+  }
+]

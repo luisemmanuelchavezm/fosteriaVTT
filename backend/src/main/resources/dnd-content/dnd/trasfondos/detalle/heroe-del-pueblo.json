@@ -1,0 +1,74 @@
+{
+    "id":  "heroe-del-pueblo",
+    "nombre":  "Heroe del Pueblo",
+    "descripcion":  "Procedes de origen humilde, pero tu comunidad te recuerda como alguien que dio un paso al frente cuando hacia falta.",
+    "competenciasHabilidades":  [
+                                    "Trato con animales",
+                                    "Supervivencia"
+                                ],
+    "competenciasHerramientas":  [
+                                     "1 tipo de herramientas de artesano a eleccion",
+                                     "Vehiculos terrestres"
+                                 ],
+    "resumenIdiomas":  [
+
+                       ],
+    "nombreRasgo":  "Hospitalidad rustica",
+    "descripcionRasgo":  "La gente comun suele darte refugio y ayudarte a ocultarte mientras no les arrastres a un peligro directo.",
+    "elecciones":  [
+                       {
+                           "id":  "folk-hero-artisan-tool",
+                           "etiqueta":  "Herramientas de artesano",
+                           "resumen":  "1 tipo de herramientas de artesano a eleccion",
+                           "catalogo":  "herramientasArtesano",
+                           "cantidad":  1
+                       }
+                   ],
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "heroe-herramientas",
+                                           "etiqueta":  "Juego de herramientas de artesano",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Juego de herramientas de artesano"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "heroe-pala",
+                                           "etiqueta":  "Pala",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Pala"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "heroe-olla",
+                                           "etiqueta":  "Olla de hierro",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Olla de hierro"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "heroe-ropa",
+                                           "etiqueta":  "Ropa comun",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Ropa comun"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "heroe-po",
+                                           "etiqueta":  "Piezas de oro",
+                                           "cantidad":  10,
+                                           "objeto":  {
+                                                          "nombre":  "Piezas de oro"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+
+                                            ]
+                     }
+}

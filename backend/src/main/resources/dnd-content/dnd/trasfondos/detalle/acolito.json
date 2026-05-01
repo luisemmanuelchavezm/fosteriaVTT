@@ -1,0 +1,81 @@
+{
+    "id":  "acolito",
+    "nombre":  "Acolito",
+    "descripcion":  "Has dedicado tu vida al servicio de un templo y actuas como puente entre lo sagrado y la gente comun.",
+    "competenciasHabilidades":  [
+                                    "Perspicacia",
+                                    "Religión"
+                                ],
+    "competenciasHerramientas":  [
+
+                                 ],
+    "resumenIdiomas":  [
+                           "2 idiomas a eleccion"
+                       ],
+    "nombreRasgo":  "Refugio del fiel",
+    "descripcionRasgo":  "Los templos afines a tu fe suelen ofrecerte cobijo, cuidados basicos y un trato respetuoso a ti y a tu grupo.",
+    "elecciones":  [
+                       {
+                           "id":  "acolyte-languages",
+                           "etiqueta":  "Idiomas",
+                           "resumen":  "2 idiomas a eleccion",
+                           "catalogo":  "idiomas",
+                           "cantidad":  2
+                       }
+                   ],
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "acolito-simbolo",
+                                           "etiqueta":  "Simbolo sagrado",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Simbolo sagrado"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "acolito-devocionario",
+                                           "etiqueta":  "Devocionario o rueda de oraciones",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Devocionario o rueda de oraciones"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "acolito-incienso",
+                                           "etiqueta":  "Vara de incienso",
+                                           "cantidad":  5,
+                                           "objeto":  {
+                                                          "nombre":  "Vara de incienso"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "acolito-vestiduras",
+                                           "etiqueta":  "Vestiduras",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Vestiduras"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "acolito-ropa",
+                                           "etiqueta":  "Ropa comun",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Ropa comun"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "acolito-po",
+                                           "etiqueta":  "Piezas de oro",
+                                           "cantidad":  15,
+                                           "objeto":  {
+                                                          "nombre":  "Piezas de oro"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+
+                                            ]
+                     }
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "cazador",
+    "nombre": "Cazador",
+    "descripcion": "Explorador adaptable que elige herramientas ofensivas y defensivas para abatir presas.",
+    "nivelDesbloqueo": 3,
+    "tablas": []
+  },
+  {
+    "id": "bestias",
+    "nombre": "Maestro de bestias",
+    "descripcion": "Explorador que combate junto a un compañero animal entrenado.",
+    "nivelDesbloqueo": 3,
+    "tablas": []
+  }
+]

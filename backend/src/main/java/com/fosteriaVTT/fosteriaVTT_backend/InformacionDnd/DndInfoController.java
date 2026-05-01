@@ -2,8 +2,11 @@ package com.fosteriaVTT.fosteriaVTT_backend.InformacionDnd;
 
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndResumenResponse;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndSubclaseResponse;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.DndCompetencyCatalogResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.RazaDndDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.RazaDndResumenResponse;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.SubrazaDndDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.TrasfondoDndDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.TrasfondoDndResumenResponse;
 import java.util.List;
@@ -40,6 +43,16 @@ public class DndInfoController {
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Clase DnD no encontrada"));
     }
 
+    @GetMapping("/clases/{id}/subclases")
+    public List<ClaseDndSubclaseResponse> obtenerSubclasesClase(@PathVariable String id, Authentication authentication) {
+        validarAutenticacion(authentication);
+        List<ClaseDndSubclaseResponse> subclases = dndInfoService.obtenerSubclasesClase(id);
+        if (subclases.isEmpty()) {
+            throw new ResponseStatusException(NOT_FOUND, "Subclases DnD no encontradas para la clase indicada");
+        }
+        return subclases;
+    }
+
     @GetMapping("/trasfondos")
     public List<TrasfondoDndResumenResponse> obtenerTrasfondos(Authentication authentication) {
         validarAutenticacion(authentication);
@@ -64,6 +77,18 @@ public class DndInfoController {
         validarAutenticacion(authentication);
         return dndInfoService.obtenerRazaPorId(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Raza DnD no encontrada"));
+    }
+
+    @GetMapping("/razas/{id}/subrazas")
+    public List<SubrazaDndDetalleResponse> obtenerSubrazasRaza(@PathVariable String id, Authentication authentication) {
+        validarAutenticacion(authentication);
+        return dndInfoService.obtenerSubrazasRaza(id);
+    }
+
+    @GetMapping("/catalogos/competencias")
+    public DndCompetencyCatalogResponse obtenerCatalogoCompetencias(Authentication authentication) {
+        validarAutenticacion(authentication);
+        return dndInfoService.obtenerCatalogoCompetencias();
     }
 
     private void validarAutenticacion(Authentication authentication) {

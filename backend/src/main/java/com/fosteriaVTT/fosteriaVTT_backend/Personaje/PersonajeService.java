@@ -2,40 +2,35 @@ package com.fosteriaVTT.fosteriaVTT_backend.Personaje;
 
 import com.fosteriaVTT.fosteriaVTT_backend.Cloudinary.CloudinaryService;
 import com.fosteriaVTT.fosteriaVTT_backend.Estadistica.EstadisticaService;
-import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.Habilidad;
-import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.HabilidadRepository;
-import com.fosteriaVTT.fosteriaVTT_backend.InformacionDnd.DndInfoService;
 import com.fosteriaVTT.fosteriaVTT_backend.Mochila.MochilaService;
 import com.fosteriaVTT.fosteriaVTT_backend.Usuario.UserRepository;
-import com.fosteriaVTT.fosteriaVTT_backend.Usuario.Usuario;
-import com.fosteriaVTT.fosteriaVTT_backend.common.DndCharacterRules;
-import com.fosteriaVTT.fosteriaVTT_backend.common.DndCharacterValidationUtils;
+import com.fosteriaVTT.fosteriaVTT_backend.common.dnd.DndCharacterRules;
 import com.fosteriaVTT.fosteriaVTT_backend.common.SistemaDeJuego;
 import com.fosteriaVTT.fosteriaVTT_backend.common.TagUtils;
-import com.fosteriaVTT.fosteriaVTT_backend.dto.CatalogoDndEleccion;
-import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndDetalleResponse;
-import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndLanzamientoConjurosResponse;
-import com.fosteriaVTT.fosteriaVTT_backend.dto.ClasePersonajeResponse;
+import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndAbilityUtils;
+import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterAbilityManagementUtils;
+import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterCreationUtils;
+import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterNormalizers;
+import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterLevelUtils;
+import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterStatsUtils;
+import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCombatUtils;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarRecursosPersonajeRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarHojaPersonajeRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarExperienciaPersonajeRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.AgregarHabilidadPersonajeRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.AgregarItemMochilaRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarItemMochilaRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.BajarNivelPersonajeRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.CrearPersonajeDndRequest;
-import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndResumenResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.HabilidadResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PagedResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PersonajeDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PersonajeResumenResponse;
-import com.fosteriaVTT.fosteriaVTT_backend.dto.RazaDndDetalleResponse;
-import com.fosteriaVTT.fosteriaVTT_backend.dto.RazaDndRasgoResponse;
-import com.fosteriaVTT.fosteriaVTT_backend.dto.SubrazaDndDetalleResponse;
-import com.fosteriaVTT.fosteriaVTT_backend.dto.TrasfondoDndDetalleResponse;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.SubirNivelPersonajeRequest;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -51,50 +46,62 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class PersonajeService {
 
 	private final PersonajeRepository personajeRepository;
-	private final UserRepository userRepository;
-	private final DndInfoService dndInfoService;
-	private final HabilidadRepository habilidadRepository;
 	private final EstadisticaService estadisticaService;
 	private final MochilaService mochilaService;
 	private final CloudinaryService cloudinaryService;
+	private final DndAbilityUtils dndAbilityUtils;
+	private final DndCharacterAbilityManagementUtils dndCharacterAbilityManagementUtils;
+	private final DndCombatUtils dndCombatUtils;
+	private final DndCharacterStatsUtils dndCharacterStatsUtils;
+	private final DndCharacterCreationUtils dndCharacterCreationUtils;
+	private final DndCharacterLevelUtils dndCharacterLevelUtils;
 
 	public PersonajeService(
 			PersonajeRepository personajeRepository,
 			UserRepository userRepository,
-			DndInfoService dndInfoService,
-			HabilidadRepository habilidadRepository,
 			EstadisticaService estadisticaService,
 			MochilaService mochilaService,
-			CloudinaryService cloudinaryService
+			CloudinaryService cloudinaryService,
+			DndAbilityUtils dndAbilityUtils,
+			DndCharacterAbilityManagementUtils dndCharacterAbilityManagementUtils,
+			DndCombatUtils dndCombatUtils,
+			DndCharacterStatsUtils dndCharacterStatsUtils,
+			DndCharacterCreationUtils dndCharacterCreationUtils,
+			DndCharacterLevelUtils dndCharacterLevelUtils
 	) {
 		this.personajeRepository = personajeRepository;
-		this.userRepository = userRepository;
-		this.dndInfoService = dndInfoService;
-		this.habilidadRepository = habilidadRepository;
 		this.estadisticaService = estadisticaService;
 		this.mochilaService = mochilaService;
 		this.cloudinaryService = cloudinaryService;
+		this.dndAbilityUtils = dndAbilityUtils;
+		this.dndCharacterAbilityManagementUtils = dndCharacterAbilityManagementUtils;
+		this.dndCombatUtils = dndCombatUtils;
+		this.dndCharacterStatsUtils = dndCharacterStatsUtils;
+		this.dndCharacterCreationUtils = dndCharacterCreationUtils;
+		this.dndCharacterLevelUtils = dndCharacterLevelUtils;
 	}
 
 	@Transactional(readOnly = true)
 	 public PersonajeDetalleResponse obtenerDetallePersonaje(Long personajeId, String username) {
-	 		Personaje personaje = personajeRepository.findByIdAndUsuarioUsername(personajeId, username)
-	 				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Personaje no encontrado"));
+	 		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+			Map<String, Integer> estadisticas = estadisticaService.obtenerValoresPorPersonajeId(personajeId);
 
 	 		return new PersonajeDetalleResponse(
 	 				personaje.getId(),
 	 				personaje.getNombre(),
 	 				personaje.getRetrato(),
+		 			personaje.getBiografia(),
 	 				personaje.getSistemaDeJuego().getDisplayName(),
 	 				TagUtils.extractTagValue(personaje.getTags(), "Raza"),
 	 				TagUtils.extractTagValue(personaje.getTags(), "Subraza"),
-	 				resolverClasesPersonaje(personaje),
-		 			resolverCaracteristicaLanzamientoConjuros(personaje),
-	 				estadisticaService.obtenerValoresPorPersonajeId(personajeId),
+	 				dndCharacterStatsUtils.resolverClasesPersonaje(personaje),
+	 				dndCharacterStatsUtils.resolverCaracteristicaLanzamientoConjuros(personaje),
+	 				estadisticas,
 		 			personaje.getHabilidades().stream()
 		 					.map(habilidad -> new HabilidadResponse(
 		 							habilidad.getId(),
 		 							habilidad.getNombre(),
+			 							dndCombatUtils.resolverBonificacionHabilidad(personaje, habilidad, estadisticas),
 		 							habilidad.getFormula(),
 		 							habilidad.getDescripcion(),
 		 							habilidad.getTags()
@@ -113,7 +120,7 @@ public class PersonajeService {
 			int page,
 			int size
 	) {
-		String nombreNormalizado = normalizarFiltro(nombre);
+		String nombreNormalizado = DndCharacterNormalizers.normalizarFiltroTexto(nombre);
 		List<SistemaDeJuego> sistemasNormalizados = sistemas == null ? List.of() : sistemas.stream()
 				.map(SistemaDeJuego::fromValue)
 				.flatMap(java.util.Optional::stream)
@@ -146,86 +153,191 @@ public class PersonajeService {
 			MultipartFile portrait,
 			String username
 	) {
-		if (request == null) {
-			throw new ResponseStatusException(BAD_REQUEST, "No se recibió la información del personaje");
-		}
-
-		String nombre = DndCharacterRules.requireText(request.nombre(), "Debes indicar el nombre del personaje");
 		MultipartFile retrato = validarRetrato(portrait);
-		Usuario usuario = userRepository.findByUsername(username)
-				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Usuario no encontrado"));
-		ClaseDndDetalleResponse clase = dndInfoService.obtenerClasePorId(DndCharacterRules.requireText(request.claseId(), "Debes seleccionar una clase"))
-				.orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "La clase seleccionada no existe"));
-		TrasfondoDndDetalleResponse trasfondo = dndInfoService.obtenerTrasfondoPorId(DndCharacterRules.requireText(request.trasfondoId(), "Debes seleccionar un trasfondo"))
-				.orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "El trasfondo seleccionado no existe"));
-		RazaDndDetalleResponse raza = dndInfoService.obtenerRazaPorId(DndCharacterRules.requireText(request.razaId(), "Debes seleccionar una raza"))
-				.orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "La raza seleccionada no existe"));
-		SubrazaDndDetalleResponse subraza = DndCharacterValidationUtils.resolveSubrace(raza, request.subrazaId());
-		Map<String, Integer> estadisticas = DndCharacterValidationUtils.validateStats(request.estadisticas());
-		List<String> competenciasClase = DndCharacterValidationUtils.validateClassSkillChoices(clase.competencias().habilidades(), request.competenciasClase());
-		Map<String, List<String>> eleccionesTrasfondo = DndCharacterValidationUtils.validateBackgroundChoices(trasfondo, request.eleccionesTrasfondo());
-		Map<String, List<String>> eleccionesRaza = DndCharacterValidationUtils.validateRaceChoices(raza, subraza, request.eleccionesRaza());
-		Map<String, Integer> gruposEquipamiento = DndCharacterRules.safeMap(request.gruposEquipamiento());
-		Map<String, Long> catalogosEquipamiento = DndCharacterRules.safeMap(request.catalogosEquipamiento());
-		Set<String> competenciasHabilidades = DndCharacterRules.resolveSkillCompetencies(
-				competenciasClase,
-				trasfondo,
-				raza,
-				subraza,
-				eleccionesTrasfondo,
-				eleccionesRaza
-		);
-
-		DndCharacterValidationUtils.validateEquipment("class", clase.equipamiento(), gruposEquipamiento, catalogosEquipamiento);
-		DndCharacterValidationUtils.validateEquipment("background", trasfondo.equipamiento(), gruposEquipamiento, catalogosEquipamiento);
-
-		Personaje personaje = Personaje.builder()
-				.nombre(nombre)
-				.retrato(subirRetrato(retrato))
-				.sistemaDeJuego(SistemaDeJuego.DND)
-				.tags(DndCharacterRules.buildCharacterTags(clase, raza, subraza, trasfondo, eleccionesRaza, eleccionesTrasfondo))
-				.usuario(usuario)
-				.habilidades(resolverHabilidadesIniciales(clase, raza, subraza, trasfondo, eleccionesRaza, eleccionesTrasfondo))
-				.build();
-
-		Personaje personajeGuardado = personajeRepository.save(personaje);
-		estadisticaService.guardarEstadisticasIniciales(
-				personajeGuardado,
-				estadisticas,
-				raza.velocidad(),
-				clase.puntosGolpe().dadoGolpe(),
-				clase.lanzamientoConjuros(),
-				clase.competencias().salvaciones(),
-				competenciasHabilidades
-		);
-		mochilaService.guardarMochilaInicial(
-				personajeGuardado,
-				clase.equipamiento(),
-				trasfondo.equipamiento(),
-				gruposEquipamiento,
-				catalogosEquipamiento
-		);
-
-		return new PersonajeResumenResponse(
-				personajeGuardado.getId(),
-				personajeGuardado.getNombre(),
-				personajeGuardado.getRetrato(),
-				personajeGuardado.getSistemaDeJuego().getDisplayName(),
-				personajeGuardado.getUsado()
-		);
+		return dndCharacterCreationUtils.crearPersonajeDnd(request, subirRetrato(retrato), username);
 	}
 
 	@Transactional
 	public void marcarComoUsado(Long personajeId, String username) {
-		Personaje personaje = personajeRepository.findByIdAndUsuarioUsername(personajeId, username)
-				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Personaje no encontrado"));
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
 
 		personaje.setUsado(LocalDateTime.now());
 		personajeRepository.save(personaje);
 	}
 
-	private String normalizarFiltro(String valor) {
-		return valor == null ? "" : valor.trim().toLowerCase(Locale.ROOT);
+	@Transactional
+	public void actualizarRecursos(
+			Long personajeId,
+			ActualizarRecursosPersonajeRequest request,
+			String username
+	) {
+		if (request == null) {
+			throw new ResponseStatusException(BAD_REQUEST, "No se recibió la actualización de recursos");
+		}
+
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+
+		estadisticaService.actualizarRecursosPersonaje(
+				personaje,
+				request.vidaActual(),
+				request.vidaTemporal(),
+				request.espaciosConjuroActuales(),
+				request.recursosExtraActuales()
+		);
+		mochilaService.actualizarDineroPersonaje(personaje, request.dinero());
+	}
+
+	@Transactional
+	public PersonajeDetalleResponse actualizarHojaPersonaje(
+			Long personajeId,
+			ActualizarHojaPersonajeRequest request,
+			String username
+	) {
+		if (request == null) {
+			throw new ResponseStatusException(BAD_REQUEST, "No se recibió la edición del personaje");
+		}
+
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+		Map<String, Integer> currentStats = estadisticaService.obtenerValoresPorPersonajeId(personajeId);
+		Map<String, Integer> updatedBaseStats = DndCharacterNormalizers.resolverEstadisticasEditables(currentStats, request.estadisticasBase());
+		int totalLevel = Math.max(1, dndCharacterStatsUtils.resolverNivelTotalPersonaje(personaje));
+
+		personaje.setNombre(DndCharacterRules.requireText(request.nombre() == null ? personaje.getNombre() : request.nombre(), "Debes indicar el nombre del personaje"));
+		personaje.setBiografia(DndCharacterNormalizers.construirBiografia(request.alineamiento(), request.historiaPersonal()));
+		dndAbilityUtils.sincronizarIdiomasEditables(personaje, request.idiomasTexto());
+		dndAbilityUtils.sincronizarCompetenciasEditables(personaje, request.competenciasArmasArmaduras(), request.competenciasHerramientas());
+		estadisticaService.actualizarEdicionHoja(
+				personaje,
+				updatedBaseStats,
+				request.movimiento(),
+				request.vidaMaxima(),
+				request.espaciosConjuroMaximos(),
+				request.espaciosConjuroActuales(),
+				request.recursosExtraMaximos(),
+				request.recursosExtraActuales(),
+				DndCharacterNormalizers.normalizarSalvaciones(request.salvacionesCompetentes()),
+				DndCharacterNormalizers.normalizarHabilidades(request.habilidadesCompetentes()),
+				totalLevel
+		);
+		personajeRepository.save(personaje);
+		return obtenerDetallePersonaje(personajeId, username);
+	}
+
+	@Transactional
+	public PersonajeDetalleResponse actualizarExperiencia(
+			Long personajeId,
+			ActualizarExperienciaPersonajeRequest request,
+			String username
+	) {
+		if (request == null || request.experiencia() == null) {
+			throw new ResponseStatusException(BAD_REQUEST, "No se recibió la nueva experiencia");
+		}
+
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+		int level = dndCharacterStatsUtils.resolverNivelTotalPersonaje(personaje);
+		Integer maximum = dndCharacterStatsUtils.experienciaMaximaParaNivel(level);
+		int experience = Math.max(0, request.experiencia());
+		if (maximum != null) {
+			experience = Math.min(experience, maximum);
+		}
+		estadisticaService.actualizarExperienciaPersonaje(personaje, experience);
+		return obtenerDetallePersonaje(personajeId, username);
+	}
+
+	@Transactional
+	public PersonajeDetalleResponse actualizarItemMochila(
+			Long personajeId,
+			Long itemId,
+			ActualizarItemMochilaRequest request,
+			String username
+	) {
+		if (request == null) {
+			throw new ResponseStatusException(BAD_REQUEST, "No se recibió la actualización del inventario");
+		}
+
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+
+		mochilaService.actualizarItemPersonajeDnd(
+				personaje,
+				itemId,
+				request.equipado(),
+				request.cantidad()
+		);
+		return obtenerDetallePersonaje(personajeId, username);
+	}
+
+	@Transactional
+	public PersonajeDetalleResponse agregarItemMochila(
+			Long personajeId,
+			AgregarItemMochilaRequest request,
+			String username
+	) {
+		if (request == null) {
+			throw new ResponseStatusException(BAD_REQUEST, "No se recibió el nuevo objeto de mochila");
+		}
+
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+
+		mochilaService.agregarItemPersonajeDnd(
+				personaje,
+				request.objetoId(),
+				request.nombre(),
+				request.formula(),
+				request.descripcion(),
+				request.tipoObjeto(),
+				request.indice(),
+				username,
+				request.cantidad()
+		);
+		return obtenerDetallePersonaje(personajeId, username);
+	}
+
+	@Transactional
+	public PersonajeDetalleResponse eliminarItemMochila(Long personajeId, Long itemId, String username) {
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+
+		mochilaService.eliminarItemPersonajeDnd(personaje, itemId);
+		return obtenerDetallePersonaje(personajeId, username);
+	}
+
+	@Transactional
+	public PersonajeDetalleResponse agregarHabilidad(Long personajeId, AgregarHabilidadPersonajeRequest request, String username) {
+		if (request == null || request.habilidadId() == null) {
+			throw new ResponseStatusException(BAD_REQUEST, "No se recibió la habilidad a añadir");
+		}
+
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+		dndCharacterAbilityManagementUtils.agregarHabilidadManual(personaje, request.habilidadId());
+
+		return obtenerDetallePersonaje(personajeId, username);
+	}
+
+	@Transactional
+	public PersonajeDetalleResponse eliminarHabilidad(Long personajeId, Long habilidadId, String username) {
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+		dndCharacterAbilityManagementUtils.eliminarHabilidadManual(personaje, habilidadId);
+		return obtenerDetallePersonaje(personajeId, username);
+	}
+
+	@Transactional
+	public void eliminarPersonaje(Long personajeId, String username) {
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+		mochilaService.obtenerMochilaPersonaje(personajeId).forEach(item -> mochilaService.eliminarItemPersonaje(personaje, item.getId()));
+		personaje.getHabilidades().clear();
+		personajeRepository.save(personaje);
+		personajeRepository.delete(personaje);
+	}
+
+	@Transactional
+	public PersonajeDetalleResponse subirNivel(Long personajeId, SubirNivelPersonajeRequest request, String username) {
+		dndCharacterLevelUtils.subirNivel(personajeId, request, username);
+		return obtenerDetallePersonaje(personajeId, username);
+	}
+
+	@Transactional
+	public PersonajeDetalleResponse bajarNivel(Long personajeId, BajarNivelPersonajeRequest request, String username) {
+		dndCharacterLevelUtils.bajarNivel(personajeId, request, username);
+		return obtenerDetallePersonaje(personajeId, username);
 	}
 
 	private MultipartFile validarRetrato(MultipartFile portrait) {
@@ -244,162 +356,8 @@ public class PersonajeService {
 		}
 	}
 
-	private List<Habilidad> resolverHabilidadesIniciales(
-			ClaseDndDetalleResponse clase,
-			RazaDndDetalleResponse raza,
-			SubrazaDndDetalleResponse subraza,
-			TrasfondoDndDetalleResponse trasfondo,
-			Map<String, List<String>> eleccionesRaza,
-			Map<String, List<String>> eleccionesTrasfondo
-	) {
-		Map<String, Habilidad> habilidades = new LinkedHashMap<>();
-
-		habilidadRepository.findAll().stream()
-				.filter(habilidad -> Integer.valueOf(1).equals(TagUtils.extractClassLevel(habilidad.getTags(), clase.nombre())))
-				.forEach(habilidad -> habilidades.putIfAbsent(TagUtils.normalizeText(habilidad.getNombre()), habilidad));
-
-		agregarHabilidad(habilidades, resolverOCrearHabilidad(trasfondo.nombreRasgo(), trasfondo.descripcionRasgo(), null, "DND,TRASFONDO," + trasfondo.id()));
-		agregarEntradasComoHabilidades(habilidades, trasfondo.competenciasHabilidades(), "Competencia: ", "Competencia inicial de trasfondo", "DND,TRASFONDO," + trasfondo.id());
-		agregarEntradasComoHabilidades(habilidades, trasfondo.competenciasHerramientas(), "Competencia: ", "Competencia inicial de trasfondo", "DND,TRASFONDO," + trasfondo.id());
-		agregarEntradasComoHabilidades(habilidades, raza.idiomas(), "Idioma: ", "Idioma racial", "DND,RAZA," + raza.id());
-		agregarEntradasComoHabilidades(habilidades, raza.competencias(), "Competencia: ", "Competencia racial", "DND,RAZA," + raza.id());
-		agregarRasgos(habilidades, raza.rasgos(), "DND,RAZA," + raza.id());
-
-		if (subraza != null) {
-			agregarEntradasComoHabilidades(habilidades, subraza.competencias(), "Competencia: ", "Competencia de subraza", "DND,SUBRAZA," + subraza.id());
-			agregarRasgos(habilidades, subraza.rasgos(), "DND,SUBRAZA," + subraza.id());
-		}
-
-		agregarEleccionesComoHabilidades(
-				habilidades,
-				raza.elecciones(),
-				eleccionesRaza,
-				"DND,RAZA," + raza.id(),
-				eleccion -> !"abilityScores".equalsIgnoreCase(eleccion.catalogo())
-		);
-		if (subraza != null) {
-			agregarEleccionesComoHabilidades(
-					habilidades,
-					subraza.elecciones(),
-					eleccionesRaza,
-					"DND,SUBRAZA," + subraza.id(),
-					eleccion -> !"abilityScores".equalsIgnoreCase(eleccion.catalogo())
-			);
-		}
-		agregarEleccionesComoHabilidades(
-				habilidades,
-				trasfondo.elecciones(),
-				eleccionesTrasfondo,
-				"DND,TRASFONDO," + trasfondo.id(),
-				eleccion -> true
-		);
-
-		return new ArrayList<>(habilidades.values());
-	}
-
-	private void agregarRasgos(Map<String, Habilidad> habilidades, List<RazaDndRasgoResponse> rasgos, String tags) {
-		for (RazaDndRasgoResponse rasgo : rasgos) {
-			agregarHabilidad(habilidades, resolverOCrearHabilidad(rasgo.titulo(), rasgo.descripcion(), null, tags));
-		}
-	}
-
-	private void agregarEntradasComoHabilidades(
-			Map<String, Habilidad> habilidades,
-			Collection<String> entradas,
-			String prefijo,
-			String descripcion,
-			String tags
-	) {
-		for (String entrada : entradas) {
-			String valor = TagUtils.cleanValue(entrada);
-			if (valor.isBlank()) {
-				continue;
-			}
-
-			agregarHabilidad(habilidades, resolverOCrearHabilidad(prefijo + valor, descripcion, null, tags));
-		}
-	}
-
-	private <T extends CatalogoDndEleccion> void agregarEleccionesComoHabilidades(
-			Map<String, Habilidad> habilidades,
-			List<T> elecciones,
-			Map<String, List<String>> seleccionadas,
-			String tags,
-			Function<T, Boolean> debeIncluirse
-	) {
-		for (T eleccion : elecciones) {
-			if (!debeIncluirse.apply(eleccion)) {
-				continue;
-			}
-
-			for (String valor : seleccionadas.getOrDefault(eleccion.id(), List.of())) {
-				String nombre = nombreHabilidadDesdeEleccion(eleccion.catalogo(), eleccion.etiqueta(), valor);
-				agregarHabilidad(habilidades, resolverOCrearHabilidad(nombre, "Seleccion inicial de personaje", null, tags));
-			}
-		}
-	}
-
-	private String nombreHabilidadDesdeEleccion(String catalogo, String etiqueta, String valor) {
-		if (catalogo == null) {
-			return etiqueta + ": " + valor;
-		}
-
-		return switch (catalogo) {
-			case "languages" -> "Idioma: " + valor;
-			case "skills", "artisanTools", "games", "instruments" -> "Competencia: " + valor;
-			default -> etiqueta + ": " + valor;
-		};
-	}
-
-	private void agregarHabilidad(Map<String, Habilidad> habilidades, Habilidad habilidad) {
-		habilidades.putIfAbsent(TagUtils.normalizeText(habilidad.getNombre()), habilidad);
-	}
-
-	private Habilidad resolverOCrearHabilidad(String nombre, String descripcion, String formula, String tags) {
-		String nombreLimpio = DndCharacterRules.requireText(nombre, "La habilidad generada no tiene nombre");
-
-		return habilidadRepository.findByNombreIgnoreCaseOrderByIdAsc(nombreLimpio).stream()
-				.findFirst()
-				.orElseGet(() -> habilidadRepository.save(Habilidad.builder()
-						.nombre(nombreLimpio)
-						.descripcion(descripcion)
-						.formula(formula)
-						.tags(tags)
-						.build()));
-	}
-
-	private List<ClasePersonajeResponse> resolverClasesPersonaje(Personaje personaje) {
-		Map<String, Integer> clases = new LinkedHashMap<>();
-		extraerClasesDesdeTags(clases, personaje.getTags());
-
-		if (clases.isEmpty()) {
-			for (Habilidad habilidad : personaje.getHabilidades()) {
-				extraerClasesDesdeTags(clases, habilidad.getTags());
-			}
-		}
-
-		return clases.entrySet().stream()
-				.map(entry -> new ClasePersonajeResponse(entry.getKey(), entry.getValue()))
-				.toList();
-	}
-
-	private String resolverCaracteristicaLanzamientoConjuros(Personaje personaje) {
-		List<ClasePersonajeResponse> clases = resolverClasesPersonaje(personaje);
-		if (clases.isEmpty()) {
-			return null;
-		}
-
-		String nombreClase = clases.getFirst().nombre();
-		return dndInfoService.obtenerClases().stream()
-				.filter(item -> TagUtils.normalizeText(item.nombre()).equals(TagUtils.normalizeText(nombreClase)))
-				.findFirst()
-				.flatMap(resumen -> dndInfoService.obtenerClasePorId(resumen.id()))
-				.map(ClaseDndDetalleResponse::lanzamientoConjuros)
-				.map(ClaseDndLanzamientoConjurosResponse::caracteristica)
-				.orElse(null);
-	}
-
-	private void extraerClasesDesdeTags(Map<String, Integer> clases, String tags) {
-		TagUtils.extractClasses(tags).forEach((name, level) -> clases.merge(name, level, Math::max));
+	private Personaje obtenerPersonajeUsuario(Long personajeId, String username) {
+		return personajeRepository.findByIdAndUsuarioUsername(personajeId, username)
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Personaje no encontrado"));
 	}
 }

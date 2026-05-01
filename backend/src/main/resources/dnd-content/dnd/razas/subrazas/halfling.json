@@ -1,0 +1,36 @@
+[
+    {
+        "id":  "lightfoot-halfling",
+        "nombre":  "Mediano piesligeros",
+        "descripcion":  "Como mediano piesligeros, puedes ocultarte con facilidad incluso usando a otras personas como cobertura. Sueles ser sociable y llevarte bien con los demas. En muchos mundos son los medianos mas propensos a la vida errante y al viaje.",
+        "aumentoCaracteristicas":  [
+                                       "+1 Carisma"
+                                   ],
+        "competencias":  [
+
+                         ],
+        "rasgos":  [
+                       {
+                           "nombre":  "Sigilo natural",
+                           "descripcion":  "Puedes intentar ocultarte incluso cuando solo estas oculto por una criatura que sea al menos una categoria de tamano mayor que tu."
+                       }
+                   ]
+    },
+    {
+        "id":  "stout-halfling",
+        "nombre":  "Mediano robusto",
+        "descripcion":  "Como mediano robusto, eres mas duro que la media y posees cierta resistencia al veneno. Algunos afirman que los robustos tienen sangre enana en las venas.",
+        "aumentoCaracteristicas":  [
+                                       "+1 Constitucion"
+                                   ],
+        "competencias":  [
+
+                         ],
+        "rasgos":  [
+                       {
+                           "nombre":  "Resistencia robusta",
+                           "descripcion":  "Tienes ventaja en tiradas de salvacion contra veneno y resistencia al dano de veneno."
+                       }
+                   ]
+    }
+]

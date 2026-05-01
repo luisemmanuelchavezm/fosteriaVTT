@@ -1,0 +1,36 @@
+{
+    "id":  "halfling",
+    "nombre":  "Mediano",
+    "descripcion":  "La comodidad del hogar es el objetivo de la vida de la mayoria de los medianos: un lugar donde vivir en paz y tranquilidad, lejos de monstruos depredadores y ejercitos enfrentados; un fuego encendido y una buena comida; buena bebida y buena conversacion. Aunque algunos viven siempre en comunidades agricolas remotas, otros forman bandas nomadas atraidas por el camino abierto y el horizonte lejano. Incluso esos viajeros aman la paz, la mesa, el hogar y la lumbre, aunque su hogar sea un carro o una balsa descendiendo por el rio.",
+    "velocidad":  25,
+    "tamano":  "Pequeño",
+    "edad":  "Un mediano alcanza la adultez a los 20 anos y por lo general vive hasta mediados de su segundo siglo de vida.",
+    "alineamiento":  "Su gusto por la convivencia, la paz y las relaciones cordiales hace que muchos medianos se orienten hacia el bien.",
+    "idiomas":  [
+                    "Comun",
+                    "Mediano"
+                ],
+    "aumentoCaracteristicas":  [
+                                   "+2 Destreza"
+                               ],
+    "competencias":  [
+
+                     ],
+    "rasgos":  [
+                   {
+                       "nombre":  "Afortunado",
+                       "descripcion":  "Cuando sacas un 1 en el d20 en una tirada de ataque, prueba de caracteristica o tirada de salvacion, puedes repetir el dado y debes usar el nuevo resultado."
+                   },
+                   {
+                       "nombre":  "Valiente",
+                       "descripcion":  "Tienes ventaja en tiradas de salvacion contra estar asustado."
+                   },
+                   {
+                       "nombre":  "Agilidad mediana",
+                       "descripcion":  "Puedes moverte a traves del espacio de cualquier criatura que sea de un tamano mayor que el tuyo."
+                   }
+               ],
+    "elecciones":  [
+
+                   ]
+}

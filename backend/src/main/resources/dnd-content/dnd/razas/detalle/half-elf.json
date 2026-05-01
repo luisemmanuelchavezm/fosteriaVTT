@@ -1,0 +1,58 @@
+{
+    "id":  "half-elf",
+    "nombre":  "Semielfo",
+    "descripcion":  "Caminando entre dos mundos sin pertenecer del todo a ninguno, los semielfos combinan lo que algunos consideran las mejores cualidades de sus progenitores humanos y elfos: curiosidad, inventiva y ambicion humanas atemperadas por sentidos refinados, amor por la naturaleza y sensibilidad artistica elfica. Muchos semielfos acaban llevando vidas de viaje, aventura o independencia, al no encajar plenamente en ninguna de las dos sociedades.",
+    "velocidad":  30,
+    "tamano":  "Mediano",
+    "edad":  "Los semielfos maduran al mismo ritmo que los humanos y alcanzan la adultez alrededor de los 20 anos. Viven mucho mas que los humanos y a menudo superan los 180 anos.",
+    "alineamiento":  "Su origen y sus experiencias hacen que los semielfos sean especialmente variados y poco propensos a encajar en moldes rigidos.",
+    "idiomas":  [
+                    "Comun",
+                    "Elfico",
+                    "1 idioma a eleccion"
+                ],
+    "aumentoCaracteristicas":  [
+                                   "+2 Carisma",
+                                   "+1 a otras dos caracteristicas distintas"
+                               ],
+    "competencias":  [
+
+                     ],
+    "rasgos":  [
+                   {
+                       "nombre":  "Vision en la oscuridad",
+                       "descripcion":  "Gracias a tu sangre elfica, puedes ver en luz tenue a 60 pies como si fuera luz brillante, y en oscuridad como si fuera luz tenue. En la oscuridad solo distingues tonos de gris."
+                   },
+                   {
+                       "nombre":  "Ascendencia feerica",
+                       "descripcion":  "Tienes ventaja en tiradas de salvacion contra ser hechizado y la magia no puede dormirte."
+                   },
+                   {
+                       "nombre":  "Versatilidad en habilidades",
+                       "descripcion":  "Obtienes competencia en dos habilidades a tu eleccion."
+                   }
+               ],
+    "elecciones":  [
+                       {
+                           "id":  "half-elf-language",
+                           "etiqueta":  "Idioma adicional",
+                           "resumen":  "Elige un idioma adicional de tu eleccion",
+                           "catalogo":  "idiomas",
+                           "cantidad":  1
+                       },
+                       {
+                           "id":  "half-elf-skills",
+                           "etiqueta":  "Versatilidad en habilidades",
+                           "resumen":  "Elige dos habilidades distintas",
+                           "catalogo":  "habilidades",
+                           "cantidad":  2
+                       },
+                       {
+                           "id":  "half-elf-abilities",
+                           "etiqueta":  "Aumentos de caracteristica",
+                           "resumen":  "Elige dos caracteristicas distintas para recibir +1. No puedes elegir Carisma",
+                           "catalogo":  "puntuacionesCaracteristica",
+                           "cantidad":  2
+                       }
+                   ]
+}

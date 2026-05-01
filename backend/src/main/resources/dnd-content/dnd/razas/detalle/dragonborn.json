@@ -1,0 +1,43 @@
+{
+    "id":  "dragonborn",
+    "nombre":  "Draconido",
+    "descripcion":  "Nacidos de dragones, como proclama su nombre, los draconidos caminan con orgullo por un mundo que a menudo los recibe con temor e incomprension. Moldeados por deidades draconicas o por los propios dragones, surgieron a partir de huevos de dragon como una raza singular que combina los mejores rasgos de los dragones y de los humanoides. Algunos sirven fielmente a los dragones verdaderos, otros llenan las filas de grandes ejercitos y otros vagan por el mundo en busca de un destino propio.",
+    "velocidad":  30,
+    "tamano":  "Mediano",
+    "edad":  "Los draconidos jovenes crecen con rapidez. Caminan horas despues de salir del huevo, alcanzan un desarrollo parecido al de un nino humano de 10 anos a los 3 anos y llegan a la adultez a los 15. Viven alrededor de 80 anos.",
+    "alineamiento":  "Su herencia y su educacion hacen que muchos draconidos desarrollen un sentido intenso del honor, del deber o de la ambicion personal.",
+    "idiomas":  [
+                    "Comun",
+                    "Draconico"
+                ],
+    "aumentoCaracteristicas":  [
+                                   "+2 Fuerza",
+                                   "+1 Carisma"
+                               ],
+    "competencias":  [
+
+                     ],
+    "rasgos":  [
+                   {
+                       "nombre":  "Linaje draconico",
+                       "descripcion":  "Tienes ascendencia draconica. Elige un tipo de dragon de la tabla de linajes draconicos. Tu arma de aliento y tu resistencia al dano vienen determinadas por ese tipo de dragon."
+                   },
+                   {
+                       "nombre":  "Arma de aliento",
+                       "descripcion":  "Puedes usar tu accion para exhalar energia destructiva. El tamano, la forma, el tipo de dano y la tirada de salvacion dependen de tu linaje draconico. La CD de la salvacion es 8 + tu modificador de Constitucion + tu bonificador de competencia. Un objetivo recibe 2d6 de dano si falla la tirada, o la mitad si la supera. El dano aumenta a 3d6 a nivel 6, 4d6 a nivel 11 y 5d6 a nivel 16. Tras usar este rasgo, no puedes volver a usarlo hasta completar un descanso corto o largo."
+                   },
+                   {
+                       "nombre":  "Resistencia al dano",
+                       "descripcion":  "Tienes resistencia al tipo de dano asociado a tu linaje draconico."
+                   }
+               ],
+    "elecciones":  [
+                       {
+                           "id":  "dragonborn-ancestor",
+                           "etiqueta":  "Linaje draconico",
+                           "resumen":  "Elige tu tipo de dragon para determinar el dano, la forma del aliento y la resistencia elemental",
+                           "catalogo":  "ancestrosDraconicos",
+                           "cantidad":  1
+                       }
+                   ]
+}

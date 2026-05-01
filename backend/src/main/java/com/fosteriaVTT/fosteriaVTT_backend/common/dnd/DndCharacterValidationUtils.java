@@ -1,6 +1,9 @@
-package com.fosteriaVTT.fosteriaVTT_backend.common;
+package com.fosteriaVTT.fosteriaVTT_backend.common.dnd;
 
+import com.fosteriaVTT.fosteriaVTT_backend.common.TagUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.CatalogoDndEleccion;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndDetalleResponse;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndEleccionResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.EquipamientoDndGrupoResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.EquipamientoDndOpcionResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.EquipamientoDndResponse;
@@ -26,6 +29,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 public final class DndCharacterValidationUtils {
 
 	private static final Pattern CLASS_SKILL_CHOICE_PATTERN = Pattern.compile("(?i)elige\\s+(\\d+|una|uno|dos|tres|cuatro|cinco|seis)\\s+entre\\s+(.+)");
+	private static final Pattern CLASS_ANY_SKILL_CHOICE_PATTERN = Pattern.compile("(?i)elige\\s+(\\d+|una|uno|dos|tres|cuatro|cinco|seis)\\s+habilidades?\\s+cualesquiera");
 	private static final Map<String, Integer> NUMBER_WORDS = Map.of(
 			"uno", 1,
 			"una", 1,
@@ -35,7 +39,6 @@ public final class DndCharacterValidationUtils {
 			"cinco", 5,
 			"seis", 6
 	);
-
 	private DndCharacterValidationUtils() {}
 
 	public static SubrazaDndDetalleResponse resolveSubrace(RazaDndDetalleResponse race, String subraceId) {
@@ -108,6 +111,55 @@ public final class DndCharacterValidationUtils {
 		return result;
 	}
 
+	public static ValidatedClassChoices validateClassChoices(
+			ClaseDndDetalleResponse clase,
+			Map<String, List<String>> selectedChoices,
+			List<String> legacySelectedSkills
+	) {
+		List<ClassChoiceGroup> choiceGroups = extractClassChoices(clase);
+		Map<String, List<String>> normalizedSelections = new LinkedHashMap<>();
+		Map<String, List<String>> safeSelections = DndCharacterRules.safeMap(selectedChoices);
+		List<String> selectedSkills = new ArrayList<>();
+		Set<String> uniqueSkills = new LinkedHashSet<>();
+		List<String> remainingLegacySkills = legacySelectedSkills == null
+				? List.of()
+				: legacySelectedSkills.stream().map(value -> value == null ? "" : value.trim()).filter(value -> !value.isBlank()).toList();
+
+		for (ClassChoiceGroup choiceGroup : choiceGroups) {
+			List<String> rawValues = safeSelections.get(choiceGroup.id());
+			if (rawValues == null && esCatalogo(choiceGroup.catalog(), "habilidades") && !remainingLegacySkills.isEmpty()) {
+				rawValues = remainingLegacySkills.stream().limit(choiceGroup.amount()).toList();
+				remainingLegacySkills = remainingLegacySkills.stream().skip(choiceGroup.amount()).toList();
+			}
+
+			List<String> values = validateChoiceValues(
+					rawValues,
+					choiceGroup.amount(),
+					"Debes completar la elección de clase " + choiceGroup.label()
+			);
+
+			List<String> normalizedValues = new ArrayList<>();
+			for (String value : values) {
+				String normalizedValue = normalizeClassChoiceValue(choiceGroup, value);
+				if (choiceGroup.normalizedOptions().stream().noneMatch(normalizedValue::equals)) {
+					throw new ResponseStatusException(BAD_REQUEST, "La opción seleccionada no es válida para " + choiceGroup.label());
+				}
+				String displayValue = resolveDisplayValue(choiceGroup, normalizedValue);
+				normalizedValues.add(displayValue);
+				if (esCatalogo(choiceGroup.catalog(), "habilidades")) {
+					if (!uniqueSkills.add(normalizedValue)) {
+						throw new ResponseStatusException(BAD_REQUEST, "No puedes repetir competencias en habilidades de clase");
+					}
+					selectedSkills.add(displayValue);
+				}
+			}
+
+			normalizedSelections.put(choiceGroup.id(), normalizedValues);
+		}
+
+		return new ValidatedClassChoices(selectedSkills, normalizedSelections);
+	}
+
 	public static Map<String, List<String>> validateBackgroundChoices(
 			TrasfondoDndDetalleResponse background,
 			Map<String, List<String>> choices
@@ -156,15 +208,43 @@ public final class DndCharacterValidationUtils {
 
 			EquipamientoDndOpcionResponse option = group.opciones().get(selectedIndex);
 			if (!option.opcionesCatalogo().isEmpty()) {
-				Long objectId = selectedCatalogItems.get(key);
-				if (objectId == null || option.opcionesCatalogo().stream().noneMatch(item -> Objects.equals(item.id(), objectId))) {
-					throw new ResponseStatusException(BAD_REQUEST, "Debes elegir el objeto concreto para " + group.etiqueta());
+				for (String catalogSelectionKey : buildCatalogSelectionKeys(key, option.cantidad())) {
+					Long objectId = selectedCatalogItems.get(catalogSelectionKey);
+					if (objectId == null || option.opcionesCatalogo().stream().noneMatch(item -> Objects.equals(item.id(), objectId))) {
+						throw new ResponseStatusException(BAD_REQUEST, "Debes elegir el objeto concreto para " + group.etiqueta());
+					}
 				}
 			}
 		}
 	}
 
+	private static List<String> buildCatalogSelectionKeys(String baseKey, Integer amount) {
+		int selectionCount = Math.max(1, amount == null ? 1 : amount);
+		if (selectionCount == 1) {
+			return List.of(baseKey);
+		}
+
+		List<String> keys = new ArrayList<>(selectionCount);
+		for (int index = 0; index < selectionCount; index++) {
+			keys.add(baseKey + ":" + index);
+		}
+		return keys;
+	}
+
 	public record SkillChoiceGroup(int amount, List<String> normalizedOptions) {}
+	public record ValidatedClassChoices(List<String> selectedSkills, Map<String, List<String>> selectedChoices) {}
+
+	private record ClassChoiceGroup(
+			String id,
+			String label,
+			String catalog,
+			int amount,
+			Map<String, String> displayByNormalizedOption
+	) {
+		List<String> normalizedOptions() {
+			return new ArrayList<>(displayByNormalizedOption.keySet());
+		}
+	}
 
 	private static List<SkillChoiceGroup> extractClassSkillChoices(List<String> descriptions) {
 		List<SkillChoiceGroup> result = new ArrayList<>();
@@ -190,7 +270,58 @@ public final class DndCharacterValidationUtils {
 		return result;
 	}
 
-	private static int parseChoiceAmount(String value) {
+	private static List<ClassChoiceGroup> extractClassChoices(ClaseDndDetalleResponse clase) {
+		if (clase != null && clase.elecciones() != null && !clase.elecciones().isEmpty()) {
+			return clase.elecciones().stream()
+					.map(DndCharacterValidationUtils::toClassChoiceGroup)
+					.toList();
+		}
+
+		List<ClassChoiceGroup> result = new ArrayList<>();
+		List<String> skillDescriptions = clase == null ? List.of() : clase.competencias().habilidades();
+
+		for (int index = 0; index < (skillDescriptions == null ? 0 : skillDescriptions.size()); index++) {
+			ClassChoiceGroup choice = extractClassSkillChoice(skillDescriptions.get(index), index);
+			if (choice != null) {
+				result.add(choice);
+			}
+		}
+
+		return result;
+	}
+
+	private static ClassChoiceGroup extractClassSkillChoice(String description, int index) {
+		String value = description == null ? "" : description.trim();
+		if (value.isBlank()) {
+			return null;
+		}
+
+		Matcher anySkillMatcher = CLASS_ANY_SKILL_CHOICE_PATTERN.matcher(value);
+		if (anySkillMatcher.matches()) {
+			return new ClassChoiceGroup(
+					"class-skill-" + index,
+					"Competencias de clase",
+					"habilidades",
+					parseChoiceAmount(anySkillMatcher.group(1)),
+					buildOptionMap(new ArrayList<>(DndCharacterRules.ATTRIBUTE_BY_SKILL.keySet()))
+			);
+		}
+
+		Matcher matcher = CLASS_SKILL_CHOICE_PATTERN.matcher(value);
+		if (!matcher.matches()) {
+			return null;
+		}
+
+		return new ClassChoiceGroup(
+				"class-skill-" + index,
+				"Competencias de clase",
+				"habilidades",
+				parseChoiceAmount(matcher.group(1)),
+				buildOptionMap(extractSkillChoiceOptions(matcher.group(2)))
+		);
+	}
+
+	public static int parseChoiceAmount(String value) {
 		String key = TagUtils.normalizeText(value);
 		Integer amount = NUMBER_WORDS.get(key);
 		if (amount != null) {
@@ -215,6 +346,50 @@ public final class DndCharacterValidationUtils {
 				.filter(item -> !item.isBlank())
 				.map(item -> DndCharacterRules.normalizeCanonicalSkill(item).orElse(item))
 				.toList();
+	}
+
+	private static Map<String, String> buildOptionMap(List<String> values) {
+		Map<String, String> options = new LinkedHashMap<>();
+		for (String value : values) {
+			String normalized = TagUtils.normalizeText(value);
+			if (!normalized.isBlank()) {
+				options.putIfAbsent(normalized, value);
+			}
+		}
+		return options;
+	}
+
+	private static String normalizeClassChoiceValue(ClassChoiceGroup choiceGroup, String rawValue) {
+		if (esCatalogo(choiceGroup.catalog(), "habilidades")) {
+			return DndCharacterRules.normalizeCanonicalSkill(rawValue)
+					.map(TagUtils::normalizeText)
+					.orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "La competencia de clase seleccionada no es válida"));
+		}
+
+		return TagUtils.normalizeText(rawValue);
+	}
+
+	private static String resolveDisplayValue(ClassChoiceGroup choiceGroup, String normalizedValue) {
+		String displayValue = choiceGroup.displayByNormalizedOption().get(normalizedValue);
+		if (displayValue == null) {
+			throw new ResponseStatusException(BAD_REQUEST, "La opción seleccionada no es válida para " + choiceGroup.label());
+		}
+		return displayValue;
+	}
+
+	private static ClassChoiceGroup toClassChoiceGroup(ClaseDndEleccionResponse choice) {
+		return new ClassChoiceGroup(
+				choice.id(),
+				choice.etiqueta(),
+				DndCharacterRules.normalizeChoiceCatalogId(choice.catalogo()),
+				choice.cantidad(),
+				buildOptionMap(choice.opciones())
+		);
+	}
+
+	private static boolean esCatalogo(String catalogo, String esperado) {
+		return DndCharacterRules.normalizeChoiceCatalogId(catalogo)
+				.equalsIgnoreCase(DndCharacterRules.normalizeChoiceCatalogId(esperado));
 	}
 
 	private static <T extends CatalogoDndEleccion> Map<String, List<String>> validateCatalogChoices(

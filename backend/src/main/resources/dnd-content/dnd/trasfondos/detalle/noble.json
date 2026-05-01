@@ -1,0 +1,72 @@
+{
+    "id":  "noble",
+    "nombre":  "Noble",
+    "descripcion":  "Tu apellido, modales y posicion social te abren puertas que para otros siguen cerradas.",
+    "competenciasHabilidades":  [
+                                    "Historia",
+                                    "Persuasión"
+                                ],
+    "competenciasHerramientas":  [
+                                     "1 tipo de juego a eleccion"
+                                 ],
+    "resumenIdiomas":  [
+                           "1 idioma a eleccion"
+                       ],
+    "nombreRasgo":  "Posicion de privilegio",
+    "descripcionRasgo":  "Tu presencia suele ser bien recibida en entornos aristocraticos y puedes solicitar audiencias con otros nobles.",
+    "elecciones":  [
+                       {
+                           "id":  "noble-game",
+                           "etiqueta":  "Tipo de juego",
+                           "resumen":  "1 tipo de juego a eleccion",
+                           "catalogo":  "juegos",
+                           "cantidad":  1
+                       },
+                       {
+                           "id":  "noble-language",
+                           "etiqueta":  "Idioma",
+                           "resumen":  "1 idioma a eleccion",
+                           "catalogo":  "idiomas",
+                           "cantidad":  1
+                       }
+                   ],
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "noble-ropa",
+                                           "etiqueta":  "Ropa elegante",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Ropa elegante"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "noble-anillo",
+                                           "etiqueta":  "Anillo de sello",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Anillo de sello"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "noble-pedigri",
+                                           "etiqueta":  "Pergamino de pedigrí",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Pergamino de pedigrí"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "noble-po",
+                                           "etiqueta":  "Piezas de oro",
+                                           "cantidad":  25,
+                                           "objeto":  {
+                                                          "nombre":  "Piezas de oro"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+
+                                            ]
+                     }
+}

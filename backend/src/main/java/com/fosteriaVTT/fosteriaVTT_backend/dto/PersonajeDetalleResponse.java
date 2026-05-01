@@ -8,6 +8,7 @@ public record PersonajeDetalleResponse(
         Long id,
         String nombre,
         String retrato,
+        String biografia,
         String sistemaDeJuego,
         String raza,
         String subraza,
