@@ -21,15 +21,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Trigger Render deploy
+      - name: Trigger Render backend deploy
         shell: bash
         run: |
           if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
-            echo "Skipping Render deploy because RENDER_DEPLOY_HOOK_URL is not configured."
+            echo "Skipping Render backend deploy because RENDER_DEPLOY_HOOK_URL is not configured."
             exit 0
           fi
 
+          echo "Triggering Render backend deploy..."
           curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
+          echo
+          echo "Render backend deploy hook accepted."
 
       - name: Trigger Render Static deploy
         shell: bash
@@ -39,4 +42,7 @@ jobs:
             exit 0
           fi
 
+          echo "Triggering Render static deploy..."
           curl --fail --silent --show-error --request POST "$RENDER_STATIC_DEPLOY_HOOK_URL"
+          echo
+          echo "Render static deploy hook accepted."
