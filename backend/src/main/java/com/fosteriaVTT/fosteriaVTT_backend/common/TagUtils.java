@@ -62,7 +62,7 @@ public final class TagUtils {
 				int level = Integer.parseInt(parts[1].trim());
 				classes.merge(className, level, Math::max);
 			} catch (NumberFormatException ignored) {
-				// Ignore malformed class tags
+				// Ignore malformed class tags.
 			}
 		}
 
