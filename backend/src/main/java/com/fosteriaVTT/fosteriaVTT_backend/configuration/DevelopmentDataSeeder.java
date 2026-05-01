@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,15 +51,15 @@ public class DevelopmentDataSeeder {
             ResourceLoader resourceLoader,
             ContenidoSistemaJsonService contenidoSistemaJsonService
     ) {
-        return args -> {
+        return args -> CompletableFuture.runAsync(() -> {
             seedDndContentPackages(objectMapper, resourceLoader, contenidoSistemaJsonService);
-        };
+        });
     }
 
     @Bean
     @Order(2)
     CommandLineRunner seedDndSpellCatalog(HabilidadRepository habilidadRepository) {
-        return args -> {
+        return args -> CompletableFuture.runAsync(() -> {
             removeLegacySpellCatalogEntries(habilidadRepository);
             removeSpellCatalogEntriesByName(habilidadRepository, List.of("Escritura ilusoria", "Orden"));
 
@@ -159,13 +160,13 @@ public class DevelopmentDataSeeder {
                 buildSpellSeedDetailed("Volar", null, "La criatura voluntaria tocada obtiene una velocidad volando de 60 pies hasta que termine el conjuro. Si sigue en el aire cuando el efecto acaba y no puede sostenerse, cae; con espacios superiores puedes afectar a más objetivos.", "Hechizo;3", "1 acción", "Toque", "V S M (una pluma del ala de cualquier pájaro)", "Concentración hasta 10 minutos", null, "Nivel 4+: 1 objetivo adicional por nivel del espacio", "hechicero", "brujo", "mago"),
                 buildSpellSeedDetailed("Zona de la verdad", null, "Creas una esfera mágica contra el engaño. Toda criatura que entre por primera vez o empiece su turno dentro debe superar una salvación de Carisma o no podrá mentir mientras permanezca en la zona; sabes quién falla, aunque la criatura puede negarse a responder o expresarse con evasivas.", "Hechizo;2", "1 acción", "60 pies", "V S", "10 minutos", null, null, "bardo", "clerigo", "paladin")
             ));
-        };
+        });
     }
 
     @Bean
     @Order(3)
     CommandLineRunner seedDndInstrumentCatalog(ObjetoRepository objetoRepository) {
-        return args -> seedInstrumentCatalogEntries(objetoRepository, List.of(
+        return args -> CompletableFuture.runAsync(() -> seedInstrumentCatalogEntries(objetoRepository, List.of(
             buildCompetencyCatalogSeed(
                 DND_TOOL_COMPETENCY_CATALOG_TAG,
                 "Herramientas de ladrón",
@@ -223,13 +224,13 @@ public class DevelopmentDataSeeder {
             buildArtisanToolSeed("Suministros de calígrafo"),
             buildArtisanToolSeed("Suministros de pintor"),
             buildArtisanToolSeed("Utensilios de tejedor")
-        ));
+        )));
     }
 
             @Bean
             @Order(4)
             CommandLineRunner seedDndEquipmentCatalog(ObjetoRepository objetoRepository) {
-            return args -> seedEquipmentCatalogEntries(objetoRepository, List.of(
+            return args -> CompletableFuture.runAsync(() -> seedEquipmentCatalogEntries(objetoRepository, List.of(
                 buildCompetencyCatalogSeed(
                     DND_WEAPON_ARMOR_COMPETENCY_CATALOG_TAG,
                     "Armaduras ligeras",
@@ -520,13 +521,13 @@ public class DevelopmentDataSeeder {
                     "Representación de una deidad o panteón. Puede ser un amuleto, un emblema grabado o un pequeño relicario, y sirve como canalizador mágico para clérigos y paladines.",
                     TipoObjeto.MISCELANEO
                 )
-            ));
+            )));
             }
 
     @Bean
     @Order(5)
     CommandLineRunner syncRequestedDndSkillTexts(HabilidadRepository habilidadRepository) {
-        return args -> seedSkillCatalogEntries(habilidadRepository, List.of(
+        return args -> CompletableFuture.runAsync(() -> seedSkillCatalogEntries(habilidadRepository, List.of(
                 buildSkill("Acrobacias", null, null, "Pruebas de equilibrio, volteretas y maniobras acrobaticas.", "DND,CatalogoHabilidadDnd;acrobacias"),
                 buildSkill("Arcano", null, null, "Conocimiento de magia, teoria arcana y tradiciones misticas.", "DND,CatalogoHabilidadDnd;arcano"),
                 buildSkill("Atletismo", null, null, "Pruebas de fuerza fisica, salto, escalada y natacion.", "DND,CatalogoHabilidadDnd;atletismo"),
@@ -606,7 +607,7 @@ public class DevelopmentDataSeeder {
                 buildSkill("Reflejos de ladron", null, "2 turnos en la primera ronda si no estas sorprendido", "Eres extraordinariamente veloz al empezar un combate. Si no estás sorprendido, puedes actuar dos veces durante la primera ronda: una en tu iniciativa normal y otra en tu iniciativa menos 10.", "CPicaro;17,Ladron,Iniciativa"),
                 buildSkill("Golpe mortal", null, null, "Cuando atacas e impactas a una criatura sorprendida, debe hacer una salvación de Constitución. Si falla, el daño del ataque se duplica contra ella.", "CPicaro;17,Asesino,Daño+,Critico+"),
                 buildSkill("Ladron de conjuros", null, null, "Inmediatamente después de que una criatura te lance un conjuro cuyo objetivo seas tú o que te incluya en su área, puedes usar tu reacción para forzar una salvación con su modificador de conjuro. Si falla, anulas el efecto del conjuro sobre ti y puedes lanzar ese conjuro tú mismo durante las siguientes 8 horas usando tus espacios de conjuro.", "CPicaro;17,EmbaucadorArcano,Conjuro,Reaccion")
-        ));
+            )));
     }
 
     @Bean
@@ -619,7 +620,7 @@ public class DevelopmentDataSeeder {
             DndCharacterCreationUtils dndCharacterCreationUtils,
             PasswordEncoder passwordEncoder
     ) {
-        return args -> {
+        return args -> CompletableFuture.runAsync(() -> {
             if (userRepository.count() > 0 || personajeRepository.count() > 0) {
                 return;
             }
@@ -1089,7 +1090,7 @@ public class DevelopmentDataSeeder {
 
                 dndCharacterCreationUtils.crearPersonajeDnd(buildSeededWizardRequest(), CHARACTER_IMAGE_TWO, sai.getUsername());
                 dndCharacterCreationUtils.crearPersonajeDnd(buildSeededClericRequest(), CHARACTER_IMAGE_THREE, luna.getUsername());
-        };
+        });
     }
 
     private Usuario buildUser(String username, String email, String password, String avatar) {
@@ -1545,6 +1546,94 @@ public class DevelopmentDataSeeder {
     }
 
     private void seedEquipmentCatalogEntries(ObjetoRepository objetoRepository, List<Objeto> objetos) {
+        for (Objeto objeto : objetos) {
+            List<Objeto> coincidencias = objetoRepository.findByNombreIgnoreCaseOrderByIdAsc(objeto.getNombre());
+            Objeto existente = coincidencias.stream().findFirst().orElse(null);
+
+            if (existente == null) {
+                objetoRepository.save(objeto);
+                continue;
+            }
+
+            existente.setIndice(objeto.getIndice());
+            existente.setFormula(objeto.getFormula());
+            existente.setDescripcion(objeto.getDescripcion());
+            existente.setTipoObjeto(objeto.getTipoObjeto());
+            objetoRepository.save(existente);
+
+            if (coincidencias.size() > 1) {
+                objetoRepository.deleteAll(coincidencias.subList(1, coincidencias.size()));
+            }
+        }
+    }
+
+    private record SpellSeed(
+            String nombre,
+            String formula,
+            String descripcion,
+            String tags
+    ) {}
+
+    private Objeto buildInitialObject(
+            String indice,
+            String nombre,
+            String formula,
+            String descripcion,
+            TipoObjeto tipoObjeto
+    ) {
+        return Objeto.builder()
+            .indice(indice == null || indice.isBlank() ? "VISIBILIDAD;oficial" : indice + ",VISIBILIDAD;oficial")
+                .nombre(nombre)
+                .formula(formula)
+                .descripcion(descripcion)
+                .tipoObjeto(tipoObjeto)
+                .build();
+    }
+}gEntries(ObjetoRepository objetoRepository, List<Objeto> objetos) {
+        for (Objeto objeto : objetos) {
+            List<Objeto> coincidencias = objetoRepository.findByNombreIgnoreCaseOrderByIdAsc(objeto.getNombre());
+            Objeto existente = coincidencias.stream().findFirst().orElse(null);
+
+            if (existente == null) {
+                objetoRepository.save(objeto);
+                continue;
+            }
+
+            existente.setIndice(objeto.getIndice());
+            existente.setFormula(objeto.getFormula());
+            existente.setDescripcion(objeto.getDescripcion());
+            existente.setTipoObjeto(objeto.getTipoObjeto());
+            objetoRepository.save(existente);
+
+            if (coincidencias.size() > 1) {
+                objetoRepository.deleteAll(coincidencias.subList(1, coincidencias.size()));
+            }
+        }
+    }
+
+    private record SpellSeed(
+            String nombre,
+            String formula,
+            String descripcion,
+            String tags
+    ) {}
+
+    private Objeto buildInitialObject(
+            String indice,
+            String nombre,
+            String formula,
+            String descripcion,
+            TipoObjeto tipoObjeto
+    ) {
+        return Objeto.builder()
+            .indice(indice == null || indice.isBlank() ? "VISIBILIDAD;oficial" : indice + ",VISIBILIDAD;oficial")
+                .nombre(nombre)
+                .formula(formula)
+                .descripcion(descripcion)
+                .tipoObjeto(tipoObjeto)
+                .build();
+    }
+}Entries(ObjetoRepository objetoRepository, List<Objeto> objetos) {
         for (Objeto objeto : objetos) {
             List<Objeto> coincidencias = objetoRepository.findByNombreIgnoreCaseOrderByIdAsc(objeto.getNombre());
             Objeto existente = coincidencias.stream().findFirst().orElse(null);
