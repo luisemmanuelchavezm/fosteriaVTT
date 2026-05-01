@@ -11,6 +11,8 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
 
     steps:
       - name: Checkout code
@@ -19,13 +21,11 @@ jobs:
           fetch-depth: 0
 
       - name: Trigger Render deploy
-        if: ${{ secrets.RENDER_DEPLOY_HOOK_URL != '' }}
-        env:
-          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         shell: bash
         run: |
-          curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "Skipping Render deploy because RENDER_DEPLOY_HOOK_URL is not configured."
+            exit 0
+          fi
 
-      - name: Skip deploy (missing Render hook)
-        if: ${{ secrets.RENDER_DEPLOY_HOOK_URL == '' }}
-        run: echo "Skipping Render deploy because RENDER_DEPLOY_HOOK_URL is not configured."
+          curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
