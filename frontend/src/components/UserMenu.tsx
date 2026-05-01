@@ -47,7 +47,7 @@ export default function UserMenu({
         onClick={() => setIsOpen((current) => !current)}
         aria-expanded={isOpen}
         aria-haspopup="menu"
-        aria-label="Abrir menu de usuario"
+        aria-label="Abrir menú de usuario"
         className="flex flex-col items-center transition duration-200 hover:scale-[1.03]"
       >
         <img
@@ -72,7 +72,7 @@ export default function UserMenu({
             onClick={onLogout}
             className="w-full px-4 py-3 text-left text-sm font-semibold text-stone-100 transition hover:bg-white/10"
           >
-            Cerrar sesion
+            Cerrar sesión
           </button>
         </div>
       ) : null}

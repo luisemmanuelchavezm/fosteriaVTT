@@ -1,4 +1,4 @@
-import type { DiceRound, StatsMethod } from "./utils/statisticsUtils";
+import type { DiceRound, StatsMethod } from "./creatednd/utils/statisticsUtils";
 
 export interface InitialEquipmentItem {
   id: number;
@@ -36,6 +36,20 @@ export interface DndClassSummary {
   insignia: string;
 }
 
+export interface DndProgressionTable {
+  titulo: string;
+  columnas: string[];
+  filas: string[][];
+}
+
+export interface DndSubclassDetail {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  nivelDesbloqueo: number;
+  tablas?: DndProgressionTable[];
+}
+
 export interface DndClassHitPoints {
   dadoGolpe: string;
   primerNivel: string;
@@ -50,10 +64,41 @@ export interface DndClassCompetencies {
   habilidades: string[];
 }
 
+export interface DndClassSpellcastingLevel {
+  nivel: number;
+  trucosConocidos: number | null;
+  conjurosConocidos: number | null;
+  conjurosEnLibro: number | null;
+  espaciosConjuro: number[] | null;
+  ranurasPacto: number | null;
+  nivelRanuraPacto: number | null;
+  arcanosMisticos: number[] | null;
+  invocacionesConocidas: number | null;
+}
+
+export interface DndClassSpellcasting {
+  modo: string;
+  caracteristica: string;
+  formulaConjurosPreparados: string | null;
+  niveles: DndClassSpellcastingLevel[];
+}
+
+export interface ClassSkillChoiceGroup {
+  id: string;
+  etiqueta: string;
+  resumen: string;
+  catalogo: string;
+  cantidad: number;
+  opciones: string[];
+}
+
 export interface DndClassDetail extends DndClassSummary {
   descripcion: string;
   puntosGolpe: DndClassHitPoints;
   competencias: DndClassCompetencies;
+  lanzamientoConjuros?: DndClassSpellcasting | null;
+  subclases: DndSubclassDetail[];
+  elecciones: ClassSkillChoiceGroup[];
   equipamiento: DndEquipment;
 }
 
@@ -86,6 +131,8 @@ export interface BackgroundSelectionSnapshot {
   selectedBackgroundId: string;
   selectedBackground: DndBackgroundDetail | null;
   selectedChoices: Record<string, string[]>;
+  alignment: string;
+  personalHistory: string;
 }
 
 export interface DndRaceTrait {
@@ -132,6 +179,12 @@ export interface DndRaceDetail extends DndRaceSummary {
   subrazas: DndSubraceDetail[];
 }
 
+export interface DndCompetencyCatalog {
+  habilidades: string[];
+  armasArmaduras: string[];
+  herramientas: string[];
+}
+
 export interface RaceSelectionSnapshot {
   selectedRaceId: string;
   selectedRace: DndRaceDetail | null;
@@ -154,21 +207,18 @@ export interface EquipmentSelectionSnapshot {
   selectedCatalogByGroup: Record<string, number | null>;
 }
 
-export interface ClassSkillChoiceGroup {
-  id: string;
-  etiqueta: string;
-  cantidad: number;
-  opciones: string[];
-}
-
 export interface CreateDndCharacterRequest {
   nombre: string;
   claseId: string;
+  subclaseId: string | null;
   trasfondoId: string;
   razaId: string;
   subrazaId: string | null;
+  alineamiento: string | null;
+  historiaPersonal: string | null;
   estadisticas: Record<string, number>;
   competenciasClase: string[];
+  eleccionesClase: Record<string, string[]>;
   eleccionesTrasfondo: Record<string, string[]>;
   eleccionesRaza: Record<string, string[]>;
   gruposEquipamiento: Record<string, number>;
