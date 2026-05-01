@@ -18,21 +18,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Verify tag belongs to main
-        id: verify-main
-        shell: bash
-        run: |
-          git fetch origin main --depth=1
-
-          if git branch -r --contains "$GITHUB_SHA" | grep -q "origin/main"; then
-            echo "is_main=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "is_main=false" >> "$GITHUB_OUTPUT"
-            echo "The pushed tag does not point to a commit contained in origin/main."
-          fi
-
       - name: Trigger Render deploy
-        if: steps.verify-main.outputs.is_main == 'true' && secrets.RENDER_DEPLOY_HOOK_URL != ''
+        if: secrets.RENDER_DEPLOY_HOOK_URL != ''
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         shell: bash
@@ -40,9 +27,5 @@ jobs:
           curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
 
       - name: Skip deploy (missing Render hook)
-        if: steps.verify-main.outputs.is_main == 'true' && secrets.RENDER_DEPLOY_HOOK_URL == ''
+        if: secrets.RENDER_DEPLOY_HOOK_URL == ''
         run: echo "Skipping Render deploy because RENDER_DEPLOY_HOOK_URL is not configured."
-
-      - name: Skip deploy
-        if: steps.verify-main.outputs.is_main != 'true'
-        run: echo "Skipping Render deploy because the tag is not based on main."
