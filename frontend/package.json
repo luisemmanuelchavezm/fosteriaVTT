@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "audit:fix:auto": "npm audit fix || node -e \"process.exit(0)\"",
     "dev": "vite",
+    "prebuild": "npm run audit:fix:auto",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",

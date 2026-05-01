@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 import "@testing-library/jest-dom/vitest";
-import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 
@@ -150,20 +149,35 @@ const baseProps = {
     formula: "1d8+3",
   } as never,
   spellInteractions: {
-    selectedSpell: { id: 4, nombre: "Luz" },
+    selectedSpell: {
+      id: 4,
+      nombre: "Luz",
+      bonificacion: null,
+      formula: "1d8",
+      descripcion: "Ilumina un objeto.",
+      tags: null,
+    },
+    openSpellDetail: vi.fn(),
+    openSpellDetailByName: vi.fn(),
     closeSpellDetail: vi.fn(),
     rollSpellExpression: vi.fn(),
     diceRoller: {
       diceBoxHostId: "dice-host",
       diceBoxError: null,
+      isDiceBoxReady: true,
       isRolling: false,
       summary: {
+        id: 1,
         title: "Ataque",
         expression: "1d20+5",
         diceValues: [17],
         modifier: 5,
         total: 22,
       },
+      rollD20Check: vi.fn(),
+      rollExpression: vi.fn(),
+      rollExpressionsSequence: vi.fn(),
+      formatModifier: vi.fn(),
     },
   },
   onSetInventoryCatalogOpen: vi.fn(),

@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import "@testing-library/jest-dom/vitest";
-import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { LevelUpModalController } from "../../../screens/personaje/dndcharactersheet/hooks/useLevelUpModalState";
 
 import LevelUpSelectionColumn from "../../../screens/personaje/dndcharactersheet/components/levelUp/LevelUpSelectionColumn";
 
@@ -58,7 +58,7 @@ function buildController() {
     setCantripUpgradeChosen: vi.fn(),
     setEaChosenCantrips: vi.fn(),
     setEaChosenSpells: vi.fn(),
-  };
+  } as unknown as LevelUpModalController;
 }
 
 describe("LevelUpSelectionColumn", () => {

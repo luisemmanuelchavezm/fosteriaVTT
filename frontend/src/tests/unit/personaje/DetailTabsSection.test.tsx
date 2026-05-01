@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 import "@testing-library/jest-dom/vitest";
-import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 
@@ -98,6 +97,7 @@ const baseProps = {
   onAddToolCompetency: vi.fn(),
   classCompetencies: ["Armas simples", "Laúd", "Escudos", "Juego de dados"],
   competencyCatalog: {
+    habilidades: ["Arcanos", "Sigilo"],
     armasArmaduras: ["Armas marciales", "Escudos", "Armas simples"],
     herramientas: ["Juego de dados", "Laúd", "Flauta"],
   },
@@ -141,16 +141,7 @@ describe("DetailTabsSection", () => {
   });
 
   it("builds biography props with filtered catalogs", () => {
-    render(
-      <DetailTabsSection
-        {...baseProps}
-        activeTab="biography"
-        weaponArmorSearch="escu"
-        toolSearch="fla"
-        weaponArmorFilter="armor"
-        toolFilter="instrumentos"
-      />,
-    );
+    render(<DetailTabsSection {...baseProps} activeTab="biography" />);
 
     expect(screen.getByTestId("biography-tab")).toBeInTheDocument();
     expect(tabMocks.BiographyTab).toHaveBeenCalledWith(

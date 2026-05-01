@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import "@testing-library/jest-dom/vitest";
-import React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { LevelUpModalController } from "../../../screens/personaje/dndcharactersheet/hooks/useLevelUpModalState";
 
 import LevelUpAsiSection from "../../../screens/personaje/dndcharactersheet/components/levelUp/LevelUpAsiSection";
 import LevelUpSummaryColumn from "../../../screens/personaje/dndcharactersheet/components/levelUp/LevelUpSummaryColumn";
@@ -96,7 +96,7 @@ function buildController() {
     submitError: null,
     isSubmitting: false,
     handleSubmit: vi.fn().mockResolvedValue(undefined),
-  };
+  } as unknown as LevelUpModalController;
 }
 
 describe("LevelUpAsiSection y LevelUpSummaryColumn", () => {

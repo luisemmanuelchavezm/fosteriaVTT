@@ -18,8 +18,8 @@ vi.mock("../../../screens/personaje/creatednd/utils/dndApi", () => ({
 }));
 
 const classSummaries = [
-  { id: "wizard", nombre: "Mago" },
-  { id: "rogue", nombre: "Pícaro" },
+  { id: "wizard", nombre: "Mago", insignia: "wizard.png" },
+  { id: "rogue", nombre: "Pícaro", insignia: "rogue.png" },
 ];
 
 const backgroundSummaries = [{ id: "sage", nombre: "Sabio" }];
@@ -245,7 +245,7 @@ describe("creacion de personaje - useCreateDndCharacter", () => {
     act(() => {
       result.current.fileInputRef.current = {
         click: clickSpy,
-      } as HTMLInputElement;
+      } as unknown as HTMLInputElement;
       result.current.openFilePicker();
     });
 
@@ -258,7 +258,7 @@ describe("creacion de personaje - useCreateDndCharacter", () => {
     act(() => {
       result.current.handlePortraitSelection({
         target: { files: [portraitFile] },
-      } as React.ChangeEvent<HTMLInputElement>);
+      } as unknown as React.ChangeEvent<HTMLInputElement>);
     });
 
     await waitFor(() => {
