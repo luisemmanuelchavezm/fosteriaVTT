@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+      RENDER_STATIC_DEPLOY_HOOK_URL: ${{ secrets.RENDER_STATIC_DEPLOY_HOOK_URL }}
 
     steps:
       - name: Checkout code
@@ -29,3 +30,13 @@ jobs:
           fi
 
           curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"
+
+      - name: Trigger Render Static deploy
+        shell: bash
+        run: |
+          if [ -z "$RENDER_STATIC_DEPLOY_HOOK_URL" ]; then
+            echo "Skipping Render Static deploy because RENDER_STATIC_DEPLOY_HOOK_URL is not configured."
+            exit 0
+          fi
+
+          curl --fail --silent --show-error --request POST "$RENDER_STATIC_DEPLOY_HOOK_URL"
