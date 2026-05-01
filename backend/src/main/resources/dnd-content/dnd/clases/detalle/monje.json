@@ -1,0 +1,86 @@
+{
+    "id":  "monje",
+    "nombre":  "Monje",
+    "insignia":  "Mo",
+    "descripcion":  "Combatiente agil que canaliza ki para moverse, resistir y golpear con precision.",
+    "puntosGolpe":  {
+                        "dadoGolpe":  "1d8 por nivel de monje",
+                        "primerNivel":  "8 + tu modificador de Constitucion",
+                        "nivelesSuperiores":  "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero"
+                    },
+    "competencias":  {
+                         "armaduras":  [
+
+                                       ],
+                         "armas":  [
+                                       "Armas simples",
+                                       "Espadas cortas"
+                                   ],
+                         "herramientas":  [
+                                              "Una herramienta de artesano o un instrumento musical a eleccion"
+                                          ],
+                         "salvaciones":  [
+                                             "Fuerza",
+                                             "Destreza"
+                                         ],
+                         "habilidades":  [
+                                             "Elige dos entre Acrobacias, Atletismo, Historia, Perspicacia, Religión y Sigilo"
+                                         ]
+                     },
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "monje-dardos",
+                                           "etiqueta":  "Dardos",
+                                           "cantidad":  10,
+                                           "objeto":  {
+                                                          "nombre":  "Dardo"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+                                                {
+                                                    "id":  "monje-arma-principal",
+                                                    "etiqueta":  "Arma principal",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "monje-espada-corta",
+                                                                         "etiqueta":  "Espada corta",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Espada corta"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "monje-arma-simple",
+                                                                         "etiqueta":  "Cualquier arma simple",
+                                                                         "cantidad":  1,
+                                                                         "catalogo":  "ASimple"
+                                                                     }
+                                                                 ]
+                                                },
+                                                {
+                                                    "id":  "monje-pack",
+                                                    "etiqueta":  "Pack inicial",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "monje-pack-calabozo",
+                                                                         "etiqueta":  "Pack de calabozo",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Pack de calabozo"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "monje-pack-explorador",
+                                                                         "etiqueta":  "Pack de explorador",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Pack de explorador"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                }
+                                            ]
+                     }
+}

@@ -1,0 +1,41 @@
+[
+    {
+        "id": "devocion",
+        "nombre": "Juramento de devoción",
+        "descripcion": "Paladín de honestidad, deber y compasión que protege a sus aliados con luz sagrada y pureza espiritual.",
+        "nivelDesbloqueo": 3,
+        "tablas": [
+            {
+                "titulo": "Conjuros de juramento",
+                "columnas": ["Nivel de paladín", "Conjuros"],
+                "filas": [["3", "Protección contra el bien y el mal, Santuario"], ["5", "Restablecimiento menor, Zona de la verdad"], ["9", "Disipar magia, Señal de esperanza"], ["13", "Guardián de la fe, Libertad de movimiento"], ["17", "Comunión, Golpe flamígero"]]
+            }
+        ]
+    },
+    {
+        "id": "antiguos",
+        "nombre": "Juramento de los antiguos",
+        "descripcion": "Paladín de la luz primordial que protege la vida, rechaza a infernales y feéricos hostiles y envuelve a sus aliados en magia antigua.",
+        "nivelDesbloqueo": 3,
+        "tablas": [
+            {
+                "titulo": "Conjuros de juramento",
+                "columnas": ["Nivel de paladín", "Conjuros"],
+                "filas": [["3", "Golpe apresador, Hablar con los animales"], ["5", "Paso brumoso, Rayo de luna"], ["9", "Crecimiento vegetal, Protección contra energía"], ["13", "Piel pétrea, Tormenta de hielo"], ["17", "Comunión con la naturaleza, Paso arbóreo"]]
+            }
+        ]
+    },
+    {
+        "id": "venganza",
+        "nombre": "Juramento de venganza",
+        "descripcion": "Vengador implacable que sacrifica la pureza personal por castigar a los peores culpables y rematar a su presa prioritaria.",
+        "nivelDesbloqueo": 3,
+        "tablas": [
+            {
+                "titulo": "Conjuros de juramento",
+                "columnas": ["Nivel de paladín", "Conjuros"],
+                "filas": [["3", "Marca del cazador, Perdición"], ["5", "Inmovilizar persona, Paso brumoso"], ["9", "Acelerar, Protección contra energía"], ["13", "Destierro, Puerta dimensional"], ["17", "Escudriñar, Inmovilizar monstruo"]]
+            }
+        ]
+    }
+]

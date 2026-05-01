@@ -1,0 +1,81 @@
+[
+    {
+        "id":  "high-elf",
+        "nombre":  "Alto elfo",
+        "descripcion":  "Asociados a la erudicion y a las grandes tradiciones arcanas, combinan refinamiento cultural y curiosidad intelectual.",
+        "aumentoCaracteristicas":  [
+                                       "+1 Inteligencia"
+                                   ],
+        "competencias":  [
+                             "Armas: espada larga, espada corta, arco corto y arco largo"
+                         ],
+        "rasgos":  [
+                       {
+                           "nombre":  "Truco de mago",
+                           "descripcion":  "Conoces un truco de mago a tu eleccion. Inteligencia es tu caracteristica para lanzarlo."
+                       }
+                   ],
+        "elecciones":  [
+                           {
+                               "id":  "high-elf-cantrip",
+                               "etiqueta":  "Truco de mago",
+                               "resumen":  "Elige un truco de la lista de mago",
+                               "catalogo":  "classCantrips:mago",
+                               "cantidad":  1
+                           },
+                           {
+                               "id":  "high-elf-language",
+                               "etiqueta":  "Idioma adicional",
+                               "resumen":  "Elige un idioma adicional",
+                               "catalogo":  "idiomas",
+                               "cantidad":  1
+                           }
+                       ]
+    },
+    {
+        "id":  "wood-elf",
+        "nombre":  "Elfo de los bosques",
+        "descripcion":  "Veloces y discretos, se sienten en casa entre arboles, senderos ocultos y cacerias silenciosas.",
+        "aumentoCaracteristicas":  [
+                                       "+1 Sabiduria"
+                                   ],
+        "competencias":  [
+                             "Armas: espada larga, espada corta, arco corto y arco largo"
+                         ],
+        "rasgos":  [
+                       {
+                           "nombre":  "Pies ligeros",
+                           "descripcion":  "Tu velocidad base aumenta a 35 pies."
+                       },
+                       {
+                           "nombre":  "Mascara de la naturaleza",
+                           "descripcion":  "Puedes intentar ocultarte incluso cuando solo estas ligeramente oscurecido por follaje, lluvia intensa, nieve, niebla u otros fenomenos naturales."
+                       }
+                   ]
+    },
+    {
+        "id":  "dark-elf",
+        "nombre":  "Elfo oscuro",
+        "descripcion":  "Criados en el inframundo, los drow dominan la oscuridad, la astucia y una magia innata inquietante.",
+        "aumentoCaracteristicas":  [
+                                       "+1 Carisma"
+                                   ],
+        "competencias":  [
+                             "Armas: estoque, espada corta y ballesta de mano"
+                         ],
+        "rasgos":  [
+                       {
+                           "nombre":  "Vision en la oscuridad superior",
+                           "descripcion":  "Tu vision en la oscuridad alcanza 120 pies."
+                       },
+                       {
+                           "nombre":  "Sensibilidad solar",
+                           "descripcion":  "Tienes desventaja en tiradas de ataque y Percepcion basadas en la vista cuando tu objetivo o lo que intentas percibir esta bajo luz solar directa."
+                       },
+                       {
+                           "nombre":  "Magia drow",
+                           "descripcion":  "Conoces luces danzantes. A niveles superiores tambien puedes lanzar fuego feerico y oscuridad una vez por descanso prolongado."
+                       }
+                   ]
+    }
+]

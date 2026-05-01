@@ -1,0 +1,36 @@
+{
+    "id":  "elf",
+    "nombre":  "Elfo",
+    "descripcion":  "Criaturas de gran sensibilidad y larga memoria, los elfos mezclan gracia, curiosidad y una afinidad natural con la magia y la percepcion.",
+    "velocidad":  30,
+    "tamano":  "Mediano",
+    "edad":  "Alcanzan la madurez fisica mas o menos al mismo ritmo que los humanos, aunque no se consideran adultos hasta cerca de los 100 anos y pueden superar los 700.",
+    "alineamiento":  "Su amor por la libertad y la autoexpresion hace que muchos elfos se inclinen hacia el caos benigno.",
+    "idiomas":  [
+                    "Comun",
+                    "Elfico"
+                ],
+    "aumentoCaracteristicas":  [
+                                   "+2 Destreza"
+                               ],
+    "competencias":  [
+                         "Habilidad: Percepcion"
+                     ],
+    "rasgos":  [
+                   {
+                       "nombre":  "Vision en la oscuridad",
+                       "descripcion":  "Tu vista entrenada te permite ver en penumbra y oscuridad hasta 60 pies."
+                   },
+                   {
+                       "nombre":  "Ascendencia feerica",
+                       "descripcion":  "Tienes ventaja en tiradas de salvacion contra ser hechizado y la magia no puede dormirte."
+                   },
+                   {
+                       "nombre":  "Trance",
+                       "descripcion":  "No necesitas dormir. Meditas profundamente durante 4 horas para obtener el descanso equivalente a una noche de sueño."
+                   }
+               ],
+    "elecciones":  [
+
+                   ]
+}

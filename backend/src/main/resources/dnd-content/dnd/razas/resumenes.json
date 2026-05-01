@@ -1,0 +1,38 @@
+[
+    {
+        "id":  "dragonborn",
+        "nombre":  "Draconido"
+    },
+    {
+        "id":  "dwarf",
+        "nombre":  "Enano"
+    },
+    {
+        "id":  "elf",
+        "nombre":  "Elfo"
+    },
+    {
+        "id":  "gnome",
+        "nombre":  "Gnomo"
+    },
+    {
+        "id":  "half-elf",
+        "nombre":  "Semielfo"
+    },
+    {
+        "id":  "halfling",
+        "nombre":  "Mediano"
+    },
+    {
+        "id":  "half-orc",
+        "nombre":  "Semiorco"
+    },
+    {
+        "id":  "human",
+        "nombre":  "Humano"
+    },
+    {
+        "id":  "tiefling",
+        "nombre":  "Tiefling"
+    }
+]

@@ -1,0 +1,93 @@
+[
+  {
+    "id": "knowledge",
+    "nombre": "Dominio del conocimiento",
+    "descripcion": "Clérigo dedicado al saber, la lectura de pensamientos y la maestría de habilidades.",
+    "nivelDesbloqueo": 1,
+    "tablas": [
+      {
+        "titulo": "Conjuros de dominio",
+        "columnas": ["Nivel de clérigo", "Conjuros"],
+        "filas": [["1", "Identificar, Orden imperiosa"], ["3", "Augurio, Sugestión"], ["5", "Hablar con los muertos, Indetectable"], ["7", "Confusión, Ojo arcano"], ["9", "Conocer las leyendas, Escudriñar"]]
+      }
+    ]
+  },
+  {
+    "id": "vida",
+    "nombre": "Dominio de la vida",
+    "descripcion": "Clérigo centrado en curación, protección y restauración divina.",
+    "nivelDesbloqueo": 1,
+    "tablas": [
+      {
+        "titulo": "Conjuros de dominio",
+        "columnas": ["Nivel de clérigo", "Conjuros"],
+        "filas": [["1", "Bendición, Curar heridas"], ["3", "Restablecimiento menor, Arma espiritual"], ["5", "Señal de esperanza, Revivificar"], ["7", "Guardián de la fe, Guarda contra la muerte"], ["9", "Curar heridas en masa, Alzar a los muertos"]]
+      }
+    ]
+  },
+  {
+    "id": "luz",
+    "nombre": "Dominio de la luz",
+    "descripcion": "Canaliza fuego y resplandor sagrado para revelar y castigar a sus enemigos.",
+    "nivelDesbloqueo": 1,
+    "tablas": [
+      {
+        "titulo": "Conjuros de dominio",
+        "columnas": ["Nivel de clérigo", "Conjuros"],
+        "filas": [["1", "Manos ardientes, Fuego feérico"], ["3", "Esfera flamígera, Rayo abrasador"], ["5", "Bola de fuego, Luz del día"], ["7", "Guardián de la fe, Muro de fuego"], ["9", "Golpe flamígero, Escudriñar"]]
+      }
+    ]
+  },
+  {
+    "id": "naturaleza",
+    "nombre": "Dominio de la naturaleza",
+    "descripcion": "Une devoción divina y poder natural con control de animales y elementos.",
+    "nivelDesbloqueo": 1,
+    "tablas": [
+      {
+        "titulo": "Conjuros de dominio",
+        "columnas": ["Nivel de clérigo", "Conjuros"],
+        "filas": [["1", "Hablar con los animales, Enmarañar"], ["3", "Crecimiento de espinas, Piel robliza"], ["5", "Crecimiento vegetal, Muro de viento"], ["7", "Dominar bestia, Enredadera apresadora"], ["9", "Infestar, Paso arbóreo"]]
+      }
+    ]
+  },
+  {
+    "id": "tempestad",
+    "nombre": "Dominio de la tempestad",
+    "descripcion": "Clérigo bélico que domina truenos, relámpagos y represalias tormentosas.",
+    "nivelDesbloqueo": 1,
+    "tablas": [
+      {
+        "titulo": "Conjuros de dominio",
+        "columnas": ["Nivel de clérigo", "Conjuros"],
+        "filas": [["1", "Nube de niebla, Onda atronadora"], ["3", "Ráfaga de viento, Fragmentar"], ["5", "Llamar al relámpago, Tormenta de aguanieve"], ["7", "Controlar agua, Tormenta de hielo"], ["9", "Infestar, Ola destructora"]]
+      }
+    ]
+  },
+  {
+    "id": "engano",
+    "nombre": "Dominio del engaño",
+    "descripcion": "Clérigo de ilusiones, duplicados y sigilo para sembrar confusión.",
+    "nivelDesbloqueo": 1,
+    "tablas": [
+      {
+        "titulo": "Conjuros de dominio",
+        "columnas": ["Nivel de clérigo", "Conjuros"],
+        "filas": [["1", "Disfrazarse, Hechizar persona"], ["3", "Imagen múltiple, Pasar sin rastro"], ["5", "Desplazamiento, Disipar magia"], ["7", "Polimorfar, Puerta dimensional"], ["9", "Alterar los recuerdos, Dominar persona"]]
+      }
+    ]
+  },
+  {
+    "id": "guerra",
+    "nombre": "Dominio de la guerra",
+    "descripcion": "Campeón divino orientado a precisión marcial, liderazgo y daño explosivo.",
+    "nivelDesbloqueo": 1,
+    "tablas": [
+      {
+        "titulo": "Conjuros de dominio",
+        "columnas": ["Nivel de clérigo", "Conjuros"],
+        "filas": [["1", "Favor divino, Escudo de fe"], ["3", "Arma mágica, Arma espiritual"], ["5", "Manto del cruzado, Guardianes espirituales"], ["7", "Libertad de movimiento, Piel pétrea"], ["9", "Golpe flamígero, Inmovilizar monstruo"]]
+      }
+    ]
+  }
+]

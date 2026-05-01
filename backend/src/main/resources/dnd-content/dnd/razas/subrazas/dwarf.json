@@ -1,0 +1,33 @@
+[
+    {
+        "id":  "hill-dwarf",
+        "nombre":  "Enano de las colinas",
+        "descripcion":  "Como enano de las colinas, posees sentidos agudos, intuicion profunda y una resistencia extraordinaria. Los enanos dorados de Faerun y muchos clanes exiliados de Krynn pertenecen a este linaje.",
+        "aumentoCaracteristicas":  [
+                                       "+1 Sabiduria"
+                                   ],
+        "competencias":  [
+
+                         ],
+        "rasgos":  [
+                       {
+                           "nombre":  "Dureza enana",
+                           "descripcion":  "Tu maximo de puntos de golpe aumenta en 1 y vuelve a aumentar en 1 cada vez que subes de nivel."
+                       }
+                   ]
+    },
+    {
+        "id":  "mountain-dwarf",
+        "nombre":  "Enano de las montanas",
+        "descripcion":  "Como enano de las montanas, eres fuerte y resistente, acostumbrado a una vida dura en terreno abrupto. Sueles ser mas alto que otros enanos y mostrar una complexion mas clara. Los enanos escudo de Faerun y clanes nobles de Dragonlance suelen pertenecer a este linaje.",
+        "aumentoCaracteristicas":  [
+                                       "+2 Fuerza"
+                                   ],
+        "competencias":  [
+                             "Armaduras: armaduras ligeras y medias"
+                         ],
+        "rasgos":  [
+
+                   ]
+    }
+]

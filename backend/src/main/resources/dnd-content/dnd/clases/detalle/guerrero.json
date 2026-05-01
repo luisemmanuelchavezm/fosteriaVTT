@@ -1,0 +1,126 @@
+{
+    "id":  "guerrero",
+    "nombre":  "Guerrero",
+    "insignia":  "Gu",
+    "descripcion":  "Especialista marcial flexible que domina casi cualquier estilo de combate.",
+    "puntosGolpe":  {
+                        "dadoGolpe":  "1d10 por nivel de guerrero",
+                        "primerNivel":  "10 + tu modificador de Constitucion",
+                        "nivelesSuperiores":  "1d10 (o 6) + tu modificador de Constitucion por cada nivel despues del primero"
+                    },
+    "competencias":  {
+                         "armaduras":  [
+                                           "Todas las armaduras",
+                                           "Escudos"
+                                       ],
+                         "armas":  [
+                                       "Armas simples",
+                                       "Armas marciales"
+                                   ],
+                         "herramientas":  [
+
+                                          ],
+                         "salvaciones":  [
+                                             "Fuerza",
+                                             "Constitucion"
+                                         ],
+                         "habilidades":  [
+                                             "Elige dos entre Acrobacias, Atletismo, Historia, Perspicacia, Intimidacion, Percepcion, Supervivencia y Trato con Animales"
+                                         ]
+                     },
+    "equipamiento":  {
+                         "fijos":  [
+
+                                   ],
+                         "gruposEleccion":  [
+                                                {
+                                                    "id":  "guerrero-armadura",
+                                                    "etiqueta":  "Proteccion y ataque a distancia",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "guerrero-cota-malla",
+                                                                         "etiqueta":  "Cota de malla",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Cota de malla"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "guerrero-cuero-arco",
+                                                                         "etiqueta":  "Armadura de cuero, arco largo y 20 flechas",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Armadura de cuero, arco largo y 20 flechas"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                },
+                                                {
+                                                    "id":  "guerrero-armamento-principal",
+                                                    "etiqueta":  "Armamento principal",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "guerrero-arma-escudo",
+                                                                         "etiqueta":  "Un arma marcial y un escudo",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Arma marcial y escudo"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "guerrero-dos-armas",
+                                                                         "etiqueta":  "Dos armas marciales",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Dos armas marciales"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                },
+                                                {
+                                                    "id":  "guerrero-respaldo",
+                                                    "etiqueta":  "Armamento de respaldo",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "guerrero-ballesta",
+                                                                         "etiqueta":  "Ballesta ligera y 20 virotes",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Ballesta ligera y 20 virotes"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "guerrero-dos-hachas",
+                                                                         "etiqueta":  "Dos hachas de mano",
+                                                                         "cantidad":  2,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Hacha de mano"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                },
+                                                {
+                                                    "id":  "guerrero-pack",
+                                                    "etiqueta":  "Pack inicial",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "guerrero-pack-calabozo",
+                                                                         "etiqueta":  "Pack de calabozo",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Pack de calabozo"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "guerrero-pack-explorador",
+                                                                         "etiqueta":  "Pack de explorador",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Pack de explorador"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                }
+                                            ]
+                     }
+}

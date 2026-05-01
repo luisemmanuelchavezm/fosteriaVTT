@@ -1,0 +1,62 @@
+[
+    {
+        "id":  "barbaro",
+        "nombre":  "Bárbaro",
+        "insignia":  "Ba"
+    },
+    {
+        "id":  "bardo",
+        "nombre":  "Bardo",
+        "insignia":  "Bd"
+    },
+    {
+        "id":  "clerigo",
+        "nombre":  "Clérigo",
+        "insignia":  "Cl"
+    },
+    {
+        "id":  "druida",
+        "nombre":  "Druida",
+        "insignia":  "Dr"
+    },
+    {
+        "id":  "guerrero",
+        "nombre":  "Guerrero",
+        "insignia":  "Gu"
+    },
+    {
+        "id":  "monje",
+        "nombre":  "Monje",
+        "insignia":  "Mo"
+    },
+    {
+        "id":  "paladin",
+        "nombre":  "Paladín",
+        "insignia":  "Pa"
+    },
+    {
+        "id":  "explorador",
+        "nombre":  "Explorador",
+        "insignia":  "Ex"
+    },
+    {
+        "id":  "picaro",
+        "nombre":  "Pícaro",
+        "insignia":  "Pi"
+    },
+    {
+        "id":  "hechicero",
+        "nombre":  "Hechicero",
+        "insignia":  "He"
+    },
+    {
+        "id":  "brujo",
+        "nombre":  "Brujo",
+        "insignia":  "Br"
+    },
+    {
+        "id":  "mago",
+        "nombre":  "Mago",
+        "insignia":  "Ma"
+    }
+]

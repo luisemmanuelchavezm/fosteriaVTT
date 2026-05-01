@@ -1,0 +1,60 @@
+{
+    "id":  "marinero",
+    "nombre":  "Marinero",
+    "descripcion":  "Las cubiertas, la sal y la disciplina de un barco forman parte de tu vida tanto como cualquier puerto.",
+    "competenciasHabilidades":  [
+                                    "Atletismo",
+                                    "Percepcion"
+                                ],
+    "competenciasHerramientas":  [
+                                     "Herramientas de navegante",
+                                     "Vehiculos acuaticos"
+                                 ],
+    "resumenIdiomas":  [
+
+                       ],
+    "nombreRasgo":  "Pasaje de barco",
+    "descripcionRasgo":  "Sueles conseguir traslado maritimo para ti y tus compañeros a cambio de colaborar durante la travesia.",
+    "elecciones":  [
+
+                   ],
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "marinero-amuleto",
+                                           "etiqueta":  "Amuleto de la suerte",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Amuleto de la suerte"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "marinero-cuerda",
+                                           "etiqueta":  "Cuerda de seda",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Cuerda de seda"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "marinero-ropa",
+                                           "etiqueta":  "Ropa comun",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Ropa comun"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "marinero-po",
+                                           "etiqueta":  "Piezas de oro",
+                                           "cantidad":  10,
+                                           "objeto":  {
+                                                          "nombre":  "Piezas de oro"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+
+                                            ]
+                     }
+}

@@ -1,0 +1,41 @@
+[
+  {
+    "id": "archifeerico",
+    "nombre": "Archifeerico",
+    "descripcion": "Brujo ligado a un señor feérico, capaz de hechizar, huir entre brumas y encerrar enemigos en delirios ilusorios.",
+    "nivelDesbloqueo": 1,
+    "tablas": [
+      {
+        "titulo": "Conjuros adicionales del señor feérico",
+        "columnas": ["Nivel de conjuro", "Conjuros"],
+        "filas": [["1", "Dormir, Fuego feérico"], ["2", "Calmar emociones, Fuerza fantasmal"], ["3", "Crecimiento vegetal, Desplazamiento"], ["4", "Dominar bestia, Invisibilidad mejorada"], ["5", "Apariencia, Dominar persona"]]
+      }
+    ]
+  },
+  {
+    "id": "infernal",
+    "nombre": "Infernal",
+    "descripcion": "Brujo que obtiene supervivencia, fuego y castigo brutal de un patrón infernal de los Planos Inferiores.",
+    "nivelDesbloqueo": 1,
+    "tablas": [
+      {
+        "titulo": "Conjuros adicionales del infernal",
+        "columnas": ["Nivel de conjuro", "Conjuros"],
+        "filas": [["1", "Manos ardientes, Orden imperiosa"], ["2", "Rayo abrasador, Sordera/Ceguera"], ["3", "Bola de fuego, Nube apestosa"], ["4", "Escudo de fuego, Muro de fuego"], ["5", "Consagrar, Golpe flamígero"]]
+      }
+    ]
+  },
+  {
+    "id": "granantiguo",
+    "nombre": "Gran antiguo",
+    "descripcion": "Brujo tocado por una entidad cósmica incomprensible que concede telepatía, defensa mental y dominio de mentes ajenas.",
+    "nivelDesbloqueo": 1,
+    "tablas": [
+      {
+        "titulo": "Conjuros adicionales del primigenio",
+        "columnas": ["Nivel de conjuro", "Conjuros"],
+        "filas": [["1", "Risa horrible de Tasha, Susurros discordantes"], ["2", "Detectar pensamientos, Fuerza fantasmal"], ["3", "Clarividencia, Recado"], ["4", "Dominar bestia, Tentáculos negros de Evard"], ["5", "Dominar persona, Telequinesis"]]
+      }
+    ]
+  }
+]

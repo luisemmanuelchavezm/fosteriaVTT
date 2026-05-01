@@ -1,0 +1,22 @@
+[
+  {
+    "id": "tierra",
+    "nombre": "Circulo de la tierra",
+    "descripcion": "Druida lanzador que extrae magia del terreno y recupera conjuros con descanso.",
+    "nivelDesbloqueo": 2,
+    "tablas": []
+  },
+  {
+    "id": "luna",
+    "nombre": "Circulo de la luna",
+    "descripcion": "Maestro de la forma salvaje que adopta bestias más poderosas y combate transformado.",
+    "nivelDesbloqueo": 2,
+    "tablas": [
+      {
+        "titulo": "Forma salvaje del círculo",
+        "columnas": ["Nivel de druida", "CR máximo", "Limitaciones"],
+        "filas": [["2", "1", "Sin velocidad de vuelo"], ["6", "2", "Sin velocidad de vuelo"], ["8", "3", "Permitida velocidad de vuelo"]]
+      }
+    ]
+  }
+]

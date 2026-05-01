@@ -1,0 +1,58 @@
+[
+  {
+    "id": "abjuracion",
+    "nombre": "Escuela de abjuración",
+    "descripcion": "Mago protector experto en barreras, disipación y defensa mágica.",
+    "nivelDesbloqueo": 2,
+    "tablas": []
+  },
+  {
+    "id": "conjuracion",
+    "nombre": "Escuela de conjuración",
+    "descripcion": "Especialista en invocar objetos, teletransportarse y sostener creaciones.",
+    "nivelDesbloqueo": 2,
+    "tablas": []
+  },
+  {
+    "id": "adivinacion",
+    "nombre": "Escuela de adivinacion",
+    "descripcion": "Vidente que altera resultados y obtiene información del futuro cercano.",
+    "nivelDesbloqueo": 2,
+    "tablas": []
+  },
+  {
+    "id": "encantamiento",
+    "nombre": "Escuela de encantamiento",
+    "descripcion": "Manipula voluntades, inmoviliza objetivos y redirige agresiones.",
+    "nivelDesbloqueo": 2,
+    "tablas": []
+  },
+  {
+    "id": "evocacion",
+    "nombre": "Escuela de evocacion",
+    "descripcion": "Mago ofensivo que domina energía pura y protege aliados del área.",
+    "nivelDesbloqueo": 2,
+    "tablas": []
+  },
+  {
+    "id": "ilusion",
+    "nombre": "Escuela de ilusion",
+    "descripcion": "Artista del engaño sensorial con imágenes cada vez más tangibles.",
+    "nivelDesbloqueo": 2,
+    "tablas": []
+  },
+  {
+    "id": "necromancia",
+    "nombre": "Escuela de necromancia",
+    "descripcion": "Erudito de la muerte que drena vida y fortalece a los no muertos.",
+    "nivelDesbloqueo": 2,
+    "tablas": []
+  },
+  {
+    "id": "transmutacion",
+    "nombre": "Escuela de transmutacion",
+    "descripcion": "Mago de cambios físicos, alquimia menor y mejora adaptable.",
+    "nivelDesbloqueo": 2,
+    "tablas": []
+  }
+]

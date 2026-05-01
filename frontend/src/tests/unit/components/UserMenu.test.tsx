@@ -9,7 +9,7 @@ describe("UserMenu", () => {
     cleanup();
   });
 
-  it("optimiza la url de cloudinary y permite cerrar sesion", () => {
+  it("optimiza la url de cloudinary y permite cerrar sesión", () => {
     const onLogout = vi.fn();
 
     render(
@@ -27,9 +27,9 @@ describe("UserMenu", () => {
     );
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Abrir menu de usuario" }),
+      screen.getByRole("button", { name: "Abrir menú de usuario" }),
     );
-    fireEvent.click(screen.getByRole("menuitem", { name: "Cerrar sesion" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "Cerrar sesión" }));
 
     expect(onLogout).toHaveBeenCalledTimes(1);
   });
@@ -44,7 +44,7 @@ describe("UserMenu", () => {
     );
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Abrir menu de usuario" }),
+      screen.getByRole("button", { name: "Abrir menú de usuario" }),
     );
     expect(screen.getByRole("menu")).toBeInTheDocument();
 

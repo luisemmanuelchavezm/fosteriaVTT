@@ -1,0 +1,407 @@
+{
+    "id":  "brujo",
+    "nombre":  "Brujo",
+    "insignia":  "Br",
+    "descripcion":  "Conjurador que obtiene poder gracias a un pacto con una entidad sobrenatural.",
+    "puntosGolpe":  {
+                        "dadoGolpe":  "1d8 por nivel de brujo",
+                        "primerNivel":  "8 + tu modificador de Constitucion",
+                        "nivelesSuperiores":  "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero"
+                    },
+    "competencias":  {
+                         "armaduras":  [
+                                           "Armaduras ligeras"
+                                       ],
+                         "armas":  [
+                                       "Armas simples"
+                                   ],
+                         "herramientas":  [
+
+                                          ],
+                         "salvaciones":  [
+                                             "Sabiduria",
+                                             "Carisma"
+                                         ],
+                         "habilidades":  [
+                                             "Elige dos entre Arcano, Engaño, Historia, Intimidacion, Investigacion, Naturaleza y Religión"
+                                         ]
+                     },
+    "lanzamientoConjuros":  {
+                                "modo":  "pacto",
+                                "caracteristica":  "Carisma",
+                                "niveles":  [
+                                                {
+                                                    "nivel":  1,
+                                                    "trucosConocidos":  2,
+                                                    "conjurosConocidos":  2,
+                                                    "ranurasPacto":  1,
+                                                    "nivelRanuraPacto":  1,
+                                                    "arcanosMisticos":  [
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  0
+                                                },
+                                                {
+                                                    "nivel":  2,
+                                                    "trucosConocidos":  2,
+                                                    "conjurosConocidos":  3,
+                                                    "ranurasPacto":  2,
+                                                    "nivelRanuraPacto":  1,
+                                                    "arcanosMisticos":  [
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  2
+                                                },
+                                                {
+                                                    "nivel":  3,
+                                                    "trucosConocidos":  2,
+                                                    "conjurosConocidos":  4,
+                                                    "ranurasPacto":  2,
+                                                    "nivelRanuraPacto":  2,
+                                                    "arcanosMisticos":  [
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  2
+                                                },
+                                                {
+                                                    "nivel":  4,
+                                                    "trucosConocidos":  3,
+                                                    "conjurosConocidos":  5,
+                                                    "ranurasPacto":  2,
+                                                    "nivelRanuraPacto":  2,
+                                                    "arcanosMisticos":  [
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  2
+                                                },
+                                                {
+                                                    "nivel":  5,
+                                                    "trucosConocidos":  3,
+                                                    "conjurosConocidos":  6,
+                                                    "ranurasPacto":  2,
+                                                    "nivelRanuraPacto":  3,
+                                                    "arcanosMisticos":  [
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  3
+                                                },
+                                                {
+                                                    "nivel":  6,
+                                                    "trucosConocidos":  3,
+                                                    "conjurosConocidos":  7,
+                                                    "ranurasPacto":  2,
+                                                    "nivelRanuraPacto":  3,
+                                                    "arcanosMisticos":  [
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  3
+                                                },
+                                                {
+                                                    "nivel":  7,
+                                                    "trucosConocidos":  3,
+                                                    "conjurosConocidos":  8,
+                                                    "ranurasPacto":  2,
+                                                    "nivelRanuraPacto":  4,
+                                                    "arcanosMisticos":  [
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  4
+                                                },
+                                                {
+                                                    "nivel":  8,
+                                                    "trucosConocidos":  3,
+                                                    "conjurosConocidos":  9,
+                                                    "ranurasPacto":  2,
+                                                    "nivelRanuraPacto":  4,
+                                                    "arcanosMisticos":  [
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  4
+                                                },
+                                                {
+                                                    "nivel":  9,
+                                                    "trucosConocidos":  3,
+                                                    "conjurosConocidos":  10,
+                                                    "ranurasPacto":  2,
+                                                    "nivelRanuraPacto":  5,
+                                                    "arcanosMisticos":  [
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  5
+                                                },
+                                                {
+                                                    "nivel":  10,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosConocidos":  10,
+                                                    "ranurasPacto":  2,
+                                                    "nivelRanuraPacto":  5,
+                                                    "arcanosMisticos":  [
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  5
+                                                },
+                                                {
+                                                    "nivel":  11,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosConocidos":  11,
+                                                    "ranurasPacto":  3,
+                                                    "nivelRanuraPacto":  5,
+                                                    "arcanosMisticos":  [
+                                                                            1,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  5
+                                                },
+                                                {
+                                                    "nivel":  12,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosConocidos":  11,
+                                                    "ranurasPacto":  3,
+                                                    "nivelRanuraPacto":  5,
+                                                    "arcanosMisticos":  [
+                                                                            1,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  6
+                                                },
+                                                {
+                                                    "nivel":  13,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosConocidos":  12,
+                                                    "ranurasPacto":  3,
+                                                    "nivelRanuraPacto":  5,
+                                                    "arcanosMisticos":  [
+                                                                            1,
+                                                                            1,
+                                                                            0,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  6
+                                                },
+                                                {
+                                                    "nivel":  14,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosConocidos":  12,
+                                                    "ranurasPacto":  3,
+                                                    "nivelRanuraPacto":  5,
+                                                    "arcanosMisticos":  [
+                                                                            1,
+                                                                            1,
+                                                                            0,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  6
+                                                },
+                                                {
+                                                    "nivel":  15,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosConocidos":  13,
+                                                    "ranurasPacto":  3,
+                                                    "nivelRanuraPacto":  5,
+                                                    "arcanosMisticos":  [
+                                                                            1,
+                                                                            1,
+                                                                            1,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  7
+                                                },
+                                                {
+                                                    "nivel":  16,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosConocidos":  13,
+                                                    "ranurasPacto":  3,
+                                                    "nivelRanuraPacto":  5,
+                                                    "arcanosMisticos":  [
+                                                                            1,
+                                                                            1,
+                                                                            1,
+                                                                            0
+                                                                        ],
+                                                    "invocacionesConocidas":  7
+                                                },
+                                                {
+                                                    "nivel":  17,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosConocidos":  14,
+                                                    "ranurasPacto":  4,
+                                                    "nivelRanuraPacto":  5,
+                                                    "arcanosMisticos":  [
+                                                                            1,
+                                                                            1,
+                                                                            1,
+                                                                            1
+                                                                        ],
+                                                    "invocacionesConocidas":  7
+                                                },
+                                                {
+                                                    "nivel":  18,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosConocidos":  14,
+                                                    "ranurasPacto":  4,
+                                                    "nivelRanuraPacto":  5,
+                                                    "arcanosMisticos":  [
+                                                                            1,
+                                                                            1,
+                                                                            1,
+                                                                            1
+                                                                        ],
+                                                    "invocacionesConocidas":  8
+                                                },
+                                                {
+                                                    "nivel":  19,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosConocidos":  15,
+                                                    "ranurasPacto":  4,
+                                                    "nivelRanuraPacto":  5,
+                                                    "arcanosMisticos":  [
+                                                                            1,
+                                                                            1,
+                                                                            1,
+                                                                            1
+                                                                        ],
+                                                    "invocacionesConocidas":  8
+                                                },
+                                                {
+                                                    "nivel":  20,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosConocidos":  15,
+                                                    "ranurasPacto":  4,
+                                                    "nivelRanuraPacto":  5,
+                                                    "arcanosMisticos":  [
+                                                                            1,
+                                                                            1,
+                                                                            1,
+                                                                            1
+                                                                        ],
+                                                    "invocacionesConocidas":  8
+                                                }
+                                            ]
+                            },
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "brujo-cuero",
+                                           "etiqueta":  "Armadura de cuero",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Armadura de cuero"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "brujo-arma-simple",
+                                           "etiqueta":  "Un arma simple",
+                                           "cantidad":  1,
+                                           "catalogo":  "ASimple"
+                                       },
+                                       {
+                                           "id":  "brujo-dagas",
+                                           "etiqueta":  "Dos dagas",
+                                           "cantidad":  2,
+                                           "objeto":  {
+                                                          "nombre":  "Daga"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+                                                {
+                                                    "id":  "brujo-arma",
+                                                    "etiqueta":  "Arma o ballesta",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "brujo-ballesta",
+                                                                         "etiqueta":  "Ballesta ligera y 20 virotes",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Ballesta ligera y 20 virotes"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "brujo-arma-simple-extra",
+                                                                         "etiqueta":  "Cualquier arma simple",
+                                                                         "cantidad":  1,
+                                                                         "catalogo":  "ASimple"
+                                                                     }
+                                                                 ]
+                                                },
+                                                {
+                                                    "id":  "brujo-foco",
+                                                    "etiqueta":  "Foco de conjuro",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "brujo-bolsa",
+                                                                         "etiqueta":  "Bolsa de componentes",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Bolsa de componentes"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "brujo-foco-arcano",
+                                                                         "etiqueta":  "Foco arcano",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Foco arcano"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                },
+                                                {
+                                                    "id":  "brujo-pack",
+                                                    "etiqueta":  "Pack inicial",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "brujo-pack-erudito",
+                                                                         "etiqueta":  "Pack de erudito",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Pack de erudito"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "brujo-pack-calabozo",
+                                                                         "etiqueta":  "Pack de calabozo",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Pack de calabozo"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                }
+                                            ]
+                     }
+}

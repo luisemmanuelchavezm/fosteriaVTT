@@ -20,6 +20,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,7 +48,8 @@ public class Personaje extends NamedEntity {
     @Column(nullable = false)
     private boolean esPublico = false;
 
-    @Column(length = 80)
+    @Size(max = 300)
+    @Column(length = 300)
     private String tags;
 
     @Column(length = 500)

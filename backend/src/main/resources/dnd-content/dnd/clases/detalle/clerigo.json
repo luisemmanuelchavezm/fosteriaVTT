@@ -1,0 +1,454 @@
+{
+    "id":  "clerigo",
+    "nombre":  "Clérigo",
+    "insignia":  "Cl",
+    "descripcion":  "Canaliza poder divino para proteger, sanar o castigar segun el dominio de su fe.",
+    "puntosGolpe":  {
+                        "dadoGolpe":  "1d8 por nivel de clerigo",
+                        "primerNivel":  "8 + tu modificador de Constitucion",
+                        "nivelesSuperiores":  "1d8 (o 5) + tu modificador de Constitucion por cada nivel despues del primero"
+                    },
+    "competencias":  {
+                         "armaduras":  [
+                                           "Armaduras ligeras",
+                                           "Armaduras medias",
+                                           "Escudos"
+                                       ],
+                         "armas":  [
+                                       "Armas simples"
+                                   ],
+                         "herramientas":  [
+
+                                          ],
+                         "salvaciones":  [
+                                             "Sabiduria",
+                                             "Carisma"
+                                         ],
+                         "habilidades":  [
+                                             "Elige dos entre Historia, Perspicacia, Medicina, Persuasión y Religión"
+                                         ]
+                     },
+    "lanzamientoConjuros":  {
+                                "modo":  "preparados",
+                                "caracteristica":  "Sabiduria",
+                                "formulaConjurosPreparados":  "Modificador de Sabiduria + nivel de clerigo (minimo 1)",
+                                "niveles":  [
+                                                {
+                                                    "nivel":  1,
+                                                    "trucosConocidos":  3,
+                                                    "espaciosConjuro":  [
+                                                                            2,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  2,
+                                                    "trucosConocidos":  3,
+                                                    "espaciosConjuro":  [
+                                                                            3,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  3,
+                                                    "trucosConocidos":  3,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            2,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  4,
+                                                    "trucosConocidos":  4,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  5,
+                                                    "trucosConocidos":  4,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            2,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  6,
+                                                    "trucosConocidos":  4,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  7,
+                                                    "trucosConocidos":  4,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            1,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  8,
+                                                    "trucosConocidos":  4,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  9,
+                                                    "trucosConocidos":  4,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            1,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  10,
+                                                    "trucosConocidos":  5,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  11,
+                                                    "trucosConocidos":  5,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  12,
+                                                    "trucosConocidos":  5,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  13,
+                                                    "trucosConocidos":  5,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            1,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  14,
+                                                    "trucosConocidos":  5,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            1,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  15,
+                                                    "trucosConocidos":  5,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            1,
+                                                                            1,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  16,
+                                                    "trucosConocidos":  5,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            1,
+                                                                            1,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  17,
+                                                    "trucosConocidos":  5,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            1,
+                                                                            1,
+                                                                            1
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  18,
+                                                    "trucosConocidos":  5,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            1,
+                                                                            1,
+                                                                            1,
+                                                                            1
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  19,
+                                                    "trucosConocidos":  5,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            1,
+                                                                            1
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  20,
+                                                    "trucosConocidos":  5,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            2,
+                                                                            1,
+                                                                            1
+                                                                        ]
+                                                }
+                                            ]
+                            },
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "clerigo-escudo",
+                                           "etiqueta":  "Escudo",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Escudo"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "clerigo-simbolo",
+                                           "etiqueta":  "Simbolo sagrado",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Simbolo sagrado"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+                                                {
+                                                    "id":  "clerigo-arma-principal",
+                                                    "etiqueta":  "Arma principal",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "clerigo-maza",
+                                                                         "etiqueta":  "Maza",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Maza"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "clerigo-martillo-guerra",
+                                                                         "etiqueta":  "Martillo de guerra (si eres competente)",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Martillo de guerra"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                },
+                                                {
+                                                    "id":  "clerigo-armadura",
+                                                    "etiqueta":  "Proteccion",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "clerigo-cota-escamas",
+                                                                         "etiqueta":  "Armadura de escamas",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Armadura de escamas"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "clerigo-cuero",
+                                                                         "etiqueta":  "Armadura de cuero",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Armadura de cuero"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "clerigo-cota-malla",
+                                                                         "etiqueta":  "Cota de malla (si eres competente)",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Cota de malla"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                },
+                                                {
+                                                    "id":  "clerigo-arma-secundaria",
+                                                    "etiqueta":  "Arma secundaria",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "clerigo-ballesta",
+                                                                         "etiqueta":  "Ballesta ligera y 20 virotes",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Ballesta ligera y 20 virotes"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "clerigo-arma-simple",
+                                                                         "etiqueta":  "Cualquier arma simple",
+                                                                         "cantidad":  1,
+                                                                         "catalogo":  "ASimple"
+                                                                     }
+                                                                 ]
+                                                },
+                                                {
+                                                    "id":  "clerigo-pack",
+                                                    "etiqueta":  "Pack inicial",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "clerigo-pack-sacerdote",
+                                                                         "etiqueta":  "Pack de sacerdote",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Pack de sacerdote"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "clerigo-pack-explorador",
+                                                                         "etiqueta":  "Pack de explorador",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Pack de explorador"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                }
+                                            ]
+                     }
+}

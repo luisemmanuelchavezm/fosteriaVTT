@@ -1,0 +1,54 @@
+[
+    {
+        "id":  "acolito",
+        "nombre":  "Acolito"
+    },
+    {
+        "id":  "criminal",
+        "nombre":  "Criminal"
+    },
+    {
+        "id":  "charlatan",
+        "nombre":  "Charlatan"
+    },
+    {
+        "id":  "artista",
+        "nombre":  "Artista"
+    },
+    {
+        "id":  "heroe-del-pueblo",
+        "nombre":  "Heroe del Pueblo"
+    },
+    {
+        "id":  "artesano-del-gremio",
+        "nombre":  "Artesano del Gremio"
+    },
+    {
+        "id":  "ermitano",
+        "nombre":  "Ermitano"
+    },
+    {
+        "id":  "noble",
+        "nombre":  "Noble"
+    },
+    {
+        "id":  "forastero",
+        "nombre":  "Forastero"
+    },
+    {
+        "id":  "sabio",
+        "nombre":  "Sabio"
+    },
+    {
+        "id":  "marinero",
+        "nombre":  "Marinero"
+    },
+    {
+        "id":  "soldado",
+        "nombre":  "Soldado"
+    },
+    {
+        "id":  "huerfano",
+        "nombre":  "Huerfano"
+    }
+]

@@ -1,0 +1,440 @@
+{
+    "id":  "mago",
+    "nombre":  "Mago",
+    "insignia":  "Ma",
+    "descripcion":  "Erudito arcano que prepara hechizos desde el estudio y la disciplina intelectual.",
+    "puntosGolpe":  {
+                        "dadoGolpe":  "1d6 por nivel de mago",
+                        "primerNivel":  "6 + tu modificador de Constitucion",
+                        "nivelesSuperiores":  "1d6 (o 4) + tu modificador de Constitucion por cada nivel despues del primero"
+                    },
+    "competencias":  {
+                         "armaduras":  [
+
+                                       ],
+                         "armas":  [
+                                       "Ballestas ligeras",
+                                       "Bastones",
+                                       "Dagas",
+                                       "Dardos",
+                                       "Hondas"
+                                   ],
+                         "herramientas":  [
+
+                                          ],
+                         "salvaciones":  [
+                                             "Inteligencia",
+                                             "Sabiduria"
+                                         ],
+                         "habilidades":  [
+                                             "Elige dos entre Arcano, Historia, Investigacion, Medicina, Perspicacia y Religión"
+                                         ]
+                     },
+    "lanzamientoConjuros":  {
+                                "modo":  "grimorio",
+                                "caracteristica":  "Inteligencia",
+                                "formulaConjurosPreparados":  "Modificador de Inteligencia + nivel de mago (minimo 1)",
+                                "niveles":  [
+                                                {
+                                                    "nivel":  1,
+                                                    "trucosConocidos":  3,
+                                                    "conjurosEnLibro":  6,
+                                                    "espaciosConjuro":  [
+                                                                            2,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  2,
+                                                    "trucosConocidos":  3,
+                                                    "conjurosEnLibro":  8,
+                                                    "espaciosConjuro":  [
+                                                                            3,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  3,
+                                                    "trucosConocidos":  3,
+                                                    "conjurosEnLibro":  10,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            2,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  4,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosEnLibro":  12,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  5,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosEnLibro":  14,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            2,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  6,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosEnLibro":  16,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  7,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosEnLibro":  18,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            1,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  8,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosEnLibro":  20,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  9,
+                                                    "trucosConocidos":  4,
+                                                    "conjurosEnLibro":  22,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            1,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  10,
+                                                    "trucosConocidos":  5,
+                                                    "conjurosEnLibro":  24,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            0,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  11,
+                                                    "trucosConocidos":  5,
+                                                    "conjurosEnLibro":  26,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  12,
+                                                    "trucosConocidos":  5,
+                                                    "conjurosEnLibro":  28,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            0,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  13,
+                                                    "trucosConocidos":  5,
+                                                    "conjurosEnLibro":  30,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            1,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  14,
+                                                    "trucosConocidos":  5,
+                                                    "conjurosEnLibro":  32,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            1,
+                                                                            0,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  15,
+                                                    "trucosConocidos":  5,
+                                                    "conjurosEnLibro":  34,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            1,
+                                                                            1,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  16,
+                                                    "trucosConocidos":  5,
+                                                    "conjurosEnLibro":  36,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            1,
+                                                                            1,
+                                                                            0
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  17,
+                                                    "trucosConocidos":  5,
+                                                    "conjurosEnLibro":  38,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            1,
+                                                                            1,
+                                                                            1
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  18,
+                                                    "trucosConocidos":  5,
+                                                    "conjurosEnLibro":  40,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            1,
+                                                                            1,
+                                                                            1,
+                                                                            1
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  19,
+                                                    "trucosConocidos":  5,
+                                                    "conjurosEnLibro":  42,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            1,
+                                                                            1,
+                                                                            1
+                                                                        ]
+                                                },
+                                                {
+                                                    "nivel":  20,
+                                                    "trucosConocidos":  5,
+                                                    "conjurosEnLibro":  44,
+                                                    "espaciosConjuro":  [
+                                                                            4,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            3,
+                                                                            2,
+                                                                            2,
+                                                                            1,
+                                                                            1
+                                                                        ]
+                                                }
+                                            ]
+                            },
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "mago-libro",
+                                           "etiqueta":  "Libro de conjuros",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Libro de conjuros"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+                                                {
+                                                    "id":  "mago-arma",
+                                                    "etiqueta":  "Arma basica",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "mago-baston",
+                                                                         "etiqueta":  "Baston",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Baston"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "mago-daga",
+                                                                         "etiqueta":  "Daga",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Daga"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                },
+                                                {
+                                                    "id":  "mago-foco",
+                                                    "etiqueta":  "Foco de conjuro",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "mago-bolsa",
+                                                                         "etiqueta":  "Bolsa de componentes",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Bolsa de componentes"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "mago-foco-arcano",
+                                                                         "etiqueta":  "Foco arcano",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Foco arcano"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                },
+                                                {
+                                                    "id":  "mago-pack",
+                                                    "etiqueta":  "Pack inicial",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "mago-pack-erudito",
+                                                                         "etiqueta":  "Pack de erudito",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Pack de erudito"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "mago-pack-explorador",
+                                                                         "etiqueta":  "Pack de explorador",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Pack de explorador"
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                }
+                                            ]
+                     }
+}

@@ -1,0 +1,52 @@
+{
+    "id":  "dwarf",
+    "nombre":  "Enano",
+    "descripcion":  "Reinos ricos en una grandeza antigua, salones excavados en las raices de las montanas, el eco de picos y martillos en minas profundas y forjas ardientes, un compromiso feroz con el clan y la tradicion, y un odio ancestral hacia goblins y orcos: esos hilos comunes unen a todos los enanos. En ciudades ocultas de la Infraoscuridad tambien habitan los duergar o enanos grises, marcados por siglos de cautiverio y tormento a manos de los azotamentes.",
+    "velocidad":  25,
+    "tamano":  "Mediano",
+    "edad":  "Los enanos maduran al mismo ritmo que los humanos, pero no se les considera jovenes hasta cumplir 50 anos. Su esperanza de vida ronda los 350 anos.",
+    "alineamiento":  "Su vida de clan, su apego a la tradicion y su sentido del deber hacen que muchos enanos se inclinen hacia el orden.",
+    "idiomas":  [
+                    "Comun",
+                    "Enano"
+                ],
+    "aumentoCaracteristicas":  [
+                                   "+2 Constitucion"
+                               ],
+    "competencias":  [
+                         "Armas: hacha de batalla, hacha de mano, martillo ligero y martillo de guerra",
+                         "Herramientas: una competencia a elegir entre herramientas de herrero, suministros de cervecero o herramientas de albañil"
+                     ],
+    "rasgos":  [
+                   {
+                       "nombre":  "Velocidad enana",
+                       "descripcion":  "Tu velocidad base al caminar es de 25 pies. Tu velocidad no se reduce por llevar armadura pesada."
+                   },
+                   {
+                       "nombre":  "Vision en la oscuridad",
+                       "descripcion":  "Acostumbrado a la vida bajo tierra, puedes ver en luz tenue a 60 pies como si fuera luz brillante, y en oscuridad como si fuera luz tenue. En la oscuridad solo distingues tonos de gris."
+                   },
+                   {
+                       "nombre":  "Resistencia enana",
+                       "descripcion":  "Tienes ventaja en tiradas de salvacion contra veneno y resistencia al dano de veneno."
+                   },
+                   {
+                       "nombre":  "Conocimiento de la piedra",
+                       "descripcion":  "Siempre que hagas una prueba de Inteligencia (Historia) relacionada con el origen de trabajos en piedra, se te considera competente en Historia y duplicas tu bonificador de competencia en lugar del bonificador normal."
+                   }
+               ],
+    "elecciones":  [
+                       {
+                           "id":  "dwarf-tool",
+                           "etiqueta":  "Competencia con herramientas",
+                           "resumen":  "Elige una sola competencia entre herramientas de herrero, suministros de cervecero o herramientas de albanil",
+                           "catalogo":  "herramientasArtesano",
+                           "cantidad":  1,
+                           "opciones":  [
+                                            "Herramientas de herrero",
+                                            "Suministros de cervecero",
+                                            "Herramientas de albanil"
+                                        ]
+                       }
+                   ]
+}

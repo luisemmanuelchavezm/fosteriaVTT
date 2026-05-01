@@ -31,3 +31,7 @@ test-results-snapshots/
 .idea/
 .DS_Store
 .husky/_
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md

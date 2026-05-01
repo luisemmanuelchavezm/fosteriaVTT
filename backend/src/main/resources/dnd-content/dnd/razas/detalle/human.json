@@ -1,0 +1,31 @@
+{
+    "id":  "human",
+    "nombre":  "Humano",
+    "descripcion":  "En la mayoria de los mundos, los humanos son la mas joven de las razas comunes, llegados tarde a la escena del mundo y de vida corta en comparacion con enanos, elfos y dragones. Quizas por eso se esfuerzan por lograr tanto como pueden en el tiempo que se les concede. Innovadores, pioneros y conquistadores, los humanos levantan imperios, comercian, exploran y transforman el mundo a una velocidad que otras razas encuentran desconcertante.",
+    "velocidad":  30,
+    "tamano":  "Mediano",
+    "edad":  "Los humanos alcanzan la adultez al final de la adolescencia y viven menos de un siglo.",
+    "alineamiento":  "Su amplitud cultural y personal hace que puedan encajar practicamente en cualquier alineamiento.",
+    "idiomas":  [
+                    "Comun",
+                    "1 idioma a eleccion"
+                ],
+    "aumentoCaracteristicas":  [
+                                   "+1 a todas las caracteristicas"
+                               ],
+    "competencias":  [
+
+                     ],
+    "rasgos":  [
+
+               ],
+    "elecciones":  [
+                       {
+                           "id":  "human-language",
+                           "etiqueta":  "Idioma adicional",
+                           "resumen":  "Elige el idioma adicional que conoce tu humano",
+                           "catalogo":  "idiomas",
+                           "cantidad":  1
+                       }
+                   ]
+}

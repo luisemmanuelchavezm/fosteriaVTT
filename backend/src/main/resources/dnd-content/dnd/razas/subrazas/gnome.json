@@ -1,0 +1,44 @@
+[
+    {
+        "id":  "forest-gnome",
+        "nombre":  "Gnomo del bosque",
+        "descripcion":  "Mas discretos y cercanos a la naturaleza, combinan magia menor, sigilo y un humor dificil de prever.",
+        "aumentoCaracteristicas":  [
+                                       "+1 Destreza"
+                                   ],
+        "competencias":  [
+
+                         ],
+        "rasgos":  [
+                       {
+                           "nombre":  "Ilusionista nato",
+                           "descripcion":  "Conoces el truco ilusion menor; la caracteristica para lanzarlo es Inteligencia."
+                       },
+                       {
+                           "nombre":  "Hablar con bestias pequeñas",
+                           "descripcion":  "Puedes comunicar ideas simples a bestias pequeñas o menores mediante sonidos y gestos."
+                       }
+                   ]
+    },
+    {
+        "id":  "rock-gnome",
+        "nombre":  "Gnomo de las rocas",
+        "descripcion":  "Como gnomo de las rocas, posees una inventiva natural y una resistencia mayores que las de otros gnomos. La mayoria de los gnomos de muchos mundos de D\u0026D pertenecen a esta subraza, incluidos los gnomos manitas de Dragonlance.",
+        "aumentoCaracteristicas":  [
+                                       "+1 Constitucion"
+                                   ],
+        "competencias":  [
+                             "Herramientas: herramientas de manitas"
+                         ],
+        "rasgos":  [
+                       {
+                           "nombre":  "Conocimiento del artifice",
+                           "descripcion":  "Siempre que hagas una prueba de Inteligencia (Historia) relacionada con objetos magicos, alquimicos o dispositivos tecnologicos, puedes duplicar tu bonificador de competencia en lugar de aplicar el normal."
+                       },
+                       {
+                           "nombre":  "Manitas",
+                           "descripcion":  "Usando tus herramientas de manitas, puedes dedicar 1 hora y 10 po en materiales a construir un pequeno dispositivo mecanico (CA 5, 1 PG). Deja de funcionar pasadas 24 horas, salvo que emplees 1 hora en repararlo, o cuando uses tu accion para desmontarlo. Puedes tener hasta tres dispositivos activos a la vez. Al crearlo, elige entre juguete mecanico, encendedor o caja de musica."
+                       }
+                   ]
+    }
+]

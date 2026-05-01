@@ -1,0 +1,94 @@
+{
+    "id":  "barbaro",
+    "nombre":  "Bárbaro",
+    "insignia":  "Ba",
+    "descripcion":  "Guerrero feroz que sobrevive gracias a su rabia, su aguante y su fuerza bruta.",
+    "puntosGolpe":  {
+                        "dadoGolpe":  "1d12 por nivel de barbaro",
+                        "primerNivel":  "12 + tu modificador de Constitucion",
+                        "nivelesSuperiores":  "1d12 (o 7) + tu modificador de Constitucion por cada nivel despues del primero"
+                    },
+    "competencias":  {
+                         "armaduras":  [
+                                           "Armaduras ligeras",
+                                           "Armaduras medias",
+                                           "Escudos"
+                                       ],
+                         "armas":  [
+                                       "Armas simples",
+                                       "Armas marciales"
+                                   ],
+                         "herramientas":  [
+
+                                          ],
+                         "salvaciones":  [
+                                             "Fuerza",
+                                             "Constitucion"
+                                         ],
+                         "habilidades":  [
+                                             "Elige dos entre Trato con Animales, Atletismo, Intimidacion, Naturaleza, Percepcion y Supervivencia"
+                                         ]
+                     },
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "barbaro-pack",
+                                           "etiqueta":  "Pack de explorador",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Pack de explorador"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "barbaro-jabalina",
+                                           "etiqueta":  "Jabalina",
+                                           "cantidad":  4,
+                                           "objeto":  {
+                                                          "nombre":  "Jabalina"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+                                                {
+                                                    "id":  "barbaro-arma-principal",
+                                                    "etiqueta":  "Arma principal",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "barbaro-gran-hacha",
+                                                                         "etiqueta":  "Gran hacha",
+                                                                         "cantidad":  1,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Gran hacha"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "barbaro-arma-marcial",
+                                                                         "etiqueta":  "Cualquier arma marcial cuerpo a cuerpo",
+                                                                         "cantidad":  1,
+                                                                         "catalogo":  "AMCuerpo"
+                                                                     }
+                                                                 ]
+                                                },
+                                                {
+                                                    "id":  "barbaro-armamento-secundario",
+                                                    "etiqueta":  "Armamento secundario",
+                                                    "opciones":  [
+                                                                     {
+                                                                         "id":  "barbaro-dos-hachas",
+                                                                         "etiqueta":  "Dos hachas de mano",
+                                                                         "cantidad":  2,
+                                                                         "objeto":  {
+                                                                                        "nombre":  "Hacha de mano"
+                                                                                    }
+                                                                     },
+                                                                     {
+                                                                         "id":  "barbaro-arma-simple",
+                                                                         "etiqueta":  "Cualquier arma simple",
+                                                                         "cantidad":  1,
+                                                                         "catalogo":  "ASimple"
+                                                                     }
+                                                                 ]
+                                                }
+                                            ]
+                     }
+}

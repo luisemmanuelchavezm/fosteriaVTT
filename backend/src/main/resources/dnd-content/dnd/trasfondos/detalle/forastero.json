@@ -1,0 +1,80 @@
+{
+    "id":  "forastero",
+    "nombre":  "Forastero",
+    "descripcion":  "Te formaste lejos de la civilizacion y sabes sobrevivir alli donde otros solo ven terreno hostil.",
+    "competenciasHabilidades":  [
+                                    "Atletismo",
+                                    "Supervivencia"
+                                ],
+    "competenciasHerramientas":  [
+                                     "1 instrumento musical a eleccion"
+                                 ],
+    "resumenIdiomas":  [
+                           "1 idioma a eleccion"
+                       ],
+    "nombreRasgo":  "Vagabundo",
+    "descripcionRasgo":  "Recuerdas caminos, mapas y recursos naturales con facilidad, lo que te ayuda a guiar al grupo.",
+    "elecciones":  [
+                       {
+                           "id":  "outlander-instrument",
+                           "etiqueta":  "Instrumento musical",
+                           "resumen":  "1 instrumento musical a eleccion",
+                           "catalogo":  "instrumentos",
+                           "cantidad":  1
+                       },
+                       {
+                           "id":  "outlander-language",
+                           "etiqueta":  "Idioma",
+                           "resumen":  "1 idioma a eleccion",
+                           "catalogo":  "idiomas",
+                           "cantidad":  1
+                       }
+                   ],
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "forastero-baston",
+                                           "etiqueta":  "Baston",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Baston"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "forastero-trampa",
+                                           "etiqueta":  "Trampa de caza",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Trampa de caza"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "forastero-trofeo",
+                                           "etiqueta":  "Trofeo de un animal cazado",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Trofeo de un animal cazado"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "forastero-ropa",
+                                           "etiqueta":  "Ropa de viaje",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Ropa de viaje"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "forastero-po",
+                                           "etiqueta":  "Piezas de oro",
+                                           "cantidad":  10,
+                                           "objeto":  {
+                                                          "nombre":  "Piezas de oro"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+
+                                            ]
+                     }
+}

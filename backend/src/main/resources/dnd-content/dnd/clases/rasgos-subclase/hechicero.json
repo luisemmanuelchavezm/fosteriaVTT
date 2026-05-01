@@ -1,0 +1,72 @@
+[
+  {
+    "subclaseId": "draconico",
+    "nivel": 1,
+    "nombre": "Ancestro dragón",
+    "formula": null,
+    "descripcion": "Eliges un ancestro dracónico. Aprendes a hablar, leer y escribir dracónico, y tu competencia mejora tus interacciones con dragones cuando corresponda."
+  },
+  {
+    "subclaseId": "draconico",
+    "nivel": 1,
+    "nombre": "Resistencia dracónica",
+    "formula": "+1 PG por nivel; CA = 13 + DES sin armadura",
+    "descripcion": "Tu cuerpo manifiesta rasgos de tu linaje: tus puntos de golpe máximos aumentan y, sin armadura, tu piel escamada mejora tu defensa."
+  },
+  {
+    "subclaseId": "draconico",
+    "nivel": 6,
+    "nombre": "Afinidad elemental",
+    "formula": "+CAR a una tirada de daño del elemento del linaje",
+    "descripcion": "Tus conjuros del tipo asociado a tu linaje golpean con más fuerza y puedes gastar 1 punto de hechicería para ganar resistencia temporal a ese daño."
+  },
+  {
+    "subclaseId": "draconico",
+    "nivel": 14,
+    "nombre": "Alas de dragón",
+    "formula": "Velocidad de vuelo igual a tu velocidad actual",
+    "descripcion": "Puedes manifestar alas dracónicas con una acción adicional y mantenerlas mientras no lleves una armadura incompatible."
+  },
+  {
+    "subclaseId": "draconico",
+    "nivel": 18,
+    "nombre": "Presencia dracónica",
+    "formula": "5 puntos de hechicería; aura de asombro o terror",
+    "descripcion": "Irradias una presencia dracónica que hechiza o asusta a criaturas hostiles cercanas durante 1 minuto si fallan su salvación."
+  },
+  {
+    "subclaseId": "magiasalvaje",
+    "nivel": 1,
+    "nombre": "Sobrecarga de magia salvaje",
+    "formula": "Tras un conjuro de nivel 1 o superior, el DM puede pedir una tirada de d20",
+    "descripcion": "Tu magia puede desbordarse de forma impredecible. Si se desencadena una sobrecarga, tiras en la tabla de magia salvaje para producir un efecto caótico."
+  },
+  {
+    "subclaseId": "magiasalvaje",
+    "nivel": 1,
+    "nombre": "Mareas del caos",
+    "formula": "Ventaja en una tirada; se recarga tras una sobrecarga o descanso largo",
+    "descripcion": "Manipulas el caos para obtener ventaja en un ataque, prueba o salvación. Una oleada de magia salvaje puede devolverte este uso."
+  },
+  {
+    "subclaseId": "magiasalvaje",
+    "nivel": 6,
+    "nombre": "Doblegar la suerte",
+    "formula": "Reacción; 2 puntos de hechicería; ±1d4 a una tirada ajena",
+    "descripcion": "Puedes torcer el destino de otra criatura que veas después de su tirada y antes de resolver sus efectos."
+  },
+  {
+    "subclaseId": "magiasalvaje",
+    "nivel": 14,
+    "nombre": "Caos controlado",
+    "formula": "Tiras dos veces en la tabla de magia salvaje y eliges el resultado",
+    "descripcion": "Tu dominio parcial del caos te deja inclinar a tu favor los efectos de tus sobrecargas."
+  },
+  {
+    "subclaseId": "magiasalvaje",
+    "nivel": 18,
+    "nombre": "Bombardeo de conjuros",
+    "formula": "Si un dado de daño muestra su máximo, vuelves a tirar uno de esos dados",
+    "descripcion": "La energía salvaje intensifica tus conjuros ofensivos cuando alcanzan su punto más alto de potencia."
+  }
+]

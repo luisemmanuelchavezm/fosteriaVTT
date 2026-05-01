@@ -5,8 +5,17 @@ import RegisterScreen from "./screens/RegisterScreen";
 import HomeScreen from "./screens/HomeScreen";
 import CharactersScreen from "./screens/CharactersScreen";
 import CampaignsScreen from "./screens/CampaignsScreen.tsx";
+import CreateDndCharacterScreen from "./screens/personaje/CreateDndCharacterScreen";
+import DndCharacterSheetScreen from "./screens/personaje/DndCharacterSheetScreen";
 
-type AuthMode = "login" | "register" | "home" | "campaigns" | "characters";
+type AuthMode =
+  | "login"
+  | "register"
+  | "home"
+  | "campaigns"
+  | "characters"
+  | "character-create-dnd"
+  | "character-sheet-dnd";
 
 function App() {
   const storedToken = localStorage.getItem("jwtToken");
@@ -16,6 +25,9 @@ function App() {
   const [username, setUsername] = useState<string>(storedUsername);
   const [avatarUrl, setAvatarUrl] = useState<string>(storedAvatar);
   const [mode, setMode] = useState<AuthMode>(storedToken ? "home" : "login");
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(
+    null,
+  );
 
   const handleGoHome = () => {
     if (token) {
@@ -44,6 +56,25 @@ function App() {
     setMode("login");
   };
 
+  const handleGoCreateDndCharacter = () => {
+    if (token) {
+      setMode("character-create-dnd");
+      return;
+    }
+
+    setMode("login");
+  };
+
+  const handleOpenDndCharacterSheet = (characterId: string) => {
+    if (token) {
+      setSelectedCharacterId(characterId);
+      setMode("character-sheet-dnd");
+      return;
+    }
+
+    setMode("login");
+  };
+
   const handleLoginSuccess = (
     newToken: string,
     user: string,
@@ -65,6 +96,7 @@ function App() {
     setToken(null);
     setUsername("Usuario");
     setAvatarUrl("");
+    setSelectedCharacterId(null);
     localStorage.removeItem("jwtToken");
     localStorage.removeItem("username");
     localStorage.removeItem("avatar");
@@ -111,6 +143,30 @@ function App() {
         <CharactersScreen
           username={username}
           avatarUrl={avatarUrl}
+          onLogout={handleLogout}
+          onGoHome={handleGoHome}
+          onGoCampaigns={handleGoCampaigns}
+          onGoCharacters={handleGoCharacters}
+          onCreateDndCharacter={handleGoCreateDndCharacter}
+          onOpenDndCharacterSheet={handleOpenDndCharacterSheet}
+        />
+      )}
+      {mode === "character-create-dnd" && token && (
+        <CreateDndCharacterScreen
+          username={username}
+          avatarUrl={avatarUrl}
+          onLogout={handleLogout}
+          onGoHome={handleGoHome}
+          onGoCampaigns={handleGoCampaigns}
+          onGoCharacters={handleGoCharacters}
+          onCharacterCreated={handleOpenDndCharacterSheet}
+        />
+      )}
+      {mode === "character-sheet-dnd" && token && selectedCharacterId && (
+        <DndCharacterSheetScreen
+          username={username}
+          avatarUrl={avatarUrl}
+          characterId={selectedCharacterId}
           onLogout={handleLogout}
           onGoHome={handleGoHome}
           onGoCampaigns={handleGoCampaigns}

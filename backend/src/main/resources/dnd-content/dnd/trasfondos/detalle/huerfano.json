@@ -1,0 +1,68 @@
+{
+    "id":  "huerfano",
+    "nombre":  "Huerfano",
+    "descripcion":  "Aprendiste a sobrevivir en las calles apoyandote en el instinto, la rapidez y los atajos urbanos.",
+    "competenciasHabilidades":  [
+                                    "Sigilo",
+                                    "Juego de manos"
+                                ],
+    "competenciasHerramientas":  [
+                                     "Herramientas de ladron",
+                                     "Kit de disfraz"
+                                 ],
+    "resumenIdiomas":  [
+
+                       ],
+    "nombreRasgo":  "Secretos de la ciudad",
+    "descripcionRasgo":  "Conoces rutas secundarias y pasajes ocultos que os ayudan a desplazaros con rapidez por asentamientos urbanos.",
+    "elecciones":  [
+
+                   ],
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "huerfano-cuchillo",
+                                           "etiqueta":  "Cuchillo pequeño",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Cuchillo pequeño"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "huerfano-mapa",
+                                           "etiqueta":  "Mapa de la ciudad",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Mapa de la ciudad"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "huerfano-raton",
+                                           "etiqueta":  "Raton mascota",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Raton mascota"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "huerfano-recuerdo",
+                                           "etiqueta":  "Recuerdo de tus padres",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Recuerdo de tus padres"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "huerfano-po",
+                                           "etiqueta":  "Piezas de oro",
+                                           "cantidad":  10,
+                                           "objeto":  {
+                                                          "nombre":  "Piezas de oro"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+
+                                            ]
+                     }
+}

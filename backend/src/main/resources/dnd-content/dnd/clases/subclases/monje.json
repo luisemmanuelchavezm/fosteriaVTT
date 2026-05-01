@@ -1,0 +1,23 @@
+[
+  {
+    "id": "manoabierta",
+    "nombre": "Via de la mano abierta",
+    "descripcion": "Monje clásico de control corporal, curación interior y disciplina serena.",
+    "nivelDesbloqueo": 3,
+    "tablas": []
+  },
+  {
+    "id": "sombra",
+    "nombre": "Via de la sombra",
+    "descripcion": "Monje furtivo que usa oscuridad, silencio y movilidad entre sombras.",
+    "nivelDesbloqueo": 3,
+    "tablas": []
+  },
+  {
+    "id": "cuatroelementos",
+    "nombre": "Via de los cuatro elementos",
+    "descripcion": "Monje que gasta ki para emular disciplinas elementales sobrenaturales.",
+    "nivelDesbloqueo": 3,
+    "tablas": []
+  }
+]

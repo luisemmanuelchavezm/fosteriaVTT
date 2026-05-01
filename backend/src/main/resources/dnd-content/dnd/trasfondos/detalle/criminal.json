@@ -1,0 +1,58 @@
+{
+    "id":  "criminal",
+    "nombre":  "Criminal",
+    "descripcion":  "Te criaste fuera de la ley y todavia conservas contactos en el submundo y oficio para moverte en el.",
+    "competenciasHabilidades":  [
+                                    "Sigilo",
+                                    "Juego de manos"
+                                ],
+    "competenciasHerramientas":  [
+                                     "Herramientas de ladron",
+                                     "1 tipo de juego a eleccion"
+                                 ],
+    "resumenIdiomas":  [
+
+                       ],
+    "nombreRasgo":  "Contacto criminal",
+    "descripcionRasgo":  "Mantienes un enlace fiable con una red delictiva capaz de mover mensajes e informacion por ti.",
+    "elecciones":  [
+                       {
+                           "id":  "criminal-game",
+                           "etiqueta":  "Tipo de juego",
+                           "resumen":  "1 tipo de juego a eleccion",
+                           "catalogo":  "juegos",
+                           "cantidad":  1
+                       }
+                   ],
+    "equipamiento":  {
+                         "fijos":  [
+                                       {
+                                           "id":  "criminal-palanca",
+                                           "etiqueta":  "Palanca",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Palanca"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "criminal-ropa",
+                                           "etiqueta":  "Ropa comun oscura con capucha",
+                                           "cantidad":  1,
+                                           "objeto":  {
+                                                          "nombre":  "Ropa comun oscura con capucha"
+                                                      }
+                                       },
+                                       {
+                                           "id":  "criminal-po",
+                                           "etiqueta":  "Piezas de oro",
+                                           "cantidad":  15,
+                                           "objeto":  {
+                                                          "nombre":  "Piezas de oro"
+                                                      }
+                                       }
+                                   ],
+                         "gruposEleccion":  [
+
+                                            ]
+                     }
+}
