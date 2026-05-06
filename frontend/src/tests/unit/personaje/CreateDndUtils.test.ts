@@ -99,6 +99,7 @@ describe("creacion de personaje - utilidades", () => {
         "class-skills": ["Arcano", "Historia"],
         "class-languages": ["Draconico"],
       },
+      classExpertiseSelections: ["Arcano", "Herramientas de ladron"],
       raceSelection,
       backgroundSelection,
       statisticsSelection: buildStatisticsSelection(),
@@ -118,6 +119,8 @@ describe("creacion de personaje - utilidades", () => {
       eleccionesClase: {
         "class-skills": ["Arcano", "Historia"],
         "class-languages": ["Draconico"],
+        "class-expertise-skill-0": ["Arcano"],
+        "class-expertise-tool-0": ["Herramientas de ladron"],
       },
       eleccionesTrasfondo: { backgroundChoice: ["Draconico"] },
       eleccionesRaza: { raceChoice: ["Percepcion"] },

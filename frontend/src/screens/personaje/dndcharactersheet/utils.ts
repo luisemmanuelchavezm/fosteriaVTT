@@ -287,6 +287,12 @@ export function isActionAbility(ability: CharacterAbilityResponse) {
 
 export function isPassiveAbility(ability: CharacterAbilityResponse) {
   const normalizedName = normalizeText(ability.nombre);
+  const normalizedTags = normalizeText(ability.tags);
+
+  if (normalizedTags.includes(normalizeText("MANIOBRA"))) {
+    return true;
+  }
+
   if (isSpellAbility(ability) || isActionAbility(ability)) {
     return false;
   }
@@ -320,6 +326,105 @@ function formatDamageExpression(baseExpression: string, modifier: number) {
     : `${baseExpression} - ${Math.abs(modifier)}`;
 }
 
+function getWeaponAbilityModifier(
+  character: DndCharacterDetailResponse,
+  ability: CharacterAbilityResponse,
+) {
+  const matchingWeapon = character.mochila.find(
+    (item) =>
+      item.tipoObjeto === "ARMA" &&
+      normalizeText(item.nombre) === normalizeText(ability.nombre),
+  );
+
+  const strengthModifier = getAbilityModifierByName(character, "Fuerza");
+  const dexterityModifier = getAbilityModifierByName(character, "Destreza");
+
+  if (
+    matchingWeapon &&
+    normalizeText(matchingWeapon.tags).includes(normalizeText("Sutil"))
+  ) {
+    return Math.max(strengthModifier, dexterityModifier);
+  }
+
+  return strengthModifier;
+}
+
+export interface ShortRestResolution {
+  totalHealed: number;
+  rollExpression: string | null;
+}
+
+export function resolveShortRestHealing(
+  die: string,
+  usedDice: number,
+  constitutionModifier: number,
+  roller: (faces: number) => number,
+): ShortRestResolution {
+  if (usedDice <= 0) {
+    return { totalHealed: 0, rollExpression: null };
+  }
+
+  const faces = Number.parseInt(die.replace(/\D+/g, ""), 10);
+  if (Number.isNaN(faces) || faces <= 0) {
+    return { totalHealed: 0, rollExpression: null };
+  }
+
+  const parts: string[] = [];
+  let totalHealed = 0;
+
+  for (let index = 0; index < usedDice; index += 1) {
+    const roll = roller(faces);
+    totalHealed += Math.max(0, roll + constitutionModifier);
+    const rollParts = [String(roll)];
+    if (constitutionModifier > 0) {
+      rollParts.push(`+ ${constitutionModifier}`);
+    } else if (constitutionModifier < 0) {
+      rollParts.push(`- ${Math.abs(constitutionModifier)}`);
+    }
+    parts.push(rollParts.join(" "));
+  }
+
+  return {
+    totalHealed,
+    rollExpression: parts.join(" + "),
+  };
+}
+
+export function recoverHitDiceOnLongRest(
+  totalsByDie: Record<string, number>,
+  currentByDie: Record<string, number>,
+  totalLevel: number,
+) {
+  const next = { ...currentByDie };
+  let remainingRecovery = Math.max(1, Math.floor(Math.max(0, totalLevel) / 2));
+
+  const orderedDice = Object.entries(totalsByDie)
+    .map(([die, total]) => ({
+      die,
+      total,
+      current: currentByDie[die] ?? total,
+      faces: Number.parseInt(die.replace(/\D+/g, ""), 10) || 0,
+    }))
+    .sort((left, right) => right.faces - left.faces);
+
+  for (const entry of orderedDice) {
+    if (remainingRecovery <= 0) {
+      break;
+    }
+
+    const missing = Math.max(0, entry.total - entry.current);
+    if (missing <= 0) {
+      continue;
+    }
+
+    const recovered = Math.min(missing, remainingRecovery);
+    next[entry.die] = entry.current + recovered;
+    remainingRecovery -= recovered;
+  }
+
+  return next;
+}
+
 export function getActionDamageParts(
   character: DndCharacterDetailResponse,
   ability: CharacterAbilityResponse,
@@ -347,8 +452,9 @@ export function getActionDamageParts(
   }
 
   const { damage, damageType } = getWeaponDamageParts(ability.formula);
+  const abilityModifier = getWeaponAbilityModifier(character, ability);
   const expression = clampMinimumDamageExpression(
-    damage === "--" ? null : damage,
+    damage === "--" ? null : formatDamageExpression(damage, abilityModifier),
   );
   return {
     damage: expression ?? damage,

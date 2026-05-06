@@ -63,17 +63,16 @@
                                                                          "id":  "guerrero-arma-escudo",
                                                                          "etiqueta":  "Un arma marcial y un escudo",
                                                                          "cantidad":  1,
+                                                                         "catalogo":  "AMCuerpo",
                                                                          "objeto":  {
-                                                                                        "nombre":  "Arma marcial y escudo"
+                                                                                        "nombre":  "Escudo"
                                                                                     }
                                                                      },
                                                                      {
                                                                          "id":  "guerrero-dos-armas",
                                                                          "etiqueta":  "Dos armas marciales",
-                                                                         "cantidad":  1,
-                                                                         "objeto":  {
-                                                                                        "nombre":  "Dos armas marciales"
-                                                                                    }
+                                                                         "cantidad":  2,
+                                                                         "catalogo":  "AMCuerpo"
                                                                      }
                                                                  ]
                                                 },

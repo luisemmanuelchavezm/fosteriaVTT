@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import ChoiceChecklist from "../../../components/ChoiceChecklist";
+import ExpertisePicklistSection from "../../../components/ExpertisePicklistSection";
 import type { DndCharacterDetailResponse } from "../../../utils/dndApi";
 import type { LevelUpModalController } from "../../hooks/useLevelUpModalState";
 
@@ -29,9 +30,13 @@ export default function LevelUpSelectionColumn({
     classWarnings,
     setSelectedClassId,
     classIsNew,
+    visibleInitialClassChoices,
     classChoicesSectionRef,
     classChoices,
     setClassChoices,
+    expertiseChoiceConfig,
+    expertiseChoices,
+    availableExpertiseOptions,
     missingChoiceErrors,
     openSpellDetailByName,
     needsSubclass,
@@ -45,14 +50,31 @@ export default function LevelUpSelectionColumn({
     eaSpellOptions,
     eaCantripCount,
     eaSpellCount,
+    ekChosenCantrips,
+    ekChosenSpells,
+    ekCantripOptions,
+    ekSpellOptions,
+    ekCantripCount,
+    ekSpellCount,
     isGainingEa,
     isActiveEa,
+    isGainingEk,
+    isActiveEk,
+    battleMasterManeuvers,
+    battleMasterManeuverOptions,
+    battleMasterManeuverCount,
+    isGainingBattleMaster,
+    isActiveBattleMaster,
     cantripUpgradeChosen,
     cantripUpgradeOptions,
     cantripUpgradeCount,
     setCantripUpgradeChosen,
+    setExpertiseChoices,
     setEaChosenCantrips,
     setEaChosenSpells,
+    setEkChosenCantrips,
+    setEkChosenSpells,
+    setBattleMasterManeuvers,
   } = controller;
 
   return (
@@ -163,7 +185,7 @@ export default function LevelUpSelectionColumn({
       {!isDownMode &&
       selectedClassDetail &&
       classIsNew &&
-      selectedClassDetail.elecciones.length > 0 ? (
+      visibleInitialClassChoices.length > 0 ? (
         <section
           ref={classChoicesSectionRef}
           className="rounded-[24px] border border-stone-300/10 bg-black/25 p-5"
@@ -172,7 +194,7 @@ export default function LevelUpSelectionColumn({
             Elecciones iniciales de la clase
           </h4>
           <div className="mt-5 space-y-5">
-            {selectedClassDetail.elecciones.map((choice) => (
+            {visibleInitialClassChoices.map((choice) => (
               <ChoiceChecklist
                 key={choice.id}
                 anchorId={`levelup-choice-${choice.id}`}
@@ -196,6 +218,26 @@ export default function LevelUpSelectionColumn({
                 }
               />
             ))}
+          </div>
+        </section>
+      ) : null}
+
+      {!isDownMode && expertiseChoiceConfig ? (
+        <section className="rounded-[24px] border border-stone-300/10 bg-black/25 p-5">
+          <h4 className="text-xl font-semibold text-white">
+            {expertiseChoiceConfig.title}
+          </h4>
+          <div className="mt-5">
+            <ExpertisePicklistSection
+              anchorId="levelup-choice-class-expertise"
+              title="Elige tus nuevas pericias"
+              description={expertiseChoiceConfig.description}
+              options={availableExpertiseOptions}
+              selectedValues={expertiseChoices}
+              selectionCount={expertiseChoiceConfig.count}
+              error={missingChoiceErrors["class-expertise"]}
+              onChange={setExpertiseChoices}
+            />
           </div>
         </section>
       ) : null}
@@ -233,9 +275,7 @@ export default function LevelUpSelectionColumn({
         </section>
       ) : null}
 
-      {!isDownMode &&
-      cantripUpgradeCount > 0 &&
-      cantripUpgradeOptions.length > 0 ? (
+      {!isDownMode && cantripUpgradeCount > 0 && selectedClassDetail ? (
         <section className="rounded-[24px] border border-stone-300/10 bg-black/25 p-5">
           <h4 className="text-xl font-semibold text-white">
             Nuevo truco conocido
@@ -256,10 +296,7 @@ export default function LevelUpSelectionColumn({
         </section>
       ) : null}
 
-      {!isDownMode &&
-      (isGainingEa || isActiveEa) &&
-      eaCantripCount > 0 &&
-      eaCantripOptions.length > 0 ? (
+      {!isDownMode && (isGainingEa || isActiveEa) && eaCantripCount > 0 ? (
         <section className="rounded-[24px] border border-stone-300/10 bg-black/25 p-5">
           <h4 className="text-xl font-semibold text-white">
             Trucos del Embaucador Arcano
@@ -280,10 +317,7 @@ export default function LevelUpSelectionColumn({
         </section>
       ) : null}
 
-      {!isDownMode &&
-      (isGainingEa || isActiveEa) &&
-      eaSpellCount > 0 &&
-      eaSpellOptions.length > 0 ? (
+      {!isDownMode && (isGainingEa || isActiveEa) && eaSpellCount > 0 ? (
         <section className="rounded-[24px] border border-stone-300/10 bg-black/25 p-5">
           <h4 className="text-xl font-semibold text-white">
             Conjuros del Embaucador Arcano
@@ -299,6 +333,72 @@ export default function LevelUpSelectionColumn({
                 void openSpellDetailByName(token, name);
               }}
               onChange={setEaChosenSpells}
+            />
+          </div>
+        </section>
+      ) : null}
+
+      {!isDownMode && (isGainingEk || isActiveEk) && ekCantripCount > 0 ? (
+        <section className="rounded-[24px] border border-stone-300/10 bg-black/25 p-5">
+          <h4 className="text-xl font-semibold text-white">
+            Trucos del Caballero Arcano
+          </h4>
+          <div className="mt-5">
+            <ChoiceChecklist
+              title="Selecciona los trucos del Caballero Arcano"
+              options={ekCantripOptions.map((s) => s.nombre)}
+              selectedValues={ekChosenCantrips}
+              maxSelections={ekCantripCount}
+              showInfoAction
+              onInfoClick={(name) => {
+                void openSpellDetailByName(token, name);
+              }}
+              onChange={setEkChosenCantrips}
+            />
+          </div>
+        </section>
+      ) : null}
+
+      {!isDownMode && (isGainingEk || isActiveEk) && ekSpellCount > 0 ? (
+        <section className="rounded-[24px] border border-stone-300/10 bg-black/25 p-5">
+          <h4 className="text-xl font-semibold text-white">
+            Conjuros del Caballero Arcano
+          </h4>
+          <div className="mt-5">
+            <ChoiceChecklist
+              title="Selecciona los conjuros del Caballero Arcano"
+              options={ekSpellOptions.map((s) => s.nombre)}
+              selectedValues={ekChosenSpells}
+              maxSelections={ekSpellCount}
+              showInfoAction
+              onInfoClick={(name) => {
+                void openSpellDetailByName(token, name);
+              }}
+              onChange={setEkChosenSpells}
+            />
+          </div>
+        </section>
+      ) : null}
+
+      {!isDownMode &&
+      (isGainingBattleMaster || isActiveBattleMaster) &&
+      battleMasterManeuverCount > 0 ? (
+        <section className="rounded-[24px] border border-stone-300/10 bg-black/25 p-5">
+          <h4 className="text-xl font-semibold text-white">
+            Maniobras del Maestro de Batalla
+          </h4>
+          <div className="mt-5">
+            <ChoiceChecklist
+              title="Selecciona las maniobras"
+              description="Estas maniobras se añaden como habilidades del personaje y consumen tus dados de supremacía cuando corresponda."
+              options={battleMasterManeuverOptions}
+              selectedValues={battleMasterManeuvers}
+              maxSelections={battleMasterManeuverCount}
+              showInfoAction
+              onInfoClick={(name) => {
+                void openSpellDetailByName(token, name);
+              }}
+              onChange={setBattleMasterManeuvers}
             />
           </div>
         </section>

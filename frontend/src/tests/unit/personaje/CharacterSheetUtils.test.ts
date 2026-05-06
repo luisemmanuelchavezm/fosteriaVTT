@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import "@testing-library/jest-dom/vitest";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { buildCharacterSheetState } from "../../../screens/personaje/dndcharactersheet/screenState";
 import {
   applyDamage,
@@ -15,6 +15,7 @@ import {
   getCharacterLevel,
   getCharacterMoney,
   getExperienceProgress,
+  isPassiveAbility,
   getProficiencyBonus,
   getRaceSummary,
   getSpellLevel,
@@ -27,6 +28,8 @@ import {
   uniqueNormalizedValues,
   extractHitDiceStats,
   extractExtraResources,
+  recoverHitDiceOnLongRest,
+  resolveShortRestHealing,
 } from "../../../screens/personaje/dndcharactersheet/utils";
 import type {
   CharacterAbilityResponse,
@@ -126,6 +129,22 @@ const baseCharacter: DndCharacterDetailResponse = {
       descripcion: "Descanso largo",
       tags: "Hechizo;1,TiempoLanzamiento;1 accion",
     },
+    {
+      id: 8,
+      nombre: "Estoque",
+      bonificacion: 5,
+      formula: "1d8 perforante",
+      descripcion: "Ataque con arma sutil",
+      tags: "DND,ARMA,OBJETO,501",
+    },
+    {
+      id: 9,
+      nombre: "Hacha de mano",
+      bonificacion: 4,
+      formula: "1d6 cortante",
+      descripcion: "Ataque con arma cuerpo a cuerpo",
+      tags: "DND,ARMA,OBJETO,502",
+    },
   ],
   mochila: [
     {
@@ -146,6 +165,26 @@ const baseCharacter: DndCharacterDetailResponse = {
       tags: "Dinero",
       tipoObjeto: "DINERO",
       formula: null,
+      descripcion: null,
+    },
+    {
+      id: 13,
+      nombre: "Estoque",
+      cantidad: 1,
+      equipado: true,
+      tags: "AMCuerpo,Sutil",
+      tipoObjeto: "ARMA",
+      formula: "1d8 perforante",
+      descripcion: null,
+    },
+    {
+      id: 14,
+      nombre: "Hacha de mano",
+      cantidad: 1,
+      equipado: true,
+      tags: "ASCuerpo,Ligera",
+      tipoObjeto: "ARMA",
+      formula: "1d6 cortante",
       descripcion: null,
     },
   ],
@@ -222,6 +261,19 @@ describe("hoja de personaje - utilidades", () => {
     });
   });
 
+  it("considera las maniobras de maestro de batalla como visibles en pasivas", () => {
+    expect(
+      isPassiveAbility({
+        id: 200,
+        nombre: "Parada",
+        bonificacion: null,
+        formula: null,
+        descripcion: "Reaccion para reducir dano",
+        tags: "DND,Guerrero,MaestroDeBatalla,Maniobra,Defensa,Reaccion",
+      }),
+    ).toBe(true);
+  });
+
   it("resuelve formulas, daño, dinero, idiomas y competencias", () => {
     expect(getAbilityModifierByName(baseCharacter, "Destreza")).toBe(3);
     expect(getSpellLevel(baseCharacter.habilidades[6])).toBe(1);
@@ -262,6 +314,20 @@ describe("hoja de personaje - utilidades", () => {
       damageType: "Contundente",
       expression: "1d6 + 3",
     });
+    expect(
+      getActionDamageParts(baseCharacter, baseCharacter.habilidades[7]),
+    ).toEqual({
+      damage: "1d8 + 3",
+      damageType: "perforante",
+      expression: "1d8 + 3",
+    });
+    expect(
+      getActionDamageParts(baseCharacter, baseCharacter.habilidades[8]),
+    ).toEqual({
+      damage: "1d6 + 1",
+      damageType: "cortante",
+      expression: "1d6 + 1",
+    });
     expect(shouldResetAbilityUsageOnRest(longRestAbility, "short")).toBe(false);
     expect(shouldResetAbilityUsageOnRest(longRestAbility, "long")).toBe(true);
     expect(getAbilityResetLabel(longRestAbility)).toBe("Descanso largo");
@@ -274,5 +340,19 @@ describe("hoja de personaje - utilidades", () => {
       current: 2,
       max: 4,
     });
+    expect(
+      resolveShortRestHealing(
+        "d8",
+        2,
+        2,
+        vi.fn().mockReturnValueOnce(4).mockReturnValueOnce(6),
+      ),
+    ).toEqual({
+      totalHealed: 14,
+      rollExpression: "4 + 2 + 6 + 2",
+    });
+    expect(
+      recoverHitDiceOnLongRest({ d12: 1, d6: 4 }, { d12: 0, d6: 2 }, 5),
+    ).toEqual({ d12: 1, d6: 3 });
   });
 });

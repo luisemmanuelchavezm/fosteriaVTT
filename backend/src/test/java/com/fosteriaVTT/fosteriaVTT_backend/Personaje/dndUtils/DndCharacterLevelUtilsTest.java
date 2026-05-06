@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -77,7 +78,7 @@ class DndCharacterLevelUtilsTest {
         verify(dndAbilityUtils).agregarHabilidadesDeClasePorNivel(personaje, clase, subclase, 1, Map.of(), true);
         verify(dndAbilityUtils).sincronizarMagiaRacialPorNivel(personaje, null, 3);
         verify(personajeRepository).save(personaje);
-        verify(estadisticaService).aplicarSubidaNivel(personaje, estadisticas, "d8", 7, Map.of(1, 2), 3);
+        verify(estadisticaService).aplicarSubidaNivel(personaje, estadisticas, "d8", 7, Map.of(1, 2), 3, Set.of());
     }
 
     @Test
@@ -96,6 +97,8 @@ class DndCharacterLevelUtilsTest {
         when(dndCharacterStatsUtils.resolverEspaciosDeConjuroTrasCambio(personaje, clase, 2, subclase)).thenReturn(Map.of(1, 1));
         when(dndCharacterStatsUtils.resolverNivelTotalPersonaje(personaje)).thenReturn(4);
         when(dndCharacterStatsUtils.resolverRazaActual(personaje)).thenReturn(null);
+        when(dndCharacterProgressionUtils.revertirProgresionRegistradaSiCorresponde(personaje, clase, 3, estadisticas))
+            .thenReturn(new DndCharacterProgressionUtils.ProgressionReversionResult(Set.of()));
 
         dndCharacterLevelUtils.bajarNivel(2L, new BajarNivelPersonajeRequest("mago"), "daria");
 
@@ -103,7 +106,7 @@ class DndCharacterLevelUtilsTest {
         verify(dndAbilityUtils).removerHabilidadesDeClasePorNivel(personaje, clase, subclase, 3);
         verify(dndAbilityUtils).sincronizarMagiaRacialPorNivel(personaje, null, 3);
         verify(personajeRepository).save(personaje);
-        verify(estadisticaService).aplicarBajadaNivel(personaje, estadisticas, "d8", 4, Map.of(1, 1), 7);
+        verify(estadisticaService).aplicarBajadaNivel(personaje, estadisticas, "d8", 4, Map.of(1, 1), 7, Set.of());
     }
 
     @Test

@@ -156,6 +156,14 @@ function EquipmentOriginCard({
                                     {meta}
                                   </p>
                                 ))}
+                                {isSelected && item.objeto?.descripcion ? (
+                                  <p className="mt-2 text-xs leading-5 text-stone-300">
+                                    {item.objeto.descripcion.replace(
+                                      /\*\*/g,
+                                      "",
+                                    )}
+                                  </p>
+                                ) : null}
                                 {catalogItems.length > 0 && isSelected ? (
                                   <div className="mt-4 space-y-2">
                                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200/75">

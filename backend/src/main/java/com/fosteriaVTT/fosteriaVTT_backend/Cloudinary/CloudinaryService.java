@@ -19,7 +19,7 @@ public class CloudinaryService {
 
     public String uploadFile(MultipartFile file) throws IOException {
         // Subimos el archivo y le pedimos a Cloudinary la URL
-        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), 
+        Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), 
                 ObjectUtils.asMap("folder", "fosteria_vtt_assets"));
         
         return uploadResult.get("url").toString();

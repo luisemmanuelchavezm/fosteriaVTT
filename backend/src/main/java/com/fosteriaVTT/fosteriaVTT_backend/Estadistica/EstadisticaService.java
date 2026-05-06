@@ -2,6 +2,7 @@ package com.fosteriaVTT.fosteriaVTT_backend.Estadistica;
 
 import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.Habilidad;
 import com.fosteriaVTT.fosteriaVTT_backend.Mochila.Mochila;
+import com.fosteriaVTT.fosteriaVTT_backend.Mochila.MochilaRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Objeto.Objeto;
 import com.fosteriaVTT.fosteriaVTT_backend.Objeto.TipoObjeto;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.Personaje;
@@ -32,13 +33,15 @@ public class EstadisticaService {
 	private static final String PROFICIENCY_BONUS_STAT = "Bonificador por competencia";
 	private static final String INITIATIVE_STAT = "Iniciativa";
 	private static final String TOUGH_FEAT_NAME = "Duro";
-	private static final Pattern ARMOR_CLASS_PATTERN = Pattern.compile("CA=(\\d+)(?:\\+([A-Z]{3})(?:\\(max:(\\d+)\\))?)?", Pattern.CASE_INSENSITIVE);
+	private static final Pattern ARMOR_CLASS_PATTERN = Pattern.compile("(?<![A-Z_])CA=(\\d+)(?:\\+([A-Z]{3})(?:\\(max:(\\d+)\\))?)?", Pattern.CASE_INSENSITIVE);
 	private static final Pattern ARMOR_BONUS_PATTERN = Pattern.compile("BONO_CA=(\\d+)", Pattern.CASE_INSENSITIVE);
 
 	private final EstadisticaRepository estadisticaRepository;
+	private final MochilaRepository mochilaRepository;
 
-	public EstadisticaService(EstadisticaRepository estadisticaRepository) {
+	public EstadisticaService(EstadisticaRepository estadisticaRepository, MochilaRepository mochilaRepository) {
 		this.estadisticaRepository = estadisticaRepository;
+		this.mochilaRepository = mochilaRepository;
 	}
 
 	public Map<String, Integer> obtenerValoresPorPersonajeId(Long personajeId) {
@@ -165,7 +168,8 @@ public class EstadisticaService {
 			String hitDie,
 			int hitPointIncrease,
 			Map<Integer, Integer> spellSlots,
-			int totalLevel
+			int totalLevel,
+			Set<String> expertiseSkillsToApply
 	) {
 		List<Estadistica> stats = new ArrayList<>(estadisticaRepository.findByPersonajeIdOrderByIdAsc(character.getId()));
 		Map<String, Estadistica> statsByName = new LinkedHashMap<>();
@@ -185,7 +189,16 @@ public class EstadisticaService {
 		incrementarEstadistica(statsByName, character, "Vida actual", adjustedHitPointIncrease);
 		actualizarExperienciaStat(statsByName, character, 0);
 		actualizarBonificacionesCompetencia(statsByName, character, totalLevel);
+		recalcularBonosPorCompetencia(
+				statsByName,
+				character,
+				Math.max(1, totalLevel - 1),
+				totalLevel,
+				Set.of(),
+				expertiseSkillsToApply
+		);
 		upsertStat(statsByName, character, INITIATIVE_STAT, calcularIniciativaDesdeEstadisticas(statsByName, character.getHabilidades()));
+		upsertStat(statsByName, character, "CA", calcularClaseArmaduraDesdeEstadisticas(statsByName, character));
 
 		int dieMax = Math.max(1, DndCharacterRules.extractHitDieMax(hitDie));
 		incrementarEstadistica(statsByName, character, "Dados de golpe d" + dieMax, 1);
@@ -205,6 +218,7 @@ public class EstadisticaService {
 			Map<Integer, Integer> extraResourcesCurrent,
 			Set<String> proficientSavingThrows,
 			Set<String> proficientSkills,
+			Set<String> expertiseSkills,
 			int totalLevel
 	) {
 		List<Estadistica> stats = new ArrayList<>(estadisticaRepository.findByPersonajeIdOrderByIdAsc(character.getId()));
@@ -227,8 +241,9 @@ public class EstadisticaService {
 		}
 
 		actualizarBonificacionesCompetencia(statsByName, character, totalLevel);
-		aplicarCompetenciasSeleccionadas(statsByName, character, proficientSavingThrows, proficientSkills, totalLevel);
+		aplicarCompetenciasSeleccionadas(statsByName, character, proficientSavingThrows, proficientSkills, expertiseSkills, totalLevel);
 		upsertStat(statsByName, character, INITIATIVE_STAT, calcularIniciativaDesdeEstadisticas(statsByName, character.getHabilidades()));
+		upsertStat(statsByName, character, "CA", calcularClaseArmaduraDesdeEstadisticas(statsByName, character));
 		sincronizarEspaciosDeConjuroEditables(stats, statsByName, character, spellSlotsMax, spellSlotsCurrent);
 		sincronizarRecursosExtraEditables(statsByName, character, extraResourcesMax, extraResourcesCurrent);
 		estadisticaRepository.saveAll(statsByName.values());
@@ -240,7 +255,8 @@ public class EstadisticaService {
 			String hitDie,
 			int totalLevel,
 			Map<Integer, Integer> spellSlots,
-			int hitPointReduction
+			int hitPointReduction,
+			Set<String> expertiseSkillsToRemove
 	) {
 		List<Estadistica> stats = new ArrayList<>(estadisticaRepository.findByPersonajeIdOrderByIdAsc(character.getId()));
 		Map<String, Estadistica> statsByName = new LinkedHashMap<>();
@@ -256,7 +272,16 @@ public class EstadisticaService {
 		}
 
 		actualizarBonificacionesCompetencia(statsByName, character, totalLevel);
+		recalcularBonosPorCompetencia(
+				statsByName,
+				character,
+				Math.max(1, totalLevel + 1),
+				totalLevel,
+				expertiseSkillsToRemove,
+				Set.of()
+		);
 		upsertStat(statsByName, character, INITIATIVE_STAT, calcularIniciativaDesdeEstadisticas(statsByName, character.getHabilidades()));
+		upsertStat(statsByName, character, "CA", calcularClaseArmaduraDesdeEstadisticas(statsByName, character));
 		int dieMax = Math.max(1, DndCharacterRules.extractHitDieMax(hitDie));
 		decrementarEstadistica(statsByName, "Dados de golpe d" + dieMax, 1, 0);
 		int adjustedHitPointReduction = hitPointReduction + resolverBonificadorPuntosGolpePorDotes(character.getHabilidades(), 1);
@@ -294,6 +319,7 @@ public class EstadisticaService {
 			ClaseDndLanzamientoConjurosResponse spellcasting,
 			List<String> savingThrows,
 			Set<String> skillCompetencies,
+			Set<String> expertiseSkills,
 			List<Mochila> mochila,
 			List<Habilidad> habilidades
 	) {
@@ -305,6 +331,7 @@ public class EstadisticaService {
 				spellcasting,
 				savingThrows,
 				skillCompetencies,
+				expertiseSkills,
 				mochila,
 				habilidades
 		));
@@ -318,6 +345,7 @@ public class EstadisticaService {
 			ClaseDndLanzamientoConjurosResponse spellcasting,
 			List<String> savingThrows,
 			Set<String> skillCompetencies,
+			Set<String> expertiseSkills,
 			List<Mochila> mochila,
 			List<Habilidad> habilidades
 	) {
@@ -342,7 +370,12 @@ public class EstadisticaService {
 		}
 
 		for (String skillName : DndCharacterRules.ATTRIBUTE_BY_SKILL.keySet()) {
-			result.add(buildStat(character, skillName, skillCompetencies.contains(skillName) ? proficiencyBonus : 0));
+			int skillBonus = expertiseSkills.contains(skillName)
+					? proficiencyBonus * 2
+					: skillCompetencies.contains(skillName)
+						? proficiencyBonus
+						: 0;
+			result.add(buildStat(character, skillName, skillBonus));
 		}
 
 		int maxHitPoints = Math.max(
@@ -483,12 +516,6 @@ public class EstadisticaService {
 				saveStat.setValor(proficiencyBonus);
 			}
 		}
-		for (String skillName : DndCharacterRules.ATTRIBUTE_BY_SKILL.keySet()) {
-			Estadistica skillStat = statsByName.get(skillName);
-			if (skillStat != null && skillStat.getValor() > 0) {
-				skillStat.setValor(proficiencyBonus);
-			}
-		}
 	}
 
 	private void aplicarCompetenciasSeleccionadas(
@@ -496,6 +523,7 @@ public class EstadisticaService {
 			Personaje character,
 			Set<String> proficientSavingThrows,
 			Set<String> proficientSkills,
+			Set<String> expertiseSkills,
 			int totalLevel
 	) {
 		int proficiencyBonus = DndCharacterRules.calculateProficiencyBonus(totalLevel);
@@ -508,13 +536,64 @@ public class EstadisticaService {
 			);
 		}
 		for (String skillName : DndCharacterRules.ATTRIBUTE_BY_SKILL.keySet()) {
+			String normalizedSkillName = TagUtils.normalizeText(skillName);
+			int multiplier = expertiseSkills.contains(normalizedSkillName)
+					? 2
+					: proficientSkills.contains(normalizedSkillName) ? 1 : 0;
 			upsertStat(
 					statsByName,
 					character,
 					skillName,
-					proficientSkills.contains(TagUtils.normalizeText(skillName)) ? proficiencyBonus : 0
+					multiplier * proficiencyBonus
 			);
 		}
+	}
+
+	private void recalcularBonosPorCompetencia(
+			Map<String, Estadistica> statsByName,
+			Personaje character,
+			int previousTotalLevel,
+			int nextTotalLevel,
+			Set<String> expertiseSkillsToRemove,
+			Set<String> expertiseSkillsToApply
+	) {
+		int previousProficiencyBonus = DndCharacterRules.calculateProficiencyBonus(Math.max(1, previousTotalLevel));
+		int nextProficiencyBonus = DndCharacterRules.calculateProficiencyBonus(Math.max(1, nextTotalLevel));
+
+		for (String attributeName : DndCharacterRules.STAT_NAMES.values()) {
+			String saveName = "Salvación de " + attributeName;
+			int currentValue = statsByName.getOrDefault(saveName, buildStat(character, saveName, 0)).getValor();
+			int level = currentValue > 0 && previousProficiencyBonus > 0 ? 1 : 0;
+			upsertStat(statsByName, character, saveName, level * nextProficiencyBonus);
+		}
+
+		for (String skillName : DndCharacterRules.ATTRIBUTE_BY_SKILL.keySet()) {
+			int currentValue = statsByName.getOrDefault(skillName, buildStat(character, skillName, 0)).getValor();
+			int level = resolverNivelCompetencia(currentValue, previousProficiencyBonus);
+			String normalizedSkillName = TagUtils.normalizeText(skillName);
+			if (expertiseSkillsToRemove.contains(normalizedSkillName) && level >= 2) {
+				level = 1;
+			}
+			if (expertiseSkillsToApply.contains(normalizedSkillName) && level >= 1) {
+				level = 2;
+			}
+			int nextValue = switch (level) {
+				case 2 -> nextProficiencyBonus * 2;
+				case 1 -> nextProficiencyBonus;
+				default -> 0;
+			};
+			upsertStat(statsByName, character, skillName, nextValue);
+		}
+	}
+
+	private int resolverNivelCompetencia(int storedValue, int proficiencyBonus) {
+		if (storedValue <= 0 || proficiencyBonus <= 0) {
+			return 0;
+		}
+		if (storedValue >= proficiencyBonus * 2) {
+			return 2;
+		}
+		return 1;
 	}
 
 	private void sincronizarEspaciosDeConjuroEditables(
@@ -643,13 +722,12 @@ public class EstadisticaService {
 			if (parsedArmorClass != null) {
 				armorClass = parsedArmorClass;
 				hasArmorEquipped = true;
-				continue;
-			}
-
-			Integer parsedShieldBonus = extraerBonoArmaduraDesdeFormula(objeto.getFormula());
-			if (parsedShieldBonus != null) {
-				shieldBonus += parsedShieldBonus;
-				hasShieldEquipped = true;
+			} else {
+				Integer parsedShieldBonus = extraerBonoArmaduraDesdeFormula(objeto.getFormula());
+				if (parsedShieldBonus != null) {
+					shieldBonus += parsedShieldBonus;
+					hasShieldEquipped = true;
+				}
 			}
 		}
 
@@ -672,12 +750,27 @@ public class EstadisticaService {
 		return armorClass + shieldBonus;
 	}
 
+	private int calcularClaseArmaduraDesdeEstadisticas(Map<String, Estadistica> statsByName, Personaje character) {
+		Map<String, Integer> baseStats = new LinkedHashMap<>();
+		for (String attributeName : DndCharacterRules.STAT_NAMES.values()) {
+			baseStats.put(
+					attributeName,
+					statsByName.getOrDefault(attributeName, buildStat(character, attributeName, 10)).getValor()
+			);
+		}
+		return calcularClaseArmadura(
+				baseStats,
+				mochilaRepository.findByPersonajeIdOrderByIdAsc(character.getId()),
+				character.getHabilidades()
+		);
+	}
+
 	private int resolverValorCaracteristica(Map<String, Integer> baseStats, String rawKey, String displayKey) {
 		return baseStats.getOrDefault(rawKey, baseStats.getOrDefault(displayKey, 10));
 	}
 
 	private Integer extraerClaseArmaduraDesdeFormula(String formula, Map<String, Integer> baseStats) {
-		String cleanedFormula = TagUtils.cleanValue(formula);
+		String cleanedFormula = formula == null ? "" : formula.trim();
 		if (cleanedFormula.isBlank()) {
 			return null;
 		}
@@ -693,7 +786,8 @@ public class EstadisticaService {
 		if (modifierCode != null && !modifierCode.isBlank()) {
 			int abilityModifier = resolverModificadorCaracteristicaPorCodigo(baseStats, modifierCode);
 			if (modifierCap != null && !modifierCap.isBlank()) {
-				abilityModifier = Math.min(abilityModifier, Integer.parseInt(modifierCap));
+				int maxCap = Integer.parseInt(modifierCap);
+				abilityModifier = Math.min(abilityModifier, maxCap);
 			}
 			armorClass += abilityModifier;
 		}
@@ -703,7 +797,16 @@ public class EstadisticaService {
 
 	private int resolverModificadorCaracteristicaPorCodigo(Map<String, Integer> baseStats, String modifierCode) {
 		String normalizedCode = TagUtils.normalizeText(modifierCode);
-		String statName = switch (normalizedCode) {
+		String rawKey = switch (normalizedCode) {
+			case "fue" -> "strength";
+			case "des" -> "dexterity";
+			case "con" -> "constitution";
+			case "int" -> "intelligence";
+			case "sab" -> "wisdom";
+			case "car" -> "charisma";
+			default -> null;
+		};
+		String displayKey = switch (normalizedCode) {
 			case "fue" -> "Fuerza";
 			case "des" -> "Destreza";
 			case "con" -> "Constitucion";
@@ -713,15 +816,15 @@ public class EstadisticaService {
 			default -> null;
 		};
 
-		if (statName == null) {
+		if (rawKey == null) {
 			return 0;
 		}
 
-		return DndCharacterRules.calculateModifier(resolverValorCaracteristica(baseStats, statName.toLowerCase(java.util.Locale.ROOT), statName));
+		return DndCharacterRules.calculateModifier(resolverValorCaracteristica(baseStats, rawKey, displayKey));
 	}
 
 	private Integer extraerBonoArmaduraDesdeFormula(String formula) {
-		String cleanedFormula = TagUtils.cleanValue(formula);
+		String cleanedFormula = formula == null ? "" : formula.trim();
 		if (cleanedFormula.isBlank()) {
 			return null;
 		}

@@ -20,6 +20,16 @@ const longsword: InitialEquipmentItem = {
   cantidad: 1,
 };
 
+const scaleMail: InitialEquipmentItem = {
+  id: 2,
+  nombre: "Armadura de escamas",
+  descripcion: "",
+  formula: "CA=14+DES(max:2)",
+  tipoObjeto: "ARMADURA",
+  indice: "ARMADURA,Media",
+  cantidad: 1,
+};
+
 describe("equipmentUtils", () => {
   it("extrae propiedades legibles y evita duplicados o tags no visibles", () => {
     expect(resolveReadableProperties(longsword)).toEqual([
@@ -32,6 +42,9 @@ describe("equipmentUtils", () => {
     expect(buildEquipmentMeta(longsword)).toEqual([
       "Daño: 1d8 cortante",
       "Propiedades: versátil 1d10, ligera",
+    ]);
+    expect(buildEquipmentMeta(scaleMail)).toEqual([
+      "Fórmula: CA=14+DES(max:2)",
     ]);
     expect(buildEquipmentMeta(null)).toEqual([]);
   });

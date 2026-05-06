@@ -5,6 +5,7 @@ import type {
   LevelUpDndCharacterRequest,
 } from "../../utils/dndApi";
 import {
+  fetchAbilityCatalog,
   fetchClassSkills,
   fetchClassSubclassSkills,
   fetchDndClassDetail,
@@ -31,7 +32,74 @@ import {
   FEAT_OPTIONS,
   getFeatValidity,
 } from "../feats";
-import { getClassLevel } from "../utils";
+import {
+  EXPERTISE_CHOICE_SECTION_ID,
+  getExpertiseChoiceConfig,
+  SKILL_EXPERTISE_CHOICE_ID,
+  splitExpertiseChoices,
+  THIEVES_TOOLS_NAME,
+  TOOL_EXPERTISE_CHOICE_ID,
+} from "../../utils/dndExpertise";
+import { SKILL_ROWS } from "../data";
+import { getClassLevel, getProficiencyBonus } from "../utils";
+
+function isInitialClassSkillChoice(choiceId: string) {
+  return choiceId.startsWith("class-skill-");
+}
+
+function findSubclassById(
+  classDetail: DndClassDetail | null,
+  subclassId: string,
+) {
+  return (
+    classDetail?.subclases.find(
+      (subclass) =>
+        normalizeDndText(subclass.id) === normalizeDndText(subclassId),
+    ) ?? null
+  );
+}
+
+function getSubclassTableCounts(
+  subclass: DndSubclassDetail | null,
+  level: number,
+) {
+  if (!subclass?.tablas?.length) {
+    return { trucos: 0, conjuros: 0 };
+  }
+
+  const row = subclass.tablas[0]?.filas.find(
+    (entry) => entry[0]?.trim() === String(level),
+  );
+  if (!row || row.length < 3) {
+    return { trucos: 0, conjuros: 0 };
+  }
+
+  return { trucos: parseInt(row[1]) || 0, conjuros: parseInt(row[2]) || 0 };
+}
+
+function getSubclassMaxSpellLevel(
+  subclass: DndSubclassDetail | null,
+  level: number,
+) {
+  if (!subclass?.tablas?.length) {
+    return 0;
+  }
+
+  const row = subclass.tablas[0]?.filas.find(
+    (entry) => entry[0]?.trim() === String(level),
+  );
+  if (!row) {
+    return 0;
+  }
+
+  for (let index = row.length - 1; index >= 3; index -= 1) {
+    if ((parseInt(row[index]) || 0) > 0) {
+      return index - 2;
+    }
+  }
+
+  return 0;
+}
 
 interface UseLevelUpModalStateProps {
   token: string;
@@ -75,6 +143,7 @@ export function useLevelUpModalState({
   const [subclassSkillGroups, setSubclassSkillGroups] = useState<
     ClassSkillGroup[]
   >([]);
+  const [expertiseChoices, setExpertiseChoices] = useState<string[]>([]);
   const [asiMode, setAsiMode] = useState<"double" | "single" | "feat">(
     "double",
   );
@@ -117,6 +186,19 @@ export function useLevelUpModalState({
   const [eaSpellOptions, setEaSpellOptions] = useState<
     CharacterAbilityResponse[]
   >([]);
+  const [ekChosenCantrips, setEkChosenCantrips] = useState<string[]>([]);
+  const [ekChosenSpells, setEkChosenSpells] = useState<string[]>([]);
+  const [ekCantripOptions, setEkCantripOptions] = useState<
+    CharacterAbilityResponse[]
+  >([]);
+  const [ekSpellOptions, setEkSpellOptions] = useState<
+    CharacterAbilityResponse[]
+  >([]);
+  const [battleMasterManeuverOptions, setBattleMasterManeuverOptions] =
+    useState<string[]>([]);
+  const [battleMasterManeuvers, setBattleMasterManeuvers] = useState<string[]>(
+    [],
+  );
   const [cantripUpgradeChosen, setCantripUpgradeChosen] = useState<string[]>(
     [],
   );
@@ -137,10 +219,20 @@ export function useLevelUpModalState({
   );
   const targetLevel = selectedClassLevel + 1;
   const targetLevelAfterDown = Math.max(0, selectedClassLevel - 1);
-  const currentSubclass = useMemo(
-    () => inferCurrentSubclass(character, selectedClassDetail),
-    [character, selectedClassDetail],
-  );
+  const currentSubclass = useMemo(() => {
+    const inferredSubclass = inferCurrentSubclass(
+      character,
+      selectedClassDetail,
+    );
+    if (
+      inferredSubclass &&
+      selectedClassLevel < inferredSubclass.nivelDesbloqueo
+    ) {
+      return null;
+    }
+
+    return inferredSubclass;
+  }, [character, selectedClassDetail, selectedClassLevel]);
   const effectiveSubclass: DndSubclassDetail | null =
     selectedClassDetail?.subclases.find(
       (item) => item.id === selectedSubclassId,
@@ -163,12 +255,73 @@ export function useLevelUpModalState({
     : false;
   const classIsNew = selectedClassLevel === 0;
   const isDownMode = mode === "down";
+  const visibleInitialClassChoices = useMemo(() => {
+    if (!selectedClassDetail) {
+      return [];
+    }
+
+    return classIsNew
+      ? selectedClassDetail.elecciones.filter(
+          (choice) => !isInitialClassSkillChoice(choice.id),
+        )
+      : selectedClassDetail.elecciones;
+  }, [classIsNew, selectedClassDetail]);
+  const expertiseChoiceConfig = useMemo(
+    () =>
+      getExpertiseChoiceConfig(selectedClassDetail?.id ?? null, targetLevel),
+    [selectedClassDetail, targetLevel],
+  );
+  const availableExpertiseOptions = useMemo(() => {
+    if (!expertiseChoiceConfig) {
+      return [];
+    }
+
+    const proficiencyBonus = getProficiencyBonus(character);
+    const currentExpertise = new Set(
+      SKILL_ROWS.filter((item) => {
+        const value = character.estadisticas[item.name] ?? 0;
+        return proficiencyBonus > 0 && value >= proficiencyBonus * 2;
+      }).map((item) => normalizeDndText(item.name)),
+    );
+
+    const availableSkills = SKILL_ROWS.filter((item) => {
+      const value = character.estadisticas[item.name] ?? 0;
+      return (
+        value >= proficiencyBonus &&
+        !currentExpertise.has(normalizeDndText(item.name))
+      );
+    })
+      .map((item) => item.name)
+      .sort((left, right) => left.localeCompare(right, "es"));
+
+    if (!expertiseChoiceConfig.allowThievesTools) {
+      return availableSkills;
+    }
+
+    const hasThievesToolsCompetency = character.habilidades.some(
+      (ability) =>
+        normalizeDndText(ability.nombre) ===
+        normalizeDndText(`Competencia: ${THIEVES_TOOLS_NAME}`),
+    );
+    const hasThievesToolsExpertise = character.habilidades.some(
+      (ability) =>
+        normalizeDndText(ability.nombre) ===
+        normalizeDndText(`Pericia: ${THIEVES_TOOLS_NAME}`),
+    );
+
+    if (!hasThievesToolsCompetency || hasThievesToolsExpertise) {
+      return availableSkills;
+    }
+
+    return [...availableSkills, THIEVES_TOOLS_NAME];
+  }, [character, expertiseChoiceConfig]);
 
   const eaSubclass = useMemo(
-    () =>
-      selectedClassDetail?.subclases.find(
-        (s) => normalizeDndText(s.id) === "embaucadorarcano",
-      ) ?? null,
+    () => findSubclassById(selectedClassDetail, "embaucadorarcano"),
+    [selectedClassDetail],
+  );
+  const eldritchKnightSubclass = useMemo(
+    () => findSubclassById(selectedClassDetail, "caballeroarcano"),
     [selectedClassDetail],
   );
   const isActiveEa = useMemo(
@@ -180,37 +333,47 @@ export function useLevelUpModalState({
   const isGainingEa =
     needsSubclass &&
     normalizeDndText(selectedSubclassId ?? "") === "embaucadorarcano";
+  const isActiveEk = useMemo(
+    () =>
+      !!effectiveSubclass &&
+      normalizeDndText(effectiveSubclass.id) === "caballeroarcano",
+    [effectiveSubclass],
+  );
+  const isGainingEk =
+    needsSubclass &&
+    normalizeDndText(selectedSubclassId ?? "") === "caballeroarcano";
+  const isActiveBattleMaster = useMemo(
+    () =>
+      !!effectiveSubclass &&
+      normalizeDndText(effectiveSubclass.id) === "maestrobatalla",
+    [effectiveSubclass],
+  );
+  const isGainingBattleMaster =
+    needsSubclass &&
+    normalizeDndText(selectedSubclassId ?? "") === "maestrobatalla";
 
   const getAtTableCounts = useCallback(
     (level: number) => {
-      if (!eaSubclass || !eaSubclass.tablas || eaSubclass.tablas.length === 0)
-        return { trucos: 0, conjuros: 0 };
-      const tabla = eaSubclass.tablas[0];
-      const row = tabla.filas.find((r) => r[0]?.trim() === String(level));
-      if (!row || row.length < 3) return { trucos: 0, conjuros: 0 };
-      return { trucos: parseInt(row[1]) || 0, conjuros: parseInt(row[2]) || 0 };
+      return getSubclassTableCounts(eaSubclass, level);
     },
     [eaSubclass],
   );
 
+  const getEkTableCounts = useCallback(
+    (level: number) => getSubclassTableCounts(eldritchKnightSubclass, level),
+    [eldritchKnightSubclass],
+  );
+
   const getAtMaxSpellLevel = useCallback(
     (level: number) => {
-      if (!eaSubclass || !eaSubclass.tablas || eaSubclass.tablas.length === 0) {
-        return 0;
-      }
-      const tabla = eaSubclass.tablas[0];
-      const row = tabla.filas.find((r) => r[0]?.trim() === String(level));
-      if (!row) {
-        return 0;
-      }
-      for (let i = row.length - 1; i >= 3; i -= 1) {
-        if ((parseInt(row[i]) || 0) > 0) {
-          return i - 2;
-        }
-      }
-      return 0;
+      return getSubclassMaxSpellLevel(eaSubclass, level);
     },
     [eaSubclass],
+  );
+
+  const getEkMaxSpellLevel = useCallback(
+    (level: number) => getSubclassMaxSpellLevel(eldritchKnightSubclass, level),
+    [eldritchKnightSubclass],
   );
 
   const eaCantripCount = useMemo(() => {
@@ -230,6 +393,36 @@ export function useLevelUpModalState({
       : getAtTableCounts(targetLevel - 1);
     return Math.max(0, cur.conjuros - prev.conjuros);
   }, [isActiveEa, isGainingEa, isDownMode, targetLevel, getAtTableCounts]);
+
+  const ekCantripCount = useMemo(() => {
+    if ((!isActiveEk && !isGainingEk) || isDownMode) return 0;
+    const cur = getEkTableCounts(targetLevel);
+    const prev = isGainingEk
+      ? { trucos: 0 }
+      : getEkTableCounts(targetLevel - 1);
+    return Math.max(0, cur.trucos - prev.trucos);
+  }, [isActiveEk, isGainingEk, isDownMode, targetLevel, getEkTableCounts]);
+
+  const ekSpellCount = useMemo(() => {
+    if ((!isActiveEk && !isGainingEk) || isDownMode) return 0;
+    const cur = getEkTableCounts(targetLevel);
+    const prev = isGainingEk
+      ? { conjuros: 0 }
+      : getEkTableCounts(targetLevel - 1);
+    return Math.max(0, cur.conjuros - prev.conjuros);
+  }, [isActiveEk, isGainingEk, isDownMode, targetLevel, getEkTableCounts]);
+
+  const battleMasterManeuverCount = useMemo(() => {
+    if ((!isActiveBattleMaster && !isGainingBattleMaster) || isDownMode) {
+      return 0;
+    }
+
+    if (isGainingBattleMaster) {
+      return 3;
+    }
+
+    return [7, 10, 15].includes(targetLevel) ? 2 : 0;
+  }, [isActiveBattleMaster, isGainingBattleMaster, isDownMode, targetLevel]);
 
   const cantripUpgradeCount = useMemo(() => {
     if (
@@ -297,6 +490,7 @@ export function useLevelUpModalState({
     setClassChoices({});
     setClassSkillGroups([]);
     setSubclassSkillGroups([]);
+    setExpertiseChoices([]);
     setMissingChoiceErrors({});
     setSelectedFeatDetail(null);
     setSelectedFeatStats([]);
@@ -313,6 +507,12 @@ export function useLevelUpModalState({
     setEaChosenSpells([]);
     setEaCantripOptions([]);
     setEaSpellOptions([]);
+    setEkChosenCantrips([]);
+    setEkChosenSpells([]);
+    setEkCantripOptions([]);
+    setEkSpellOptions([]);
+    setBattleMasterManeuverOptions([]);
+    setBattleMasterManeuvers([]);
     setCantripUpgradeChosen([]);
     setCantripUpgradeOptions([]);
   }, [closeSpellDetail, isOpen]);
@@ -447,6 +647,140 @@ export function useLevelUpModalState({
   ]);
 
   useEffect(() => {
+    if (isDownMode || (!isGainingEk && !isActiveEk) || ekCantripCount <= 0) {
+      setEkCantripOptions([]);
+      return;
+    }
+    const knownNames = new Set(
+      character.habilidades.map((h) => normalizeDndText(h.nombre)),
+    );
+    const abortController = new AbortController();
+    void fetchSpellCatalog(
+      token,
+      { nivel: 0, clase: "mago" },
+      abortController.signal,
+    )
+      .then((options) =>
+        setEkCantripOptions(
+          options.filter((o) => !knownNames.has(normalizeDndText(o.nombre))),
+        ),
+      )
+      .catch(() => setEkCantripOptions([]));
+    return () => abortController.abort();
+  }, [
+    isDownMode,
+    isGainingEk,
+    isActiveEk,
+    ekCantripCount,
+    character.habilidades,
+    token,
+  ]);
+
+  useEffect(() => {
+    if (isDownMode || (!isGainingEk && !isActiveEk) || ekSpellCount <= 0) {
+      setEkSpellOptions([]);
+      return;
+    }
+    const maxSpellLevel = getEkMaxSpellLevel(targetLevel);
+    if (maxSpellLevel <= 0) {
+      setEkSpellOptions([]);
+      return;
+    }
+    const knownNames = new Set(
+      character.habilidades.map((h) => normalizeDndText(h.nombre)),
+    );
+    const abortController = new AbortController();
+    const loadSpellOptions = async () => {
+      const merged = new Map<string, CharacterAbilityResponse>();
+      for (let spellLevel = 1; spellLevel <= maxSpellLevel; spellLevel += 1) {
+        const options = await fetchSpellCatalog(
+          token,
+          { nivel: spellLevel, clase: "mago" },
+          abortController.signal,
+        );
+        options.forEach((option) => {
+          const normalizedName = normalizeDndText(option.nombre);
+          if (!knownNames.has(normalizedName) && !merged.has(normalizedName)) {
+            merged.set(normalizedName, option);
+          }
+        });
+      }
+      setEkSpellOptions(Array.from(merged.values()));
+    };
+    void loadSpellOptions().catch(() => setEkSpellOptions([]));
+    return () => abortController.abort();
+  }, [
+    isDownMode,
+    isGainingEk,
+    isActiveEk,
+    ekSpellCount,
+    character.habilidades,
+    token,
+    targetLevel,
+    getEkMaxSpellLevel,
+  ]);
+
+  useEffect(() => {
+    if (
+      isDownMode ||
+      (!isGainingBattleMaster && !isActiveBattleMaster) ||
+      battleMasterManeuverCount <= 0
+    ) {
+      setBattleMasterManeuverOptions([]);
+      return;
+    }
+
+    const knownNames = new Set(
+      character.habilidades.map((ability) => normalizeDndText(ability.nombre)),
+    );
+    const abortController = new AbortController();
+
+    const buildBattleMasterOptions = (options: CharacterAbilityResponse[]) =>
+      options
+        .map((option) => option.nombre)
+        .filter((name) => !knownNames.has(normalizeDndText(name)));
+
+    const loadBattleMasterManeuvers = async () => {
+      const subclassOptions = await fetchAbilityCatalog(
+        token,
+        {
+          clase: "guerrero",
+          subclase: "maestrobatalla",
+          etiqueta: "maniobra",
+        },
+        abortController.signal,
+      );
+
+      const fallbackOptions =
+        subclassOptions.length > 0
+          ? subclassOptions
+          : await fetchAbilityCatalog(
+              token,
+              {
+                clase: "guerrero",
+                etiqueta: "maniobra",
+              },
+              abortController.signal,
+            );
+
+      setBattleMasterManeuverOptions(buildBattleMasterOptions(fallbackOptions));
+    };
+
+    void loadBattleMasterManeuvers().catch(() =>
+      setBattleMasterManeuverOptions([]),
+    );
+
+    return () => abortController.abort();
+  }, [
+    isDownMode,
+    isGainingBattleMaster,
+    isActiveBattleMaster,
+    battleMasterManeuverCount,
+    character.habilidades,
+    token,
+  ]);
+
+  useEffect(() => {
     if (isDownMode || cantripUpgradeCount <= 0 || !selectedClassDetail) {
       setCantripUpgradeOptions([]);
       return;
@@ -476,6 +810,25 @@ export function useLevelUpModalState({
   ]);
 
   useEffect(() => {
+    if (!expertiseChoiceConfig) {
+      setExpertiseChoices([]);
+      return;
+    }
+
+    setExpertiseChoices((current) =>
+      Array.from({ length: expertiseChoiceConfig.count }, (_, index) => {
+        const currentValue = current[index] ?? "";
+        return availableExpertiseOptions.some(
+          (option) =>
+            normalizeDndText(option) === normalizeDndText(currentValue),
+        )
+          ? currentValue
+          : "";
+      }),
+    );
+  }, [availableExpertiseOptions, expertiseChoiceConfig]);
+
+  useEffect(() => {
     if (!selectedClassId || !isOpen) return;
     setClassChoices({});
     setSubclassSkillGroups([]);
@@ -490,18 +843,42 @@ export function useLevelUpModalState({
         setSelectedClassDetail(detail);
         setClassSkillGroups(skills);
         const inferredSubclass = inferCurrentSubclass(character, detail);
-        setSelectedSubclassId(inferredSubclass?.id ?? null);
+        setSelectedSubclassId(
+          inferredSubclass &&
+            selectedClassLevel < inferredSubclass.nivelDesbloqueo
+            ? null
+            : (inferredSubclass?.id ?? null),
+        );
       })
       .catch(() => {
         setSelectedClassDetail(null);
         setClassSkillGroups([]);
       });
     return () => abortController.abort();
-  }, [character, isOpen, selectedClassId, token]);
+  }, [character, isOpen, selectedClassId, selectedClassLevel, token]);
 
   useEffect(() => {
     if (!selectedClassDetail || !effectiveSubclass) {
       setSubclassSkillGroups([]);
+      return;
+    }
+
+    const selectedExpertiseCount = expertiseChoices.filter(
+      (value) => value.trim().length > 0,
+    ).length;
+    if (
+      expertiseChoiceConfig &&
+      selectedExpertiseCount < expertiseChoiceConfig.count
+    ) {
+      setMissingChoiceErrors((current) => ({
+        ...current,
+        [EXPERTISE_CHOICE_SECTION_ID]: `Faltan ${expertiseChoiceConfig.count - selectedExpertiseCount} selección(es).`,
+      }));
+      setSubmitError("Completa las selecciones de pericia.");
+      const expertiseElement = document.getElementById(
+        `levelup-choice-${EXPERTISE_CHOICE_SECTION_ID}`,
+      );
+      scrollToTarget(expertiseElement ?? classChoicesSectionRef.current);
       return;
     }
     const abortController = new AbortController();
@@ -553,7 +930,7 @@ export function useLevelUpModalState({
 
     if (classIsNew) {
       const nextMissingErrors = Object.fromEntries(
-        selectedClassDetail.elecciones
+        visibleInitialClassChoices
           .filter(
             (choice) =>
               (classChoices[choice.id] ?? []).length < choice.cantidad,
@@ -627,7 +1004,15 @@ export function useLevelUpModalState({
     const payload: LevelUpDndCharacterRequest = {
       claseId: selectedClassDetail.id,
       subclaseId: selectedSubclassId,
-      eleccionesClase: classIsNew ? classChoices : undefined,
+      eleccionesClase: classIsNew
+        ? Object.fromEntries(
+            Object.entries(classChoices).filter(([choiceId]) =>
+              visibleInitialClassChoices.some(
+                (choice) => choice.id === choiceId,
+              ),
+            ),
+          )
+        : undefined,
     };
 
     if (
@@ -657,13 +1042,58 @@ export function useLevelUpModalState({
       );
       return;
     }
+    if (
+      (isGainingEk || isActiveEk) &&
+      ekCantripCount > 0 &&
+      ekChosenCantrips.length < ekCantripCount
+    ) {
+      setSubmitError(
+        `Debes elegir ${ekCantripCount} truco(s) del Caballero Arcano.`,
+      );
+      return;
+    }
+    if (
+      (isGainingEk || isActiveEk) &&
+      ekSpellCount > 0 &&
+      ekChosenSpells.length < ekSpellCount
+    ) {
+      setSubmitError(
+        `Debes elegir ${ekSpellCount} conjuro(s) del Caballero Arcano.`,
+      );
+      return;
+    }
+    if (
+      (isGainingBattleMaster || isActiveBattleMaster) &&
+      battleMasterManeuverCount > 0 &&
+      battleMasterManeuvers.length < battleMasterManeuverCount
+    ) {
+      setSubmitError(
+        `Debes elegir ${battleMasterManeuverCount} maniobra(s) del Maestro de Batalla.`,
+      );
+      return;
+    }
 
     const extraElecciones: Record<string, string[]> = {};
+    if (expertiseChoices.some((value) => value.trim().length > 0)) {
+      const { skillChoices, toolChoices } =
+        splitExpertiseChoices(expertiseChoices);
+      if (skillChoices.length > 0) {
+        extraElecciones[SKILL_EXPERTISE_CHOICE_ID] = skillChoices;
+      }
+      if (toolChoices.length > 0) {
+        extraElecciones[TOOL_EXPERTISE_CHOICE_ID] = toolChoices;
+      }
+    }
     if (cantripUpgradeChosen.length > 0)
       extraElecciones["class-cantrip-upgrade"] = cantripUpgradeChosen;
     if (eaChosenCantrips.length > 0)
       extraElecciones["ea-cantrip"] = eaChosenCantrips;
     if (eaChosenSpells.length > 0) extraElecciones["ea-spell"] = eaChosenSpells;
+    if (ekChosenCantrips.length > 0)
+      extraElecciones["ek-cantrip"] = ekChosenCantrips;
+    if (ekChosenSpells.length > 0) extraElecciones["ek-spell"] = ekChosenSpells;
+    if (battleMasterManeuvers.length > 0)
+      extraElecciones["bm-maneuver"] = battleMasterManeuvers;
     if (Object.keys(extraElecciones).length > 0) {
       payload.eleccionesClase = {
         ...(payload.eleccionesClase ?? {}),
@@ -738,6 +1168,9 @@ export function useLevelUpModalState({
     featOptions,
     featSpellOptions,
     handleSubmit,
+    expertiseChoiceConfig,
+    expertiseChoices,
+    availableExpertiseOptions,
     isDownMode,
     isSubmitting,
     levelFeatures,
@@ -762,6 +1195,7 @@ export function useLevelUpModalState({
     setAsiPrimary,
     setAsiSecondary,
     setClassChoices,
+    setExpertiseChoices,
     setSelectedClassId,
     setSelectedFeatCantrips,
     setSelectedFeatCompetencies,
@@ -782,6 +1216,7 @@ export function useLevelUpModalState({
     targetLevel,
     targetLevelAfterDown,
     totalCharacterLevel,
+    visibleInitialClassChoices,
     visibleClassSummaries,
     eaChosenCantrips,
     eaChosenSpells,
@@ -789,13 +1224,29 @@ export function useLevelUpModalState({
     eaSpellOptions,
     eaCantripCount,
     eaSpellCount,
+    ekChosenCantrips,
+    ekChosenSpells,
+    ekCantripOptions,
+    ekSpellOptions,
+    ekCantripCount,
+    ekSpellCount,
     isGainingEa,
     isActiveEa,
+    isGainingEk,
+    isActiveEk,
+    battleMasterManeuvers,
+    battleMasterManeuverOptions,
+    battleMasterManeuverCount,
+    isGainingBattleMaster,
+    isActiveBattleMaster,
     cantripUpgradeChosen,
     cantripUpgradeOptions,
     cantripUpgradeCount,
     setCantripUpgradeChosen,
     setEaChosenCantrips,
     setEaChosenSpells,
+    setEkChosenCantrips,
+    setEkChosenSpells,
+    setBattleMasterManeuvers,
   };
 }

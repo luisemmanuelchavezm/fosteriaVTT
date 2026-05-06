@@ -17,6 +17,8 @@ describe("lanzamiento de dados - DiceRollOverlay", () => {
           expression: "1d20 + 5",
           diceValues: [17],
           modifier: 5,
+          modifierDisplay: "+5",
+          totalLabel: "Total",
           total: 22,
         }}
       />,

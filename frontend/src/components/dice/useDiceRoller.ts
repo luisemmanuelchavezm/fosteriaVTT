@@ -19,11 +19,24 @@ export interface DiceRollSummary {
   diceValues: number[];
   modifier: number;
   total: number;
+  modifierDisplay?: string | null;
+  totalLabel?: string | null;
 }
 
 interface QueuedRollRequest {
   title: string;
   expression: string;
+}
+
+interface DicePoolRequest {
+  title: string;
+  dicePools: Array<{
+    count: number;
+    faces: number;
+  }>;
+  modifier?: number;
+  modifierDisplay?: string | null;
+  totalLabel?: string | null;
 }
 
 interface ParsedRollExpression {
@@ -88,11 +101,55 @@ function parseRollExpression(
     };
   }
 
+  const flatSumMatch = normalized.match(/^[+-]?\d+(?:\s*[+-]\s*\d+)+$/);
+  if (flatSumMatch) {
+    const parts = normalized.match(/[+-]?\s*\d+/g);
+    if (!parts) {
+      return null;
+    }
+
+    const modifier = parts.reduce(
+      (total, part) => total + Number.parseInt(part.replace(/\s+/g, ""), 10),
+      0,
+    );
+
+    return {
+      notation: null,
+      diceCount: 0,
+      diceFaces: 0,
+      modifier,
+      normalizedExpression: normalized,
+    };
+  }
+
   return null;
 }
 
 function rollLocally(diceCount: number, diceFaces: number) {
   return Array.from({ length: diceCount }, () => secureRandomInt(1, diceFaces));
+}
+
+function extractDiceValues(payload: unknown): number[] {
+  if (Array.isArray(payload)) {
+    return payload.flatMap((entry) => extractDiceValues(entry));
+  }
+
+  if (!payload || typeof payload !== "object") {
+    return [];
+  }
+
+  const record = payload as Record<string, unknown>;
+  const directValue = record.value;
+  const values = [
+    ...(typeof directValue === "number" ? [directValue] : []),
+    ...extractDiceValues(record.values),
+    ...extractDiceValues(record.rolls),
+    ...extractDiceValues(record.results),
+    ...extractDiceValues(record.dice),
+    ...extractDiceValues(record.sets),
+  ];
+
+  return values.filter((value): value is number => typeof value === "number");
 }
 
 async function waitForDiceBoxHost(hostId: string, attempts = 10) {
@@ -305,6 +362,8 @@ export function useDiceRoller() {
         diceValues,
         modifier: parsed.modifier,
         total,
+        modifierDisplay: null,
+        totalLabel: null,
       });
       scheduleDiceClear();
     } catch (error) {
@@ -312,6 +371,93 @@ export function useDiceRoller() {
         error instanceof Error ? error.message : "Error desconocido";
       setDiceBoxError(`Dice-Box no pudo mostrar la tirada: ${message}`);
       scheduleDiceClear();
+    } finally {
+      activeRollCountRef.current = Math.max(0, activeRollCountRef.current - 1);
+      setIsRolling(activeRollCountRef.current > 0);
+    }
+  };
+
+  const runDicePool = async ({
+    title,
+    dicePools,
+    modifier = 0,
+    modifierDisplay = null,
+    totalLabel = null,
+  }: DicePoolRequest): Promise<DiceRollSummary | null> => {
+    const normalizedPools = dicePools.filter(
+      (pool) => pool.count > 0 && pool.faces > 0,
+    );
+    if (normalizedPools.length === 0) {
+      return null;
+    }
+
+    clearDiceTimer();
+    setDiceBoxError(null);
+    activeRollCountRef.current += 1;
+    setIsRolling(true);
+
+    try {
+      const notationEntries = normalizedPools.map(
+        (pool) => `${pool.count}d${pool.faces}`,
+      );
+      const diceCount = normalizedPools.reduce(
+        (sum, pool) => sum + pool.count,
+        0,
+      );
+
+      const diceBox = await ensureDiceBoxReady();
+
+      if (activeDiceCountRef.current + diceCount > MAX_VISIBLE_DICE) {
+        diceBox.clear?.();
+        activeDiceCountRef.current = 0;
+      }
+
+      const notationArg =
+        notationEntries.length === 1 ? notationEntries[0] : notationEntries;
+      const rollResult = diceBox.roll?.(notationArg);
+      let diceValues: number[] = [];
+
+      if (
+        rollResult &&
+        typeof (rollResult as Promise<unknown>).then === "function"
+      ) {
+        const resolved = await (rollResult as Promise<unknown>);
+        diceValues = extractDiceValues(resolved);
+      } else {
+        diceValues = normalizedPools.flatMap((pool) =>
+          rollLocally(pool.count, pool.faces),
+        );
+      }
+
+      if (diceValues.length !== diceCount) {
+        throw new Error("La tirada no devolvio todos los dados esperados");
+      }
+
+      activeDiceCountRef.current += diceValues.length;
+
+      const expression = buildExpression(notationEntries.join(" + "), modifier);
+      const total =
+        diceValues.reduce((sum, value) => sum + value, 0) + modifier;
+      const summary: DiceRollSummary = {
+        id: ++summaryIdRef.current,
+        title,
+        expression,
+        diceValues,
+        modifier,
+        total,
+        modifierDisplay,
+        totalLabel,
+      };
+
+      enqueueSummary(summary);
+      scheduleDiceClear();
+      return summary;
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Error desconocido";
+      setDiceBoxError(`Dice-Box no pudo mostrar la tirada: ${message}`);
+      scheduleDiceClear();
+      return null;
     } finally {
       activeRollCountRef.current = Math.max(0, activeRollCountRef.current - 1);
       setIsRolling(activeRollCountRef.current > 0);
@@ -330,6 +476,7 @@ export function useDiceRoller() {
     rollExpression: (title: string, expression: string) => {
       void runRoll(title, expression);
     },
+    rollDicePool: (request: DicePoolRequest) => runDicePool(request),
     rollExpressionsSequence: (requests: QueuedRollRequest[]) => {
       for (const request of requests) {
         void runRoll(request.title, request.expression);

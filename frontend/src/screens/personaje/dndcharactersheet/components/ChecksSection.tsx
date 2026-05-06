@@ -5,13 +5,18 @@ import {
   getAbilityModifierByName,
   getProficiencyBonus,
 } from "../utils";
-import { CircleIndicator, SectionTableHeader } from "./SheetPrimitives";
+import {
+  CircleIndicator,
+  SectionTableHeader,
+  SkillProficiencyIndicator,
+} from "./SheetPrimitives";
 
 interface ChecksSectionProps {
   character: DndCharacterDetailResponse;
   isEditMode?: boolean;
   editableSavingThrowProficiencies?: string[];
   editableSkillProficiencies?: string[];
+  editableSkillProficiencyLevels?: Record<string, number>;
   onRollSavingThrow: (label: string, total: number) => void;
   onRollSkill: (label: string, total: number) => void;
   onToggleSavingThrowProficiency?: (statName: string) => void;
@@ -23,6 +28,7 @@ export default function ChecksSection({
   isEditMode = false,
   editableSavingThrowProficiencies = [],
   editableSkillProficiencies = [],
+  editableSkillProficiencyLevels = {},
   onRollSavingThrow,
   onRollSkill,
   onToggleSavingThrowProficiency,
@@ -48,14 +54,35 @@ export default function ChecksSection({
 
   const skills = SKILL_ROWS.map((item) => {
     const modifier = getAbilityModifierByName(character, item.statName);
-    const isProficient = isEditMode
-      ? editableSkillProficiencies.includes(item.name)
-      : (character.estadisticas[item.name] ?? 0) > 0;
-    const proficiency = isProficient ? proficiencyBonus : 0;
+    const proficiencyLevel = isEditMode
+      ? Math.max(
+          0,
+          Math.min(
+            2,
+            editableSkillProficiencyLevels[item.name] ??
+              (editableSkillProficiencies.includes(item.name) ? 1 : 0),
+          ),
+        )
+      : Math.max(
+          0,
+          Math.min(
+            2,
+            proficiencyBonus > 0 &&
+              (character.estadisticas[item.name] ?? 0) >= proficiencyBonus * 2
+              ? 2
+              : (character.estadisticas[item.name] ?? 0) > 0
+                ? 1
+                : 0,
+          ),
+        );
+    const proficiency = isEditMode
+      ? proficiencyLevel * proficiencyBonus
+      : (character.estadisticas[item.name] ?? 0);
 
     return {
       ...item,
-      isProficient,
+      isProficient: proficiencyLevel > 0,
+      proficiencyLevel,
       proficiency,
       total: modifier + proficiency,
     };
@@ -116,7 +143,9 @@ export default function ChecksSection({
               className="grid w-full grid-cols-[minmax(0,1fr)_72px] items-center gap-3 text-left text-sm text-stone-200"
             >
               <div className="flex items-center gap-2">
-                <CircleIndicator filled={item.isProficient} />
+                <SkillProficiencyIndicator
+                  level={item.proficiencyLevel as 0 | 1 | 2}
+                />
                 <span>
                   {item.displayName} ({ABILITY_ABBREVIATIONS[item.statName]})
                 </span>

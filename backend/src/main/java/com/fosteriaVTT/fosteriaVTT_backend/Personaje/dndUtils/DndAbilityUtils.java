@@ -30,6 +30,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DndAbilityUtils {
+	private static final String SKILL_EXPERTISE_CHOICE_PREFIX = "class-expertise-skill-";
+	private static final String TOOL_EXPERTISE_CHOICE_PREFIX = "class-expertise-tool-";
 
 	private final HabilidadRepository habilidadRepository;
 	private final DndSubclassService dndSubclassService;
@@ -60,6 +62,7 @@ public class DndAbilityUtils {
 
 		catalogoHabilidades.stream()
 				.filter(habilidad -> DndCharacterCheckers.esRasgoGenericoDeClaseNivelUno(habilidad, clase.nombre(), subclasesClase))
+				.filter(habilidad -> !debeOmitirPericiaDePicaro(habilidad, clase))
 				.forEach(habilidad -> agregarHabilidadConMagiaVinculada(habilidades, habilidad));
 
 		if (subclaseClase != null && subclaseClase.nivelDesbloqueo() <= 1) {
@@ -137,12 +140,14 @@ public class DndAbilityUtils {
 		habilidadRepository.findAll().stream()
 				.filter(habilidad -> Integer.valueOf(nivel).equals(TagUtils.extractClassLevel(habilidad.getTags(), clase.nombre())))
 				.filter(habilidad -> !DndCharacterCheckers.esRasgoDeAlgunaSubclase(habilidad.getTags(), subclasesClase))
+				.filter(habilidad -> !debeOmitirPericiaDePicaro(habilidad, clase))
 				.forEach(habilidad -> agregarHabilidadConMagiaVinculada(habilidades, habilidad));
 
 		if (subclase != null) {
 			habilidadRepository.findAll().stream()
 					.filter(habilidad -> Integer.valueOf(nivel).equals(TagUtils.extractClassLevel(habilidad.getTags(), clase.nombre())))
 					.filter(habilidad -> DndCharacterCheckers.contieneSubclase(habilidad.getTags(), subclase))
+					.filter(habilidad -> !debeOmitirPericiaDePicaro(habilidad, clase))
 					.forEach(habilidad -> agregarHabilidadConMagiaVinculada(habilidades, habilidad));
 		}
 
@@ -161,6 +166,22 @@ public class DndAbilityUtils {
 			}
 			for (String valor : elections.getOrDefault("ea-spell", List.of())) {
 				resolverHechizoPorNombre(valor).ifPresent(habilidad -> agregarHabilidad(habilidades, habilidad));
+			}
+		}
+
+		if (subclase != null && TagUtils.normalizeText(subclase.id()).equals("caballeroarcano")) {
+			Map<String, List<String>> elections = DndCharacterRules.safeMap(eleccionesClase);
+			for (String valor : elections.getOrDefault("ek-cantrip", List.of())) {
+				resolverHechizoPorNombre(valor).ifPresent(habilidad -> agregarHabilidad(habilidades, habilidad));
+			}
+			for (String valor : elections.getOrDefault("ek-spell", List.of())) {
+				resolverHechizoPorNombre(valor).ifPresent(habilidad -> agregarHabilidad(habilidades, habilidad));
+			}
+		}
+
+		if (subclase != null && TagUtils.normalizeText(subclase.id()).equals("maestrobatalla")) {
+			for (String valor : DndCharacterRules.safeMap(eleccionesClase).getOrDefault("bm-maneuver", List.of())) {
+				resolverHabilidadPorNombre(valor).ifPresent(habilidad -> agregarHabilidad(habilidades, habilidad));
 			}
 		}
 
@@ -205,6 +226,16 @@ public class DndAbilityUtils {
 		return habilidadRepository.findByNombreIgnoreCaseOrderByIdAsc(limpio).stream()
 				.findFirst()
 				.filter(DndCharacterCheckers::esHechizoOTruco);
+	}
+
+	public Optional<Habilidad> resolverHabilidadPorNombre(String nombre) {
+		String limpio = TagUtils.cleanValue(nombre);
+		if (limpio.isBlank()) {
+			return Optional.empty();
+		}
+
+		return habilidadRepository.findByNombreIgnoreCaseOrderByIdAsc(limpio).stream()
+				.findFirst();
 	}
 
 	public Habilidad resolverORegistrarHabilidad(String nombre, String descripcion, String formula, String tags) {
@@ -263,6 +294,18 @@ public class DndAbilityUtils {
 				agregarHabilidad(habilidades, resolverOCrearHabilidad("Estilo de combate: " + estilo, describirEstiloCombate(estilo), null, TagUtils.mergeTags(tags, "ESTILOCOMBATE")));
 			}
 		}
+
+		eleccionesClase.entrySet().stream()
+				.filter(entry -> entry.getKey() != null
+						&& (entry.getKey().startsWith(SKILL_EXPERTISE_CHOICE_PREFIX)
+						|| entry.getKey().startsWith(TOOL_EXPERTISE_CHOICE_PREFIX)))
+				.flatMap(entry -> entry.getValue() == null ? java.util.stream.Stream.<String>empty() : entry.getValue().stream())
+				.map(TagUtils::cleanValue)
+				.filter(valor -> !valor.isBlank())
+				.forEach(valor -> agregarHabilidad(
+						habilidades,
+						resolverOCrearHabilidad("Pericia: " + valor, "Seleccion de pericia al subir de nivel", null, tags)
+				));
 	}
 
 	private String describirEstiloCombate(String estilo) {
@@ -271,6 +314,11 @@ public class DndAbilityUtils {
 			case "defensa" -> "Recibes un +1 a la CA cuando lleves puesta cualquier armadura.";
 			default -> "Estilo de combate seleccionado durante la creación del personaje.";
 		};
+	}
+
+	private boolean debeOmitirPericiaDePicaro(Habilidad habilidad, ClaseDndDetalleResponse clase) {
+		return TagUtils.normalizeText(clase.id()).equals(TagUtils.normalizeText("picaro"))
+				&& TagUtils.normalizeText(habilidad.getNombre()).equals(TagUtils.normalizeText("Pericia"));
 	}
 
 	private void agregarEntradasComoHabilidades(Map<String, Habilidad> habilidades, Collection<String> entradas, String prefijo, String descripcion, String tags) {

@@ -305,6 +305,9 @@ public class MochilaService {
 						.orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "No se pudo resolver el objeto de equipamiento elegido"));
 				acumularObjetoInicial(acumulado, objetoCatalogo, opcion.etiqueta(), 1);
 			}
+			if (opcion.objeto() != null) {
+				acumularObjetoInicial(acumulado, opcion.objeto(), opcion.etiqueta(), 1);
+			}
 			return;
 		}
 

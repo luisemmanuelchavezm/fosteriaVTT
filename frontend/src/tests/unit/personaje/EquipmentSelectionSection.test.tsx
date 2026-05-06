@@ -20,6 +20,7 @@ const classEquipment = {
             nombre: "Espada larga",
             formula: "1d8",
             indice: "Versatil1d10, Ligera",
+            descripcion: "**Arma** fiable para combate cercano.",
           },
           opcionesCatalogo: [],
         },
@@ -147,6 +148,19 @@ describe("creacion de personaje - EquipmentSelectionSection", () => {
       screen.getByText("Propiedades: pesada, alcance"),
     ).toBeInTheDocument();
     expect(screen.getByText("Alcance y potencia.")).toBeInTheDocument();
+  });
+
+  it("muestra la descripcion del objeto cuando eliges una opcion sin catalogo", () => {
+    renderSection({
+      classEquipment,
+      backgroundEquipment,
+    });
+
+    fireEvent.click(screen.getByText("Espada larga"));
+
+    expect(
+      screen.getByText("Arma fiable para combate cercano."),
+    ).toBeInTheDocument();
   });
 
   it("muestra varios picklist cuando una opcion requiere varias armas de catalogo", async () => {

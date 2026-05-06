@@ -18,6 +18,7 @@ public record ActualizarHojaPersonajeRequest(
         Map<Integer, Integer> recursosExtraMaximos,
         Map<Integer, Integer> recursosExtraActuales,
         List<String> salvacionesCompetentes,
-        List<String> habilidadesCompetentes
+        List<String> habilidadesCompetentes,
+        List<String> habilidadesConPericia
 ) {
 }

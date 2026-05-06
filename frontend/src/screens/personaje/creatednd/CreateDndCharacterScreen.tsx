@@ -30,6 +30,13 @@ import {
   scrollToFirstVisibleValidationError,
 } from "./utils/createDndScreenUtils";
 import { useSpellDetailInteractions } from "../utils/useSpellDetailInteractions";
+import { normalizeChoiceCatalog } from "../../../components/spells/spellReferenceUtils";
+import {
+  EXPERTISE_CHOICE_SECTION_ID,
+  getExpertiseChoiceConfig,
+  THIEVES_TOOLS_NAME,
+} from "../utils/dndExpertise";
+import { normalizeDndText } from "../utils/dndProgressionRules";
 
 interface CreateDndCharacterScreenProps {
   username: string;
@@ -59,6 +66,9 @@ export default function CreateDndCharacterScreen({
   const [classSkillSelections, setClassSkillSelections] = useState<
     Record<string, string[]>
   >({});
+  const [classExpertiseSelections, setClassExpertiseSelections] = useState<
+    string[]
+  >([]);
   const [statisticsSelection, setStatisticsSelection] =
     useState<CharacterStatisticsSnapshot | null>(null);
   const [equipmentSelection, setEquipmentSelection] =
@@ -74,12 +84,75 @@ export default function CreateDndCharacterScreen({
     () => creation.selectedClassDetail?.elecciones ?? [],
     [creation.selectedClassDetail],
   );
+  const classExpertiseChoiceConfig = useMemo(
+    () =>
+      getExpertiseChoiceConfig(
+        creation.selectedClassDetail?.id ?? creation.selectedClass?.id ?? null,
+        1,
+      ),
+    [creation.selectedClass, creation.selectedClassDetail],
+  );
+  const availableClassExpertiseOptions = useMemo(() => {
+    if (!classExpertiseChoiceConfig) {
+      return [];
+    }
+
+    const selectedSkillChoices = classSkillChoiceGroups
+      .filter(
+        (group) => normalizeChoiceCatalog(group.catalogo) === "habilidades",
+      )
+      .flatMap((group) => classSkillSelections[group.id] ?? [])
+      .filter((value) => value.trim().length > 0);
+
+    const uniqueSkillChoices = [...new Set(selectedSkillChoices)].sort(
+      (left, right) => left.localeCompare(right, "es"),
+    );
+
+    if (!classExpertiseChoiceConfig.allowThievesTools) {
+      return uniqueSkillChoices;
+    }
+
+    const hasThievesToolsCompetency = (
+      creation.selectedClassDetail?.competencias.herramientas ?? []
+    ).some(
+      (entry) =>
+        normalizeDndText(entry) === normalizeDndText(THIEVES_TOOLS_NAME),
+    );
+
+    return hasThievesToolsCompetency
+      ? [...uniqueSkillChoices, THIEVES_TOOLS_NAME]
+      : uniqueSkillChoices;
+  }, [
+    classExpertiseChoiceConfig,
+    classSkillChoiceGroups,
+    classSkillSelections,
+    creation.selectedClassDetail,
+  ]);
 
   useEffect(() => {
     setClassSkillSelections(
       buildInitialClassSkillSelections(classSkillChoiceGroups),
     );
   }, [classSkillChoiceGroups]);
+
+  useEffect(() => {
+    if (!classExpertiseChoiceConfig) {
+      setClassExpertiseSelections([]);
+      return;
+    }
+
+    setClassExpertiseSelections((current) =>
+      Array.from({ length: classExpertiseChoiceConfig.count }, (_, index) => {
+        const currentValue = current[index] ?? "";
+        return availableClassExpertiseOptions.some(
+          (option) =>
+            normalizeDndText(option) === normalizeDndText(currentValue),
+        )
+          ? currentValue
+          : "";
+      }),
+    );
+  }, [availableClassExpertiseOptions, classExpertiseChoiceConfig]);
 
   const handleNavChange = (tab: NavTab) => {
     if (tab === "home") {
@@ -129,6 +202,17 @@ export default function CreateDndCharacterScreen({
           classErrors[group.id] = "Debes completar esta elección";
         }
       });
+
+      if (classExpertiseChoiceConfig) {
+        const selectedExpertiseCount = classExpertiseSelections.filter(
+          (value) => value.trim().length > 0,
+        ).length;
+
+        if (selectedExpertiseCount !== classExpertiseChoiceConfig.count) {
+          classErrors[EXPERTISE_CHOICE_SECTION_ID] =
+            "Debes completar esta elección";
+        }
+      }
     }
 
     const selectedBackground =
@@ -273,6 +357,8 @@ export default function CreateDndCharacterScreen({
     creation.selectedClass,
     creation.selectedClassDetail,
     creation.selectedSubclassId,
+    classExpertiseChoiceConfig,
+    classExpertiseSelections,
     classSkillChoiceGroups,
     classSkillSelections,
     equipmentSelection,
@@ -291,6 +377,7 @@ export default function CreateDndCharacterScreen({
     creation.selectedBackgroundId,
     creation.selectedClass,
     creation.selectedSubclassId,
+    classExpertiseSelections,
     classSkillSelections,
     equipmentSelection,
     raceSelection,
@@ -334,6 +421,7 @@ export default function CreateDndCharacterScreen({
         creation,
         classSkillChoiceGroups,
         classSkillSelections,
+        classExpertiseSelections,
         raceSelection,
         backgroundSelection,
         statisticsSelection,
@@ -524,6 +612,9 @@ export default function CreateDndCharacterScreen({
                 classSkillChoices={classSkillChoiceGroups}
                 selectedClassSkillChoices={classSkillSelections}
                 classSkillErrors={validation.classErrors}
+                expertiseChoiceConfig={classExpertiseChoiceConfig}
+                expertiseOptions={availableClassExpertiseOptions}
+                selectedExpertiseChoices={classExpertiseSelections}
                 hasError={
                   hasAttemptedCreation &&
                   Object.keys(validation.classErrors).length > 0
@@ -534,6 +625,7 @@ export default function CreateDndCharacterScreen({
                 onClearSelection={creation.clearSelectedClass}
                 onSubclassChange={creation.setSelectedSubclassId}
                 onClassSkillChoiceChange={handleClassSkillChoiceChange}
+                onClassExpertiseChange={setClassExpertiseSelections}
               />
             </div>
 

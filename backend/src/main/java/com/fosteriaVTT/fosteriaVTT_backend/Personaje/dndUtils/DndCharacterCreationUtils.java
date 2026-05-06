@@ -175,6 +175,7 @@ public class DndCharacterCreationUtils {
 				context.clase().lanzamientoConjuros(),
 				context.clase().competencias().salvaciones(),
 				context.competenciasHabilidades(),
+				Set.of(),
 				mochilaInicial,
 				personajeGuardado.getHabilidades()
 		);

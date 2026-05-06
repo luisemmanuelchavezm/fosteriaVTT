@@ -42,10 +42,19 @@ export function inferCurrentSubclass(
       const parts = tag.split(";", 2);
       return parts.length === 2 ? parts[1].trim() : tag;
     });
+  const characterTagTokens = (character.tags ?? [])
+    .flatMap((tag) => (tag ?? "").split(","))
+    .map((tag) => tag.trim())
+    .filter(Boolean)
+    .map((tag) => {
+      const parts = tag.split(";", 2);
+      return parts.length === 2 ? parts[1].trim() : tag;
+    });
+  const subclassTokens = [...abilityTagTokens, ...characterTagTokens];
 
   return (
     classDetail.subclases.find((subclass) =>
-      abilityTagTokens.some((tag) => {
+      subclassTokens.some((tag) => {
         const normalizedTag = normalizeDndText(tag);
         return (
           normalizedTag === normalizeDndText(subclass.id) ||

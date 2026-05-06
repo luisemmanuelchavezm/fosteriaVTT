@@ -49,6 +49,7 @@ export default function DndCharacterSheetScreen({
     editableMovement,
     editableName,
     editablePersonalHistory,
+    editableSkillProficiencyLevels,
     editableSavingThrowProficiencies,
     editableSkillProficiencies,
     editableSpellSlotMaximums,
@@ -213,7 +214,7 @@ export default function DndCharacterSheetScreen({
           onLogout={onLogout}
         />
 
-        <div className="relative z-10 w-full px-4 pb-32 pt-28 md:px-8 md:pb-36">
+        <div className="relative z-10 w-full px-4 pb-32 pt-28 md:px-8 md:pb-36 xl:w-[125%] xl:[zoom:0.8]">
           <div className="relative overflow-hidden rounded-[32px] border border-stone-300/10 bg-[linear-gradient(180deg,rgba(12,10,9,0.96)_0%,rgba(28,25,23,0.92)_48%,rgba(10,10,10,0.98)_100%)] p-6 text-stone-50 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-md md:p-8">
             <div className="pointer-events-none absolute -top-20 right-[-50px] h-56 w-56 rounded-full bg-amber-300/10 blur-3xl" />
             <div className="pointer-events-none absolute bottom-[-90px] left-[-30px] h-64 w-64 rounded-full bg-stone-300/10 blur-3xl" />
@@ -338,6 +339,9 @@ export default function DndCharacterSheetScreen({
                     isEditMode={isEditMode}
                     editableSavingThrowProficiencies={
                       editableSavingThrowProficiencies
+                    }
+                    editableSkillProficiencyLevels={
+                      editableSkillProficiencyLevels
                     }
                     editableSkillProficiencies={editableSkillProficiencies}
                     onRollSavingThrow={handleRollSavingThrow}

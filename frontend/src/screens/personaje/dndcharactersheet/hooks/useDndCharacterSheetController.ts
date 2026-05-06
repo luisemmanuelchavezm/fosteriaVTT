@@ -36,6 +36,7 @@ import {
   getCharacterMoney,
   getStatValue,
   normalizeText,
+  recoverHitDiceOnLongRest,
   resolveCharacterFormula,
   shouldResetAbilityUsageOnRest,
   splitCharacterCompetencies,
@@ -141,6 +142,11 @@ export function useDndCharacterSheetController(
   const [editableSkillProficiencies, setEditableSkillProficiencies] = useState<
     string[]
   >([]);
+  const [editableSkillProficiencyLevels, setEditableSkillProficiencyLevels] =
+    useState<Record<string, number>>({});
+  const [editableSkillExpertise, setEditableSkillExpertise] = useState<
+    string[]
+  >([]);
   const [editableWeaponArmorCompetencies, setEditableWeaponArmorCompetencies] =
     useState<string[]>([]);
   const [editableToolCompetencies, setEditableToolCompetencies] = useState<
@@ -204,7 +210,11 @@ export function useDndCharacterSheetController(
         setEditableSavingThrowProficiencies(
           sheetState.editableSavingThrowProficiencies,
         );
+        setEditableSkillProficiencyLevels(
+          sheetState.editableSkillProficiencyLevels,
+        );
         setEditableSkillProficiencies(sheetState.editableSkillProficiencies);
+        setEditableSkillExpertise(sheetState.editableSkillExpertise);
         setEditableWeaponArmorCompetencies([]);
         setEditableToolCompetencies([]);
         setAbilityUsage({});
@@ -544,7 +554,11 @@ export function useDndCharacterSheetController(
     setEditableSavingThrowProficiencies(
       sheetState.editableSavingThrowProficiencies,
     );
+    setEditableSkillProficiencyLevels(
+      sheetState.editableSkillProficiencyLevels,
+    );
     setEditableSkillProficiencies(sheetState.editableSkillProficiencies);
+    setEditableSkillExpertise(sheetState.editableSkillExpertise);
     if (competencyCatalog) {
       const competencyGroups = splitCharacterCompetencies(
         getCharacterCompetencies(data, classCompetencies, competencyCatalog),
@@ -759,11 +773,26 @@ export function useDndCharacterSheetController(
   };
 
   const handleToggleSkillProficiency = (skillName: string) => {
-    setEditableSkillProficiencies((current) =>
-      current.includes(skillName)
-        ? current.filter((item) => item !== skillName)
-        : [...current, skillName],
-    );
+    setEditableSkillProficiencyLevels((current) => {
+      const nextLevel = (((current[skillName] ?? 0) + 1) % 3) as 0 | 1 | 2;
+      const nextLevels = { ...current, [skillName]: nextLevel };
+      if (nextLevel === 0) {
+        delete nextLevels[skillName];
+      }
+
+      setEditableSkillProficiencies(
+        Object.entries(nextLevels)
+          .filter(([, level]) => level >= 1)
+          .map(([name]) => name),
+      );
+      setEditableSkillExpertise(
+        Object.entries(nextLevels)
+          .filter(([, level]) => level >= 2)
+          .map(([name]) => name),
+      );
+
+      return nextLevels;
+    });
   };
 
   const handleCancelEdit = () => {
@@ -797,6 +826,7 @@ export function useDndCharacterSheetController(
         recursosExtraActuales: currentExtraResources,
         salvacionesCompetentes: editableSavingThrowProficiencies,
         habilidadesCompetentes: editableSkillProficiencies,
+        habilidadesConPericia: editableSkillExpertise,
       };
       const updatedCharacter = await updateDndCharacterSheet(
         authToken,
@@ -845,15 +875,15 @@ export function useDndCharacterSheetController(
     );
   };
 
-  const handleConfirmShortRest = () => {
+  const handleConfirmShortRest = async () => {
     if (hitDiceEntries.length === 0) {
       setIsShortRestModalOpen(false);
       return;
     }
 
-    let totalHealedAmount = 0;
     const nextHitDice = { ...currentHitDice };
-    const rollRequests: { title: string; expression: string }[] = [];
+    const selectedDicePools: Array<{ count: number; faces: number }> = [];
+    let totalUsedDice = 0;
     for (const entry of hitDiceEntries) {
       const usedDice = Math.min(
         shortRestHitDiceCounts[entry.die] ?? 0,
@@ -862,41 +892,58 @@ export function useDndCharacterSheetController(
       if (usedDice <= 0) {
         continue;
       }
-      const restExpression =
-        constitutionModifier === 0
-          ? `${usedDice}${entry.die}`
-          : constitutionModifier > 0
-            ? `${usedDice}${entry.die} + ${constitutionModifier * usedDice}`
-            : `${usedDice}${entry.die} - ${Math.abs(constitutionModifier * usedDice)}`;
-      const faces = Number.parseInt(entry.die.replace(/\D+/g, ""), 10);
-      const rolledTotal = Array.from({ length: usedDice }, () =>
-        Number.isNaN(faces) ? 0 : secureRandomInt(1, faces),
-      ).reduce((total, value) => total + value, 0);
-      totalHealedAmount += Math.max(
-        0,
-        rolledTotal + constitutionModifier * usedDice,
-      );
       nextHitDice[entry.die] = Math.max(
         0,
         (currentHitDice[entry.die] ?? entry.total) - usedDice,
       );
-      rollRequests.push({
-        title: `Descanso corto ${usedDice}${entry.die}`,
-        expression: restExpression,
-      });
+      const faces = Number.parseInt(entry.die.replace(/\D+/g, ""), 10);
+      if (!Number.isNaN(faces) && faces > 0) {
+        selectedDicePools.push({ count: usedDice, faces });
+        totalUsedDice += usedDice;
+      }
     }
 
-    if (rollRequests.length > 0) {
-      spellInteractions.diceRoller.rollExpressionsSequence(rollRequests);
+    if (selectedDicePools.length === 0) {
+      setIsShortRestModalOpen(false);
+      return;
     }
+
+    const totalModifier = constitutionModifier * totalUsedDice;
+    const modifierDisplay =
+      constitutionModifier === 0
+        ? null
+        : `${constitutionModifier >= 0 ? "+" : "-"}${Math.abs(constitutionModifier)} CON por dado`;
+
+    setShortRestHitDiceCounts({});
+    setIsShortRestModalOpen(false);
+
+    const rollSummary = await spellInteractions.diceRoller.rollDicePool({
+      title: "Descanso corto",
+      dicePools: selectedDicePools,
+      modifier: totalModifier,
+      modifierDisplay,
+      totalLabel: "Curacion",
+    });
+
+    const healedDiceValues =
+      rollSummary?.diceValues.length === totalUsedDice
+        ? rollSummary.diceValues
+        : selectedDicePools.flatMap((pool) =>
+            Array.from({ length: pool.count }, () =>
+              secureRandomInt(1, pool.faces),
+            ),
+          );
+
+    const totalHealedAmount = healedDiceValues.reduce(
+      (sum, value) => sum + Math.max(0, value + constitutionModifier),
+      0,
+    );
 
     setCurrentHitDice(nextHitDice);
     setCurrentHp((current) =>
       Math.min(Math.min(totalHp, MAX_CURRENT_HP), current + totalHealedAmount),
     );
     handleShortRestRecovery();
-    setShortRestHitDiceCounts({});
-    setIsShortRestModalOpen(false);
   };
 
   const handleOpenShortRest = () => {
@@ -921,17 +968,18 @@ export function useDndCharacterSheetController(
           .filter(([, amount]) => amount > 0),
       ),
     );
-    setCurrentHitDice((current) => {
-      const next = { ...current };
-      for (const entry of extractHitDiceStats(character.estadisticas)) {
-        const recovered = Math.max(1, Math.floor(entry.total / 2));
-        next[entry.die] = Math.min(
-          entry.total,
-          (current[entry.die] ?? entry.total) + recovered,
-        );
-      }
-      return next;
-    });
+    setCurrentHitDice((current) =>
+      recoverHitDiceOnLongRest(
+        Object.fromEntries(
+          extractHitDiceStats(character.estadisticas).map((entry) => [
+            entry.die,
+            entry.total,
+          ]),
+        ),
+        current,
+        character.clases.reduce((total, item) => total + item.nivel, 0),
+      ),
+    );
     setAbilityUsage((current) =>
       Object.fromEntries(
         Object.entries(current).map(([key, value]) => {
@@ -1167,6 +1215,8 @@ export function useDndCharacterSheetController(
     editableName,
     editablePersonalHistory,
     editableSavingThrowProficiencies,
+    editableSkillExpertise,
+    editableSkillProficiencyLevels,
     editableSkillProficiencies,
     editableSpellSlotMaximums,
     editableStatScores,
@@ -1236,6 +1286,8 @@ export function useDndCharacterSheetController(
     setEditableMovement,
     setEditableName,
     setEditablePersonalHistory,
+    setEditableSkillExpertise,
+    setEditableSkillProficiencyLevels,
     setEditableSkillProficiencies,
     setEditableStatScores,
     setEditableToolCompetencies,

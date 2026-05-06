@@ -66,21 +66,21 @@ export default function DiceRollOverlay({
               {summary.diceValues.map((value, index) => (
                 <div
                   key={`${summary.id}-${value}-${index}`}
-                  className="flex h-12 w-12 items-center justify-center rounded-[14px] border border-amber-200/30 bg-amber-100/10 text-lg font-bold text-white"
+                  className="flex h-12 w-12 items-center justify-center rounded-[14px] border border-emerald-300/35 bg-emerald-300/15 text-lg font-bold text-emerald-50 shadow-[0_10px_24px_rgba(16,185,129,0.18)]"
                 >
                   {value}
                 </div>
               ))}
 
               {summary.modifier !== 0 || summary.diceValues.length === 0 ? (
-                <div className="rounded-[14px] border border-white/10 bg-white/5 px-4 py-3 text-lg font-semibold text-amber-100">
-                  {formatModifier(summary.modifier)}
+                <div className="rounded-[14px] border border-white/10 bg-white/5 px-4 py-3 text-lg font-semibold text-stone-100">
+                  {summary.modifierDisplay ?? formatModifier(summary.modifier)}
                 </div>
               ) : null}
             </div>
 
             <p className="mt-5 text-center text-lg font-semibold text-stone-200">
-              Total:{" "}
+              {summary.totalLabel ?? "Total"}:{" "}
               <span className="text-2xl font-bold text-amber-200">
                 {summary.total}
               </span>

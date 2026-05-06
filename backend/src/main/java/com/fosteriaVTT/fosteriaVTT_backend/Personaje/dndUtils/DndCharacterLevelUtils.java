@@ -7,6 +7,7 @@ import com.fosteriaVTT.fosteriaVTT_backend.Personaje.PersonajeRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.common.TagUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.common.dnd.DndCharacterRules;
 import com.fosteriaVTT.fosteriaVTT_backend.common.dnd.DndCharacterValidationUtils;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndCompetenciasResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.BajarNivelPersonajeRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndSubclaseResponse;
@@ -14,6 +15,8 @@ import com.fosteriaVTT.fosteriaVTT_backend.dto.SubirNivelPersonajeRequest;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -22,6 +25,9 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 public class DndCharacterLevelUtils {
+
+	private static final String CLASS_SKILL_CHOICE_PREFIX = "class-skill-";
+	private static final String SKILL_EXPERTISE_CHOICE_PREFIX = "class-expertise-skill-";
 
 	private final PersonajeRepository personajeRepository;
 	private final DndInfoService dndInfoService;
@@ -54,8 +60,8 @@ public class DndCharacterLevelUtils {
 
 	public void bajarNivel(Long personajeId, BajarNivelPersonajeRequest request, String username) {
 		LevelChangeContext context = prepararBajadaNivel(personajeId, request, username);
-		aplicarCambiosBajadaNivel(context);
-		persistirBajadaNivel(context);
+		Set<String> removedExpertiseSkills = aplicarCambiosBajadaNivel(context);
+		persistirBajadaNivel(context, removedExpertiseSkills);
 	}
 
 	private LevelChangeContext prepararSubidaNivel(Long personajeId, SubirNivelPersonajeRequest request, String username) {
@@ -73,12 +79,28 @@ public class DndCharacterLevelUtils {
 		boolean isNewClass = currentLevel == 0;
 		ClaseDndSubclaseResponse activeSubclass = dndCharacterProgressionUtils.resolverSubclaseParaProgresion(personaje, classDetail, request.subclaseId(), targetLevel, isNewClass);
 		if (isNewClass) {
-			DndCharacterValidationUtils.validateClassChoices(classDetail, DndCharacterRules.safeMap(request.eleccionesClase()), List.of());
+			DndCharacterValidationUtils.validateClassChoices(
+					filtrarEleccionesInicialesParaMulticlase(classDetail),
+					DndCharacterRules.safeMap(request.eleccionesClase()),
+					List.of()
+			);
 		}
 
 		Map<String, Integer> updatedBaseStats = new LinkedHashMap<>(estadisticaService.obtenerValoresPorPersonajeId(personajeId));
 		Map<Integer, Integer> spellSlots = dndCharacterStatsUtils.resolverEspaciosDeConjuroTrasCambio(personaje, classDetail, targetLevel, activeSubclass);
-		return new LevelChangeContext(personaje, classDetail, activeSubclass, request, currentLevel, targetLevel, totalLevelActual, updatedBaseStats, spellSlots, isNewClass);
+		return new LevelChangeContext(
+				personaje,
+				classDetail,
+				activeSubclass,
+				request,
+				currentLevel,
+				targetLevel,
+				totalLevelActual,
+				updatedBaseStats,
+				spellSlots,
+				isNewClass,
+				extraerHabilidadesConPericia(request == null ? null : request.eleccionesClase())
+		);
 	}
 
 	private void aplicarCambiosSubidaNivel(LevelChangeContext context) {
@@ -101,7 +123,8 @@ public class DndCharacterLevelUtils {
 				context.classDetail().puntosGolpe().dadoGolpe(),
 				calcularCambioPuntosGolpe(context.updatedBaseStats(), context.classDetail()),
 				context.spellSlots(),
-				context.totalLevelActual() + 1
+				context.totalLevelActual() + 1,
+				context.expertiseSkills()
 		);
 	}
 
@@ -119,11 +142,29 @@ public class DndCharacterLevelUtils {
 		Map<String, Integer> updatedBaseStats = new LinkedHashMap<>(estadisticaService.obtenerValoresPorPersonajeId(personajeId));
 		ClaseDndSubclaseResponse activeSubclass = dndCharacterProgressionUtils.resolverSubclaseActual(personaje, classDetail);
 		Map<Integer, Integer> spellSlots = dndCharacterStatsUtils.resolverEspaciosDeConjuroTrasCambio(personaje, classDetail, targetLevel, activeSubclass);
-		return new LevelChangeContext(personaje, classDetail, activeSubclass, new SubirNivelPersonajeRequest(request.claseId(), null, null, null, null, null, null), currentLevel, targetLevel, dndCharacterStatsUtils.resolverNivelTotalPersonaje(personaje), updatedBaseStats, spellSlots, false);
+		return new LevelChangeContext(
+				personaje,
+				classDetail,
+				activeSubclass,
+				new SubirNivelPersonajeRequest(request.claseId(), null, null, null, null, null, null),
+				currentLevel,
+				targetLevel,
+				dndCharacterStatsUtils.resolverNivelTotalPersonaje(personaje),
+				updatedBaseStats,
+				spellSlots,
+				false,
+				Set.of()
+		);
 	}
 
-	private void aplicarCambiosBajadaNivel(LevelChangeContext context) {
-		dndCharacterProgressionUtils.revertirProgresionRegistradaSiCorresponde(context.personaje(), context.classDetail(), context.currentLevel(), context.updatedBaseStats());
+	private Set<String> aplicarCambiosBajadaNivel(LevelChangeContext context) {
+		DndCharacterProgressionUtils.ProgressionReversionResult reversion =
+				dndCharacterProgressionUtils.revertirProgresionRegistradaSiCorresponde(
+						context.personaje(),
+						context.classDetail(),
+						context.currentLevel(),
+						context.updatedBaseStats()
+				);
 		dndAbilityUtils.removerHabilidadesDeClasePorNivel(context.personaje(), context.classDetail(), context.activeSubclass(), context.currentLevel());
 		dndAbilityUtils.sincronizarMagiaRacialPorNivel(context.personaje(), dndCharacterStatsUtils.resolverRazaActual(context.personaje()), Math.max(1, context.totalLevelActual() - 1));
 		context.personaje().setTags(TagUtils.updateClassTagsAfterLevelDown(
@@ -133,9 +174,10 @@ public class DndCharacterLevelUtils {
 				context.activeSubclass() == null ? null : context.activeSubclass().nombre(),
 				context.activeSubclass() == null ? null : context.activeSubclass().nivelDesbloqueo()
 		));
+		return reversion.removedExpertiseSkills();
 	}
 
-	private void persistirBajadaNivel(LevelChangeContext context) {
+	private void persistirBajadaNivel(LevelChangeContext context, Set<String> removedExpertiseSkills) {
 		personajeRepository.save(context.personaje());
 		estadisticaService.aplicarBajadaNivel(
 				context.personaje(),
@@ -143,7 +185,8 @@ public class DndCharacterLevelUtils {
 				context.classDetail().puntosGolpe().dadoGolpe(),
 				Math.max(1, dndCharacterStatsUtils.resolverNivelTotalPersonaje(context.personaje())),
 				context.spellSlots(),
-				calcularCambioPuntosGolpe(context.updatedBaseStats(), context.classDetail())
+				calcularCambioPuntosGolpe(context.updatedBaseStats(), context.classDetail()),
+				removedExpertiseSkills
 		);
 	}
 
@@ -168,6 +211,47 @@ public class DndCharacterLevelUtils {
 		return Math.max(1, (DndCharacterRules.extractHitDieMax(classDetail.puntosGolpe().dadoGolpe()) / 2) + 1 + constitutionModifier);
 	}
 
+	private ClaseDndDetalleResponse filtrarEleccionesInicialesParaMulticlase(ClaseDndDetalleResponse classDetail) {
+		ClaseDndCompetenciasResponse competencias = classDetail.competencias();
+
+		return new ClaseDndDetalleResponse(
+				classDetail.id(),
+				classDetail.nombre(),
+				classDetail.insignia(),
+				classDetail.descripcion(),
+				classDetail.puntosGolpe(),
+				competencias == null
+						? null
+						: new ClaseDndCompetenciasResponse(
+								competencias.armaduras(),
+								competencias.armas(),
+								competencias.herramientas(),
+								competencias.salvaciones(),
+								List.of()
+						),
+				classDetail.lanzamientoConjuros(),
+				classDetail.subclases(),
+				(classDetail.elecciones() == null ? List.<com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndEleccionResponse>of() : classDetail.elecciones()).stream()
+						.filter(choice -> choice != null && !choice.id().startsWith(CLASS_SKILL_CHOICE_PREFIX))
+						.toList(),
+				classDetail.equipamiento()
+		);
+	}
+
+	private Set<String> extraerHabilidadesConPericia(Map<String, List<String>> eleccionesClase) {
+		if (eleccionesClase == null || eleccionesClase.isEmpty()) {
+			return Set.of();
+		}
+
+		return eleccionesClase.entrySet().stream()
+				.filter(entry -> entry.getKey() != null && entry.getKey().startsWith(SKILL_EXPERTISE_CHOICE_PREFIX))
+				.flatMap(entry -> entry.getValue() == null ? java.util.stream.Stream.<String>empty() : entry.getValue().stream())
+				.map(DndCharacterRules::normalizeCanonicalSkill)
+				.flatMap(Optional::stream)
+				.map(TagUtils::normalizeText)
+				.collect(java.util.stream.Collectors.toCollection(java.util.LinkedHashSet::new));
+	}
+
 	private record LevelChangeContext(
 			Personaje personaje,
 			ClaseDndDetalleResponse classDetail,
@@ -178,6 +262,7 @@ public class DndCharacterLevelUtils {
 			int totalLevelActual,
 			Map<String, Integer> updatedBaseStats,
 			Map<Integer, Integer> spellSlots,
-			boolean isNewClass
+			boolean isNewClass,
+			Set<String> expertiseSkills
 	) {}
 }
