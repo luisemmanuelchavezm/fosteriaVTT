@@ -9,12 +9,15 @@ import {
   within,
 } from "@testing-library/react";
 
-vi.mock("../../../screens/personaje/dndcharactersheet/utils", () => ({
-  extractExtraResources: () => [
-    { index: 1, current: 2, max: 3 },
-    { index: 2, current: 0, max: 0 },
-  ],
-}));
+vi.mock(
+  "../../../screens/personaje/dndcharactersheet/utils/characterResources",
+  () => ({
+    extractExtraResources: () => [
+      { index: 1, current: 2, max: 3 },
+      { index: 2, current: 0, max: 0 },
+    ],
+  }),
+);
 
 import ResourcesSection from "../../../screens/personaje/dndcharactersheet/components/ResourcesSection";
 

@@ -1,4 +1,4 @@
-import type { DndEquipmentOption, InitialEquipmentItem } from "../types";
+import type { DndEquipmentOption, InitialEquipmentItem } from "../../types";
 
 const TAGS_NO_PROPIEDAD = new Set([
   "AMCuerpo",

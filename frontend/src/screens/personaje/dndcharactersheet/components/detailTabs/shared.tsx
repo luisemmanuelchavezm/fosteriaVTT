@@ -5,9 +5,9 @@ import type {
 import {
   canTrackAbilityUsage,
   getAbilityResetLabel,
-  getInventoryTagLabel,
   getLocalizedAbilityName,
-} from "../../utils";
+} from "../../utils/characterAbilities";
+import { getInventoryTagLabel } from "../../utils/characterInventory";
 import { EmptyRowsMessage } from "../SheetPrimitives";
 import { extractFirstRollableExpression } from "../../../../../components/spells/spellUtils";
 

@@ -1,10 +1,7 @@
 import type { DndCharacterDetailResponse } from "../../utils/dndApi";
 import { ABILITY_ABBREVIATIONS, SAVING_THROW_ROWS, SKILL_ROWS } from "../data";
-import {
-  formatSignedValue,
-  getAbilityModifierByName,
-  getProficiencyBonus,
-} from "../utils";
+import { formatSignedValue, getProficiencyBonus } from "../utils/characterCore";
+import { getAbilityModifierByName } from "../utils/characterAbilities";
 import {
   CircleIndicator,
   SectionTableHeader,

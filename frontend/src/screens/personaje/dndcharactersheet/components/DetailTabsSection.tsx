@@ -6,17 +6,17 @@ import type {
 } from "../../utils/dndApi";
 import type { DndCompetencyCatalog } from "../../types";
 import { SPELL_LEVELS, type DetailTab } from "../data";
+import { getProficiencyBonus } from "../utils/characterCore";
 import {
   getAbilityModifierByName,
-  getCharacterLanguages,
-  getProficiencyBonus,
   getSpellLevel,
   isActionAbility,
   isPassiveAbility,
   isSpellAbility,
-  isWeaponArmorCompetencyName,
-  parseBiographySections,
-} from "../utils";
+} from "../utils/characterAbilities";
+import { getCharacterLanguages } from "../utils/characterProfile";
+import { isWeaponArmorCompetencyName } from "../utils/characterCompetencies";
+import { parseBiographySections } from "../utils/characterText";
 import ActionsTab from "./detailTabs/ActionsTab";
 import BiographyTab from "./detailTabs/BiographyTab";
 import InventoryTab from "./detailTabs/InventoryTab";

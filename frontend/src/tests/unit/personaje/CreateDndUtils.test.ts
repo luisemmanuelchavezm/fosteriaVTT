@@ -16,7 +16,7 @@ import type {
   DndEquipment,
   EquipmentSelectionSnapshot,
   RaceSelectionSnapshot,
-} from "../../../screens/personaje/creatednd/types";
+} from "../../../screens/personaje/types";
 
 function buildStatisticsSelection(): CharacterStatisticsSnapshot {
   return {

@@ -9,7 +9,7 @@ import type {
   DndRaceChoice,
   EquipmentSelectionSnapshot,
   RaceSelectionSnapshot,
-} from "../types";
+} from "../../types";
 import { useCreateDndCharacter } from "../hooks/useCreateDndCharacter";
 import { ABILITY_STATS } from "./statisticsUtils";
 import { buildEquipmentCatalogSelectionKeys } from "./equipmentUtils";

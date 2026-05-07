@@ -1,6 +1,6 @@
 import { createPortal } from "react-dom";
 
-import type { FeatOption } from "../feats";
+import type { FeatOption } from "../feats/types";
 
 interface FeatDetailModalProps {
   feat: FeatOption | null;

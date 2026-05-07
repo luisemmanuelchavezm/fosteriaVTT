@@ -1,5 +1,5 @@
 import { normalizeChoiceCatalog } from "../../../../components/spells/spellReferenceUtils";
-import type { DndRaceChoice, RaceSelectionSnapshot } from "../types";
+import type { DndRaceChoice, RaceSelectionSnapshot } from "../../types";
 import { ABILITY_STATS, createInitialAssignments } from "./statisticsUtils";
 
 function normalizeText(value: string) {

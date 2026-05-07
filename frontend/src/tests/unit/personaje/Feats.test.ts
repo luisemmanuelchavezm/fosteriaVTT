@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
-  buildFeatStatBonuses,
   FEAT_ATTRIBUTE_OPTIONS,
   FEAT_LANGUAGE_OPTIONS,
-  FEAT_OPTIONS,
   FEAT_SKILL_OPTIONS,
+} from "../../../screens/personaje/dndcharactersheet/feats/constants";
+import { FEAT_OPTIONS } from "../../../screens/personaje/dndcharactersheet/feats/catalog";
+import {
+  buildFeatStatBonuses,
   getFeatValidity,
-} from "../../../screens/personaje/dndcharactersheet/feats";
+} from "../../../screens/personaje/dndcharactersheet/feats/helpers";
 
 function buildCharacter(overrides: Record<string, unknown> = {}) {
   return {

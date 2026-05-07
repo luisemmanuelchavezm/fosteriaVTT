@@ -4,9 +4,9 @@ import type {
   DndBackgroundChoice,
   DndBackgroundDetail,
   DndBackgroundSummary,
-} from "../types";
+} from "../../types";
 import { normalizeChoiceCatalog } from "../../../../components/spells/spellReferenceUtils";
-import ValidationMessage from "./ValidationMessage";
+import ValidationMessage from "../components/ValidationMessage";
 
 const PANEL_CLASSES =
   "rounded-[24px] border border-stone-300/10 bg-[linear-gradient(180deg,rgba(12,10,9,0.72),rgba(41,37,36,0.18))]";

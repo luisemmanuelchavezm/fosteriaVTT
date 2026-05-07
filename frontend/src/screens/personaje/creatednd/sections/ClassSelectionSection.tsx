@@ -3,12 +3,12 @@ import type {
   ClassSkillChoiceGroup,
   DndClassSummary,
   DndSubclassDetail,
-} from "../types";
-import ChoiceChecklist from "./ChoiceChecklist";
-import ExpertisePicklistSection from "../../components/ExpertisePicklistSection";
-import ProgressionTablesBlock from "./ProgressionTablesBlock";
-import ValidationMessage from "./ValidationMessage";
-import type { ClassSkillGroup } from "../utils/dndApi";
+} from "../../types";
+import ChoiceChecklist from "../components/ChoiceChecklist";
+import ExpertisePicklistSection from "../components/ExpertisePicklistSection";
+import ProgressionTablesBlock from "../components/ProgressionTablesBlock";
+import ValidationMessage from "../components/ValidationMessage";
+import type { ClassSkillGroup } from "../../utils/dndApi";
 import {
   readableContentStyle,
   renderSkillDescription,

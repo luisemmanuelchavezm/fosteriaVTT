@@ -8,7 +8,7 @@ import { useStatisticsSelection } from "../hooks/useStatisticsSelection";
 import type {
   CharacterStatisticsSnapshot,
   RaceSelectionSnapshot,
-} from "../types";
+} from "../../types";
 import { computeRaceAbilityBonuses } from "../utils/raceBonuses";
 import {
   ABILITY_STATS,

@@ -32,22 +32,45 @@ vi.mock(
   () => ({ default: tabMocks.BiographyTab }),
 );
 
-vi.mock("../../../screens/personaje/dndcharactersheet/utils", () => ({
-  getAbilityModifierByName: () => 3,
-  getCharacterLanguages: () => ["Comun", "Silvano"],
-  getProficiencyBonus: () => 2,
-  getSpellLevel: (item: { nivel?: number | null }) =>
-    typeof item.nivel === "number" ? item.nivel : null,
-  isActionAbility: (item: { tipo?: string }) => item.tipo === "action",
-  isPassiveAbility: (item: { tipo?: string }) => item.tipo === "passive",
-  isSpellAbility: (item: { tipo?: string }) => item.tipo === "spell",
-  isWeaponArmorCompetencyName: (value: string) =>
-    /arma|armadura|escudo/i.test(value),
-  parseBiographySections: () => ({
-    alignment: "Neutral",
-    personalHistory: "Veterano",
+vi.mock(
+  "../../../screens/personaje/dndcharactersheet/utils/characterCore",
+  () => ({
+    getProficiencyBonus: () => 2,
   }),
-}));
+);
+vi.mock(
+  "../../../screens/personaje/dndcharactersheet/utils/characterProfile",
+  () => ({
+    getCharacterLanguages: () => ["Comun", "Silvano"],
+  }),
+);
+vi.mock(
+  "../../../screens/personaje/dndcharactersheet/utils/characterAbilities",
+  () => ({
+    getAbilityModifierByName: () => 3,
+    getSpellLevel: (item: { nivel?: number | null }) =>
+      typeof item.nivel === "number" ? item.nivel : null,
+    isActionAbility: (item: { tipo?: string }) => item.tipo === "action",
+    isPassiveAbility: (item: { tipo?: string }) => item.tipo === "passive",
+    isSpellAbility: (item: { tipo?: string }) => item.tipo === "spell",
+  }),
+);
+vi.mock(
+  "../../../screens/personaje/dndcharactersheet/utils/characterCompetencies",
+  () => ({
+    isWeaponArmorCompetencyName: (value: string) =>
+      /arma|armadura|escudo/i.test(value),
+  }),
+);
+vi.mock(
+  "../../../screens/personaje/dndcharactersheet/utils/characterText",
+  () => ({
+    parseBiographySections: () => ({
+      alignment: "Neutral",
+      personalHistory: "Veterano",
+    }),
+  }),
+);
 
 import DetailTabsSection from "../../../screens/personaje/dndcharactersheet/components/DetailTabsSection";
 

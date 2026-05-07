@@ -5,7 +5,7 @@ import {
   PANEL_CLASSES,
   SELECT_CLASSES,
 } from "../../utils/statisticsUtils";
-import ValidationMessage from "../ValidationMessage";
+import ValidationMessage from "../../components/ValidationMessage";
 
 interface StandardMethodSectionProps {
   standardAssignments: Record<string, string>;

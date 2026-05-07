@@ -1,4 +1,4 @@
-import type { DndProgressionTable } from "../types";
+import type { DndProgressionTable } from "../../types";
 import {
   extractSpellReferenceItems,
   isSpellReferenceColumn,

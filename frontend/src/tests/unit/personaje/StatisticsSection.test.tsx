@@ -10,11 +10,14 @@ vi.mock("../../../screens/personaje/utils/statisticsUtils", () => ({
   ],
   formatAbilityModifier: (value: number) => `${value >= 10 ? "+" : ""}${value}`,
 }));
-vi.mock("../../../screens/personaje/dndcharactersheet/utils", () => ({
-  getProficiencyBonus: () => 2,
-  getStatValue: (_character: unknown, statName: string) =>
-    statName === "Fuerza" ? 14 : 12,
-}));
+vi.mock(
+  "../../../screens/personaje/dndcharactersheet/utils/characterCore",
+  () => ({
+    getProficiencyBonus: () => 2,
+    getStatValue: (_character: unknown, statName: string) =>
+      statName === "Fuerza" ? 14 : 12,
+  }),
+);
 
 import StatisticsSection from "../../../screens/personaje/dndcharactersheet/components/StatisticsSection";
 

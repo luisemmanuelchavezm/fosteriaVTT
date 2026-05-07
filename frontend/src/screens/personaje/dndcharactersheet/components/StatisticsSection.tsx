@@ -3,8 +3,8 @@ import type { DndCharacterDetailResponse } from "../../utils/dndApi";
 import {
   ABILITY_STATS,
   formatAbilityModifier,
-} from "../../utils/statisticsUtils";
-import { getProficiencyBonus, getStatValue } from "../utils";
+} from "../../creatednd/utils/statisticsUtils";
+import { getProficiencyBonus, getStatValue } from "../utils/characterCore";
 
 interface StatisticsSectionProps {
   character: DndCharacterDetailResponse;

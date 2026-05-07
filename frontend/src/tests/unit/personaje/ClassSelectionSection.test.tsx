@@ -16,7 +16,7 @@ vi.mock(
 );
 
 vi.mock(
-  "../../../screens/personaje/creatednd/sections/ChoiceChecklist",
+  "../../../screens/personaje/creatednd/components/ChoiceChecklist",
   () => ({
     default: ({
       title,
@@ -46,7 +46,7 @@ vi.mock(
 );
 
 vi.mock(
-  "../../../screens/personaje/creatednd/sections/ProgressionTablesBlock",
+  "../../../screens/personaje/creatednd/components/ProgressionTablesBlock",
   () => ({
     default: ({ title }: { title: string }) => <div>{title}</div>,
   }),

@@ -8,7 +8,8 @@ import type {
   DndCharacterDetailResponse,
   LevelUpDndCharacterRequest,
 } from "../../utils/dndApi";
-import { getExperienceProgress, resolveCharacterFormula } from "../utils";
+import { getExperienceProgress } from "../utils/characterCore";
+import { resolveCharacterFormula } from "../utils/characterAbilities";
 import CharacterDetailModal from "./CharacterDetailModal";
 import ConfirmationModal from "./ConfirmationModal";
 import InventoryCatalogModal from "./InventoryCatalogModal";

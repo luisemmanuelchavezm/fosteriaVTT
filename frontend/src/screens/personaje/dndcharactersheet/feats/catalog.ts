@@ -1,183 +1,17 @@
-import type { DndCharacterDetailResponse } from "../utils/dndApi";
-
-export interface FeatOption {
-  id: string;
-  nombre: string;
-  descripcion: string;
-  descripcionCompleta?: string;
-  formula?: string | null;
-  requisitos: string[];
-  repeatable?: boolean;
-  fixedBonuses?: Record<string, number>;
-  selectableBonus?: {
-    count: number;
-    amount: number;
-    options: string[];
-  };
-  selectableCompetencies?: {
-    count: number;
-    options: string[];
-  };
-  selectableSkills?: {
-    count: number;
-    options: string[];
-  };
-  selectableLanguages?: {
-    count: number;
-    options: string[];
-  };
-  spellSelection?: {
-    chooseClass?: boolean;
-    classOptions?: string[];
-    cantrips: number;
-    spells: number;
-    spellLevel?: number;
-    cantripClassOptions?: string[];
-  };
-  validate: (
-    character: DndCharacterDetailResponse,
-    classCompetencies: string[],
-  ) => boolean;
-}
-
-const ATTRIBUTE_OPTIONS = [
-  "Fuerza",
-  "Destreza",
-  "Constitucion",
-  "Inteligencia",
-  "Sabiduria",
-  "Carisma",
-];
-
-const WEAPON_MASTER_OPTIONS = [
-  "Garrote",
-  "Daga",
-  "Gran garrote",
-  "Hacha de mano",
-  "Dardo",
-  "Jabalina",
-  "Honda",
-  "Bastón",
-  "Hoz",
-  "Lanza",
-  "Ballesta ligera",
-  "Arco corto",
-  "Cerbatana",
-  "Gran hacha",
-  "Hacha de batalla",
-  "Guja",
-  "Mandoble",
-  "Alabarda",
-  "Lanza de caballería",
-  "Gran maza",
-  "Lucero del alba",
-  "Cimitarra",
-  "Espada corta",
-  "Espada larga",
-  "Ballesta de mano",
-  "Ballesta pesada",
-  "Estoque",
-  "Arco largo",
-  "Hacha de guerra",
-  "Martillo de guerra",
-  "Mangual",
-  "Pica",
-  "Tridente",
-  "Látigo",
-  "Pico de guerra",
-  "Red",
-];
-
-const LANGUAGE_OPTIONS = [
-  "Abisal",
-  "Celestial",
-  "Comun",
-  "Draconico",
-  "Enano",
-  "Elfico",
-  "Gigante",
-  "Gnomo",
-  "Goblin",
-  "Halfling (Mediano)",
-  "Infernal",
-  "Orco",
-  "Primordial",
-  "Silvano",
-  "Infracomun",
-];
-
-const SKILL_OPTIONS = [
-  "Acrobacias",
-  "Arcano",
-  "Atletismo",
-  "Engano",
-  "Historia",
-  "Investigacion",
-  "Interpretacion",
-  "Intimidacion",
-  "Juego de manos",
-  "Medicina",
-  "Naturaleza",
-  "Percepcion",
-  "Perspicacia",
-  "Persuasion",
-  "Sigilo",
-  "Supervivencia",
-  "Trato con Animales",
-];
-
-const MAGIC_INITIATE_CLASS_OPTIONS = [
-  "bardo",
-  "brujo",
-  "clerigo",
-  "druida",
-  "hechicero",
-  "mago",
-];
-
-function normalizeText(value: string | null | undefined) {
-  return (value ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "");
-}
-
-function hasAbilityScore(
-  character: DndCharacterDetailResponse,
-  statName: string,
-  min: number,
-) {
-  return (character.estadisticas[statName] ?? 0) >= min;
-}
-
-function hasSpellcasting(character: DndCharacterDetailResponse) {
-  return Boolean(character.caracteristicaLanzamientoConjuros);
-}
-
-function hasCompetency(classCompetencies: string[], ...matches: string[]) {
-  return classCompetencies.some((entry) => {
-    const normalizedEntry = normalizeText(entry);
-    return matches.some((match) =>
-      normalizedEntry.includes(normalizeText(match)),
-    );
-  });
-}
-
-function alwaysValid() {
-  return true;
-}
-
-function buildFeat(
-  config: Omit<FeatOption, "validate"> & {
-    validate?: FeatOption["validate"];
-  },
-): FeatOption {
-  return {
-    ...config,
-    validate: config.validate ?? alwaysValid,
-  };
-}
+import {
+  FEAT_ATTRIBUTE_OPTIONS,
+  FEAT_LANGUAGE_OPTIONS,
+  FEAT_SKILL_OPTIONS,
+  MAGIC_INITIATE_CLASS_OPTIONS,
+  WEAPON_MASTER_OPTIONS,
+} from "./constants";
+import {
+  buildFeat,
+  hasAbilityScore,
+  hasCompetency,
+  hasSpellcasting,
+} from "./helpers";
+import type { FeatOption } from "./types";
 
 export const FEAT_OPTIONS: FeatOption[] = [
   buildFeat({
@@ -325,7 +159,7 @@ export const FEAT_OPTIONS: FeatOption[] = [
     fixedBonuses: { Inteligencia: 1 },
     selectableLanguages: {
       count: 3,
-      options: LANGUAGE_OPTIONS,
+      options: FEAT_LANGUAGE_OPTIONS,
     },
   }),
   buildFeat({
@@ -424,7 +258,7 @@ export const FEAT_OPTIONS: FeatOption[] = [
     selectableBonus: {
       count: 1,
       amount: 1,
-      options: ATTRIBUTE_OPTIONS,
+      options: FEAT_ATTRIBUTE_OPTIONS,
     },
   }),
   buildFeat({
@@ -478,7 +312,7 @@ export const FEAT_OPTIONS: FeatOption[] = [
       "Obtienes competencia en cualquier combinacion de tres habilidades o herramientas de tu eleccion. En esta hoja, la seleccion se aplica a tres habilidades basicas de DnD.",
     selectableSkills: {
       count: 3,
-      options: SKILL_OPTIONS,
+      options: FEAT_SKILL_OPTIONS,
     },
   }),
   buildFeat({
@@ -548,36 +382,3 @@ export const FEAT_OPTIONS: FeatOption[] = [
     },
   }),
 ];
-
-export function getFeatValidity(
-  feat: FeatOption,
-  character: DndCharacterDetailResponse,
-  classCompetencies: string[],
-) {
-  return feat.validate(character, classCompetencies);
-}
-
-export function buildFeatStatBonuses(
-  feat: FeatOption,
-  selectedStats: string[],
-) {
-  const result: Record<string, number> = {
-    ...(feat.fixedBonuses ?? {}),
-  };
-
-  const selectableBonus = feat.selectableBonus;
-  if (selectableBonus) {
-    selectedStats.slice(0, selectableBonus.count).forEach((stat) => {
-      if (!stat) {
-        return;
-      }
-      result[stat] = (result[stat] ?? 0) + selectableBonus.amount;
-    });
-  }
-
-  return result;
-}
-
-export const FEAT_ATTRIBUTE_OPTIONS = ATTRIBUTE_OPTIONS;
-export const FEAT_LANGUAGE_OPTIONS = LANGUAGE_OPTIONS;
-export const FEAT_SKILL_OPTIONS = SKILL_OPTIONS;

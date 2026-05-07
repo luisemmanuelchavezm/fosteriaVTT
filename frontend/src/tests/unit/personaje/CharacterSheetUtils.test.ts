@@ -3,34 +3,42 @@ import "@testing-library/jest-dom/vitest";
 import { describe, expect, it, vi } from "vitest";
 import { buildCharacterSheetState } from "../../../screens/personaje/dndcharactersheet/screenState";
 import {
-  applyDamage,
-  canTrackAbilityUsage,
   formatClassSummary,
   formatSignedValue,
+  getCharacterLevel,
+  getExperienceProgress,
+  getProficiencyBonus,
+  getRaceSummary,
+} from "../../../screens/personaje/dndcharactersheet/utils/characterCore";
+import {
+  applyDamage,
+  extractExtraResources,
+  extractHitDiceStats,
+  recoverHitDiceOnLongRest,
+  resolveShortRestHealing,
+} from "../../../screens/personaje/dndcharactersheet/utils/characterResources";
+import {
+  canTrackAbilityUsage,
   getAbilityModifierByName,
   getAbilityResetLabel,
   getActionDamageParts,
-  getCharacterCompetencies,
-  getCharacterLanguages,
-  getCharacterLevel,
-  getCharacterMoney,
-  getExperienceProgress,
   isPassiveAbility,
-  getProficiencyBonus,
-  getRaceSummary,
   getSpellLevel,
   getWeaponDamageParts,
-  normalizeText,
-  parseBiographySections,
   resolveCharacterFormula,
   shouldResetAbilityUsageOnRest,
+} from "../../../screens/personaje/dndcharactersheet/utils/characterAbilities";
+import {
+  getCharacterCompetencies,
   splitCharacterCompetencies,
+} from "../../../screens/personaje/dndcharactersheet/utils/characterCompetencies";
+import { getCharacterMoney } from "../../../screens/personaje/dndcharactersheet/utils/characterInventory";
+import { getCharacterLanguages } from "../../../screens/personaje/dndcharactersheet/utils/characterProfile";
+import {
+  normalizeText,
+  parseBiographySections,
   uniqueNormalizedValues,
-  extractHitDiceStats,
-  extractExtraResources,
-  recoverHitDiceOnLongRest,
-  resolveShortRestHealing,
-} from "../../../screens/personaje/dndcharactersheet/utils";
+} from "../../../screens/personaje/dndcharactersheet/utils/characterText";
 import type {
   CharacterAbilityResponse,
   DndCharacterDetailResponse,

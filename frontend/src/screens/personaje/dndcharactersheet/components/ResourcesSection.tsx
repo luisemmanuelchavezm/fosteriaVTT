@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { DndCharacterDetailResponse } from "../../utils/dndApi";
 import { SPELL_LEVELS } from "../data";
-import { extractExtraResources } from "../utils";
+import { extractExtraResources } from "../utils/characterResources";
 
 interface ResourcesSectionProps {
   character: DndCharacterDetailResponse;

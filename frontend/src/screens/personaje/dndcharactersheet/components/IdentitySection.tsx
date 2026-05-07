@@ -3,7 +3,7 @@ import {
   formatClassSummary,
   getExperienceProgress,
   getRaceSummary,
-} from "../utils";
+} from "../utils/characterCore";
 
 interface IdentitySectionProps {
   character: DndCharacterDetailResponse;

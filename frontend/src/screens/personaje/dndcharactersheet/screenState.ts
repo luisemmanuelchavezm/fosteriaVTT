@@ -3,10 +3,10 @@ import { SAVING_THROW_ROWS, SKILL_ROWS, SPELL_LEVELS } from "./data";
 import {
   extractExtraResources,
   extractHitDiceStats,
-  getCharacterLanguages,
-  getCharacterMoney,
-  parseBiographySections,
-} from "./utils";
+} from "./utils/characterResources";
+import { getCharacterLanguages } from "./utils/characterProfile";
+import { getCharacterMoney } from "./utils/characterInventory";
+import { parseBiographySections } from "./utils/characterText";
 
 const CORE_STAT_NAMES = [
   "Fuerza",

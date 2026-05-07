@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-import ChoiceChecklist from "../../../components/ChoiceChecklist";
-import ExpertisePicklistSection from "../../../components/ExpertisePicklistSection";
+import ChoiceChecklist from "../../../creatednd/components/ChoiceChecklist";
+import ExpertisePicklistSection from "../../../creatednd/components/ExpertisePicklistSection";
 import type { DndCharacterDetailResponse } from "../../../utils/dndApi";
 import type { LevelUpModalController } from "../../hooks/useLevelUpModalState";
 
