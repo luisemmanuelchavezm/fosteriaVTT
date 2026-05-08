@@ -80,33 +80,41 @@ vi.mock("../../../screens/CharactersScreen", () => ({
   ),
 }));
 
-vi.mock("../../../screens/personaje/CreateDndCharacterScreen", () => ({
-  default: ({
-    onCharacterCreated,
-  }: {
-    onCharacterCreated: (characterId: string) => void;
-  }) => (
-    <div>
-      <p>create dnd</p>
-      <button onClick={() => onCharacterCreated("12")}>personaje creado</button>
-    </div>
-  ),
-}));
+vi.mock(
+  "../../../screens/personaje/creatednd/CreateDndCharacterScreen",
+  () => ({
+    default: ({
+      onCharacterCreated,
+    }: {
+      onCharacterCreated: (characterId: string) => void;
+    }) => (
+      <div>
+        <p>create dnd</p>
+        <button onClick={() => onCharacterCreated("12")}>
+          personaje creado
+        </button>
+      </div>
+    ),
+  }),
+);
 
-vi.mock("../../../screens/personaje/DndCharacterSheetScreen", () => ({
-  default: ({
-    characterId,
-    onGoCharacters,
-  }: {
-    characterId: string;
-    onGoCharacters: () => void;
-  }) => (
-    <div>
-      <p>sheet {characterId}</p>
-      <button onClick={onGoCharacters}>volver personajes</button>
-    </div>
-  ),
-}));
+vi.mock(
+  "../../../screens/personaje/dndcharactersheet/DndCharacterSheetScreen",
+  () => ({
+    default: ({
+      characterId,
+      onGoCharacters,
+    }: {
+      characterId: string;
+      onGoCharacters: () => void;
+    }) => (
+      <div>
+        <p>sheet {characterId}</p>
+        <button onClick={onGoCharacters}>volver personajes</button>
+      </div>
+    ),
+  }),
+);
 
 afterEach(() => {
   cleanup();

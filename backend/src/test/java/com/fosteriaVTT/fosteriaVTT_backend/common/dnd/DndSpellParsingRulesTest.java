@@ -32,4 +32,19 @@ class DndSpellParsingRulesTest {
 		assertFalse(DndSpellParsingRules.isSpellOrCantripSummary("DND,ACCION"));
 		assertFalse(DndSpellParsingRules.isSpellOrCantripSummary(null));
 	}
+
+	@Test
+	void ignoraEntradasVaciasYTagsNoMagicos() {
+		assertEquals(List.of(), DndSpellParsingRules.extractSpellNames("   "));
+		assertEquals(List.of(), DndSpellParsingRules.extractSpellNamesFromFormula("   ", "Conjuro"));
+		assertEquals(List.of(), DndSpellParsingRules.extractSpellNamesFromFormula("Luz", ""));
+	}
+
+	@Test
+	void normalizaPrefijoDeTrucoConEspaciosYMayusculas() {
+		assertEquals(
+				List.of("Luz"),
+				DndSpellParsingRules.extractSpellNamesFromFormula("  TRUCO   Luz  ", "DND,TRUCO")
+		);
+	}
 }

@@ -224,7 +224,14 @@ export function useDndCharacterSheetController(
     setEditableWeaponArmorCompetencies(competencyGroups.weaponArmor);
     setEditableToolCompetencies(competencyGroups.tools);
     competencySeedKeyRef.current = seedKey;
-  }, [character, classCompetencies, competencyCatalog, isEditMode]);
+  }, [
+    character,
+    classCompetencies,
+    competencyCatalog,
+    isEditMode,
+    setEditableToolCompetencies,
+    setEditableWeaponArmorCompetencies,
+  ]);
 
   const movement = useMemo(
     () => getStatValue(character, MOVEMENT_STAT),

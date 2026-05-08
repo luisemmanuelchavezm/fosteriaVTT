@@ -5,8 +5,8 @@ import RegisterScreen from "./screens/RegisterScreen";
 import HomeScreen from "./screens/HomeScreen";
 import CharactersScreen from "./screens/CharactersScreen";
 import CampaignsScreen from "./screens/CampaignsScreen.tsx";
-import CreateDndCharacterScreen from "./screens/personaje/CreateDndCharacterScreen";
-import DndCharacterSheetScreen from "./screens/personaje/DndCharacterSheetScreen";
+import CreateDndCharacterScreen from "./screens/personaje/creatednd/CreateDndCharacterScreen";
+import DndCharacterSheetScreen from "./screens/personaje/dndcharactersheet/DndCharacterSheetScreen";
 
 type AuthMode =
   | "login"

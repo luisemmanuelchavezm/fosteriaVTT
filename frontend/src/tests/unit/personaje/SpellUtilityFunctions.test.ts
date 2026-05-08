@@ -58,4 +58,39 @@ describe("hechizos y referencias - utilidades", () => {
       { displayText: "Misil mágico", lookupName: "Misil mágico" },
     ]);
   });
+
+  it("getSpellLevelLabel devuelve Truco para habilidades con tag truco", () => {
+    const cantrip: CharacterAbilityResponse = {
+      id: 10,
+      nombre: "Prestidigitacion",
+      bonificacion: null,
+      formula: null,
+      descripcion: null,
+      tags: "Truco",
+    };
+    expect(getSpellLevelLabel(cantrip)).toBe("Truco");
+  });
+
+  it("getSpellLevelLabel devuelve Hechizo cuando no hay tags de nivel", () => {
+    const noLevel: CharacterAbilityResponse = {
+      id: 11,
+      nombre: "Ataque",
+      bonificacion: null,
+      formula: null,
+      descripcion: null,
+      tags: "DND,ARMA",
+    };
+    expect(getSpellLevelLabel(noLevel)).toBe("Hechizo");
+  });
+
+  it("extractFirstRollableExpression devuelve null cuando no hay texto", () => {
+    expect(extractFirstRollableExpression(null)).toBeNull();
+    expect(extractFirstRollableExpression("")).toBeNull();
+    expect(extractFirstRollableExpression("solo texto sin dados")).toBeNull();
+  });
+
+  it("extractRollableExpressions devuelve array vacio cuando no hay texto", () => {
+    expect(extractRollableExpressions(null)).toEqual([]);
+    expect(extractRollableExpressions("")).toEqual([]);
+  });
 });

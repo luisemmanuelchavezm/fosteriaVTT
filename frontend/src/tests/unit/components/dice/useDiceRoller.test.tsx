@@ -176,4 +176,44 @@ describe("lanzamiento de dados - useDiceRoller", () => {
       expect(result.current.diceBoxError).toContain("target DOM node");
     });
   });
+
+  it("interpreta expresiones con varios dados y modificador plano", async () => {
+    const { result } = renderHook(() => useDiceRoller());
+    const host = document.createElement("div");
+    host.id = result.current.diceBoxHostId;
+    document.body.appendChild(host);
+
+    await act(async () => {
+      result.current.rollExpression("Arma custom", "1d12 + 1d6 + 2");
+    });
+
+    await waitFor(() => {
+      expect(result.current.summary).toMatchObject({
+        title: "Arma custom",
+        expression: "1d12 + 1d6 + 2",
+        diceValues: [9, 4],
+        modifier: 2,
+        total: 15,
+      });
+    });
+
+    expect(mockDiceBox.roll).toHaveBeenCalledWith(["1d12", "1d6"]);
+  });
+
+  it("muestra error explicito cuando se excede el maximo de dados", async () => {
+    const { result } = renderHook(() => useDiceRoller());
+    const host = document.createElement("div");
+    host.id = result.current.diceBoxHostId;
+    document.body.appendChild(host);
+
+    await act(async () => {
+      result.current.rollExpression("Tirada enorme", "21d6");
+    });
+
+    await waitFor(() => {
+      expect(result.current.diceBoxError).toBe(
+        "El numero de dados maximos que puedes tirar es 20.",
+      );
+    });
+  });
 });

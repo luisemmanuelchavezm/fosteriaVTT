@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   fetchDndCharacterDetail,
   type CharacterInventoryItemResponse,
@@ -90,57 +90,69 @@ export function useCharacterSheetState({
     string[]
   >([]);
 
-  const applyCharacterSheetState = (data: DndCharacterDetailResponse) => {
-    const sheetState = buildCharacterSheetState(
-      data,
+  const applyCharacterSheetState = useCallback(
+    (data: DndCharacterDetailResponse) => {
+      const sheetState = buildCharacterSheetState(
+        data,
+        healthCurrentStat,
+        healthTempStat,
+        healthTotalStat,
+        movementStat,
+      );
+
+      setCharacter(data);
+      setCurrentHp(sheetState.currentHp);
+      setTempHp(sheetState.tempHp);
+      setCurrentSpellSlots(sheetState.currentSpellSlots);
+      setCurrentExtraResources(sheetState.currentExtraResources);
+      setCurrentHitDice(sheetState.currentHitDice);
+      setCurrentMoney(sheetState.currentMoney);
+      setEditableName(sheetState.editableName);
+      setEditableAlignment(sheetState.editableAlignment);
+      setEditablePersonalHistory(sheetState.editablePersonalHistory);
+      setEditableLanguagesText(sheetState.editableLanguagesText);
+      setEditableStatScores(sheetState.editableStatScores);
+      setEditableMovement(sheetState.editableMovement);
+      setEditableMaxHp(sheetState.editableMaxHp);
+      setEditableSpellSlotMaximums(sheetState.editableSpellSlotMaximums);
+      setEditableExtraResourceMaximums(
+        sheetState.editableExtraResourceMaximums,
+      );
+      setEditableSavingThrowProficiencies(
+        sheetState.editableSavingThrowProficiencies,
+      );
+      setEditableSkillProficiencyLevels(
+        sheetState.editableSkillProficiencyLevels,
+      );
+      setEditableSkillProficiencies(sheetState.editableSkillProficiencies);
+      setEditableSkillExpertise(sheetState.editableSkillExpertise);
+
+      if (competencyCatalog) {
+        const competencyGroups = splitCharacterCompetencies(
+          getCharacterCompetencies(data, classCompetencies, competencyCatalog),
+          competencyCatalog,
+        );
+        setEditableWeaponArmorCompetencies(competencyGroups.weaponArmor);
+        setEditableToolCompetencies(competencyGroups.tools);
+      }
+
+      setSelectedInventoryItem((current) =>
+        current
+          ? (data.mochila.find((item) => item.id === current.id) ?? null)
+          : current,
+      );
+      setAbilityUsage({});
+      setResourceSaveError(null);
+    },
+    [
+      competencyCatalog,
+      classCompetencies,
       healthCurrentStat,
       healthTempStat,
       healthTotalStat,
       movementStat,
-    );
-
-    setCharacter(data);
-    setCurrentHp(sheetState.currentHp);
-    setTempHp(sheetState.tempHp);
-    setCurrentSpellSlots(sheetState.currentSpellSlots);
-    setCurrentExtraResources(sheetState.currentExtraResources);
-    setCurrentHitDice(sheetState.currentHitDice);
-    setCurrentMoney(sheetState.currentMoney);
-    setEditableName(sheetState.editableName);
-    setEditableAlignment(sheetState.editableAlignment);
-    setEditablePersonalHistory(sheetState.editablePersonalHistory);
-    setEditableLanguagesText(sheetState.editableLanguagesText);
-    setEditableStatScores(sheetState.editableStatScores);
-    setEditableMovement(sheetState.editableMovement);
-    setEditableMaxHp(sheetState.editableMaxHp);
-    setEditableSpellSlotMaximums(sheetState.editableSpellSlotMaximums);
-    setEditableExtraResourceMaximums(sheetState.editableExtraResourceMaximums);
-    setEditableSavingThrowProficiencies(
-      sheetState.editableSavingThrowProficiencies,
-    );
-    setEditableSkillProficiencyLevels(
-      sheetState.editableSkillProficiencyLevels,
-    );
-    setEditableSkillProficiencies(sheetState.editableSkillProficiencies);
-    setEditableSkillExpertise(sheetState.editableSkillExpertise);
-
-    if (competencyCatalog) {
-      const competencyGroups = splitCharacterCompetencies(
-        getCharacterCompetencies(data, classCompetencies, competencyCatalog),
-        competencyCatalog,
-      );
-      setEditableWeaponArmorCompetencies(competencyGroups.weaponArmor);
-      setEditableToolCompetencies(competencyGroups.tools);
-    }
-
-    setSelectedInventoryItem((current) =>
-      current
-        ? (data.mochila.find((item) => item.id === current.id) ?? null)
-        : current,
-    );
-    setAbilityUsage({});
-    setResourceSaveError(null);
-  };
+    ],
+  );
 
   useEffect(() => {
     const authToken = localStorage.getItem("jwtToken");
@@ -189,7 +201,7 @@ export function useCharacterSheetState({
     return () => {
       abortController.abort();
     };
-  }, [characterId]);
+  }, [characterId, applyCharacterSheetState]);
 
   return {
     abilityUsage,

@@ -45,30 +45,23 @@ export function getWeaponDamageParts(formula: string | null | undefined) {
     return { damage: "--", damageType: "--" };
   }
 
-  const parts = rawFormula.split(/\s+/);
-  const damageParts = [parts[0] ?? ""];
-  let damageTypeStartIndex = 1;
-
-  const modifierToken = parts[1];
-  if (modifierToken === "+" || modifierToken === "-") {
-    damageParts.push(modifierToken);
-    if (parts[2]) {
-      damageParts.push(parts[2]);
-      damageTypeStartIndex = 3;
-    } else {
-      damageTypeStartIndex = 2;
-    }
-  } else if (modifierToken && /^[+-]/.test(modifierToken)) {
-    damageParts.push(modifierToken);
-    damageTypeStartIndex = 2;
+  const standardMatch = rawFormula.match(
+    /^(\d+d\d+(?:\s*[+-]\s*\d+)?)\s+([a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+)$/,
+  );
+  if (standardMatch) {
+    return {
+      damage: standardMatch[1].trim(),
+      damageType: standardMatch[2].trim(),
+    };
   }
 
-  const damage = damageParts.join(" ").trim();
-  const damageType = parts.slice(damageTypeStartIndex).join(" ").trim();
+  const hasStatVariable = /@[a-z]+/i.test(rawFormula);
+  const diceTermCount = (rawFormula.match(/\d+d\d+/gi) ?? []).length;
+  const isCustomLikeFormula = hasStatVariable || diceTermCount > 1;
 
   return {
-    damage: damage || "--",
-    damageType: damageType || "--",
+    damage: rawFormula || "--",
+    damageType: isCustomLikeFormula ? "custom" : "--",
   };
 }
 
@@ -103,23 +96,28 @@ export function isSpellAbility(ability: CharacterAbilityResponse) {
   return getSpellLevel(ability) !== null;
 }
 
+function hasTag(ability: CharacterAbilityResponse, tag: string) {
+  const normalizedTag = normalizeText(tag);
+  return (ability.tags ?? "")
+    .split(",")
+    .some((t) => normalizeText(t.trim()) === normalizedTag);
+}
+
 export function isActionAbility(ability: CharacterAbilityResponse) {
-  const normalizedTags = normalizeText(ability.tags);
-  if (normalizedTags.includes(normalizeText("ALIENTODRACONICO"))) {
+  if (hasTag(ability, "ALIENTODRACONICO")) {
     return false;
   }
   return (
-    normalizedTags.includes(normalizeText("ARMA")) ||
-    normalizedTags.includes(normalizeText("ATAQUE")) ||
-    normalizedTags.includes(normalizeText("ACCION"))
+    hasTag(ability, "ARMA") ||
+    hasTag(ability, "ATAQUE") ||
+    hasTag(ability, "ATAQUESINARMAS")
   );
 }
 
 export function isPassiveAbility(ability: CharacterAbilityResponse) {
   const normalizedName = normalizeText(ability.nombre);
-  const normalizedTags = normalizeText(ability.tags);
 
-  if (normalizedTags.includes(normalizeText("MANIOBRA"))) {
+  if (hasTag(ability, "MANIOBRA")) {
     return true;
   }
 
@@ -168,11 +166,16 @@ function getWeaponAbilityModifier(
 
   const strengthModifier = getAbilityModifierByName(character, "Fuerza");
   const dexterityModifier = getAbilityModifierByName(character, "Destreza");
+  const normalizedWeaponTags = normalizeText(matchingWeapon?.tags ?? "");
 
-  if (
-    matchingWeapon &&
-    normalizeText(matchingWeapon.tags).includes(normalizeText("Sutil"))
-  ) {
+  const isCustomWeapon =
+    !!matchingWeapon &&
+    normalizedWeaponTags.includes(normalizeText("COMPETENTE_POR_DEFECTO"));
+  if (isCustomWeapon || /@[a-z]+/i.test(ability.formula ?? "")) {
+    return 0;
+  }
+
+  if (matchingWeapon && normalizedWeaponTags.includes(normalizeText("Sutil"))) {
     return Math.max(strengthModifier, dexterityModifier);
   }
 
@@ -183,8 +186,7 @@ export function getActionDamageParts(
   character: DndCharacterDetailResponse,
   ability: CharacterAbilityResponse,
 ) {
-  const normalizedTags = normalizeText(ability.tags);
-  if (normalizedTags.includes(normalizeText("ATAQUESINARMAS"))) {
+  if (hasTag(ability, "ATAQUESINARMAS")) {
     const strengthModifier = getAbilityModifierByName(character, "Fuerza");
     const dexterityModifier = getAbilityModifierByName(character, "Destreza");
     const monkLevel = getClassLevel(character.clases, "Monje");
@@ -205,7 +207,10 @@ export function getActionDamageParts(
     };
   }
 
-  const { damage, damageType } = getWeaponDamageParts(ability.formula);
+  const resolvedFormula = resolveCharacterFormula(character, ability.formula);
+  const { damage, damageType } = getWeaponDamageParts(
+    resolvedFormula ?? ability.formula,
+  );
   const abilityModifier = getWeaponAbilityModifier(character, ability);
   const expression = clampMinimumDamageExpression(
     damage === "--" ? null : formatDamageExpression(damage, abilityModifier),

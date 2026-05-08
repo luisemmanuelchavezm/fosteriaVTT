@@ -22,6 +22,7 @@ import {
   getAbilityModifierByName,
   getAbilityResetLabel,
   getActionDamageParts,
+  isActionAbility,
   isPassiveAbility,
   getSpellLevel,
   getWeaponDamageParts,
@@ -289,6 +290,10 @@ describe("hoja de personaje - utilidades", () => {
       damage: "1d8 + 3",
       damageType: "cortante",
     });
+    expect(getWeaponDamageParts("10d100 + 10d100 + @fuerza")).toEqual({
+      damage: "10d100 + 10d100 + @fuerza",
+      damageType: "custom",
+    });
     expect(getCharacterMoney(baseCharacter)).toEqual({
       ppt: 0,
       po: 23,
@@ -336,6 +341,20 @@ describe("hoja de personaje - utilidades", () => {
       damageType: "cortante",
       expression: "1d6 + 1",
     });
+    expect(
+      getActionDamageParts(baseCharacter, {
+        id: 900,
+        nombre: "Arma custom",
+        bonificacion: 0,
+        formula: "10d100 + 10d100 + @fuerza + @fuerza + @fuerza",
+        descripcion: null,
+        tags: "DND,ARMA,OBJETO",
+      }),
+    ).toEqual({
+      damage: "10d100 + 10d100 + 1 + 1 + 1",
+      damageType: "custom",
+      expression: "10d100 + 10d100 + 1 + 1 + 1",
+    });
     expect(shouldResetAbilityUsageOnRest(longRestAbility, "short")).toBe(false);
     expect(shouldResetAbilityUsageOnRest(longRestAbility, "long")).toBe(true);
     expect(getAbilityResetLabel(longRestAbility)).toBe("Descanso largo");
@@ -362,5 +381,178 @@ describe("hoja de personaje - utilidades", () => {
     expect(
       recoverHitDiceOnLongRest({ d12: 1, d6: 4 }, { d12: 0, d6: 2 }, 5),
     ).toEqual({ d12: 1, d6: 3 });
+  });
+
+  it("getActionDamageParts para monje de nivel 11 usa dado d8", () => {
+    const monk11: DndCharacterDetailResponse = {
+      ...baseCharacter,
+      clases: [{ nombre: "Monje", nivel: 11 }],
+    };
+    const ataqSinarmasAbility: CharacterAbilityResponse = {
+      id: 20,
+      nombre: "Golpe desarmado nivel 11",
+      bonificacion: 6,
+      formula: null,
+      descripcion: null,
+      tags: "DND,ATAQUESINARMAS,ACCION",
+    };
+    const parts = getActionDamageParts(monk11, ataqSinarmasAbility);
+    expect(parts.damage).toContain("d8");
+    expect(parts.damageType).toBe("Contundente");
+  });
+
+  it("getActionDamageParts para monje de nivel 17+ usa dado d10", () => {
+    const monk17: DndCharacterDetailResponse = {
+      ...baseCharacter,
+      clases: [{ nombre: "Monje", nivel: 17 }],
+    };
+    const ataqSinarmasAbility: CharacterAbilityResponse = {
+      id: 21,
+      nombre: "Golpe desarmado nivel 17",
+      bonificacion: 6,
+      formula: null,
+      descripcion: null,
+      tags: "DND,ATAQUESINARMAS,ACCION",
+    };
+    const parts = getActionDamageParts(monk17, ataqSinarmasAbility);
+    expect(parts.damage).toContain("d10");
+    expect(parts.damageType).toBe("Contundente");
+  });
+
+  it("getActionDamageParts sin clase monje usa daño = 1", () => {
+    const noMonk: DndCharacterDetailResponse = {
+      ...baseCharacter,
+      clases: [{ nombre: "Guerrero", nivel: 5 }],
+    };
+    const ataqSinarmasAbility: CharacterAbilityResponse = {
+      id: 22,
+      nombre: "Golpe desarmado no monje",
+      bonificacion: 6,
+      formula: null,
+      descripcion: null,
+      tags: "DND,ATAQUESINARMAS,ACCION",
+    };
+    const parts = getActionDamageParts(noMonk, ataqSinarmasAbility);
+    expect(parts.damage).toBe("1 + 1");
+    expect(parts.damageType).toBe("Contundente");
+  });
+
+  it("getActionDamageParts monje usa max(fuerza, destreza)", () => {
+    const highDexMonk: DndCharacterDetailResponse = {
+      ...baseCharacter,
+      clases: [{ nombre: "Monje", nivel: 5 }],
+      estadisticas: { ...baseCharacter.estadisticas, Fuerza: 10, Destreza: 18 },
+    };
+    const ataqSinarmasAbility: CharacterAbilityResponse = {
+      id: 23,
+      nombre: "Golpe desarmado dex monje",
+      bonificacion: 6,
+      formula: null,
+      descripcion: null,
+      tags: "DND,ATAQUESINARMAS,ACCION",
+    };
+    const parts = getActionDamageParts(highDexMonk, ataqSinarmasAbility);
+    // destreza 18 = +4 modifier
+    expect(parts.damage).toContain("+ 4");
+  });
+
+  it("getActionDamageParts con formula sin datos devuelve --", () => {
+    const emptyFormulaAbility: CharacterAbilityResponse = {
+      id: 24,
+      nombre: "Ataque vacio",
+      bonificacion: null,
+      formula: "",
+      descripcion: null,
+      tags: "DND,ARMA,OBJETO",
+    };
+    const parts = getActionDamageParts(baseCharacter, emptyFormulaAbility);
+    expect(parts.damage).toBe("--");
+  });
+
+  it("getActionDamageParts no suma Fuerza en armas custom", () => {
+    const characterWithCustomWeapon: DndCharacterDetailResponse = {
+      ...baseCharacter,
+      mochila: [
+        ...baseCharacter.mochila,
+        {
+          id: 99,
+          nombre: "Bj",
+          cantidad: 1,
+          equipado: true,
+          tags: "ASCuerpo,COMPETENTE_POR_DEFECTO",
+          tipoObjeto: "ARMA",
+          formula: "10d100 + 10d100",
+          descripcion: null,
+        },
+      ],
+    };
+
+    const customWeaponAction: CharacterAbilityResponse = {
+      id: 120,
+      nombre: "Bj",
+      bonificacion: 1,
+      formula: "10d100 + 10d100",
+      descripcion: null,
+      tags: "DND,ARMA,OBJETO",
+    };
+
+    expect(
+      getActionDamageParts(characterWithCustomWeapon, customWeaponAction),
+    ).toEqual({
+      damage: "10d100 + 10d100",
+      damageType: "custom",
+      expression: "10d100 + 10d100",
+    });
+  });
+
+  it("isActionAbility devuelve false para competencia con ArmaduraPesada (no substring ARMA)", () => {
+    const ability: CharacterAbilityResponse = {
+      id: 26,
+      nombre: "Competencia adicional",
+      bonificacion: null,
+      formula: "armadura pesada",
+      descripcion: null,
+      tags: "CClerigo;1,Vida,ArmaduraPesada",
+    };
+    expect(isActionAbility(ability)).toBe(false);
+  });
+
+  it("isActionAbility devuelve false para aliento draconico", () => {
+    const ability: CharacterAbilityResponse = {
+      id: 25,
+      nombre: "Aliento draconico",
+      bonificacion: null,
+      formula: null,
+      descripcion: null,
+      tags: "DND,ALIENTODRACONICO,ACCION",
+    };
+    expect(isActionAbility(ability)).toBe(false);
+  });
+
+  it("resolveShortRestHealing con constitutionModifier negativo", () => {
+    const result = resolveShortRestHealing(
+      "d8",
+      2,
+      -2,
+      vi.fn().mockReturnValueOnce(5).mockReturnValueOnce(5),
+    );
+    expect(result.totalHealed).toBe(6);
+    expect(result.rollExpression).toBe("5 - 2 + 5 - 2");
+  });
+
+  it("recoverHitDiceOnLongRest cuando dice ya estan al maximo (missing <= 0)", () => {
+    const result = recoverHitDiceOnLongRest({ d8: 5 }, { d8: 5 }, 5);
+    expect(result).toEqual({ d8: 5 });
+  });
+
+  it("recoverHitDiceOnLongRest con remainingRecovery 0 (totalLevel muy pequeño)", () => {
+    const result = recoverHitDiceOnLongRest(
+      { d8: 4, d6: 4 },
+      { d8: 1, d6: 1 },
+      0,
+    );
+    // totalLevel 0 => remainingRecovery = max(1, floor(0/2)) = 1, solo recupera 1 dado
+    expect(result.d8).toBe(2);
+    expect(result.d6).toBe(1);
   });
 });
