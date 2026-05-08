@@ -89,6 +89,7 @@ export function useCharacterSheetState({
   const [editableToolCompetencies, setEditableToolCompetencies] = useState<
     string[]
   >([]);
+  const classCompetenciesKey = classCompetencies.join("\u0000");
 
   const applyCharacterSheetState = useCallback(
     (data: DndCharacterDetailResponse) => {
@@ -146,7 +147,7 @@ export function useCharacterSheetState({
     },
     [
       competencyCatalog,
-      classCompetencies,
+      classCompetenciesKey,
       healthCurrentStat,
       healthTempStat,
       healthTotalStat,
@@ -176,8 +177,6 @@ export function useCharacterSheetState({
           abortController.signal,
         );
         applyCharacterSheetState(data);
-        setEditableWeaponArmorCompetencies([]);
-        setEditableToolCompetencies([]);
       } catch (error) {
         if ((error as Error).name === "AbortError") {
           return;

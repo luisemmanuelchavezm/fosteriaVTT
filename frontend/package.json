@@ -11,9 +11,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "prepare": "husky",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage",
+    "test": "vitest --pool=threads --maxWorkers=1",
+    "test:run": "node --max-old-space-size=6144 ./node_modules/vitest/vitest.mjs run --pool=threads --maxWorkers=1",
+    "test:coverage": "node --max-old-space-size=6144 ./node_modules/vitest/vitest.mjs run --coverage --pool=threads --maxWorkers=1",
     "test:e2e": "playwright test"
   },
   "dependencies": {
