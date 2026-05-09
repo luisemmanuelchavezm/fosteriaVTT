@@ -1,5 +1,6 @@
 package com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.fosteriaVTT.fosteriaVTT_backend.Objeto.Objeto;
@@ -34,6 +35,17 @@ class DndWeaponProficienciesTest {
         assertTrue(proficiencies.aplicaA(objeto("ASimple;ASRango", "Honda")));
         assertTrue(proficiencies.aplicaA(objeto("AMCuerpo", "Alabarda")));
         assertTrue(proficiencies.aplicaA(objeto("ASimple;ASCuerpo", "Maza")));
+    }
+
+    @Test
+    void noAplicaCuandoNoHayCategoriaNiArmaEspecifica() {
+        DndWeaponProficiencies proficiencies = new DndWeaponProficiencies();
+        proficiencies.agregarEntrada("Armas simples a distancia");
+        proficiencies.agregarEntrada("ballesta ligera y honda");
+
+        assertFalse(proficiencies.aplicaA(objeto("AMCuerpo", "Espadon")));
+        assertTrue(proficiencies.aplicaA(objeto("ASimple;ASRango", "Honda")));
+        assertTrue(proficiencies.aplicaA(objeto("arma", "Ballesta ligera")));
     }
 
     private static Objeto objeto(String indice, String nombre) {

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import ValidationMessage from "./ValidationMessage";
+import ValidationMessage from "../components/ValidationMessage";
 import {
   buildEquipmentCatalogSelections,
   buildEquipmentCatalogSelectionKeys,
   buildEquipmentMeta,
   formatEquipmentOption,
 } from "../utils/equipmentUtils";
-import type { DndEquipment, EquipmentSelectionSnapshot } from "../types";
+import type { DndEquipment, EquipmentSelectionSnapshot } from "../../types";
 
 const PANEL_CLASSES =
   "rounded-[24px] border border-stone-300/10 bg-[linear-gradient(180deg,rgba(12,10,9,0.72),rgba(41,37,36,0.18))]";
@@ -156,6 +156,14 @@ function EquipmentOriginCard({
                                     {meta}
                                   </p>
                                 ))}
+                                {isSelected && item.objeto?.descripcion ? (
+                                  <p className="mt-2 text-xs leading-5 text-stone-300">
+                                    {item.objeto.descripcion.replace(
+                                      /\*\*/g,
+                                      "",
+                                    )}
+                                  </p>
+                                ) : null}
                                 {catalogItems.length > 0 && isSelected ? (
                                   <div className="mt-4 space-y-2">
                                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200/75">

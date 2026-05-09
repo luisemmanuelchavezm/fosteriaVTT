@@ -118,6 +118,43 @@ class DndCharacterStatsUtilsTest {
     }
 
     @Test
+    void resuelveCaballeroArcanoComoLanzadorDeInteligenciaYConRanurasPropias() {
+        ClaseDndResumenResponse fighterSummary = new ClaseDndResumenResponse("guerrero", "Guerrero", "");
+        Personaje fighter = Personaje.builder()
+                .nombre("Aster")
+                .sistemaDeJuego(SistemaDeJuego.DND)
+                .tags("Cguerrero;7,Subclase;Caballero arcano")
+                .build();
+
+        when(dndInfoService.obtenerClases()).thenReturn(List.of(fighterSummary));
+        when(dndInfoService.obtenerClasePorId("guerrero")).thenReturn(Optional.of(clase("guerrero", "Guerrero", null, null)));
+        when(dndInfoService.obtenerSubclasesClase("guerrero")).thenReturn(List.of(
+                new com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndSubclaseResponse(
+                        "caballeroarcano",
+                        "Caballero arcano",
+                        "",
+                        3,
+                        List.of(new com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndTablaResponse(
+                                "Lanzamiento de conjuros del Caballero Arcano",
+                                List.of("Nivel", "Trucos", "Conjuros", "1", "2", "3", "4"),
+                                List.of(
+                                        List.of("3", "2", "3", "2", "-", "-", "-"),
+                                        List.of("7", "2", "5", "4", "2", "-", "-")
+                                )
+                        ))
+                )
+        ));
+
+        assertEquals("Inteligencia", dndCharacterStatsUtils.resolverCaracteristicaLanzamientoConjuros(fighter));
+        assertEquals(Map.of(1, 4, 2, 2), dndCharacterStatsUtils.resolverEspaciosDeConjuroTrasCambio(
+                fighter,
+                clase("guerrero", "Guerrero", null, null),
+                7,
+                new com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndSubclaseResponse("caballeroarcano", "Caballero arcano", "", 3, List.of())
+        ));
+    }
+
+    @Test
     void aplicaMejorasDeCaracteristicaYDelegaDotes() {
         Map<String, Integer> baseStats = new LinkedHashMap<>();
         baseStats.put("Fuerza", 10);

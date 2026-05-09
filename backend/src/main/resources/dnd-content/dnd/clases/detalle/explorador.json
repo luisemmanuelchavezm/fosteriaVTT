@@ -405,9 +405,6 @@
                                                                          "id":  "explorador-dos-armas-simples",
                                                                          "etiqueta":  "Dos armas simples cuerpo a cuerpo",
                                                                          "cantidad":  2,
-                                                                         "objeto":  {
-                                                                                        "nombre":  "Dos armas simples cuerpo a cuerpo"
-                                                                                    },
                                                                          "catalogo":  "ASCuerpo"
                                                                      }
                                                                  ]

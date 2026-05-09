@@ -112,6 +112,14 @@ public class DndCharacterStatsUtils {
 				}
 				continue;
 			}
+			if (detail != null && TagUtils.normalizeText(detail.id()).equals("guerrero")) {
+				boolean esEK = (activeSubclass != null && TagUtils.normalizeText(activeSubclass.id()).equals("caballeroarcano"))
+						|| tieneCaballeroArcano(personaje);
+				if (esEK) {
+					acumularEspaciosCaballeroArcano(slots, entry.getValue());
+				}
+				continue;
+			}
 			if (detail == null || detail.lanzamientoConjuros() == null) {
 				continue;
 			}
@@ -147,6 +155,9 @@ public class DndCharacterStatsUtils {
 			}
 		}
 		if (resolverClasesPorId(personaje).containsKey("picaro") && tieneEmbaucadorArcano(personaje)) {
+			return "Inteligencia";
+		}
+		if (resolverClasesPorId(personaje).containsKey("guerrero") && tieneCaballeroArcano(personaje)) {
 			return "Inteligencia";
 		}
 		return null;
@@ -249,28 +260,45 @@ public class DndCharacterStatsUtils {
 		return subclaseTag != null && TagUtils.normalizeText(subclaseTag).equals("embaucadorarcano");
 	}
 
+	private boolean tieneCaballeroArcano(Personaje personaje) {
+		String subclaseTag = TagUtils.extractTagValue(personaje.getTags(), "Subclase");
+		return subclaseTag != null && TagUtils.normalizeText(subclaseTag).equals("caballeroarcano");
+	}
+
 	private void acumularEspaciosEmbaucadorArcano(Map<Integer, Integer> slots, int picaroLevel) {
 		dndInfoService.obtenerSubclasesClase("picaro").stream()
 				.filter(s -> TagUtils.normalizeText(s.id()).equals("embaucadorarcano"))
 				.findFirst()
 				.flatMap(ea -> ea.tablas().stream().findFirst())
-				.ifPresent(tabla -> tabla.filas().stream()
-						.filter(fila -> fila.size() >= 7 && fila.getFirst().trim().equals(String.valueOf(picaroLevel)))
-						.findFirst()
-						.ifPresent(fila -> {
-							for (int i = 3; i <= 6; i++) {
-								String value = fila.get(i).trim();
-								if (!"-".equals(value)) {
-									try {
-										int count = Integer.parseInt(value);
-										if (count > 0) {
-											slots.merge(i - 2, count, Integer::sum);
-										}
-									} catch (NumberFormatException ignored) {
-										// non-numeric cell, skip
-									}
+				.ifPresent(tabla -> acumularRanurasDesdeTabla(slots, tabla.filas(), picaroLevel));
+	}
+
+	private void acumularEspaciosCaballeroArcano(Map<Integer, Integer> slots, int fighterLevel) {
+		dndInfoService.obtenerSubclasesClase("guerrero").stream()
+				.filter(s -> TagUtils.normalizeText(s.id()).equals("caballeroarcano"))
+				.findFirst()
+				.flatMap(ek -> ek.tablas().stream().findFirst())
+				.ifPresent(tabla -> acumularRanurasDesdeTabla(slots, tabla.filas(), fighterLevel));
+	}
+
+	private void acumularRanurasDesdeTabla(Map<Integer, Integer> slots, List<List<String>> filas, int classLevel) {
+		filas.stream()
+				.filter(fila -> fila.size() >= 7 && fila.getFirst().trim().equals(String.valueOf(classLevel)))
+				.findFirst()
+				.ifPresent(fila -> {
+					for (int i = 3; i <= 6; i++) {
+						String value = fila.get(i).trim();
+						if (!"-".equals(value)) {
+							try {
+								int count = Integer.parseInt(value);
+								if (count > 0) {
+									slots.merge(i - 2, count, Integer::sum);
 								}
+							} catch (NumberFormatException ignored) {
+								// non-numeric cell, skip
 							}
-						}));
+						}
+					}
+				});
 	}
 }

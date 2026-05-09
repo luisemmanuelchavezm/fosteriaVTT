@@ -3,7 +3,7 @@ import {
   fetchSpellCatalog,
   type CharacterAbilityResponse,
 } from "../../utils/dndApi";
-import { getSpellLevel } from "../utils";
+import { getSpellLevel } from "../utils/characterAbilities";
 
 interface SpellCatalogModalProps {
   token: string;

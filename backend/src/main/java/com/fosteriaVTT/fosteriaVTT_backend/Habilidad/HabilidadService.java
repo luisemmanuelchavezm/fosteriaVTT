@@ -63,7 +63,6 @@ public class HabilidadService {
 		}
 
 		return habilidadRepository.findByNombreIgnoreCaseOrderByIdAsc(cleanName).stream()
-				.filter(this::esHechizoOTruco)
 				.findFirst()
 				.map(item -> new HabilidadResponse(
 						item.getId(),
@@ -85,6 +84,22 @@ public class HabilidadService {
 						|| item.getNombre().toLowerCase(java.util.Locale.ROOT).contains(nombreNormalizado.toLowerCase(java.util.Locale.ROOT)))
 				.filter(item -> nivel == null || extraerNivelConjuro(item) == nivel)
 				.filter(item -> clase == null || clase.isBlank() || TagUtils.normalizeText(item.getTags()).contains(claseNormalizada))
+				.map(item -> new HabilidadResponse(
+						item.getId(),
+						item.getNombre(),
+						null,
+						item.getFormula(),
+						item.getDescripcion(),
+						item.getTags()
+				))
+				.toList();
+	}
+
+	public List<HabilidadResponse> buscarCatalogoHabilidades(String clase, String subclase, String etiqueta) {
+		return habilidadRepository.findAll(Sort.by(Sort.Direction.ASC, "nombre")).stream()
+				.filter(item -> contieneTag(item.getTags(), clase))
+				.filter(item -> contieneTag(item.getTags(), subclase))
+				.filter(item -> contieneTag(item.getTags(), etiqueta))
 				.map(item -> new HabilidadResponse(
 						item.getId(),
 						item.getNombre(),
@@ -215,6 +230,13 @@ public class HabilidadService {
 	private boolean esHechizoOTruco(Habilidad habilidad) {
 		String tags = habilidad.getTags() == null ? "" : habilidad.getTags().toLowerCase(java.util.Locale.ROOT);
 		return tags.contains("truco") || tags.contains("hechizo;");
+	}
+
+	private boolean contieneTag(String tags, String value) {
+		if (value == null || value.isBlank()) {
+			return true;
+		}
+		return TagUtils.normalizeText(tags).contains(TagUtils.normalizeText(value));
 	}
 
 	private int extraerNivelConjuro(Habilidad habilidad) {

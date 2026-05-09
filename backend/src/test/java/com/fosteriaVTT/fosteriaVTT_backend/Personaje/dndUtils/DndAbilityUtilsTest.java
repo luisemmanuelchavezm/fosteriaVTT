@@ -3,6 +3,7 @@ package com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.Habilidad;
 import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.HabilidadRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.InformacionDnd.DndSubclassService;
+import com.fosteriaVTT.fosteriaVTT_backend.Personaje.Personaje;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.PersonajeRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndCompetenciasResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndDetalleResponse;
@@ -131,5 +132,45 @@ class DndAbilityUtilsTest {
 			String tags = habilidad.getTags() == null ? "" : habilidad.getTags();
 			return tags.contains("Subclase;patron-feerico");
 		}));
+	}
+
+	@Test
+	void agregaManiobrasDeMaestroDeBatallaComoHabilidadesElegidas() {
+		ClaseDndSubclaseResponse subclase = new ClaseDndSubclaseResponse(
+				"maestrobatalla",
+				"Maestro de batalla",
+				"",
+				3,
+				List.of()
+		);
+		ClaseDndDetalleResponse clase = new ClaseDndDetalleResponse(
+				"guerrero",
+				"Guerrero",
+				null,
+				"",
+				null,
+				new ClaseDndCompetenciasResponse(List.of(), List.of(), List.of(), List.of(), List.of()),
+				null,
+				List.of(subclase),
+				List.of(),
+				null
+		);
+		Personaje personaje = Personaje.builder().habilidades(new java.util.ArrayList<>()).build();
+
+		when(habilidadRepository.findAll()).thenReturn(List.of());
+		when(habilidadRepository.findByNombreIgnoreCaseOrderByIdAsc("Parada")).thenReturn(List.of(
+				Habilidad.builder().id(20L).nombre("Parada").tags("DND,Guerrero,MaestroDeBatalla,Maniobra").descripcion("Reduce daño").build()
+		));
+
+		dndAbilityUtils.agregarHabilidadesDeClasePorNivel(
+				personaje,
+				clase,
+				subclase,
+				3,
+				Map.of("bm-maneuver", List.of("Parada")),
+				false
+		);
+
+		assertTrue(personaje.getHabilidades().stream().anyMatch(habilidad -> habilidad.getNombre().equals("Parada")));
 	}
 }

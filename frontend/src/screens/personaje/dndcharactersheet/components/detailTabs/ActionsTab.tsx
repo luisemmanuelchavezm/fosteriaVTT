@@ -3,11 +3,11 @@ import type {
   DndCharacterDetailResponse,
 } from "../../../utils/dndApi";
 import { EmptyRowsMessage } from "../SheetPrimitives";
+import { formatSignedValue } from "../../utils/characterCore";
 import {
-  formatSignedValue,
   getActionDamageParts,
   getLocalizedAbilityName,
-} from "../../utils";
+} from "../../utils/characterAbilities";
 
 interface ActionsTabProps {
   character: DndCharacterDetailResponse;

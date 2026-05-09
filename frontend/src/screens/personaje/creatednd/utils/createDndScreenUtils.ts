@@ -9,10 +9,15 @@ import type {
   DndRaceChoice,
   EquipmentSelectionSnapshot,
   RaceSelectionSnapshot,
-} from "../types";
+} from "../../types";
 import { useCreateDndCharacter } from "../hooks/useCreateDndCharacter";
 import { ABILITY_STATS } from "./statisticsUtils";
 import { buildEquipmentCatalogSelectionKeys } from "./equipmentUtils";
+import {
+  SKILL_EXPERTISE_CHOICE_ID,
+  splitExpertiseChoices,
+  TOOL_EXPERTISE_CHOICE_ID,
+} from "../../utils/dndExpertise";
 
 export interface CreationPhase {
   id: string;
@@ -46,6 +51,7 @@ export function buildCreateCharacterPayload({
   creation,
   classSkillChoiceGroups,
   classSkillSelections,
+  classExpertiseSelections,
   raceSelection,
   backgroundSelection,
   statisticsSelection,
@@ -54,6 +60,7 @@ export function buildCreateCharacterPayload({
   creation: ReturnType<typeof useCreateDndCharacter>;
   classSkillChoiceGroups: ClassSkillChoiceGroup[];
   classSkillSelections: Record<string, string[]>;
+  classExpertiseSelections: string[];
   raceSelection: RaceSelectionSnapshot | null;
   backgroundSelection: BackgroundSelectionSnapshot | null;
   statisticsSelection: CharacterStatisticsSnapshot | null;
@@ -71,6 +78,24 @@ export function buildCreateCharacterPayload({
     throw new Error("Debes seleccionar una raza");
   }
 
+  const classChoices = classSkillChoiceGroups.reduce<Record<string, string[]>>(
+    (accumulator, group) => {
+      accumulator[group.id] = classSkillSelections[group.id] ?? [];
+      return accumulator;
+    },
+    {},
+  );
+  const { skillChoices, toolChoices } = splitExpertiseChoices(
+    classExpertiseSelections,
+  );
+
+  if (skillChoices.length > 0) {
+    classChoices[SKILL_EXPERTISE_CHOICE_ID] = skillChoices;
+  }
+  if (toolChoices.length > 0) {
+    classChoices[TOOL_EXPERTISE_CHOICE_ID] = toolChoices;
+  }
+
   return {
     nombre: creation.name.trim(),
     claseId: creation.selectedClass.id,
@@ -86,13 +111,7 @@ export function buildCreateCharacterPayload({
         (group) => normalizeChoiceCatalog(group.catalogo) === "habilidades",
       )
       .flatMap((group) => classSkillSelections[group.id] ?? []),
-    eleccionesClase: classSkillChoiceGroups.reduce<Record<string, string[]>>(
-      (accumulator, group) => {
-        accumulator[group.id] = classSkillSelections[group.id] ?? [];
-        return accumulator;
-      },
-      {},
-    ),
+    eleccionesClase: classChoices,
     eleccionesTrasfondo: backgroundSelection?.selectedChoices ?? {},
     eleccionesRaza: raceSelection.selectedChoices,
     gruposEquipamiento: compactNumericSelections(

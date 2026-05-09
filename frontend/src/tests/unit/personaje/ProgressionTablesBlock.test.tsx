@@ -3,7 +3,7 @@ import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import ProgressionTablesBlock from "../../../screens/personaje/creatednd/components/ProgressionTablesBlock";
-import type { DndProgressionTable } from "../../../screens/personaje/creatednd/types";
+import type { DndProgressionTable } from "../../../screens/personaje/types";
 
 afterEach(() => {
   cleanup();

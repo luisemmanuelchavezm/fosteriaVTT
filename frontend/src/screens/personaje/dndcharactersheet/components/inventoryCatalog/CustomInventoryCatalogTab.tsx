@@ -5,6 +5,7 @@ interface CustomDiePart {
 
 type CustomObjectType = "ARMA" | "ARMADURA" | "CONSUMIBLE" | "MISCELANEO";
 type ArmorSubtype = "Ligera" | "Media" | "Pesada" | "Escudo";
+const CUSTOM_WEAPON_MAX_DICE = 10;
 
 const ABILITY_MODIFIER_CODES = [
   { value: "FUE", label: "Fuerza" },
@@ -262,7 +263,7 @@ export default function CustomInventoryCatalogTab(
                   onChange={(event) => {
                     const value = sanitizePositiveNumericInput(
                       event.target.value,
-                      20,
+                      CUSTOM_WEAPON_MAX_DICE,
                     );
                     onDicePartsChange((current) =>
                       current.map((entry, entryIndex) =>
@@ -272,7 +273,7 @@ export default function CustomInventoryCatalogTab(
                       ),
                     );
                   }}
-                  placeholder="max 20"
+                  placeholder={`max ${CUSTOM_WEAPON_MAX_DICE}`}
                   className="rounded-[14px] border border-white/10 bg-black/25 px-3 py-2 text-center text-sm text-white outline-none placeholder:text-stone-500"
                 />
                 <span className="pb-2 text-center text-lg font-bold text-white">

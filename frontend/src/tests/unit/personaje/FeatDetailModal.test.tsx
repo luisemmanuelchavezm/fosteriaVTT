@@ -3,7 +3,7 @@ import "@testing-library/jest-dom/vitest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import FeatDetailModal from "../../../screens/personaje/dndcharactersheet/components/FeatDetailModal";
-import type { FeatOption } from "../../../screens/personaje/dndcharactersheet/feats";
+import type { FeatOption } from "../../../screens/personaje/dndcharactersheet/feats/types";
 
 const feat: FeatOption = {
   id: "dote-alerta",

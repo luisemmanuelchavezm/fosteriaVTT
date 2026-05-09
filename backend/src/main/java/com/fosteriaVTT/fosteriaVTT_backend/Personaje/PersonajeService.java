@@ -217,6 +217,7 @@ public class PersonajeService {
 				request.recursosExtraActuales(),
 				DndCharacterNormalizers.normalizarSalvaciones(request.salvacionesCompetentes()),
 				DndCharacterNormalizers.normalizarHabilidades(request.habilidadesCompetentes()),
+				DndCharacterNormalizers.normalizarHabilidades(request.habilidadesConPericia()),
 				totalLevel
 		);
 		personajeRepository.save(personaje);

@@ -21,7 +21,23 @@
                                "etiqueta":  "Truco de mago",
                                "resumen":  "Elige un truco de la lista de mago",
                                "catalogo":  "classCantrips:mago",
-                               "cantidad":  1
+                               "cantidad":  1,
+                               "opciones":  [
+                                                 "Descarga de fuego",
+                                                 "Impacto verdadero",
+                                                 "Ilusion menor",
+                                                 "Luces danzantes",
+                                                 "Luz",
+                                                 "Mano de mago",
+                                                 "Mensaje",
+                                                 "Prestidigitacion",
+                                                 "Rayo de escarcha",
+                                                 "Reparar",
+                                                 "Rociada venenosa",
+                                                 "Salpicadura acida",
+                                                 "Toque electrico",
+                                                 "Toque helado"
+                                             ]
                            },
                            {
                                "id":  "high-elf-language",

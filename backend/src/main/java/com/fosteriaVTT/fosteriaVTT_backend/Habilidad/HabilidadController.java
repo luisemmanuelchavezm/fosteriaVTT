@@ -66,6 +66,20 @@ public class HabilidadController {
         return habilidadService.buscarConjurosYTrucos(nombre, nivel, clase);
     }
 
+    @GetMapping("/catalogo")
+    public List<HabilidadResponse> buscarCatalogoHabilidades(
+            @RequestParam(required = false) String clase,
+            @RequestParam(required = false) String subclase,
+            @RequestParam(required = false) String etiqueta,
+            Authentication authentication
+    ) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
+        }
+
+        return habilidadService.buscarCatalogoHabilidades(clase, subclase, etiqueta);
+    }
+
     @GetMapping("/{clase}/subclases/{subclase}")
     public List<HabilidadNivelResponse> obtenerHabilidadesPorSubclase(
             @PathVariable String clase,

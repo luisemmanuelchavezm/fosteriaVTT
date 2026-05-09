@@ -3,10 +3,10 @@ import { SAVING_THROW_ROWS, SKILL_ROWS, SPELL_LEVELS } from "./data";
 import {
   extractExtraResources,
   extractHitDiceStats,
-  getCharacterLanguages,
-  getCharacterMoney,
-  parseBiographySections,
-} from "./utils";
+} from "./utils/characterResources";
+import { getCharacterLanguages } from "./utils/characterProfile";
+import { getCharacterMoney } from "./utils/characterInventory";
+import { parseBiographySections } from "./utils/characterText";
 
 const CORE_STAT_NAMES = [
   "Fuerza",
@@ -25,6 +25,20 @@ export function buildCharacterSheetState(
   movementStat: string,
 ) {
   const biographySections = parseBiographySections(data.biografia);
+  const proficiencyBonus =
+    data.estadisticas["Bonificador por competencia"] ?? 2;
+  const editableSkillProficiencyLevels = Object.fromEntries(
+    SKILL_ROWS.map((item) => {
+      const storedValue = data.estadisticas[item.name] ?? 0;
+      const level =
+        proficiencyBonus > 0 && storedValue >= proficiencyBonus * 2
+          ? 2
+          : storedValue > 0
+            ? 1
+            : 0;
+      return [item.name, level];
+    }),
+  );
 
   return {
     currentHp: data.estadisticas[healthCurrentStat] ?? 0,
@@ -79,8 +93,12 @@ export function buildCharacterSheetState(
           data.estadisticas[`Salvacion de ${item.statName}`] ??
           0) > 0,
     ).map((item) => item.statName),
+    editableSkillProficiencyLevels,
     editableSkillProficiencies: SKILL_ROWS.filter(
-      (item) => (data.estadisticas[item.name] ?? 0) > 0,
+      (item) => (editableSkillProficiencyLevels[item.name] ?? 0) > 0,
+    ).map((item) => item.name),
+    editableSkillExpertise: SKILL_ROWS.filter(
+      (item) => (editableSkillProficiencyLevels[item.name] ?? 0) >= 2,
     ).map((item) => item.name),
   };
 }

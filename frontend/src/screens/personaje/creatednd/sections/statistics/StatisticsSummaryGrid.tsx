@@ -4,7 +4,7 @@ import {
   STAT_BOX_CLASSES,
   type StatsMethod,
 } from "../../utils/statisticsUtils";
-import ValidationMessage from "../ValidationMessage";
+import ValidationMessage from "../../components/ValidationMessage";
 
 interface StatisticsSummaryGridProps {
   selectedMethod: StatsMethod;

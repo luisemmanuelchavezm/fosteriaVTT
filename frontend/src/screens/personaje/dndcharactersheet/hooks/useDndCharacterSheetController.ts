@@ -1,117 +1,37 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  addDndCharacterAbility,
-  addDndCharacterInventoryItem,
-  deleteDndCharacter,
-  deleteDndCharacterAbility,
-  deleteDndCharacterInventoryItem,
   fetchDndCompetencyCatalog,
-  fetchDndCharacterDetail,
   fetchDndClassDetail,
   fetchDndClassSummaries,
-  levelDownDndCharacter,
-  levelUpDndCharacter,
-  type AddDndCharacterInventoryItemRequest,
   type CharacterAbilityResponse,
-  type CharacterInventoryItemResponse,
-  type DndCharacterDetailResponse,
-  type LevelDownDndCharacterRequest,
-  type LevelUpDndCharacterRequest,
-  type UpdateDndCharacterSheetRequest,
-  updateDndCharacterExperience,
-  updateDndCharacterInventoryItem,
-  updateDndCharacterResources,
-  updateDndCharacterSheet,
 } from "../../utils/dndApi";
-import type { DndClassDetail, DndCompetencyCatalog } from "../../types";
+import type { DndCompetencyCatalog } from "../../types";
 import { useSpellDetailInteractions } from "../../utils/useSpellDetailInteractions";
-import { buildCharacterSheetState } from "../screenState";
+import { getStatValue } from "../utils/characterCore";
 import {
-  applyDamage,
-  extractExtraResources,
-  extractHitDiceStats,
-  getActionDamageParts,
-  getAbilityModifierByName,
   getCharacterCompetencies,
-  getCharacterMoney,
-  getStatValue,
-  normalizeText,
-  resolveCharacterFormula,
-  shouldResetAbilityUsageOnRest,
   splitCharacterCompetencies,
-  uniqueNormalizedValues,
-} from "../utils";
-import { secureRandomInt } from "../../../../lib/secureRandom";
+} from "../utils/characterCompetencies";
+import { normalizeText, uniqueNormalizedValues } from "../utils/characterText";
+import { resolveCharacterFormula } from "../utils/characterAbilities";
 import type { DetailTab } from "../data";
-
-const HEALTH_TOTAL_STAT = "Puntos de vida";
-const HEALTH_CURRENT_STAT = "Vida actual";
-const HEALTH_TEMP_STAT = "Vida temporal";
-const MOVEMENT_STAT = "Movimiento";
-const ARMOR_CLASS_STAT = "CA";
-const MAX_DELTA_VALUE = 99;
-const MAX_CURRENT_HP = 3000;
-const MAX_TEMP_HP = 300;
-
-function extractClassCompetencies(detail: DndClassDetail) {
-  return [
-    ...detail.competencias.armaduras,
-    ...detail.competencias.armas,
-    ...detail.competencias.herramientas,
-  ]
-    .map((value) => value.trim())
-    .filter(Boolean);
-}
-
-function sanitizeNonNegativeNumber(value: string) {
-  const digitsOnly = value.replace(/\D+/g, "");
-  if (digitsOnly === "") {
-    return "0";
-  }
-  return String(Math.min(MAX_DELTA_VALUE, Number.parseInt(digitsOnly, 10)));
-}
+import {
+  ARMOR_CLASS_STAT,
+  MOVEMENT_STAT,
+  extractClassCompetencies,
+  sanitizeNonNegativeNumber,
+} from "./characterSheetConstants";
+import { useCharacterSheetRemoteActions } from "./useCharacterSheetRemoteActions";
+import { useCharacterSheetResourceManagement } from "./useCharacterSheetResourceManagement";
+import { useCharacterSheetState } from "./useCharacterSheetState";
 
 export function useDndCharacterSheetController(
   characterId: string,
   onGoCharacters: () => void,
 ) {
-  const [character, setCharacter] = useState<DndCharacterDetailResponse | null>(
-    null,
-  );
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [hpDelta, setHpDelta] = useState("0");
-  const [tempHpDelta, setTempHpDelta] = useState("0");
-  const [currentHp, setCurrentHp] = useState(0);
-  const [tempHp, setTempHp] = useState(0);
-  const [currentSpellSlots, setCurrentSpellSlots] = useState<
-    Record<number, number>
-  >({});
-  const [currentExtraResources, setCurrentExtraResources] = useState<
-    Record<number, number>
-  >({});
-  const [currentMoney, setCurrentMoney] = useState<Record<string, number>>({
-    ppt: 0,
-    po: 0,
-    pp: 0,
-    pc: 0,
-  });
-  const [currentHitDice, setCurrentHitDice] = useState<Record<string, number>>(
-    {},
-  );
-  const [abilityUsage, setAbilityUsage] = useState<Record<number, boolean>>({});
-  const [resourceSaveError, setResourceSaveError] = useState<string | null>(
-    null,
-  );
-  const [isShortRestModalOpen, setIsShortRestModalOpen] = useState(false);
-  const [shortRestHitDiceCounts, setShortRestHitDiceCounts] = useState<
-    Record<string, number>
-  >({});
   const [activeDetailTab, setActiveDetailTab] = useState<DetailTab>("actions");
   const [selectedPassive, setSelectedPassive] =
     useState<CharacterAbilityResponse | null>(null);
-  const [selectedInventoryItem, setSelectedInventoryItem] =
-    useState<CharacterInventoryItemResponse | null>(null);
   const [isInventoryCatalogOpen, setIsInventoryCatalogOpen] = useState(false);
   const [isSpellCatalogOpen, setIsSpellCatalogOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -120,119 +40,76 @@ export function useDndCharacterSheetController(
   const [levelModalMode, setLevelModalMode] = useState<"up" | "down">("up");
   const [isDeleteCharacterConfirmOpen, setIsDeleteCharacterConfirmOpen] =
     useState(false);
-  const [editableName, setEditableName] = useState("");
-  const [editableAlignment, setEditableAlignment] = useState("");
-  const [editablePersonalHistory, setEditablePersonalHistory] = useState("");
-  const [editableLanguagesText, setEditableLanguagesText] = useState("");
-  const [editableStatScores, setEditableStatScores] = useState<
-    Record<string, number>
-  >({});
-  const [editableMovement, setEditableMovement] = useState(0);
-  const [editableMaxHp, setEditableMaxHp] = useState(1);
-  const [editableSpellSlotMaximums, setEditableSpellSlotMaximums] = useState<
-    Record<number, number>
-  >({});
-  const [editableExtraResourceMaximums, setEditableExtraResourceMaximums] =
-    useState<Record<number, number>>({});
-  const [
-    editableSavingThrowProficiencies,
-    setEditableSavingThrowProficiencies,
-  ] = useState<string[]>([]);
-  const [editableSkillProficiencies, setEditableSkillProficiencies] = useState<
-    string[]
-  >([]);
-  const [editableWeaponArmorCompetencies, setEditableWeaponArmorCompetencies] =
-    useState<string[]>([]);
-  const [editableToolCompetencies, setEditableToolCompetencies] = useState<
-    string[]
-  >([]);
   const [classCompetencies, setClassCompetencies] = useState<string[]>([]);
   const [competencyCatalog, setCompetencyCatalog] =
     useState<DndCompetencyCatalog | null>(null);
   const spellInteractions = useSpellDetailInteractions();
-  const resourceSaveSequence = useRef(0);
   const competencySeedKeyRef = useRef<string | null>(null);
   const token = localStorage.getItem("jwtToken") ?? "";
 
-  useEffect(() => {
-    const authToken = localStorage.getItem("jwtToken");
-
-    if (!authToken) {
-      setCharacter(null);
-      setLoadError("No se pudo autenticar la hoja del personaje.");
-      setIsLoading(false);
-      return;
-    }
-
-    const abortController = new AbortController();
-
-    const loadCharacter = async () => {
-      try {
-        setIsLoading(true);
-        setLoadError(null);
-        const data = await fetchDndCharacterDetail(
-          authToken,
-          characterId,
-          abortController.signal,
-        );
-        const sheetState = buildCharacterSheetState(
-          data,
-          HEALTH_CURRENT_STAT,
-          HEALTH_TEMP_STAT,
-          HEALTH_TOTAL_STAT,
-          MOVEMENT_STAT,
-        );
-
-        setCharacter(data);
-        setCurrentHp(sheetState.currentHp);
-        setTempHp(sheetState.tempHp);
-        setCurrentSpellSlots(sheetState.currentSpellSlots);
-        setCurrentExtraResources(sheetState.currentExtraResources);
-        setCurrentHitDice(sheetState.currentHitDice);
-        setCurrentMoney(sheetState.currentMoney);
-        setEditableName(sheetState.editableName);
-        setEditableAlignment(sheetState.editableAlignment);
-        setEditablePersonalHistory(sheetState.editablePersonalHistory);
-        setEditableLanguagesText(sheetState.editableLanguagesText);
-        setEditableStatScores(sheetState.editableStatScores);
-        setEditableMovement(sheetState.editableMovement);
-        setEditableMaxHp(sheetState.editableMaxHp);
-        setEditableSpellSlotMaximums(sheetState.editableSpellSlotMaximums);
-        setEditableExtraResourceMaximums(
-          sheetState.editableExtraResourceMaximums,
-        );
-        setEditableSavingThrowProficiencies(
-          sheetState.editableSavingThrowProficiencies,
-        );
-        setEditableSkillProficiencies(sheetState.editableSkillProficiencies);
-        setEditableWeaponArmorCompetencies([]);
-        setEditableToolCompetencies([]);
-        setAbilityUsage({});
-        setResourceSaveError(null);
-      } catch (error) {
-        if ((error as Error).name === "AbortError") {
-          return;
-        }
-
-        setCharacter(null);
-        setLoadError(
-          error instanceof Error
-            ? error.message
-            : "No se pudo cargar la hoja del personaje.",
-        );
-      } finally {
-        if (!abortController.signal.aborted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    void loadCharacter();
-
-    return () => {
-      abortController.abort();
-    };
-  }, [characterId]);
+  const {
+    abilityUsage,
+    character,
+    currentExtraResources,
+    currentHitDice,
+    currentHp,
+    currentMoney,
+    currentSpellSlots,
+    editableAlignment,
+    editableExtraResourceMaximums,
+    editableLanguagesText,
+    editableMaxHp,
+    editableMovement,
+    editableName,
+    editablePersonalHistory,
+    editableSavingThrowProficiencies,
+    editableSkillExpertise,
+    editableSkillProficiencies,
+    editableSkillProficiencyLevels,
+    editableSpellSlotMaximums,
+    editableStatScores,
+    editableToolCompetencies,
+    editableWeaponArmorCompetencies,
+    isLoading,
+    loadError,
+    resourceSaveError,
+    selectedInventoryItem,
+    setAbilityUsage,
+    setCharacter,
+    setCurrentExtraResources,
+    setCurrentHitDice,
+    setCurrentHp,
+    setCurrentMoney,
+    setCurrentSpellSlots,
+    setEditableAlignment,
+    setEditableExtraResourceMaximums,
+    setEditableLanguagesText,
+    setEditableMaxHp,
+    setEditableMovement,
+    setEditableName,
+    setEditablePersonalHistory,
+    setEditableSavingThrowProficiencies,
+    setEditableSkillExpertise,
+    setEditableSkillProficiencies,
+    setEditableSkillProficiencyLevels,
+    setEditableSpellSlotMaximums,
+    setEditableStatScores,
+    setEditableToolCompetencies,
+    setEditableWeaponArmorCompetencies,
+    setResourceSaveError,
+    setSelectedInventoryItem,
+    setTempHp,
+    syncCharacterDetail,
+    tempHp,
+  } = useCharacterSheetState({
+    characterId,
+    competencyCatalog,
+    classCompetencies,
+    healthCurrentStat: "Vida actual",
+    healthTempStat: "Vida temporal",
+    healthTotalStat: "Vida",
+    movementStat: MOVEMENT_STAT,
+  });
 
   useEffect(() => {
     const authToken = localStorage.getItem("jwtToken");
@@ -347,12 +224,15 @@ export function useDndCharacterSheetController(
     setEditableWeaponArmorCompetencies(competencyGroups.weaponArmor);
     setEditableToolCompetencies(competencyGroups.tools);
     competencySeedKeyRef.current = seedKey;
-  }, [character, classCompetencies, competencyCatalog, isEditMode]);
+  }, [
+    character,
+    classCompetencies,
+    competencyCatalog,
+    isEditMode,
+    setEditableToolCompetencies,
+    setEditableWeaponArmorCompetencies,
+  ]);
 
-  const totalHp = useMemo(
-    () => getStatValue(character, HEALTH_TOTAL_STAT),
-    [character],
-  );
   const movement = useMemo(
     () => getStatValue(character, MOVEMENT_STAT),
     [character],
@@ -361,394 +241,60 @@ export function useDndCharacterSheetController(
     () => getStatValue(character, ARMOR_CLASS_STAT),
     [character],
   );
-  const dexterityScore = useMemo(
-    () => getStatValue(character, "Destreza"),
-    [character],
-  );
-  const constitutionModifier = useMemo(
-    () => getAbilityModifierByName(character, "Constitucion"),
-    [character],
-  );
-  const hitDiceEntries = useMemo(
-    () =>
-      extractHitDiceStats(character?.estadisticas ?? {}).map((entry) => ({
-        ...entry,
-        current: currentHitDice[entry.die] ?? entry.total,
-      })),
-    [character, currentHitDice],
-  );
-  const initiative = useMemo(
-    () =>
-      character?.estadisticas.Iniciativa ??
-      Math.floor((dexterityScore - 10) / 2),
-    [character, dexterityScore],
-  );
-  const totalCharacterLevel = useMemo(
-    () => character?.clases.reduce((sum, item) => sum + item.nivel, 0) ?? 0,
-    [character],
-  );
-  const persistedSpellSlots = useMemo(
-    () =>
-      Object.fromEntries(
-        Array.from({ length: 9 }, (_, index) => index + 1)
-          .map((level) => [
-            level,
-            character?.estadisticas[`Hechizos nivel ${level} gastados`] ??
-              character?.estadisticas[`Hechizos nivel ${level}`] ??
-              0,
-          ])
-          .filter(([, amount]) => amount > 0),
-      ),
-    [character],
-  );
-  const persistedMoney = useMemo(
-    () => getCharacterMoney(character),
-    [character],
-  );
-  const persistedExtraResources = useMemo(
-    () =>
-      Object.fromEntries(
-        extractExtraResources(character?.estadisticas ?? {})
-          .filter((entry) => entry.max > 0)
-          .map((entry) => [entry.index, entry.current]),
-      ),
-    [character],
-  );
-
-  useEffect(() => {
-    if (!character || isLoading || loadError || isEditMode) {
-      return;
-    }
-
-    const changedSpellSlots = Object.fromEntries(
-      Object.entries(currentSpellSlots).filter(
-        ([level, amount]) => persistedSpellSlots[Number(level)] !== amount,
-      ),
-    ) as Record<number, number>;
-
-    const hasResourceChanges =
-      currentHp !== (character.estadisticas[HEALTH_CURRENT_STAT] ?? 0) ||
-      tempHp !== (character.estadisticas[HEALTH_TEMP_STAT] ?? 0) ||
-      Object.keys(changedSpellSlots).length > 0 ||
-      Object.keys(currentExtraResources).some(
-        (resourceIndex) =>
-          persistedExtraResources[Number(resourceIndex)] !==
-          currentExtraResources[Number(resourceIndex)],
-      ) ||
-      Object.keys(currentMoney).some(
-        (currency) => persistedMoney[currency] !== currentMoney[currency],
-      );
-
-    if (!hasResourceChanges) {
-      return;
-    }
-
-    const authToken = localStorage.getItem("jwtToken");
-    if (!authToken) {
-      return;
-    }
-
-    const requestId = resourceSaveSequence.current + 1;
-    resourceSaveSequence.current = requestId;
-    const timeoutId = window.setTimeout(() => {
-      void updateDndCharacterResources(authToken, character.id, {
-        vidaActual: currentHp,
-        vidaTemporal: tempHp,
-        espaciosConjuroActuales: changedSpellSlots,
-        recursosExtraActuales: currentExtraResources,
-        dinero: currentMoney,
-      })
-        .then(() => {
-          if (resourceSaveSequence.current !== requestId) {
-            return;
-          }
-
-          setCharacter((current) => {
-            if (!current) {
-              return current;
-            }
-
-            return {
-              ...current,
-              estadisticas: {
-                ...current.estadisticas,
-                [HEALTH_CURRENT_STAT]: currentHp,
-                [HEALTH_TEMP_STAT]: tempHp,
-                ...Object.fromEntries(
-                  Object.entries(changedSpellSlots).map(([level, amount]) => [
-                    `Hechizos nivel ${level} gastados`,
-                    amount,
-                  ]),
-                ),
-              },
-            };
-          });
-          setResourceSaveError(null);
-        })
-        .catch((error) => {
-          if (resourceSaveSequence.current !== requestId) {
-            return;
-          }
-
-          setResourceSaveError(
-            error instanceof Error
-              ? error.message
-              : "No se pudieron guardar los recursos del personaje.",
-          );
-        });
-    }, 450);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [
+  const resourceManagement = useCharacterSheetResourceManagement({
     character,
-    currentHp,
     currentExtraResources,
+    currentHitDice,
+    currentHp,
     currentMoney,
     currentSpellSlots,
+    diceRoller: spellInteractions.diceRoller,
+    editableExtraResourceMaximums,
+    editableSpellSlotMaximums,
     isEditMode,
     isLoading,
     loadError,
-    persistedExtraResources,
-    persistedMoney,
-    persistedSpellSlots,
+    setAbilityUsage,
+    setCharacter,
+    setCurrentExtraResources,
+    setCurrentHitDice,
+    setCurrentHp,
+    setCurrentMoney,
+    setCurrentSpellSlots,
+    setEditableExtraResourceMaximums,
+    setEditableSpellSlotMaximums,
+    setResourceSaveError,
+    setTempHp,
     tempHp,
-  ]);
+  });
 
-  const syncCharacterDetail = (data: DndCharacterDetailResponse) => {
-    const sheetState = buildCharacterSheetState(
-      data,
-      HEALTH_CURRENT_STAT,
-      HEALTH_TEMP_STAT,
-      HEALTH_TOTAL_STAT,
-      MOVEMENT_STAT,
-    );
-
-    setCharacter(data);
-    setCurrentHp(sheetState.currentHp);
-    setTempHp(sheetState.tempHp);
-    setCurrentSpellSlots(sheetState.currentSpellSlots);
-    setCurrentExtraResources(sheetState.currentExtraResources);
-    setCurrentHitDice(sheetState.currentHitDice);
-    setCurrentMoney(sheetState.currentMoney);
-    setEditableName(sheetState.editableName);
-    setEditableAlignment(sheetState.editableAlignment);
-    setEditablePersonalHistory(sheetState.editablePersonalHistory);
-    setEditableLanguagesText(sheetState.editableLanguagesText);
-    setEditableStatScores(sheetState.editableStatScores);
-    setEditableMovement(sheetState.editableMovement);
-    setEditableMaxHp(sheetState.editableMaxHp);
-    setEditableSpellSlotMaximums(sheetState.editableSpellSlotMaximums);
-    setEditableExtraResourceMaximums(sheetState.editableExtraResourceMaximums);
-    setEditableSavingThrowProficiencies(
-      sheetState.editableSavingThrowProficiencies,
-    );
-    setEditableSkillProficiencies(sheetState.editableSkillProficiencies);
-    if (competencyCatalog) {
-      const competencyGroups = splitCharacterCompetencies(
-        getCharacterCompetencies(data, classCompetencies, competencyCatalog),
-        competencyCatalog,
-      );
-      setEditableWeaponArmorCompetencies(competencyGroups.weaponArmor);
-      setEditableToolCompetencies(competencyGroups.tools);
-    }
-    setSelectedInventoryItem((current) =>
-      current
-        ? (data.mochila.find((item) => item.id === current.id) ?? null)
-        : current,
-    );
-  };
-
-  const parsedHpDelta = Number.parseInt(hpDelta, 10);
-  const hpStepValue = Number.isNaN(parsedHpDelta) ? 0 : parsedHpDelta;
-  const parsedTempHpDelta = Number.parseInt(tempHpDelta, 10);
-  const tempHpStepValue = Number.isNaN(parsedTempHpDelta)
-    ? 0
-    : parsedTempHpDelta;
-
-  const handleHeal = () => {
-    if (hpStepValue <= 0) {
-      return;
-    }
-    setCurrentHp((current) =>
-      Math.min(Math.min(totalHp, MAX_CURRENT_HP), current + hpStepValue),
-    );
-    setHpDelta(String(hpStepValue));
-  };
-
-  const handleDamage = () => {
-    if (hpStepValue <= 0) {
-      return;
-    }
-    const nextValues = applyDamage(currentHp, tempHp, hpStepValue);
-    setCurrentHp(Math.max(0, Math.min(MAX_CURRENT_HP, nextValues.currentHp)));
-    setTempHp(nextValues.tempHp);
-    setHpDelta(String(hpStepValue));
-  };
-
-  const handleGainTempHp = () => {
-    if (tempHpStepValue <= 0) {
-      return;
-    }
-    setTempHp((current) => Math.min(MAX_TEMP_HP, current + tempHpStepValue));
-    setTempHpDelta(String(tempHpStepValue));
-  };
-
-  const handleLoseTempHp = () => {
-    if (tempHpStepValue <= 0) {
-      return;
-    }
-    setTempHp((current) => Math.max(0, current - tempHpStepValue));
-    setTempHpDelta(String(tempHpStepValue));
-  };
-
-  const handleIncrementHpDelta = () => {
-    setHpDelta((current) =>
-      String(Math.min(MAX_DELTA_VALUE, Number.parseInt(current, 10) + 1 || 1)),
-    );
-  };
-
-  const handleDecrementHpDelta = () => {
-    setHpDelta((current) =>
-      String(Math.max(0, (Number.parseInt(current, 10) || 0) - 1)),
-    );
-  };
-
-  const handleIncrementTempHpDelta = () => {
-    setTempHpDelta((current) =>
-      String(Math.min(MAX_DELTA_VALUE, Number.parseInt(current, 10) + 1 || 1)),
-    );
-  };
-
-  const handleDecrementTempHpDelta = () => {
-    setTempHpDelta((current) =>
-      String(Math.max(0, (Number.parseInt(current, 10) || 0) - 1)),
-    );
-  };
-
-  const handleRollAbilityCheck = (statName: string) => {
-    if (!character) {
-      return;
-    }
-    spellInteractions.diceRoller.rollD20Check(
-      statName,
-      getAbilityModifierByName(character, statName),
-    );
-  };
-
-  const handleRollInitiative = () => {
-    spellInteractions.diceRoller.rollD20Check("Iniciativa", initiative);
-  };
-
-  const handleRollSavingThrow = (label: string, total: number) => {
-    spellInteractions.diceRoller.rollD20Check(`Salvacion de ${label}`, total);
-  };
-
-  const handleRollSkill = (label: string, total: number) => {
-    spellInteractions.diceRoller.rollD20Check(label, total);
-  };
-
-  const handleRollWeaponAttack = (weaponName: string, bonus: number | null) => {
-    if (bonus === null) {
-      return;
-    }
-    spellInteractions.diceRoller.rollD20Check(
-      `Ataque con ${weaponName}`,
-      bonus,
-    );
-  };
-
-  const handleRollActionDamage = (action: CharacterAbilityResponse) => {
-    if (!character) {
-      return;
-    }
-    const expression = getActionDamageParts(character, action).expression;
-    if (!expression) {
-      return;
-    }
-    spellInteractions.diceRoller.rollExpression(
-      `Daño de ${action.nombre}`,
-      expression,
-    );
-  };
-
-  const handleAdjustSpellSlot = (level: number, delta: number) => {
-    if (!character) {
-      return;
-    }
-    if (isEditMode) {
-      const maxSlots = editableSpellSlotMaximums[level] ?? 0;
-      setCurrentSpellSlots((current) => ({
-        ...current,
-        [level]: Math.max(
-          0,
-          Math.min(maxSlots, (current[level] ?? maxSlots) + delta),
-        ),
-      }));
-      return;
-    }
-
-    const totalSlots = character.estadisticas[`Hechizos nivel ${level}`] ?? 0;
-    if (totalSlots <= 0) {
-      return;
-    }
-
-    setCurrentSpellSlots((current) => {
-      const nextValue = Math.min(
-        totalSlots,
-        Math.max(0, (current[level] ?? totalSlots) + delta),
-      );
-      return { ...current, [level]: nextValue };
-    });
-  };
-
-  const handleAdjustSpellSlotMax = (level: number, delta: number) => {
-    setEditableSpellSlotMaximums((current) => {
-      const nextMax = Math.max(0, Math.min(30, (current[level] ?? 0) + delta));
-      setCurrentSpellSlots((currentSlots) => ({
-        ...currentSlots,
-        [level]:
-          nextMax === 0 ? 0 : Math.min(nextMax, currentSlots[level] ?? nextMax),
-      }));
-      return { ...current, [level]: nextMax };
-    });
-  };
-
-  const handleAdjustExtraResource = (resourceIndex: number, delta: number) => {
-    const maxValue = isEditMode
-      ? (editableExtraResourceMaximums[resourceIndex] ?? 0)
-      : (extractExtraResources(character?.estadisticas ?? {}).find(
-          (entry) => entry.index === resourceIndex,
-        )?.max ?? 0);
-    setCurrentExtraResources((current) => ({
-      ...current,
-      [resourceIndex]: Math.max(
-        0,
-        Math.min(maxValue, (current[resourceIndex] ?? maxValue) + delta),
-      ),
-    }));
-  };
-
-  const handleAdjustExtraResourceMax = (
-    resourceIndex: number,
-    delta: number,
-  ) => {
-    setEditableExtraResourceMaximums((current) => {
-      const nextMax = Math.max(
-        0,
-        Math.min(30, (current[resourceIndex] ?? 0) + delta),
-      );
-      setCurrentExtraResources((currentResources) => ({
-        ...currentResources,
-        [resourceIndex]:
-          nextMax === 0
-            ? 0
-            : Math.min(nextMax, currentResources[resourceIndex] ?? nextMax),
-      }));
-      return { ...current, [resourceIndex]: nextMax };
-    });
-  };
+  const remoteActions = useCharacterSheetRemoteActions({
+    character,
+    currentExtraResources,
+    currentSpellSlots,
+    editableAlignment,
+    editableExtraResourceMaximums,
+    editableLanguagesText,
+    editableMaxHp,
+    editableMovement,
+    editableName,
+    editablePersonalHistory,
+    editableSavingThrowProficiencies,
+    editableSkillExpertise,
+    editableSkillProficiencies,
+    editableSpellSlotMaximums,
+    editableStatScores,
+    editableToolCompetencies,
+    editableWeaponArmorCompetencies,
+    onCloseSpellDetail: spellInteractions.closeSpellDetail,
+    onGoCharacters,
+    onSetDeleteCharacterConfirmOpen: setIsDeleteCharacterConfirmOpen,
+    onSetEditMode: setIsEditMode,
+    onSetResourceSaveError: setResourceSaveError,
+    onSetSelectedInventoryItem: setSelectedInventoryItem,
+    onSyncCharacterDetail: syncCharacterDetail,
+    selectedInventoryItemId: selectedInventoryItem?.id ?? null,
+  });
 
   const handleToggleSavingThrowProficiency = (statName: string) => {
     setEditableSavingThrowProficiencies((current) =>
@@ -759,60 +305,26 @@ export function useDndCharacterSheetController(
   };
 
   const handleToggleSkillProficiency = (skillName: string) => {
-    setEditableSkillProficiencies((current) =>
-      current.includes(skillName)
-        ? current.filter((item) => item !== skillName)
-        : [...current, skillName],
-    );
-  };
+    setEditableSkillProficiencyLevels((current) => {
+      const nextLevel = (((current[skillName] ?? 0) + 1) % 3) as 0 | 1 | 2;
+      const nextLevels = { ...current, [skillName]: nextLevel };
+      if (nextLevel === 0) {
+        delete nextLevels[skillName];
+      }
 
-  const handleCancelEdit = () => {
-    if (!character) {
-      return;
-    }
-    syncCharacterDetail(character);
-    setIsEditMode(false);
-  };
-
-  const handleSaveEdit = async () => {
-    const authToken = localStorage.getItem("jwtToken");
-    if (!authToken || !character) {
-      return;
-    }
-
-    try {
-      const payload: UpdateDndCharacterSheetRequest = {
-        nombre: editableName.trim() || character.nombre,
-        alineamiento: editableAlignment.trim() || null,
-        historiaPersonal: editablePersonalHistory.trim() || null,
-        idiomasTexto: editableLanguagesText,
-        competenciasArmasArmaduras: editableWeaponArmorCompetencies,
-        competenciasHerramientas: editableToolCompetencies,
-        estadisticasBase: editableStatScores,
-        movimiento: editableMovement,
-        vidaMaxima: editableMaxHp,
-        espaciosConjuroMaximos: editableSpellSlotMaximums,
-        espaciosConjuroActuales: currentSpellSlots,
-        recursosExtraMaximos: editableExtraResourceMaximums,
-        recursosExtraActuales: currentExtraResources,
-        salvacionesCompetentes: editableSavingThrowProficiencies,
-        habilidadesCompetentes: editableSkillProficiencies,
-      };
-      const updatedCharacter = await updateDndCharacterSheet(
-        authToken,
-        character.id,
-        payload,
+      setEditableSkillProficiencies(
+        Object.entries(nextLevels)
+          .filter(([, level]) => level >= 1)
+          .map(([name]) => name),
       );
-      syncCharacterDetail(updatedCharacter);
-      setIsEditMode(false);
-      setResourceSaveError(null);
-    } catch (error) {
-      setResourceSaveError(
-        error instanceof Error
-          ? error.message
-          : "No se pudo guardar la edición del personaje.",
+      setEditableSkillExpertise(
+        Object.entries(nextLevels)
+          .filter(([, level]) => level >= 2)
+          .map(([name]) => name),
       );
-    }
+
+      return nextLevels;
+    });
   };
 
   const handleToggleAbilityUsage = (abilityId: number) => {
@@ -820,331 +332,6 @@ export function useDndCharacterSheetController(
       ...current,
       [abilityId]: !(current[abilityId] ?? false),
     }));
-  };
-
-  const handleShortRestRecovery = () => {
-    if (!character) {
-      return;
-    }
-
-    setAbilityUsage((current) =>
-      Object.fromEntries(
-        Object.entries(current).map(([key, value]) => {
-          const ability = character.habilidades.find(
-            (item) => item.id === Number(key),
-          );
-          if (!ability || !value) {
-            return [key, value];
-          }
-          return [
-            key,
-            shouldResetAbilityUsageOnRest(ability, "short") ? false : value,
-          ];
-        }),
-      ),
-    );
-  };
-
-  const handleConfirmShortRest = () => {
-    if (hitDiceEntries.length === 0) {
-      setIsShortRestModalOpen(false);
-      return;
-    }
-
-    let totalHealedAmount = 0;
-    const nextHitDice = { ...currentHitDice };
-    const rollRequests: { title: string; expression: string }[] = [];
-    for (const entry of hitDiceEntries) {
-      const usedDice = Math.min(
-        shortRestHitDiceCounts[entry.die] ?? 0,
-        currentHitDice[entry.die] ?? entry.total,
-      );
-      if (usedDice <= 0) {
-        continue;
-      }
-      const restExpression =
-        constitutionModifier === 0
-          ? `${usedDice}${entry.die}`
-          : constitutionModifier > 0
-            ? `${usedDice}${entry.die} + ${constitutionModifier * usedDice}`
-            : `${usedDice}${entry.die} - ${Math.abs(constitutionModifier * usedDice)}`;
-      const faces = Number.parseInt(entry.die.replace(/\D+/g, ""), 10);
-      const rolledTotal = Array.from({ length: usedDice }, () =>
-        Number.isNaN(faces) ? 0 : secureRandomInt(1, faces),
-      ).reduce((total, value) => total + value, 0);
-      totalHealedAmount += Math.max(
-        0,
-        rolledTotal + constitutionModifier * usedDice,
-      );
-      nextHitDice[entry.die] = Math.max(
-        0,
-        (currentHitDice[entry.die] ?? entry.total) - usedDice,
-      );
-      rollRequests.push({
-        title: `Descanso corto ${usedDice}${entry.die}`,
-        expression: restExpression,
-      });
-    }
-
-    if (rollRequests.length > 0) {
-      spellInteractions.diceRoller.rollExpressionsSequence(rollRequests);
-    }
-
-    setCurrentHitDice(nextHitDice);
-    setCurrentHp((current) =>
-      Math.min(Math.min(totalHp, MAX_CURRENT_HP), current + totalHealedAmount),
-    );
-    handleShortRestRecovery();
-    setShortRestHitDiceCounts({});
-    setIsShortRestModalOpen(false);
-  };
-
-  const handleOpenShortRest = () => {
-    setShortRestHitDiceCounts({});
-    setIsShortRestModalOpen(true);
-  };
-
-  const handleLongRest = () => {
-    if (!character) {
-      return;
-    }
-
-    setCurrentHp(Math.min(totalHp, MAX_CURRENT_HP));
-    setTempHp(0);
-    setCurrentSpellSlots(
-      Object.fromEntries(
-        Array.from({ length: 9 }, (_, index) => index + 1)
-          .map((level) => [
-            level,
-            character.estadisticas[`Hechizos nivel ${level}`] ?? 0,
-          ])
-          .filter(([, amount]) => amount > 0),
-      ),
-    );
-    setCurrentHitDice((current) => {
-      const next = { ...current };
-      for (const entry of extractHitDiceStats(character.estadisticas)) {
-        const recovered = Math.max(1, Math.floor(entry.total / 2));
-        next[entry.die] = Math.min(
-          entry.total,
-          (current[entry.die] ?? entry.total) + recovered,
-        );
-      }
-      return next;
-    });
-    setAbilityUsage((current) =>
-      Object.fromEntries(
-        Object.entries(current).map(([key, value]) => {
-          const ability = character.habilidades.find(
-            (item) => item.id === Number(key),
-          );
-          if (!ability || !value) {
-            return [key, value];
-          }
-          return [
-            key,
-            shouldResetAbilityUsageOnRest(ability, "long") ? false : value,
-          ];
-        }),
-      ),
-    );
-  };
-
-  const handleRollSpellAttack = (bonus: number) => {
-    spellInteractions.diceRoller.rollD20Check("Ataque de hechizo", bonus);
-  };
-
-  const handleAdjustMoney = (currency: string, delta: number) => {
-    setCurrentMoney((current) => ({
-      ...current,
-      [currency]: Math.max(0, (current[currency] ?? 0) + delta),
-    }));
-  };
-
-  const handleToggleInventoryEquip = async (
-    itemId: number,
-    equipped: boolean,
-  ) => {
-    const authToken = localStorage.getItem("jwtToken");
-    if (!authToken || !character) {
-      return;
-    }
-
-    try {
-      const updatedCharacter = await updateDndCharacterInventoryItem(
-        authToken,
-        character.id,
-        itemId,
-        { equipado: equipped },
-      );
-      syncCharacterDetail(updatedCharacter);
-      setResourceSaveError(null);
-    } catch (error) {
-      setResourceSaveError(
-        error instanceof Error
-          ? error.message
-          : "No se pudo actualizar el equipamiento del personaje.",
-      );
-    }
-  };
-
-  const handleAddInventoryItem = async (
-    payload: AddDndCharacterInventoryItemRequest,
-  ) => {
-    const authToken = localStorage.getItem("jwtToken");
-    if (!authToken || !character) {
-      throw new Error("No se pudo autenticar la hoja del personaje.");
-    }
-    const updatedCharacter = await addDndCharacterInventoryItem(
-      authToken,
-      character.id,
-      payload,
-    );
-    syncCharacterDetail(updatedCharacter);
-    setResourceSaveError(null);
-  };
-
-  const handleDeleteSelectedInventoryItem = async () => {
-    const authToken = localStorage.getItem("jwtToken");
-    if (!authToken || !character || !selectedInventoryItem) {
-      return;
-    }
-    try {
-      const updatedCharacter = await deleteDndCharacterInventoryItem(
-        authToken,
-        character.id,
-        selectedInventoryItem.id,
-      );
-      syncCharacterDetail(updatedCharacter);
-      setSelectedInventoryItem(null);
-      setResourceSaveError(null);
-    } catch (error) {
-      setResourceSaveError(
-        error instanceof Error
-          ? error.message
-          : "No se pudo eliminar el objeto de la mochila.",
-      );
-    }
-  };
-
-  const handleUpdateSelectedInventoryQuantity = async (quantity: number) => {
-    const authToken = localStorage.getItem("jwtToken");
-    if (!authToken || !character || !selectedInventoryItem) {
-      return;
-    }
-    try {
-      const updatedCharacter = await updateDndCharacterInventoryItem(
-        authToken,
-        character.id,
-        selectedInventoryItem.id,
-        { cantidad: quantity },
-      );
-      syncCharacterDetail(updatedCharacter);
-      setResourceSaveError(null);
-    } catch (error) {
-      setResourceSaveError(
-        error instanceof Error
-          ? error.message
-          : "No se pudo actualizar la cantidad del objeto.",
-      );
-    }
-  };
-
-  const handleAddSpell = async (abilityId: number) => {
-    const authToken = localStorage.getItem("jwtToken");
-    if (!authToken || !character) {
-      throw new Error("No se pudo autenticar la hoja del personaje.");
-    }
-    const updatedCharacter = await addDndCharacterAbility(
-      authToken,
-      character.id,
-      { habilidadId: abilityId },
-    );
-    syncCharacterDetail(updatedCharacter);
-    setResourceSaveError(null);
-  };
-
-  const handleDeleteSelectedSpell = async (spell: CharacterAbilityResponse) => {
-    const authToken = localStorage.getItem("jwtToken");
-    if (!authToken || !character) {
-      return;
-    }
-    try {
-      const updatedCharacter = await deleteDndCharacterAbility(
-        authToken,
-        character.id,
-        spell.id,
-      );
-      syncCharacterDetail(updatedCharacter);
-      spellInteractions.closeSpellDetail();
-      setResourceSaveError(null);
-    } catch (error) {
-      setResourceSaveError(
-        error instanceof Error
-          ? error.message
-          : "No se pudo eliminar el hechizo del personaje.",
-      );
-    }
-  };
-
-  const handleDeleteCharacter = async () => {
-    const authToken = localStorage.getItem("jwtToken");
-    if (!authToken || !character) {
-      return;
-    }
-    try {
-      await deleteDndCharacter(authToken, character.id);
-      setIsDeleteCharacterConfirmOpen(false);
-      onGoCharacters();
-    } catch (error) {
-      setResourceSaveError(
-        error instanceof Error
-          ? error.message
-          : "No se pudo eliminar el personaje.",
-      );
-    }
-  };
-
-  const handleSaveExperience = async (experience: number) => {
-    const authToken = localStorage.getItem("jwtToken");
-    if (!authToken || !character) {
-      throw new Error("No se pudo autenticar la hoja del personaje.");
-    }
-    const updatedCharacter = await updateDndCharacterExperience(
-      authToken,
-      character.id,
-      { experiencia: experience },
-    );
-    syncCharacterDetail(updatedCharacter);
-    setResourceSaveError(null);
-  };
-
-  const handleSubmitLevelUp = async (payload: LevelUpDndCharacterRequest) => {
-    const authToken = localStorage.getItem("jwtToken");
-    if (!authToken || !character) {
-      throw new Error("No se pudo autenticar la hoja del personaje.");
-    }
-    const updatedCharacter = await levelUpDndCharacter(
-      authToken,
-      character.id,
-      payload,
-    );
-    syncCharacterDetail(updatedCharacter);
-    setResourceSaveError(null);
-  };
-
-  const handleLevelDown = async (classId: string) => {
-    const authToken = localStorage.getItem("jwtToken");
-    if (!authToken || !character) {
-      throw new Error("No se pudo autenticar la hoja del personaje.");
-    }
-    const updatedCharacter = await levelDownDndCharacter(
-      authToken,
-      character.id,
-      { claseId: classId } as LevelDownDndCharacterRequest,
-    );
-    syncCharacterDetail(updatedCharacter);
-    setResourceSaveError(null);
   };
 
   return {
@@ -1167,59 +354,64 @@ export function useDndCharacterSheetController(
     editableName,
     editablePersonalHistory,
     editableSavingThrowProficiencies,
+    editableSkillExpertise,
+    editableSkillProficiencyLevels,
     editableSkillProficiencies,
     editableSpellSlotMaximums,
     editableStatScores,
     editableToolCompetencies,
     editableWeaponArmorCompetencies,
-    handleAddInventoryItem,
-    handleAddSpell,
-    handleAdjustExtraResource,
-    handleAdjustExtraResourceMax,
-    handleAdjustMoney,
-    handleAdjustSpellSlot,
-    handleAdjustSpellSlotMax,
-    handleCancelEdit,
-    handleConfirmShortRest,
-    handleDamage,
-    handleDecrementHpDelta,
-    handleDecrementTempHpDelta,
-    handleDeleteCharacter,
-    handleDeleteSelectedInventoryItem,
-    handleDeleteSelectedSpell,
-    handleGainTempHp,
-    handleHeal,
-    handleIncrementHpDelta,
-    handleIncrementTempHpDelta,
-    handleLevelDown,
-    handleLongRest,
-    handleLoseTempHp,
-    handleOpenShortRest,
-    handleRollAbilityCheck,
-    handleRollActionDamage,
-    handleRollInitiative,
-    handleRollSavingThrow,
-    handleRollSkill,
-    handleRollSpellAttack,
-    handleRollWeaponAttack,
-    handleSaveEdit,
-    handleSaveExperience,
-    handleSubmitLevelUp,
+    handleAddInventoryItem: remoteActions.handleAddInventoryItem,
+    handleAddSpell: remoteActions.handleAddSpell,
+    handleAdjustExtraResource: resourceManagement.handleAdjustExtraResource,
+    handleAdjustExtraResourceMax:
+      resourceManagement.handleAdjustExtraResourceMax,
+    handleAdjustMoney: resourceManagement.handleAdjustMoney,
+    handleAdjustSpellSlot: resourceManagement.handleAdjustSpellSlot,
+    handleAdjustSpellSlotMax: resourceManagement.handleAdjustSpellSlotMax,
+    handleCancelEdit: remoteActions.handleCancelEdit,
+    handleConfirmShortRest: resourceManagement.handleConfirmShortRest,
+    handleDamage: resourceManagement.handleDamage,
+    handleDecrementHpDelta: resourceManagement.handleDecrementHpDelta,
+    handleDecrementTempHpDelta: resourceManagement.handleDecrementTempHpDelta,
+    handleDeleteCharacter: remoteActions.handleDeleteCharacter,
+    handleDeleteSelectedInventoryItem:
+      remoteActions.handleDeleteSelectedInventoryItem,
+    handleDeleteSelectedSpell: remoteActions.handleDeleteSelectedSpell,
+    handleGainTempHp: resourceManagement.handleGainTempHp,
+    handleHeal: resourceManagement.handleHeal,
+    handleIncrementHpDelta: resourceManagement.handleIncrementHpDelta,
+    handleIncrementTempHpDelta: resourceManagement.handleIncrementTempHpDelta,
+    handleLevelDown: remoteActions.handleLevelDown,
+    handleLongRest: resourceManagement.handleLongRest,
+    handleLoseTempHp: resourceManagement.handleLoseTempHp,
+    handleOpenShortRest: resourceManagement.handleOpenShortRest,
+    handleRollAbilityCheck: resourceManagement.handleRollAbilityCheck,
+    handleRollActionDamage: resourceManagement.handleRollActionDamage,
+    handleRollInitiative: resourceManagement.handleRollInitiative,
+    handleRollSavingThrow: resourceManagement.handleRollSavingThrow,
+    handleRollSkill: resourceManagement.handleRollSkill,
+    handleRollSpellAttack: resourceManagement.handleRollSpellAttack,
+    handleRollWeaponAttack: resourceManagement.handleRollWeaponAttack,
+    handleSaveEdit: remoteActions.handleSaveEdit,
+    handleSaveExperience: remoteActions.handleSaveExperience,
+    handleSubmitLevelUp: remoteActions.handleSubmitLevelUp,
     handleToggleAbilityUsage,
-    handleToggleInventoryEquip,
+    handleToggleInventoryEquip: remoteActions.handleToggleInventoryEquip,
     handleToggleSavingThrowProficiency,
     handleToggleSkillProficiency,
-    handleUpdateSelectedInventoryQuantity,
-    hitDiceEntries,
-    hpDelta,
-    initiative,
+    handleUpdateSelectedInventoryQuantity:
+      remoteActions.handleUpdateSelectedInventoryQuantity,
+    hitDiceEntries: resourceManagement.hitDiceEntries,
+    hpDelta: resourceManagement.hpDelta,
+    initiative: resourceManagement.initiative,
     isDeleteCharacterConfirmOpen,
     isEditMode,
     isInventoryCatalogOpen,
     isLevelManagementOpen,
     isLevelUpOpen,
     isLoading,
-    isShortRestModalOpen,
+    isShortRestModalOpen: resourceManagement.isShortRestModalOpen,
     isSpellCatalogOpen,
     levelModalMode,
     loadError,
@@ -1236,30 +428,32 @@ export function useDndCharacterSheetController(
     setEditableMovement,
     setEditableName,
     setEditablePersonalHistory,
+    setEditableSkillExpertise,
+    setEditableSkillProficiencyLevels,
     setEditableSkillProficiencies,
     setEditableStatScores,
     setEditableToolCompetencies,
     setEditableWeaponArmorCompetencies,
-    setHpDelta,
+    setHpDelta: resourceManagement.setHpDelta,
     setIsDeleteCharacterConfirmOpen,
     setIsEditMode,
     setIsInventoryCatalogOpen,
     setIsLevelManagementOpen,
     setIsLevelUpOpen,
-    setIsShortRestModalOpen,
+    setIsShortRestModalOpen: resourceManagement.setIsShortRestModalOpen,
     setIsSpellCatalogOpen,
     setLevelModalMode,
     setSelectedInventoryItem,
     setSelectedPassive,
-    setShortRestHitDiceCounts,
-    setTempHpDelta,
-    shortRestHitDiceCounts,
+    setShortRestHitDiceCounts: resourceManagement.setShortRestHitDiceCounts,
+    setTempHpDelta: resourceManagement.setTempHpDelta,
+    shortRestHitDiceCounts: resourceManagement.shortRestHitDiceCounts,
     spellInteractions,
     tempHp,
-    tempHpDelta,
+    tempHpDelta: resourceManagement.tempHpDelta,
     token,
-    totalCharacterLevel,
-    totalHp,
+    totalCharacterLevel: resourceManagement.totalCharacterLevel,
+    totalHp: resourceManagement.totalHp,
     resolveCharacterFormula,
     normalizeText,
   };

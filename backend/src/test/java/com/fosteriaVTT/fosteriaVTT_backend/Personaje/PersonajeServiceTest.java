@@ -262,6 +262,7 @@ class PersonajeServiceTest {
                 Map.of(1, 1),
                 Map.of(1, 0),
                 List.of("Fuerza"),
+                List.of("Arcano"),
                 List.of("Arcano")
         );
 
@@ -271,7 +272,7 @@ class PersonajeServiceTest {
         assertNotNull(personaje.getBiografia());
         verify(dndAbilityUtils).sincronizarIdiomasEditables(personaje, "Comun, Elfico");
         verify(dndAbilityUtils).sincronizarCompetenciasEditables(personaje, List.of("Armas simples"), List.of("Herramientas de ladron"));
-        verify(estadisticaService).actualizarEdicionHoja(eq(personaje), eq(Map.of("Fuerza", 16, "Destreza", 12, "Constitucion", 10, "Inteligencia", 10, "Sabiduria", 10, "Carisma", 10)), eq(30), eq(20), eq(Map.of(1, 4)), eq(Map.of(1, 3)), eq(Map.of(1, 1)), eq(Map.of(1, 0)), eq(java.util.Set.of("fuerza")), eq(java.util.Set.of("arcano")), eq(2));
+        verify(estadisticaService).actualizarEdicionHoja(eq(personaje), eq(Map.of("Fuerza", 16, "Destreza", 12, "Constitucion", 10, "Inteligencia", 10, "Sabiduria", 10, "Carisma", 10)), eq(30), eq(20), eq(Map.of(1, 4)), eq(Map.of(1, 3)), eq(Map.of(1, 1)), eq(Map.of(1, 0)), eq(java.util.Set.of("fuerza")), eq(java.util.Set.of("arcano")), eq(java.util.Set.of("arcano")), eq(2));
         verify(personajeRepository).save(personaje);
         assertEquals(3L, detalle.id());
         assertThrows(ResponseStatusException.class, () -> personajeService.actualizarHojaPersonaje(3L, null, "daria"));

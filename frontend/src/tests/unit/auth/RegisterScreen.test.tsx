@@ -2,11 +2,11 @@
 import "@testing-library/jest-dom/vitest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  act,
   cleanup,
   fireEvent,
   render,
   screen,
-  waitFor,
 } from "@testing-library/react";
 import RegisterScreen from "../../../screens/RegisterScreen";
 
@@ -41,6 +41,7 @@ describe("RegisterScreen", () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.unstubAllGlobals();
     cleanup();
   });
@@ -93,6 +94,8 @@ describe("RegisterScreen", () => {
   });
 
   it("muestra el mensaje de éxito y notifica cuando el registro termina", async () => {
+    vi.useFakeTimers();
+
     const onRegisterSuccess = vi.fn();
     vi.mocked(fetch).mockResolvedValue({
       ok: true,
@@ -117,16 +120,14 @@ describe("RegisterScreen", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "REGISTRARSE" }));
 
-    expect(
-      await screen.findByText("¡Registro completado!"),
-    ).toBeInTheDocument();
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
 
-    await waitFor(
-      () => {
-        expect(onRegisterSuccess).toHaveBeenCalledTimes(1);
-      },
-      { timeout: 2000 },
-    );
+    expect(screen.getByText("¡Registro completado!")).toBeInTheDocument();
+    expect(onRegisterSuccess).toHaveBeenCalledTimes(1);
+
+    vi.useRealTimers();
   });
 
   it("permite volver a login desde el pie del formulario", () => {

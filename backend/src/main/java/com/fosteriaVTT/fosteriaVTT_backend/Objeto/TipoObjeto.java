@@ -5,5 +5,6 @@ public enum TipoObjeto {
     ARMADURA,
     CONSUMIBLE,
     MISCELANEO,
-    DINERO
+    DINERO,
+    OBJETO_INTERNO  // No se muestra al usuario, solo para validación lógica interna
 }

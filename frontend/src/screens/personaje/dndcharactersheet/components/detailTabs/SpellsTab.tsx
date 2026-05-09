@@ -1,5 +1,5 @@
 import type { CharacterAbilityResponse } from "../../../utils/dndApi";
-import { formatSignedValue } from "../../utils";
+import { formatSignedValue } from "../../utils/characterCore";
 import { SpellRows } from "./shared";
 
 interface SpellsTabProps {

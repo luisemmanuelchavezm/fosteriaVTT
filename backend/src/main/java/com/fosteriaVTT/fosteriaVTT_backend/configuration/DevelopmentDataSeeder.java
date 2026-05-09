@@ -527,7 +527,7 @@ public class DevelopmentDataSeeder {
     @Bean
     @Order(5)
     CommandLineRunner syncRequestedDndSkillTexts(HabilidadRepository habilidadRepository) {
-        return args -> CompletableFuture.runAsync(() -> seedSkillCatalogEntries(habilidadRepository, List.of(
+        return args -> seedSkillCatalogEntries(habilidadRepository, List.of(
                 buildSkill("Acrobacias", null, null, "Pruebas de equilibrio, volteretas y maniobras acrobaticas.", "DND,CatalogoHabilidadDnd;acrobacias"),
                 buildSkill("Arcano", null, null, "Conocimiento de magia, teoria arcana y tradiciones misticas.", "DND,CatalogoHabilidadDnd;arcano"),
                 buildSkill("Atletismo", null, null, "Pruebas de fuerza fisica, salto, escalada y natacion.", "DND,CatalogoHabilidadDnd;atletismo"),
@@ -607,7 +607,7 @@ public class DevelopmentDataSeeder {
                 buildSkill("Reflejos de ladron", null, "2 turnos en la primera ronda si no estas sorprendido", "Eres extraordinariamente veloz al empezar un combate. Si no estás sorprendido, puedes actuar dos veces durante la primera ronda: una en tu iniciativa normal y otra en tu iniciativa menos 10.", "CPicaro;17,Ladron,Iniciativa"),
                 buildSkill("Golpe mortal", null, null, "Cuando atacas e impactas a una criatura sorprendida, debe hacer una salvación de Constitución. Si falla, el daño del ataque se duplica contra ella.", "CPicaro;17,Asesino,Daño+,Critico+"),
                 buildSkill("Ladron de conjuros", null, null, "Inmediatamente después de que una criatura te lance un conjuro cuyo objetivo seas tú o que te incluya en su área, puedes usar tu reacción para forzar una salvación con su modificador de conjuro. Si falla, anulas el efecto del conjuro sobre ti y puedes lanzar ese conjuro tú mismo durante las siguientes 8 horas usando tus espacios de conjuro.", "CPicaro;17,EmbaucadorArcano,Conjuro,Reaccion")
-            )));
+            ));
     }
 
     @Bean
@@ -620,15 +620,16 @@ public class DevelopmentDataSeeder {
             DndCharacterCreationUtils dndCharacterCreationUtils,
             PasswordEncoder passwordEncoder
     ) {
-        return args -> CompletableFuture.runAsync(() -> {
-            if (userRepository.count() > 0 || personajeRepository.count() > 0) {
-                return;
-            }
-
+        return args -> {
             String encodedPassword = passwordEncoder.encode("123456789");
 
-            Usuario sai = userRepository.save(buildUser("sai", "sai@fosteria.dev", encodedPassword, "https://res.cloudinary.com/doxqtmi46/image/upload/w_400,h_400,c_fill,g_auto,f_auto/v1775176044/Dame_el_personaje_202604030019_jop3pc.jpg"));
-            Usuario luna = userRepository.save(buildUser("luna", "luna@fosteria.dev", encodedPassword, CHARACTER_IMAGE_ONE));
+                Usuario sai = userRepository.findByUsername("sai")
+                    .orElseGet(() -> userRepository.save(buildUser(
+                        "sai",
+                        "sai@fosteria.dev",
+                        encodedPassword,
+                        "https://res.cloudinary.com/doxqtmi46/image/upload/w_400,h_400,c_fill,g_auto,f_auto/v1775176044/Dame_el_personaje_202604030019_jop3pc.jpg"
+                    )));
 
                 habilidadRepository.saveAll(List.of(
                     buildSkill(
@@ -764,24 +765,48 @@ public class DevelopmentDataSeeder {
                         buildSkill("Arrebato de accion", null, "1 accion adicional", "en tu turno puedes realizar una accion adicional aparte de tu accion normal y posible accion adicional.", "CGuerrero;2,AccionExtra"),
                         buildSkill("Arquetipo marcial", null, null, "eliges un arquetipo marcial. Entre las opciones disponibles están campeón, maestro de batalla y caballero arcano.", "CGuerrero;3,Subclase"),
                         buildSkill("Critico mejorado", null, "critico con 19-20", "tus ataques con arma logran golpe critico con 19 o 20 en el d20.", "CGuerrero;3,Campeon,Critico+"),
+                        buildSkill("Dados de supremacía", null, "4 dados d8; recuperas todo en descanso corto o largo", "aprendes a usar dados de supremacia para potenciar maniobras marciales. comienzas con cuatro dados de d8 y recuperas todos tus usos al terminar un descanso corto o largo.", "CGuerrero;3,MaestroDeBatalla,Combate,Descanso"),
+                        buildSkill("Maniobras", null, "3 maniobras al nivel 3; +2 al 7, 10 y 15", "aprendes maniobras especiales que consumen tus dados de supremacia y mejoran tus ataques, defensa o apoyo tactico.", "CGuerrero;3,MaestroDeBatalla,Combate,Tactica"),
+                        buildSkill("Lanzamiento de conjuros", null, "INT para conjuros", "aprendes magia arcana para complementar tu estilo de combate. lanzas conjuros de mago usando inteligencia como caracteristica de conjuro.", "CGuerrero;3,CaballeroArcano,Conjuro,Inteligencia"),
+                        buildSkill("Vínculo con arma", null, "no te pueden desarmar; invocas el arma como accion adicional", "realizas un ritual con hasta dos armas para vincularte a ellas. mientras esten en tu mismo plano no puedes ser desarmado de ellas voluntariamente y puedes invocar una de las armas vinculadas a tu mano como accion adicional.", "CGuerrero;3,CaballeroArcano,Arma,AccionExtra"),
                         buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;4,MejoraCaracteristica"),
                         buildSkill("Ataque extra", null, "2 ataques por accion de atacar", "puedes atacar dos veces cuando realizas la accion de atacar.", "CGuerrero;5,Multiataque"),
                         buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;6,MejoraCaracteristica"),
                         buildSkill("Atleta notable", null, "+1/2 competencia a pruebas de FUE, DES y CON sin competencia", "sumas la mitad de tu competencia a ciertas pruebas fisicas y mejoras tus saltos con carrera.", "CGuerrero;7,Campeon,Pruebas,Movimiento"),
+                        buildSkill("Magia de Guerra", null, "accion adicional: un ataque tras lanzar un truco", "cuando usas tu accion para lanzar un truco, puedes realizar un ataque con arma como accion adicional.", "CGuerrero;7,CaballeroArcano,Conjuro,AccionExtra,Ataque+"),
                         buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;8,MejoraCaracteristica"),
                         buildSkill("Indomable", null, "repite 1 salvacion fallida por descanso largo", "puedes repetir una tirada de salvacion fallida, pero debes usar el nuevo resultado.", "CGuerrero;9,Salvacion"),
                         buildSkill("Estilo de combate adicional", null, null, "el campeon aprende un segundo estilo de combate.", "CGuerrero;10,Campeon,Combate"),
+                        buildSkill("Golpe Sobrenatural", null, "los golpes con arma reducen la ventaja en salvaciones contra tus conjuros", "cuando impactas a una criatura con un ataque con arma, esa criatura tiene desventaja en la siguiente tirada de salvacion que haga contra un conjuro que lances antes de que acabe tu siguiente turno.", "CGuerrero;10,CaballeroArcano,Conjuro,Control"),
                         buildSkill("Ataque extra (2)", null, "3 ataques por accion de atacar", "ahora realizas tres ataques cuando usas la accion de atacar.", "CGuerrero;11,Multiataque"),
                         buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;12,MejoraCaracteristica"),
                         buildSkill("Indomable", null, "2 usos por descanso largo", "puedes usar indomable dos veces entre descansos largos.", "CGuerrero;13,Salvacion"),
                         buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;14,MejoraCaracteristica"),
                         buildSkill("Critico superior", null, "critico con 18-20", "tus ataques con arma hacen critico con 18, 19 o 20.", "CGuerrero;15,Campeon,Critico+"),
+                        buildSkill("Carga Arcana", null, "teletransporte 30 pies al usar arrebato de accion", "si usas arrebato de accion puedes teletransportarte hasta 30 pies a un espacio que veas antes o despues de tu accion adicional.", "CGuerrero;15,CaballeroArcano,Movimiento,Teleportacion,AccionExtra"),
                         buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;16,MejoraCaracteristica"),
                         buildSkill("Arrebato de accion mejorado", null, "2 usos por descanso", "puedes usar arrebato de accion dos veces entre descansos, aunque solo una vez por turno.", "CGuerrero;17,AccionExtra"),
                         buildSkill("Indomable", null, "3 usos por descanso largo", "puedes usar indomable tres veces entre descansos largos.", "CGuerrero;17,Salvacion"),
+                        buildSkill("Magia de Guerra Mejorada", null, "ataque como accion adicional tras lanzar cualquier conjuro", "cuando usas tu accion para lanzar un conjuro, puedes realizar un ataque con arma como accion adicional.", "CGuerrero;18,CaballeroArcano,Conjuro,AccionExtra,Ataque+"),
                         buildSkill("Superviviente", null, "recuperas 5 + CON PG por turno si estas a mitad de vida o menos", "si estas herido pero no a 0 puntos de golpe, recuperas vida al inicio de cada turno.", "CGuerrero;18,Campeon,Curacion,Supervivencia"),
                         buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;19,MejoraCaracteristica"),
                         buildSkill("Ataque extra (3)", null, "4 ataques por accion de atacar", "alcanzas cuatro ataques por cada accion de atacar.", "CGuerrero;20,Multiataque"),
+                        buildSkill("Arremetida", null, "al impactar, gastas un dado para anadir dano y empujar", "cuando impactas con un ataque con arma puedes gastar un dado de supremacia para infligir dano adicional e intentar empujar al objetivo hacia atras.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque Amenazador", null, "al impactar, anades dano y puedes asustar", "cuando impactas con un ataque con arma puedes gastar un dado de supremacia para anadir dano e intentar asustar al objetivo.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque de Barrido", null, "al impactar, anades dano a otro objetivo cercano", "cuando impactas con un ataque cuerpo a cuerpo puedes gastar un dado de supremacia para herir tambien a otra criatura cercana.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque Preciso", null, "anades el dado a la tirada de ataque", "puedes gastar un dado de supremacia para mejorar una tirada de ataque antes o despues de tirar, pero antes de saber si impacta.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque Provocador", null, "al impactar, anades dano y marcas al objetivo", "cuando impactas puedes gastar un dado de supremacia para infligir dano adicional y dificultar que el objetivo ataque a tus aliados.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque y Derribo", null, "al impactar, anades dano y puedes derribar", "cuando impactas con un arma puedes gastar un dado de supremacia para anadir dano e intentar dejar tumbado al objetivo.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque y Desarme", null, "al impactar, anades dano y puedes desarmar", "cuando impactas puedes gastar un dado de supremacia para anadir dano e intentar que el objetivo suelte un objeto que sostenga.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque y Distracción", null, "al impactar, anades dano y das ventaja a un aliado", "cuando impactas puedes gastar un dado de supremacia para distraer al objetivo y abrir una oportunidad de ataque para un aliado.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque y Empujón", null, "al impactar, anades dano y puedes empujar lateralmente", "cuando impactas puedes gastar un dado de supremacia para desplazar al objetivo a otra posicion cercana.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque y Maniobra", null, "al impactar, anades dano y mueves a un aliado", "cuando impactas puedes gastar un dado de supremacia para que un aliado se mueva usando su reaccion sin provocar ataques de oportunidad del objetivo.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Contraataque", null, "reaccion tras fallo enemigo", "cuando una criatura falla un ataque cuerpo a cuerpo contra ti puedes usar tu reaccion y gastar un dado de supremacia para hacer un ataque de respuesta con dano adicional.", "DND,Guerrero,MaestroDeBatalla,Maniobra,Reaccion"),
+                        buildSkill("Finta", null, "accion adicional para ganar ventaja y dano", "puedes gastar un dado de supremacia como accion adicional para fintar contra una criatura y obtener ventaja en tu siguiente ataque contra ella este turno, anadiendo dano extra si impactas.", "DND,Guerrero,MaestroDeBatalla,Maniobra,AccionExtra"),
+                        buildSkill("Juego de Pies Evasivo", null, "anades el dado a tu CA al moverte", "cuando te mueves puedes gastar un dado de supremacia para aumentar tu CA hasta que dejes de moverte.", "DND,Guerrero,MaestroDeBatalla,Maniobra,Defensa"),
+                        buildSkill("Orden de Ataque", null, "renuncias a un ataque para que un aliado ataque", "cuando realizas la accion de atacar puedes renunciar a uno de tus ataques y gastar un dado de supremacia para dirigir a un aliado a que ataque usando su reaccion.", "DND,Guerrero,MaestroDeBatalla,Maniobra,Tactica"),
+                        buildSkill("Parada", null, "reaccion para reducir dano", "cuando una criatura te causa dano con un ataque cuerpo a cuerpo puedes usar tu reaccion y gastar un dado de supremacia para reducir ese dano.", "DND,Guerrero,MaestroDeBatalla,Maniobra,Defensa,Reaccion"),
+                        buildSkill("Reagrupar", null, "accion adicional para dar PG temporales", "como accion adicional puedes gastar un dado de supremacia para infundir resistencia a un aliado, otorgandole puntos de golpe temporales.", "DND,Guerrero,MaestroDeBatalla,Maniobra,AccionExtra,Supervivencia"),
                         buildSkill("Defensa sin armadura", null, "10 + DES + SAB", "mientras no lleves armadura ni escudo, tu CA se calcula con destreza y sabiduria.", "CMonje;1,Defensa"),
                         buildSkill("Artes marciales", null, "dado marcial inicial 1d4", "puedes usar destreza con tus golpes desarmados y armas de monje, mejorar su dano y realizar un golpe desarmado adicional.", "CMonje;1,Ataque+,Daño+,Destreza"),
                         buildSkill("Ki", null, "puntos de ki = nivel de monje", "empleas puntos de ki para rafaga de golpes, defensa paciente y paso del viento, y otros rasgos que aprendas.", "CMonje;2,Ki"),
@@ -969,11 +994,8 @@ public class DevelopmentDataSeeder {
                         buildSkill("Conjuros distintivos", null, "2 conjuros de nivel 3 con 1 uso gratis por descanso corto o largo", "dominas dos conjuros de nivel 3 que siempre tienes preparados y puedes lanzar con especial facilidad.", "CMago;20,Conjuro")));
 
                 objetoRepository.saveAll(List.of(
-                    buildInitialObject("CatalogoAMCuerpo", "Arma marcial cuerpo a cuerpo", "varía según el arma elegida", "**Objeto genérico de elección**.\n\n* representa cualquier arma marcial cuerpo a cuerpo permitida por el equipo inicial\n* su perfil final depende de la elección del jugador", TipoObjeto.ARMA),
-                    buildInitialObject("CatalogoASimple", "Arma simple", "varía según el arma elegida", "**Objeto genérico de elección**.\n\n* representa cualquier arma simple permitida por el equipo inicial\n* su perfil final depende de la elección del jugador", TipoObjeto.ARMA),
-                    buildInitialObject("", "Pack de explorador", "kit de aventura", "**Equipo de viaje** preparado para expediciones.\n\n* incluye suministros básicos de travesía\n* pensado para supervivencia y desplazamiento", TipoObjeto.MISCELANEO),
-
-                    buildInitialObject("", "Simbolo sagrado", null, "**Foco devocional** ligado a la fe del personaje.\n\n* se emplea en ritos, plegarias y ceremonias", TipoObjeto.MISCELANEO),
+                    buildInitialObject("CatalogoAMCuerpo", "Arma marcial cuerpo a cuerpo", "varía según el arma elegida", "**Objeto genérico de elección**.\n\n* representa cualquier arma marcial cuerpo a cuerpo permitida por el equipo inicial\n* su perfil final depende de la elección del jugador", TipoObjeto.OBJETO_INTERNO),
+                    buildInitialObject("CatalogoASimple", "Arma simple", "varía según el arma elegida", "**Objeto genérico de elección**.\n\n* representa cualquier arma simple permitida por el equipo inicial\n* su perfil final depende de la elección del jugador", TipoObjeto.OBJETO_INTERNO),
                     buildInitialObject("", "Devocionario o rueda de oraciones", null, "**Objeto de devoción** usado en lecturas, rezos o meditaciones prolongadas.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Vara de incienso", null, "**Consumible ritual** para ceremonias, ofrendas y ambientes sagrados.", TipoObjeto.CONSUMIBLE),
                     buildInitialObject("", "Vestiduras", null, "**Indumentaria ceremonial** propia del servicio religioso.", TipoObjeto.MISCELANEO),
@@ -982,70 +1004,44 @@ public class DevelopmentDataSeeder {
 
                     buildInitialObject("", "Palanca", null, "**Herramienta resistente** para forzar accesos o mover obstáculos pesados.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Ropa comun oscura con capucha", null, "**Ropa discreta** pensada para pasar desapercibido en callejones y tejados.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Piezas de oro", null, "**Reserva inicial de dinero** procedente del oficio o del último golpe.", TipoObjeto.DINERO),
-
-                    buildInitialObject("", "Ropa elegante", null, "**Atuendo vistoso** para dar una imagen convincente y llamativa.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Kit de falsificacion", null, "**Conjunto de útiles** para copiar sellos, firmas y documentos.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Herramientas de timo", null, "**Material de estafa callejera**.\n\n* copas precintadas\n* cartas marcadas\n* dados cargados", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Piezas de oro", null, "**Reserva inicial de dinero** para mantener apariencias o preparar el siguiente engaño.", TipoObjeto.DINERO),
-
                     buildInitialObject("", "Instrumento musical", null, "**Herramienta principal de actuación** para música, interpretación o puesta en escena.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Objeto de un admirador", null, "**Recuerdo sentimental** recibido de alguien fascinado por tus actuaciones.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Disfraz", null, "**Vestuario de escena** para adoptar papeles y apariencias distintas.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Piezas de oro", null, "**Reserva inicial de dinero** ganada con actuaciones o favores del público.", TipoObjeto.DINERO),
 
                     buildInitialObject("", "Juego de herramientas de artesano", null, "**Herramientas de oficio** ligadas al origen humilde del personaje.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Pala", null, "**Útil de trabajo** resistente y práctico para tierra y escombros.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Olla de hierro", null, "**Recipiente robusto** para cocinar en casa o en campamento.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Ropa comun", null, "**Ropa cotidiana** propia de la gente llana.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Piezas de oro", null, "**Reserva inicial de dinero** modesta pero útil para el viaje.", TipoObjeto.DINERO),
 
                     buildInitialObject("", "Juego de herramientas de artesano", null, "**Herramientas profesionales** ligadas a tu especialidad dentro del gremio.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Carta de presentacion del gremio", null, "**Documento acreditativo** que prueba tu pertenencia y reputación profesional.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Ropa de viaje", null, "**Ropa práctica** para desplazamientos y jornadas de trabajo.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Piezas de oro", null, "**Reserva inicial de dinero** para manutención, materiales o cuotas.", TipoObjeto.DINERO),
-
                     buildInitialObject("", "Estuche de pergaminos con notas", null, "**Colección de apuntes personales** fruto de años de retiro y estudio.\n\n* observaciones\n* reflexiones\n* descubrimientos", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Manta de invierno", null, "**Manta gruesa** preparada para resistir el frío y las noches al raso.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Ropa comun", null, "**Ropa sencilla** para una vida sobria y austera.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Kit de herborista", null, "**Conjunto de útiles** para recolectar, preparar y clasificar hierbas.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Piezas de oro", null, "**Reserva inicial de dinero** muy contenida.", TipoObjeto.DINERO),
 
                     buildInitialObject("", "Ropa elegante", null, "**Atuendo distinguido** propio de alguien de alta cuna.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Anillo de sello", null, "**Sello familiar** usado para autenticar cartas y documentos.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Pergamino de pedigrí", null, "**Prueba documental del linaje** y la posición de tu familia.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Piezas de oro", null, "**Reserva inicial de dinero** acorde a una crianza acomodada.", TipoObjeto.DINERO),
-
                     buildInitialObject("", "Baston de viaje", null, "**Bastón robusto** para marcha, apoyo o defensa improvisada.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Trampa de caza", null, "**Mecanismo simple** para capturar presas pequeñas.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Trofeo de un animal cazado", null, "**Recuerdo de supervivencia** tomado de una presa importante del pasado.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Ropa de viaje", null, "**Ropa resistente** para la intemperie y el movimiento constante.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Piezas de oro", null, "**Reserva inicial de dinero** para necesidades básicas en ruta.", TipoObjeto.DINERO),
-
                     buildInitialObject("", "Frasco de tinta negra", null, "**Suministro de escritura** para copias, notas y anotaciones.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Pluma", null, "**Herramienta de escritura** para trabajo académico o documental.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Cuchillo pequeño", null, "**Útil ligero** para tareas menores de viaje o estudio.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Carta de un colega fallecido", null, "**Mensaje inconcluso** que impulsa nuevas investigaciones y preguntas.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Ropa comun", null, "**Ropa sencilla** para trabajo y vida diaria.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Piezas de oro", null, "**Reserva inicial de dinero** para viaje, libros o materiales.", TipoObjeto.DINERO),
-
                     buildInitialObject("", "Amuleto de la suerte", null, "**Talismán personal** al que atribuyes tu supervivencia en el mar.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Cuerda de seda", "15 metros", "**Cuerda resistente y flexible** útil a bordo, en escaladas o maniobras.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Ropa comun", null, "**Ropa práctica** para la vida diaria fuera de cubierta.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Piezas de oro", null, "**Reserva inicial de dinero** procedente de soldadas o botines modestos.", TipoObjeto.DINERO),
-
                     buildInitialObject("", "Insignia de rango", null, "**Señal militar** de la posición que ocupaste en tu unidad.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Trofeo de un enemigo caido", null, "**Recuerdo bélico** tomado a un adversario derrotado.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Juego de dados o cartas", null, "**Pasatiempo de campaña** habitual entre soldados durante los descansos.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Ropa comun", null, "**Ropa sencilla** para el tiempo fuera de servicio.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Piezas de oro", null, "**Reserva inicial de dinero** para manutención y camino.", TipoObjeto.DINERO),
 
                     buildInitialObject("", "Cuchillo pequeño", null, "**Herramienta discreta** para sobrevivir en callejones y azoteas.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Mapa de la ciudad", null, "**Mapa urbano** con rutas, callejones y atajos clave.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Raton mascota", null, "**Pequeño compañero callejero** que ha sobrevivido contigo.", TipoObjeto.MISCELANEO),
                     buildInitialObject("", "Recuerdo de tus padres", null, "**Objeto sentimental** conservado como vínculo con tu pasado.", TipoObjeto.MISCELANEO),
-                    buildInitialObject("", "Piezas de oro", null, "**Reserva inicial de dinero** difícilmente reunida pero valiosa.", TipoObjeto.DINERO),
-
                     buildInitialObject("ASimple,ASCuerpo,Ligera", "Garrote", "1d4 contundente", "**Arma simple cuerpo a cuerpo** rudimentaria pero efectiva.\n\n* fácil de encontrar\n* útil en manos poco entrenadas", TipoObjeto.ARMA),
                     buildInitialObject("ASimple,ASCuerpo,Sutil,Ligera,Arrojadiza,Alcance20/60", "Daga", "1d4 perforante", "**Arma simple cuerpo a cuerpo** pequeña y muy versátil.\n\n* sirve tanto en combate cercano como al lanzarla\n* favorece estilos ágiles", TipoObjeto.ARMA),
                     buildInitialObject("ASimple,ASCuerpo,ADosManos", "Gran garrote", "1d8 contundente", "**Arma simple cuerpo a cuerpo** pesada y directa.\n\n* requiere ambas manos\n* prima la fuerza sobre la técnica", TipoObjeto.ARMA),
@@ -1053,7 +1049,6 @@ public class DevelopmentDataSeeder {
                     buildInitialObject("ASimple,ASCuerpo,Arrojadiza,Alcance30/120", "Jabalina", "1d6 perforante", "**Arma simple cuerpo a cuerpo** pensada para hostigar y mantener distancia.\n\n* se puede usar en mano\n* funciona bien al lanzarla", TipoObjeto.ARMA),
                     buildInitialObject("ASimple,ASCuerpo,Ligera,Arrojadiza,Alcance20/60", "Martillo ligero", "1d4 contundente", "**Arma simple cuerpo a cuerpo** manejable y fiable.\n\n* útil en combate cercano\n* puede lanzarse con facilidad", TipoObjeto.ARMA),
                     buildInitialObject("ASimple,ASCuerpo", "Maza", "1d6 contundente", "**Arma simple cuerpo a cuerpo** sólida y directa.\n\n* no requiere técnica compleja\n* concentra su fuerza en impactos brutales", TipoObjeto.ARMA),
-                    buildInitialObject("ASimple,ASCuerpo,Versatil1d8", "Baston", "1d6 contundente", "**Arma simple cuerpo a cuerpo** flexible y común entre viajeros.\n\n* se puede usar con una o dos manos\n* destaca por su versatilidad", TipoObjeto.ARMA),
                     buildInitialObject("ASimple,ASCuerpo,Ligera", "Hoz", "1d4 cortante", "**Arma simple cuerpo a cuerpo** curva y ligera.\n\n* adecuada para cortes rápidos\n* fácil de transportar", TipoObjeto.ARMA),
                     buildInitialObject("ASimple,ASCuerpo,Arrojadiza,Alcance20/60,Versatil1d8", "Lanza", "1d6 perforante", "**Arma simple cuerpo a cuerpo** clásica y polivalente.\n\n* puede lanzarse a corta distancia\n* mejora al usarla con dos manos", TipoObjeto.ARMA),
 
@@ -1088,9 +1083,11 @@ public class DevelopmentDataSeeder {
                     buildInitialObject("AMRango,Especial,Arrojadiza,Alcance5/15", "Red", null, "**Arma marcial a distancia** orientada al control.\n\n* no inflige daño directo\n* se lanza para inmovilizar o entorpecer", TipoObjeto.ARMA)
                 ));
 
-                dndCharacterCreationUtils.crearPersonajeDnd(buildSeededWizardRequest(), CHARACTER_IMAGE_TWO, sai.getUsername());
-                dndCharacterCreationUtils.crearPersonajeDnd(buildSeededClericRequest(), CHARACTER_IMAGE_THREE, luna.getUsername());
-        });
+        CrearPersonajeDndRequest saiWizardCharacter = buildSeededWizardRequest();
+        CrearPersonajeDndRequest saiClericCharacter = buildSeededClericRequest();
+        seedCharacterIfMissing(personajeRepository, dndCharacterCreationUtils, sai, saiWizardCharacter, CHARACTER_IMAGE_TWO);
+        seedCharacterIfMissing(personajeRepository, dndCharacterCreationUtils, sai, saiClericCharacter, CHARACTER_IMAGE_THREE);
+    };
     }
 
     private Usuario buildUser(String username, String email, String password, String avatar) {
@@ -1102,6 +1099,22 @@ public class DevelopmentDataSeeder {
                 .role(Rol.USER)
                 .build();
     }
+
+            private void seedCharacterIfMissing(
+                PersonajeRepository personajeRepository,
+                DndCharacterCreationUtils dndCharacterCreationUtils,
+                Usuario usuario,
+                CrearPersonajeDndRequest request,
+                String imageUrl
+            ) {
+            boolean alreadyExists = personajeRepository.findByUsuarioUsernameOrderByUsadoDesc(usuario.getUsername()).stream()
+                .anyMatch(personaje -> personaje.getNombre().equalsIgnoreCase(request.nombre()));
+            if (alreadyExists) {
+                return;
+            }
+
+            dndCharacterCreationUtils.crearPersonajeDnd(request, imageUrl, usuario.getUsername());
+            }
 
         private CrearPersonajeDndRequest buildSeededWizardRequest() {
         return new CrearPersonajeDndRequest(
@@ -1258,7 +1271,7 @@ public class DevelopmentDataSeeder {
     }
 
     private Objeto buildCompetencyCatalogSeed(String indice, String nombre, String descripcion) {
-        return buildInitialObject(indice, nombre, null, descripcion, TipoObjeto.MISCELANEO);
+        return buildInitialObject(indice, nombre, null, descripcion, TipoObjeto.OBJETO_INTERNO);
     }
 
     private String appendTags(String indice, String... extraTags) {

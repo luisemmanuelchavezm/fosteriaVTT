@@ -363,16 +363,14 @@
                                                                          "id":  "paladin-arma-escudo",
                                                                          "etiqueta":  "Un arma marcial y un escudo",
                                                                          "cantidad":  1,
+                                                                         "catalogo":  "AMCuerpo",
                                                                          "objeto":  {
-                                                                                        "nombre":  "Arma marcial y escudo"
+                                                                                        "nombre":  "Escudo"
                                                                                     }
                                                                      },
                                                                      {
                                                                          "id":  "paladin-dos-armas",
                                                                          "etiqueta":  "Dos armas marciales",
-                                                                         "objeto":  {
-                                                                                        "nombre":  "Dos armas marciales"
-                                                                                    },
                                                                          "catalogo":  "AMCuerpo",
                                                                          "cantidad":  2
                                                                      }

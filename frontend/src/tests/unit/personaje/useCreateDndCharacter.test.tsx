@@ -13,7 +13,7 @@ const dndApiMocks = vi.hoisted(() => ({
   fetchDndClassSummaries: vi.fn(),
 }));
 
-vi.mock("../../../screens/personaje/creatednd/utils/dndApi", () => ({
+vi.mock("../../../screens/personaje/utils/dndApi", () => ({
   ...dndApiMocks,
 }));
 

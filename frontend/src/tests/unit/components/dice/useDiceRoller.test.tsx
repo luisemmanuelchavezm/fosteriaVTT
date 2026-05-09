@@ -7,9 +7,21 @@ import { useDiceRoller } from "../../../../components/dice/useDiceRoller";
 const mockDiceBox = {
   init: vi.fn(async () => undefined),
   clear: vi.fn(),
-  roll: vi.fn(async (notation: string) => {
+  roll: vi.fn(async (notation: string | string[]) => {
     if (notation === "1d20") {
       return [{ value: 18 }];
+    }
+
+    if (Array.isArray(notation)) {
+      return notation.flatMap((entry) => {
+        if (entry === "1d12") {
+          return [{ value: 9 }];
+        }
+        if (entry === "1d6") {
+          return [{ value: 4 }];
+        }
+        return [{ value: 4 }];
+      });
     }
 
     return [{ value: 4 }, { value: 5 }];
@@ -71,6 +83,24 @@ describe("lanzamiento de dados - useDiceRoller", () => {
     expect(result.current.isDiceBoxReady).toBe(false);
   });
 
+  it("resuelve sumas planas para resultados ya calculados", async () => {
+    const { result } = renderHook(() => useDiceRoller());
+
+    await act(async () => {
+      result.current.rollExpression("Descanso corto", "4 + 2 + 6 + 2");
+    });
+
+    await waitFor(() => {
+      expect(result.current.summary).toMatchObject({
+        title: "Descanso corto",
+        expression: "4 + 2 + 6 + 2",
+        diceValues: [],
+        modifier: 14,
+        total: 14,
+      });
+    });
+  });
+
   it("lanza un d20 con Dice-Box cuando existe el host y genera el resumen", async () => {
     const { result } = renderHook(() => useDiceRoller());
     const host = document.createElement("div");
@@ -96,6 +126,45 @@ describe("lanzamiento de dados - useDiceRoller", () => {
     expect(mockDiceBox.roll).toHaveBeenCalledWith("1d20");
   });
 
+  it("lanza una pool compuesta con varios tipos de dado en una sola tirada", async () => {
+    const { result } = renderHook(() => useDiceRoller());
+    const host = document.createElement("div");
+    host.id = result.current.diceBoxHostId;
+    document.body.appendChild(host);
+
+    let summary = null;
+    await act(async () => {
+      summary = await result.current.rollDicePool({
+        title: "Descanso corto",
+        dicePools: [
+          { count: 1, faces: 12 },
+          { count: 1, faces: 6 },
+        ],
+        modifier: 4,
+        modifierDisplay: "+2 CON por dado",
+        totalLabel: "Curacion",
+      });
+    });
+
+    await waitFor(() => {
+      expect(result.current.summary).toMatchObject({
+        title: "Descanso corto",
+        expression: "1d12 + 1d6 + 4",
+        diceValues: [9, 4],
+        modifier: 4,
+        modifierDisplay: "+2 CON por dado",
+        totalLabel: "Curacion",
+        total: 17,
+      });
+    });
+
+    expect(summary).toMatchObject({
+      diceValues: [9, 4],
+      total: 17,
+    });
+    expect(mockDiceBox.roll).toHaveBeenCalledWith(["1d12", "1d6"]);
+  });
+
   it("muestra un error de inicializacion si el host del canvas no existe", async () => {
     const { result } = renderHook(() => useDiceRoller());
 
@@ -105,6 +174,46 @@ describe("lanzamiento de dados - useDiceRoller", () => {
 
     await waitFor(() => {
       expect(result.current.diceBoxError).toContain("target DOM node");
+    });
+  });
+
+  it("interpreta expresiones con varios dados y modificador plano", async () => {
+    const { result } = renderHook(() => useDiceRoller());
+    const host = document.createElement("div");
+    host.id = result.current.diceBoxHostId;
+    document.body.appendChild(host);
+
+    await act(async () => {
+      result.current.rollExpression("Arma custom", "1d12 + 1d6 + 2");
+    });
+
+    await waitFor(() => {
+      expect(result.current.summary).toMatchObject({
+        title: "Arma custom",
+        expression: "1d12 + 1d6 + 2",
+        diceValues: [9, 4],
+        modifier: 2,
+        total: 15,
+      });
+    });
+
+    expect(mockDiceBox.roll).toHaveBeenCalledWith(["1d12", "1d6"]);
+  });
+
+  it("muestra error explicito cuando se excede el maximo de dados", async () => {
+    const { result } = renderHook(() => useDiceRoller());
+    const host = document.createElement("div");
+    host.id = result.current.diceBoxHostId;
+    document.body.appendChild(host);
+
+    await act(async () => {
+      result.current.rollExpression("Tirada enorme", "21d6");
+    });
+
+    await waitFor(() => {
+      expect(result.current.diceBoxError).toBe(
+        "El numero de dados maximos que puedes tirar es 20.",
+      );
     });
   });
 });

@@ -7,8 +7,8 @@ import {
   readableContentStyle,
   renderSkillDescription,
 } from "../utils/textUtils";
-import type { ClassSkillGroup } from "../utils/dndApi";
-import type { DndClassDetail, DndClassSummary } from "../types";
+import type { ClassSkillGroup } from "../../utils/dndApi";
+import type { DndClassDetail, DndClassSummary } from "../../types";
 import ProgressionTablesBlock from "./ProgressionTablesBlock";
 
 interface ClassDetailModalProps {

@@ -113,8 +113,9 @@ export default function LevelUpAsiSection({
             {featOptions.map(({ feat, valid }) => {
               const selected = feat.id === selectedFeatId;
               return (
-                <button
-                  type="button"
+                <div
+                  role="button"
+                  tabIndex={0}
                   key={feat.id}
                   onClick={() => {
                     setSelectedFeatId(feat.id);
@@ -126,7 +127,20 @@ export default function LevelUpAsiSection({
                     setSelectedFeatCantrips([]);
                     setSelectedFeatSpells([]);
                   }}
-                  className={`rounded-[20px] border px-4 py-4 text-left transition ${selected ? "border-sky-300/40 bg-sky-400/10" : "border-stone-300/10 bg-black/20 hover:border-sky-300/25 hover:bg-sky-400/5"}`}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      setSelectedFeatId(feat.id);
+                      setSelectedFeatStats([]);
+                      setSelectedFeatCompetencies([]);
+                      setSelectedFeatSkills([]);
+                      setSelectedFeatLanguages([]);
+                      setSelectedFeatSpellClass("");
+                      setSelectedFeatCantrips([]);
+                      setSelectedFeatSpells([]);
+                    }
+                  }}
+                  className={`rounded-[20px] border px-4 py-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/60 ${selected ? "border-sky-300/40 bg-sky-400/10" : "border-stone-300/10 bg-black/20 hover:border-sky-300/25 hover:bg-sky-400/5"}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <p className="text-base font-semibold text-white">
@@ -158,7 +172,7 @@ export default function LevelUpAsiSection({
                       Requisitos: {feat.requisitos.join(", ")}
                     </p>
                   ) : null}
-                </button>
+                </div>
               );
             })}
           </div>

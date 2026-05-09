@@ -5,6 +5,7 @@ import com.fosteriaVTT.fosteriaVTT_backend.InformacionDnd.DndSubclassService;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.Personaje;
 import com.fosteriaVTT.fosteriaVTT_backend.common.TagUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.common.dnd.DndPatterns;
+import com.fosteriaVTT.fosteriaVTT_backend.common.dnd.DndCharacterRules;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.CatalogoDndEleccion;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndSubclaseResponse;
@@ -19,6 +20,9 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Service
 public class DndCharacterProgressionUtils {
+
+	private static final String SKILL_EXPERTISE_CHOICE_PREFIX = "class-expertise-skill-";
+	private static final String TOOL_EXPERTISE_CHOICE_PREFIX = "class-expertise-tool-";
 
 	private final ChatService chatService;
 	private final DndAbilityUtils dndAbilityUtils;
@@ -121,7 +125,7 @@ public class DndCharacterProgressionUtils {
 				.orElse(null);
 	}
 
-	public void revertirProgresionRegistradaSiCorresponde(
+	public ProgressionReversionResult revertirProgresionRegistradaSiCorresponde(
 			Personaje personaje,
 			ClaseDndDetalleResponse classDetail,
 			int currentLevel,
@@ -129,10 +133,10 @@ public class DndCharacterProgressionUtils {
 	) {
 		Map<String, String> detalle = chatService.obtenerUltimoRegistroInterno(personaje, classDetail.id(), currentLevel).orElse(null);
 		if (classDetail == null || detalle == null || detalle.isEmpty()) {
-			return;
+			return new ProgressionReversionResult(Set.of());
 		}
 
-		revertirEleccionesClaseRegistradas(personaje, classDetail, detalle);
+		Set<String> removedExpertiseSkills = revertirEleccionesClaseRegistradas(personaje, classDetail, detalle);
 
 		String mode = TagUtils.normalizeText(detalle.get("modoMejoraCaracteristica"));
 		switch (mode) {
@@ -145,19 +149,23 @@ public class DndCharacterProgressionUtils {
 			default -> {
 			}
 		}
+
+		return new ProgressionReversionResult(removedExpertiseSkills);
 	}
 
-	private void revertirEleccionesClaseRegistradas(
+	private Set<String> revertirEleccionesClaseRegistradas(
 			Personaje personaje,
 			ClaseDndDetalleResponse classDetail,
 			Map<String, String> detalle
 	) {
 		Map<String, List<String>> eleccionesRegistradas = DndCharacterNormalizers.deserializarEleccionesClase(detalle.get("eleccionesClase"));
-		if (eleccionesRegistradas.isEmpty() || classDetail.elecciones() == null || classDetail.elecciones().isEmpty()) {
-			return;
+		if (eleccionesRegistradas.isEmpty()) {
+			return Set.of();
 		}
 
-		for (CatalogoDndEleccion eleccion : classDetail.elecciones()) {
+		Set<String> removedExpertiseSkills = new LinkedHashSet<>();
+
+		for (CatalogoDndEleccion eleccion : classDetail.elecciones() == null ? List.<CatalogoDndEleccion>of() : classDetail.elecciones()) {
 			List<String> valoresSeleccionados = eleccionesRegistradas.getOrDefault(eleccion.id(), List.of());
 			if (valoresSeleccionados.isEmpty()) {
 				continue;
@@ -180,6 +188,40 @@ public class DndCharacterProgressionUtils {
 				);
 			}
 		}
+
+		for (Map.Entry<String, List<String>> entry : eleccionesRegistradas.entrySet()) {
+			boolean isSkillExpertise = entry.getKey().startsWith(SKILL_EXPERTISE_CHOICE_PREFIX);
+			boolean isToolExpertise = entry.getKey().startsWith(TOOL_EXPERTISE_CHOICE_PREFIX);
+			if (!isSkillExpertise && !isToolExpertise) {
+				for (String valor : entry.getValue()) {
+					if (valor == null || valor.isBlank()) {
+						continue;
+					}
+					dndAbilityUtils.resolverHabilidadPorNombre(valor).ifPresentOrElse(
+							habilidadResuelta -> personaje.getHabilidades().removeIf(habilidad ->
+									TagUtils.normalizeText(habilidad.getNombre()).equals(TagUtils.normalizeText(habilidadResuelta.getNombre()))),
+							() -> personaje.getHabilidades().removeIf(habilidad ->
+									TagUtils.normalizeText(habilidad.getNombre()).equals(TagUtils.normalizeText(valor)))
+					);
+				}
+				continue;
+			}
+
+			for (String valor : entry.getValue()) {
+				if (valor == null || valor.isBlank()) {
+					continue;
+				}
+				personaje.getHabilidades().removeIf(habilidad ->
+						TagUtils.normalizeText(habilidad.getNombre()).equals(TagUtils.normalizeText("Pericia: " + valor))
+								&& TagUtils.normalizeText(habilidad.getTags()).contains(TagUtils.normalizeText("DND,CLASE")));
+				if (isSkillExpertise) {
+					DndCharacterRules.normalizeCanonicalSkill(valor)
+							.ifPresent(skill -> removedExpertiseSkills.add(TagUtils.normalizeText(skill)));
+				}
+			}
+		}
+
+		return removedExpertiseSkills;
 	}
 
 	private void revertirDoteRegistrada(Personaje personaje, Map<String, Integer> baseStats, Map<String, String> detalle) {
@@ -221,4 +263,6 @@ public class DndCharacterProgressionUtils {
 			return normalizados.stream().anyMatch(item -> TagUtils.normalizeText(item).equals(TagUtils.normalizeText(valor)));
 		});
 	}
+
+	public record ProgressionReversionResult(Set<String> removedExpertiseSkills) {}
 }

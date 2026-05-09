@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest";
+import type { DndCharacterDetailResponse } from "../../../screens/personaje/utils/dndApi";
 import {
-  buildFeatStatBonuses,
   FEAT_ATTRIBUTE_OPTIONS,
   FEAT_LANGUAGE_OPTIONS,
-  FEAT_OPTIONS,
   FEAT_SKILL_OPTIONS,
+} from "../../../screens/personaje/dndcharactersheet/feats/constants";
+import { FEAT_OPTIONS } from "../../../screens/personaje/dndcharactersheet/feats/catalog";
+import {
+  buildFeat,
+  buildFeatStatBonuses,
   getFeatValidity,
-} from "../../../screens/personaje/dndcharactersheet/feats";
+} from "../../../screens/personaje/dndcharactersheet/feats/helpers";
 
 function buildCharacter(overrides: Record<string, unknown> = {}) {
   return {
@@ -135,5 +139,32 @@ describe("dndcharactersheet feats", () => {
     expect(buildFeatStatBonuses(resilient!, ["Sabiduria"])).toEqual({
       Sabiduria: 1,
     });
+  });
+
+  it("buildFeat sin validate usa alwaysValid (devuelve true)", () => {
+    const feat = buildFeat({
+      id: "custom",
+      nombre: "Custom",
+      descripcion: "Desc",
+      requisitos: [],
+    });
+    expect(
+      feat.validate!({} as unknown as DndCharacterDetailResponse, []),
+    ).toBe(true);
+  });
+
+  it("buildFeatStatBonuses ignora stats vacios", () => {
+    // resiliente has no selectableBonus count > 1, build a custom feat instead
+    const customFeat = buildFeat({
+      id: "custom2",
+      nombre: "Custom2",
+      descripcion: "Desc",
+      requisitos: [],
+      selectableBonus: { count: 2, amount: 1, options: ["Fuerza", "Destreza"] },
+    });
+    const result = buildFeatStatBonuses(customFeat, ["", "Fuerza"]);
+    // "" should be skipped, "Fuerza" should apply
+    expect(result.Fuerza).toBe(1);
+    expect(result[""]).toBeUndefined();
   });
 });

@@ -160,6 +160,44 @@ export async function fetchSpellDetailByName(
   return (await response.json()) as CharacterAbilityResponse;
 }
 
+export async function fetchAbilityCatalog(
+  token: string,
+  filters: {
+    clase?: string;
+    subclase?: string;
+    etiqueta?: string;
+  },
+  signal?: AbortSignal,
+) {
+  const query = new URLSearchParams();
+  if (filters.clase) {
+    query.set("clase", filters.clase);
+  }
+  if (filters.subclase) {
+    query.set("subclase", filters.subclase);
+  }
+  if (filters.etiqueta) {
+    query.set("etiqueta", filters.etiqueta);
+  }
+
+  const suffix = query.toString();
+  const response = await fetch(
+    buildApiUrl(`/api/habilidades/catalogo${suffix ? `?${suffix}` : ""}`),
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      signal,
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("No se pudo cargar el catálogo de habilidades");
+  }
+
+  return (await response.json()) as CharacterAbilityResponse[];
+}
+
 export interface CreatedCharacterResponse {
   id: number;
   nombre: string;
@@ -290,6 +328,7 @@ export interface UpdateDndCharacterSheetRequest {
   recursosExtraActuales?: Record<number, number>;
   salvacionesCompetentes?: string[];
   habilidadesCompetentes?: string[];
+  habilidadesConPericia?: string[];
 }
 
 export function fetchDndCharacterDetail(

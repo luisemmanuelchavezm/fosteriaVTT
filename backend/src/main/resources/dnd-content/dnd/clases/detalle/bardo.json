@@ -442,9 +442,7 @@
                                                                          "id":  "bardo-otro-instrumento",
                                                                          "etiqueta":  "Cualquier otro instrumento musical",
                                                                          "cantidad":  1,
-                                                                         "objeto":  {
-                                                                                        "nombre":  "Instrumento musical"
-                                                                                    }
+                                                                         "catalogo":  "CatalogoInstrumentosDnd"
                                                                      }
                                                                  ]
                                                 }

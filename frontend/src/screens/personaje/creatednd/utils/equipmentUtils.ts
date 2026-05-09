@@ -1,4 +1,4 @@
-import type { DndEquipmentOption, InitialEquipmentItem } from "../types";
+import type { DndEquipmentOption, InitialEquipmentItem } from "../../types";
 
 const TAGS_NO_PROPIEDAD = new Set([
   "AMCuerpo",
@@ -58,7 +58,8 @@ export function buildEquipmentMeta(
   const parts: string[] = [];
 
   if (item.formula) {
-    parts.push(`Daño: ${item.formula}`);
+    const formulaLabel = item.tipoObjeto === "ARMADURA" ? "Fórmula" : "Daño";
+    parts.push(`${formulaLabel}: ${item.formula}`);
   }
 
   const properties = resolveReadableProperties(item);
@@ -71,7 +72,10 @@ export function buildEquipmentMeta(
 }
 
 export function formatEquipmentOption(option: DndEquipmentOption) {
-  const itemName = option.objeto?.nombre ?? option.etiqueta;
+  const itemName =
+    option.opcionesCatalogo.length > 0
+      ? option.etiqueta
+      : (option.objeto?.nombre ?? option.etiqueta);
 
   if (itemName === "Piezas de oro") {
     return `${option.cantidad} PO`;

@@ -1,4 +1,4 @@
-import type { ClassSkillChoiceGroup } from "../types";
+import type { ClassSkillChoiceGroup } from "../../types";
 
 export function buildInitialClassSkillSelections(
   groups: ClassSkillChoiceGroup[],

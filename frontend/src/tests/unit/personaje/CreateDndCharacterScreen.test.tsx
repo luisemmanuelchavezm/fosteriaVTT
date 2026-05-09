@@ -22,7 +22,7 @@ const mockStore = vi.hoisted(() => ({
   equipmentSelection: null as Record<string, unknown> | null,
 }));
 
-vi.mock("../../../screens/personaje/creatednd/utils/dndApi", () => ({
+vi.mock("../../../screens/personaje/utils/dndApi", () => ({
   createDndCharacter: createDndCharacterMock,
 }));
 

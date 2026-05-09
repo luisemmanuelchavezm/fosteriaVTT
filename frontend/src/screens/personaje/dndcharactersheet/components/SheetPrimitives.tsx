@@ -11,6 +11,18 @@ export function CircleIndicator({ filled }: { filled: boolean }) {
   );
 }
 
+export function SkillProficiencyIndicator({ level }: { level: 0 | 1 | 2 }) {
+  if (level === 2) {
+    return (
+      <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full border border-amber-200 bg-amber-200 px-1 text-[10px] font-bold uppercase tracking-[0.08em] text-stone-950">
+        x2
+      </span>
+    );
+  }
+
+  return <CircleIndicator filled={level === 1} />;
+}
+
 export function SectionTableHeader({ leftLabel }: { leftLabel: string }) {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_72px] gap-3 border-b border-white/10 pb-2 text-xs uppercase tracking-[0.18em] text-stone-400">

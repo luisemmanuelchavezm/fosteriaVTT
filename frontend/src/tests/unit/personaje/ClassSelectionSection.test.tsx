@@ -16,7 +16,7 @@ vi.mock(
 );
 
 vi.mock(
-  "../../../screens/personaje/creatednd/sections/ChoiceChecklist",
+  "../../../screens/personaje/creatednd/components/ChoiceChecklist",
   () => ({
     default: ({
       title,
@@ -46,7 +46,7 @@ vi.mock(
 );
 
 vi.mock(
-  "../../../screens/personaje/creatednd/sections/ProgressionTablesBlock",
+  "../../../screens/personaje/creatednd/components/ProgressionTablesBlock",
   () => ({
     default: ({ title }: { title: string }) => <div>{title}</div>,
   }),
@@ -239,5 +239,27 @@ describe("creacion de personaje - ClassSelectionSection", () => {
 
     expect(onClassSkillChoiceChange).toHaveBeenCalledWith("skills", ["Arcano"]);
     expect(onSpellReferenceClick).toHaveBeenCalledWith("misil magico");
+  });
+
+  it("renderiza la seccion de pericia inicial", () => {
+    renderSection({
+      selectedClassId: "rogue",
+      selectedClassName: "Pícaro",
+      expertiseChoiceConfig: {
+        title: "Pericia",
+        description: "Elige dos competencias para ganar pericia.",
+        allowThievesTools: true,
+        count: 2,
+      },
+      expertiseOptions: ["Acrobacias", "Sigilo", "Herramientas de ladron"],
+      selectedExpertiseChoices: ["", ""],
+      onClassExpertiseChange: vi.fn(),
+    });
+
+    expect(
+      screen.getByText("Elige tus pericias iniciales"),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Pericia 1")).toBeInTheDocument();
+    expect(screen.getByLabelText("Pericia 2")).toBeInTheDocument();
   });
 });

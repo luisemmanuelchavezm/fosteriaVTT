@@ -118,10 +118,18 @@ vi.mock(
       isOpen ? <div data-testid="level-up-modal" /> : null,
   }),
 );
-vi.mock("../../../screens/personaje/dndcharactersheet/utils", () => ({
-  getExperienceProgress: () => ({ nextLevelXp: 900 }),
-  resolveCharacterFormula: () => "1d8 + 3",
-}));
+vi.mock(
+  "../../../screens/personaje/dndcharactersheet/utils/characterCore",
+  () => ({
+    getExperienceProgress: () => ({ nextLevelXp: 900 }),
+  }),
+);
+vi.mock(
+  "../../../screens/personaje/dndcharactersheet/utils/characterAbilities",
+  () => ({
+    resolveCharacterFormula: () => "1d8 + 3",
+  }),
+);
 
 import CharacterSheetOverlays from "../../../screens/personaje/dndcharactersheet/components/CharacterSheetOverlays";
 

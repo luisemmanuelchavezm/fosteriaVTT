@@ -25,6 +25,7 @@ dist-ssr
 
 # Testing and coverage
 coverage/
+coverage-shard*/
 lcov.info
 lcov-report/
 playwright-report/

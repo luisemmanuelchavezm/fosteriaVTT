@@ -15,6 +15,10 @@ export default defineConfig([
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
     ],
+    rules: {
+      // Calling setState in effect guard-clauses is an intentional pattern
+      "react-hooks/set-state-in-effect": "off",
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,

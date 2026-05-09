@@ -3,11 +3,12 @@ import type {
   ClassSkillChoiceGroup,
   DndClassSummary,
   DndSubclassDetail,
-} from "../types";
-import ChoiceChecklist from "./ChoiceChecklist";
-import ProgressionTablesBlock from "./ProgressionTablesBlock";
-import ValidationMessage from "./ValidationMessage";
-import type { ClassSkillGroup } from "../utils/dndApi";
+} from "../../types";
+import ChoiceChecklist from "../components/ChoiceChecklist";
+import ExpertisePicklistSection from "../components/ExpertisePicklistSection";
+import ProgressionTablesBlock from "../components/ProgressionTablesBlock";
+import ValidationMessage from "../components/ValidationMessage";
+import type { ClassSkillGroup } from "../../utils/dndApi";
 import {
   readableContentStyle,
   renderSkillDescription,
@@ -17,6 +18,10 @@ import {
   hasSpellLikeTags,
   isSpellChoiceCatalog,
 } from "../../../../components/spells/spellReferenceUtils";
+import {
+  EXPERTISE_CHOICE_SECTION_ID,
+  type ExpertiseChoiceConfig,
+} from "../../utils/dndExpertise";
 
 interface ClassSelectionSectionProps {
   filteredClasses: DndClassSummary[];
@@ -38,6 +43,9 @@ interface ClassSelectionSectionProps {
   classSkillChoices?: ClassSkillChoiceGroup[];
   selectedClassSkillChoices?: Record<string, string[]>;
   classSkillErrors?: Record<string, string>;
+  expertiseChoiceConfig?: ExpertiseChoiceConfig | null;
+  expertiseOptions?: string[];
+  selectedExpertiseChoices?: string[];
   hasError?: boolean;
   onSpellReferenceClick?: (spellName: string) => void;
   onClassSearchChange: (value: string) => void;
@@ -45,6 +53,7 @@ interface ClassSelectionSectionProps {
   onClearSelection?: () => void;
   onSubclassChange?: (value: string) => void;
   onClassSkillChoiceChange?: (choiceId: string, values: string[]) => void;
+  onClassExpertiseChange?: (values: string[]) => void;
 }
 
 export default function ClassSelectionSection({
@@ -67,6 +76,9 @@ export default function ClassSelectionSection({
   classSkillChoices = [],
   selectedClassSkillChoices = {},
   classSkillErrors = {},
+  expertiseChoiceConfig = null,
+  expertiseOptions = [],
+  selectedExpertiseChoices = [],
   hasError = false,
   onSpellReferenceClick,
   onClassSearchChange,
@@ -74,6 +86,7 @@ export default function ClassSelectionSection({
   onClearSelection,
   onSubclassChange,
   onClassSkillChoiceChange,
+  onClassExpertiseChange,
 }: ClassSelectionSectionProps) {
   const visibleClasses = selectedClassId
     ? filteredClasses.filter((item) => item.id === selectedClassId)
@@ -391,6 +404,26 @@ export default function ClassSelectionSection({
                 }
               />
             ))}
+          </div>
+        </div>
+      ) : null}
+
+      {expertiseChoiceConfig && onClassExpertiseChange ? (
+        <div className="mt-6 rounded-[24px] border border-stone-300/10 bg-[linear-gradient(180deg,rgba(12,10,9,0.72),rgba(41,37,36,0.18))] p-5">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-200/80">
+            {expertiseChoiceConfig.title}
+          </h3>
+          <div className="mt-5">
+            <ExpertisePicklistSection
+              anchorId={`class-choice-${EXPERTISE_CHOICE_SECTION_ID}`}
+              title="Elige tus pericias iniciales"
+              description={expertiseChoiceConfig.description}
+              options={expertiseOptions}
+              selectedValues={selectedExpertiseChoices}
+              selectionCount={expertiseChoiceConfig.count}
+              error={classSkillErrors[EXPERTISE_CHOICE_SECTION_ID]}
+              onChange={onClassExpertiseChange}
+            />
           </div>
         </div>
       ) : null}
