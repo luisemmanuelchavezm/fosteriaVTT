@@ -89,7 +89,6 @@ export function useCharacterSheetState({
   const [editableToolCompetencies, setEditableToolCompetencies] = useState<
     string[]
   >([]);
-  const classCompetenciesKey = classCompetencies.join("\u0000");
 
   const applyCharacterSheetState = useCallback(
     (data: DndCharacterDetailResponse) => {
@@ -147,7 +146,7 @@ export function useCharacterSheetState({
     },
     [
       competencyCatalog,
-      classCompetenciesKey,
+      classCompetencies,
       healthCurrentStat,
       healthTempStat,
       healthTotalStat,

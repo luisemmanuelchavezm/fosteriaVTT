@@ -254,7 +254,8 @@ describe("useCharacterSheetState", () => {
 
     it("selectedInventoryItem se actualiza cuando el personaje cambia", async () => {
       const item = { id: 5, nombre: "Espada" } as never;
-      const character = { ...makeCharacter(1), mochila: [item] } as never;
+      const baseCharacter = makeCharacter(1) as Record<string, unknown>;
+      const character = { ...baseCharacter, mochila: [item] } as never;
       vi.mocked(fetchDndCharacterDetail).mockResolvedValueOnce(
         character as never,
       );

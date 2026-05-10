@@ -6,6 +6,7 @@ interface AuthLayoutProps {
   onLogoClick?: () => void;
   fullWidth?: boolean;
   hideLogo?: boolean;
+  backgroundImageUrl?: string;
 }
 
 export default function LogoLayout({
@@ -13,12 +14,13 @@ export default function LogoLayout({
   onLogoClick,
   fullWidth = false,
   hideLogo = false,
+  backgroundImageUrl,
 }: AuthLayoutProps) {
   return (
     <div
       className="min-h-screen w-full flex flex-col items-center justify-center p-4 relative"
       style={{
-        backgroundImage: `url(${fondoImage})`,
+        backgroundImage: `url(${backgroundImageUrl ?? fondoImage})`,
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",

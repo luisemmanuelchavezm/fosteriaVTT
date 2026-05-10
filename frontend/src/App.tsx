@@ -5,6 +5,9 @@ import RegisterScreen from "./screens/RegisterScreen";
 import HomeScreen from "./screens/HomeScreen";
 import CharactersScreen from "./screens/CharactersScreen";
 import CampaignsScreen from "./screens/CampaignsScreen.tsx";
+import type { CampaignCreationSystem } from "./components/campaignSystem";
+import CreateCampaignScreen from "./screens/CreateCampaignScreen";
+import CampaignHomeScreen from "./screens/campaign/CampaignHomeScreen";
 import CreateDndCharacterScreen from "./screens/personaje/creatednd/CreateDndCharacterScreen";
 import DndCharacterSheetScreen from "./screens/personaje/dndcharactersheet/DndCharacterSheetScreen";
 
@@ -13,6 +16,8 @@ type AuthMode =
   | "register"
   | "home"
   | "campaigns"
+  | "campaign-create"
+  | "campaign-home"
   | "characters"
   | "character-create-dnd"
   | "character-sheet-dnd";
@@ -26,6 +31,11 @@ function App() {
   const [avatarUrl, setAvatarUrl] = useState<string>(storedAvatar);
   const [mode, setMode] = useState<AuthMode>(storedToken ? "home" : "login");
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(
+    null,
+  );
+  const [selectedCampaignSystem, setSelectedCampaignSystem] =
+    useState<CampaignCreationSystem>("Dungeons and Dragons");
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(
     null,
   );
 
@@ -50,6 +60,26 @@ function App() {
   const handleGoCampaigns = () => {
     if (token) {
       setMode("campaigns");
+      return;
+    }
+
+    setMode("login");
+  };
+
+  const handleGoCreateCampaign = (system: CampaignCreationSystem) => {
+    if (token) {
+      setSelectedCampaignSystem(system);
+      setMode("campaign-create");
+      return;
+    }
+
+    setMode("login");
+  };
+
+  const handleOpenCampaignHome = (campaignId: string) => {
+    if (token) {
+      setSelectedCampaignId(campaignId);
+      setMode("campaign-home");
       return;
     }
 
@@ -127,6 +157,7 @@ function App() {
           onGoHome={handleGoHome}
           onGoCampaigns={handleGoCampaigns}
           onGoCharacters={handleGoCharacters}
+          onCreateCampaign={handleGoCreateCampaign}
         />
       )}
       {mode === "campaigns" && token && (
@@ -137,6 +168,26 @@ function App() {
           onGoHome={handleGoHome}
           onGoCampaigns={handleGoCampaigns}
           onGoCharacters={handleGoCharacters}
+          onCreateCampaign={handleGoCreateCampaign}
+          onOpenCampaignHome={handleOpenCampaignHome}
+        />
+      )}
+      {mode === "campaign-create" && token && (
+        <CreateCampaignScreen
+          username={username}
+          avatarUrl={avatarUrl}
+          onLogout={handleLogout}
+          onGoHome={handleGoHome}
+          onGoCampaigns={handleGoCampaigns}
+          onGoCharacters={handleGoCharacters}
+          initialSystem={selectedCampaignSystem}
+          onCampaignCreated={handleOpenCampaignHome}
+        />
+      )}
+      {mode === "campaign-home" && token && selectedCampaignId && (
+        <CampaignHomeScreen
+          campaignId={selectedCampaignId}
+          onExit={handleGoCampaigns}
         />
       )}
       {mode === "characters" && token && (

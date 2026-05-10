@@ -184,6 +184,7 @@ const baseProps = {
       },
       rollD20Check: vi.fn(),
       rollExpression: vi.fn(),
+      rollDicePool: vi.fn(),
       rollExpressionsSequence: vi.fn(),
       formatModifier: vi.fn(),
     },

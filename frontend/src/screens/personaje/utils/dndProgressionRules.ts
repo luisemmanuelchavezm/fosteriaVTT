@@ -36,21 +36,13 @@ export function inferCurrentSubclass(
 
   const abilityTagTokens = character.habilidades
     .flatMap((ability) => (ability.tags ?? "").split(","))
-    .map((tag) => tag.trim())
+    .map((tag: string) => tag.trim())
     .filter(Boolean)
-    .map((tag) => {
+    .map((tag: string) => {
       const parts = tag.split(";", 2);
       return parts.length === 2 ? parts[1].trim() : tag;
     });
-  const characterTagTokens = (character.tags ?? [])
-    .flatMap((tag) => (tag ?? "").split(","))
-    .map((tag) => tag.trim())
-    .filter(Boolean)
-    .map((tag) => {
-      const parts = tag.split(";", 2);
-      return parts.length === 2 ? parts[1].trim() : tag;
-    });
-  const subclassTokens = [...abilityTagTokens, ...characterTagTokens];
+  const subclassTokens = [...abilityTagTokens];
 
   return (
     classDetail.subclases.find((subclass) =>
