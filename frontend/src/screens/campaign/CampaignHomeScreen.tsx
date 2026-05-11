@@ -1,4 +1,4 @@
-import { Settings } from "lucide-react";
+import { Map, Settings } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import CampaignChatPanel from "./components/CampaignChatPanel";
 import CampaignPlayersPanel from "./components/CampaignPlayersPanel";
@@ -9,11 +9,13 @@ const CAMPAIGN_BACKGROUND_URL =
 interface CampaignHomeScreenProps {
   campaignId: string;
   onExit?: () => void;
+  onOpenCampaignPestaña?: () => void;
 }
 
 export default function CampaignHomeScreen({
   campaignId,
   onExit,
+  onOpenCampaignPestaña,
 }: CampaignHomeScreenProps) {
   const [username, setUsername] = useState<string>("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -100,8 +102,21 @@ export default function CampaignHomeScreen({
           </div>
         </div>
 
-        <div className="min-h-0 md:ml-auto md:h-full">
-          <CampaignChatPanel campaignId={campaignId} username={username} />
+        <div className="min-h-0 md:ml-auto md:h-full md:w-[540px] md:pt-12">
+          <div className="flex min-h-0 flex-col gap-2 md:h-full md:flex-row md:items-start md:gap-3">
+            <button
+              type="button"
+              onClick={onOpenCampaignPestaña}
+              aria-label="Abrir pestaña de campaña"
+              className="flex h-12 w-12 items-center justify-center rounded-lg border border-white/35 bg-[rgba(0,0,0,0.5)] transition hover:bg-black/65"
+            >
+              <Map className="h-6 w-6 text-amber-100" />
+            </button>
+
+            <div className="min-h-0 md:flex-1">
+              <CampaignChatPanel campaignId={campaignId} username={username} />
+            </div>
+          </div>
         </div>
       </div>
     </div>

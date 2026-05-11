@@ -2,11 +2,13 @@ package com.fosteriaVTT.fosteriaVTT_backend.Pestaña;
 
 import com.fosteriaVTT.fosteriaVTT_backend.Campaña.Campaña;
 import com.fosteriaVTT.fosteriaVTT_backend.common.NamedEntity;
+import java.time.LocalDateTime;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Builder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,21 +24,48 @@ import lombok.experimental.SuperBuilder;
 public class Pestaña extends NamedEntity {
 
     @Column(nullable = false)
-    private Integer nCuadriculasX;
+    @Builder.Default
+    private Integer nCuadriculasX = 70;
 
     @Column(nullable = false)
-    private Integer nCuadriculasY;
+    @Builder.Default
+    private Integer nCuadriculasY = 70;
 
     @Column(nullable = false)
-    private Integer distanciaCasilla;
+    @Builder.Default
+    private Integer distanciaCasilla = 5;
 
     @Column(nullable = false)
-    private String nieblaDeGuerra;
+    @Builder.Default
+    private String nieblaDeGuerra = "true";
 
     @Column(nullable = false)
-    private String sistemaMetrico;
+    @Builder.Default
+    private String sistemaMetrico = "ft";
+
+    @Column(length = 500, nullable = false)
+    @Builder.Default
+    private String imagenBaseUrl = "https://res.cloudinary.com/doxqtmi46/image/upload/v1778449741/imagen_base_pesta%C3%B1a_xgtcmo.jpg";
+
+    @Column(nullable = false)
+    @Builder.Default
+    private LocalDateTime ultimaVezUsada = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campaña_id", nullable = false)
     private Campaña campaña;
+
+    public static Pestaña crearPorDefecto(Campaña campaña) {
+        return Pestaña.builder()
+                .nombre("Pestaña principal")
+                .nCuadriculasX(70)
+                .nCuadriculasY(70)
+                .distanciaCasilla(5)
+                .sistemaMetrico("ft")
+                .nieblaDeGuerra("true")
+                .imagenBaseUrl("https://res.cloudinary.com/doxqtmi46/image/upload/v1778449741/imagen_base_pesta%C3%B1a_xgtcmo.jpg")
+                .ultimaVezUsada(LocalDateTime.now())
+                .campaña(campaña)
+                .build();
+    }
 }

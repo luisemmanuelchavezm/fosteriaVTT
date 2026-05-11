@@ -34,7 +34,7 @@ export default function CampaignPlayersPanel({
   });
 
   return (
-    <aside className="flex h-full min-h-0 w-full max-w-[280px] flex-col text-stone-50">
+    <aside className="flex h-full max-h-[46vh] min-h-0 w-full max-w-[280px] flex-col text-stone-50 md:max-h-[78vh]">
       <div
         className="w-full rounded-md border-y border-amber-200/70 px-3 py-2"
         style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
@@ -44,7 +44,7 @@ export default function CampaignPlayersPanel({
         </h2>
       </div>
 
-      <div className="mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 [scrollbar-width:thin] [scrollbar-color:rgba(203,213,225,0.75)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300/75 hover:[&::-webkit-scrollbar-thumb]:bg-slate-200/85">
+      <div className="mt-3 max-h-[32vh] min-h-0 flex-1 space-y-2 overflow-y-auto pr-1 [scrollbar-width:thin] [scrollbar-color:rgba(203,213,225,0.75)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300/75 hover:[&::-webkit-scrollbar-thumb]:bg-slate-200/85 md:max-h-[62vh]">
         {errorMessage ? (
           <p className="rounded-xl border border-red-300/40 bg-red-900/45 px-3 py-2 text-sm text-red-100">
             {errorMessage}

@@ -28,6 +28,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Capa extends BaseEntity {
 
+    @Column(nullable = false, length = 100)
+    private String nombre;
+
     @Column(nullable = false)
     private Integer nivelDeCapa;
 

@@ -8,6 +8,7 @@ import CampaignsScreen from "./screens/CampaignsScreen.tsx";
 import type { CampaignCreationSystem } from "./components/campaignSystem";
 import CreateCampaignScreen from "./screens/CreateCampaignScreen";
 import CampaignHomeScreen from "./screens/campaign/CampaignHomeScreen";
+import CampaignPestañaScreen from "./screens/campaign/CampaignPestañaScreen";
 import CreateDndCharacterScreen from "./screens/personaje/creatednd/CreateDndCharacterScreen";
 import DndCharacterSheetScreen from "./screens/personaje/dndcharactersheet/DndCharacterSheetScreen";
 
@@ -18,6 +19,7 @@ type AuthMode =
   | "campaigns"
   | "campaign-create"
   | "campaign-home"
+  | "campaign-pestaña"
   | "characters"
   | "character-create-dnd"
   | "character-sheet-dnd";
@@ -84,6 +86,24 @@ function App() {
     }
 
     setMode("login");
+  };
+
+  const handleOpenCampaignPestaña = () => {
+    if (token && selectedCampaignId) {
+      setMode("campaign-pestaña");
+      return;
+    }
+
+    setMode("login");
+  };
+
+  const handleBackToCampaignHome = () => {
+    if (token && selectedCampaignId) {
+      setMode("campaign-home");
+      return;
+    }
+
+    setMode("campaigns");
   };
 
   const handleGoCreateDndCharacter = () => {
@@ -188,6 +208,13 @@ function App() {
         <CampaignHomeScreen
           campaignId={selectedCampaignId}
           onExit={handleGoCampaigns}
+          onOpenCampaignPestaña={handleOpenCampaignPestaña}
+        />
+      )}
+      {mode === "campaign-pestaña" && token && selectedCampaignId && (
+        <CampaignPestañaScreen
+          campaignId={selectedCampaignId}
+          onBack={handleBackToCampaignHome}
         />
       )}
       {mode === "characters" && token && (

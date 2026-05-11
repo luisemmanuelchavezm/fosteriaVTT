@@ -80,7 +80,7 @@ export default function CampaignChatPanel({
 
   return (
     <>
-      <aside className="flex h-full min-h-0 w-full max-w-[460px] flex-col p-1 text-stone-50">
+      <aside className="flex h-full max-h-[72vh] min-h-0 w-full max-w-[460px] flex-col p-1 text-stone-50 md:max-h-[78vh]">
         <div
           className="w-full rounded-md border-y border-amber-200/70 px-3 py-2"
           style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
@@ -90,7 +90,7 @@ export default function CampaignChatPanel({
           </h2>
         </div>
 
-        <div className="mt-4 flex-1 overflow-y-auto pr-2 [scrollbar-width:thin] [scrollbar-color:rgba(203,213,225,0.75)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300/75 hover:[&::-webkit-scrollbar-thumb]:bg-slate-200/85">
+        <div className="mt-4 max-h-[42vh] min-h-0 flex-1 overflow-y-auto pr-2 [scrollbar-width:thin] [scrollbar-color:rgba(203,213,225,0.75)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300/75 hover:[&::-webkit-scrollbar-thumb]:bg-slate-200/85 md:max-h-[52vh]">
           {groupedMessages.length === 0 ? (
             <p className="text-sm text-white/90">No hay mensajes todavía.</p>
           ) : (
