@@ -6,9 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @RestController
 @RequestMapping("/api/campanas/{campaniaId}/pestana")
@@ -25,10 +23,7 @@ public class PestañaController {
             @PathVariable Long campaniaId,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return pestañaService.abrirOCrearUltimaPestaña(campaniaId, authentication.getName());
+return pestañaService.abrirOCrearUltimaPestaña(campaniaId, authentication.getName());
     }
 }
+

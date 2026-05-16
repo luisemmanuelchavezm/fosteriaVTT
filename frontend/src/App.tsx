@@ -214,6 +214,11 @@ function App() {
       {mode === "campaign-pestaña" && token && selectedCampaignId && (
         <CampaignPestañaScreen
           campaignId={selectedCampaignId}
+          username={username}
+          avatarUrl={avatarUrl}
+          onLogout={handleLogout}
+          onGoHome={handleGoHome}
+          onGoCampaigns={handleGoCampaigns}
           onBack={handleBackToCampaignHome}
         />
       )}

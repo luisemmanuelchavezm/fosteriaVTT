@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @RestController
 @RequestMapping("/api/habilidades")
@@ -29,11 +28,7 @@ public class HabilidadController {
             @PathVariable String clase,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return habilidadService.obtenerHabilidadesPorClase(clase);
+return habilidadService.obtenerHabilidadesPorClase(clase);
     }
 
     @GetMapping("/conjuros/detalle")
@@ -41,11 +36,7 @@ public class HabilidadController {
             @RequestParam("nombre") String nombre,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return habilidadService.buscarDetalleDeHechizoOTruco(nombre)
+return habilidadService.buscarDetalleDeHechizoOTruco(nombre)
                 .orElseThrow(() -> new ResponseStatusException(
                         NOT_FOUND,
                         "No se encontro el conjuro o truco solicitado"
@@ -59,11 +50,7 @@ public class HabilidadController {
             @RequestParam(required = false) String clase,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return habilidadService.buscarConjurosYTrucos(nombre, nivel, clase);
+return habilidadService.buscarConjurosYTrucos(nombre, nivel, clase);
     }
 
     @GetMapping("/catalogo")
@@ -73,11 +60,7 @@ public class HabilidadController {
             @RequestParam(required = false) String etiqueta,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return habilidadService.buscarCatalogoHabilidades(clase, subclase, etiqueta);
+return habilidadService.buscarCatalogoHabilidades(clase, subclase, etiqueta);
     }
 
     @GetMapping("/{clase}/subclases/{subclase}")
@@ -86,10 +69,6 @@ public class HabilidadController {
             @PathVariable String subclase,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return habilidadService.obtenerHabilidadesPorSubclase(clase, subclase);
+return habilidadService.obtenerHabilidadesPorSubclase(clase, subclase);
     }
 }

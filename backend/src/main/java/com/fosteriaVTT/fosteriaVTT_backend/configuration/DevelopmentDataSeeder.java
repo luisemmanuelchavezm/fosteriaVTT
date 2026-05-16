@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fosteriaVTT.fosteriaVTT_backend.ContenidoSistemaJson.ContenidoSistemaJsonService;
 import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.Habilidad;
 import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.HabilidadRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Mapa.Mapa;
+import com.fosteriaVTT.fosteriaVTT_backend.Mapa.MapaRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Objeto.Objeto;
 import com.fosteriaVTT.fosteriaVTT_backend.Objeto.ObjetoRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Objeto.TipoObjeto;
@@ -556,7 +558,7 @@ public class DevelopmentDataSeeder {
                 buildSkill("Truco adicional de luz", null, "truco Luz", "Aprendes el truco Luz si todavía no lo conoces.", "CClerigo;1,Luz,Truco"),
                 buildSkill("Llamarada protectora", null, "Reacción: desventaja a un ataque visible a 30 pies", "Puedes usar tu reacción para imponer desventaja a una tirada de ataque hecha por una criatura que puedas ver dentro de 30 pies, siempre que el atacante también pueda verte. Debes decidirlo antes de saber si el ataque impacta o falla.", "CClerigo;1,Luz,Reaccion,Defensa"),
                 buildSkill("Conjuros de dominio: naturaleza", null, "Hablar con los animales, Enmarañar", "Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Naturaleza,Conjuro"),
-                buildSkill("Acolito de la naturaleza", null, "1 truco de druida y 1 habilidad", "Aprendes un truco de druida a tu elección. Además, obtienes competencia en una de las siguientes habilidades: Trato con animales, Naturaleza o Supervivencia.", "CClerigo;1,Naturaleza,Truco,Habilidades"),
+                buildSkill("Acolito de la naturaleza", null, "1 truco de druida y 1 habilidad", "Aprendes un truco de druida a tu elección. Además, obtienes competencia en una de las siguientes habilidades: Trato con animales, Naturaleza o Supervivencia.", "CClerigo;1,Naturaleza,Habilidades"),
                 buildSkill("Competencia adicional de naturaleza", null, "armadura pesada", "También obtienes competencia con armadura pesada.", "CClerigo;1,Naturaleza,ArmaduraPesada"),
                 buildSkill("Conjuros de dominio: tempestad", null, "Nube de niebla, Onda atronadora", "Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Tempestad,Conjuro"),
                 buildSkill("Competencias adicionales de tempestad", null, "armaduras pesadas y armas marciales", "Obtienes competencia con armaduras pesadas y armas marciales.", "CClerigo;1,Tempestad,ArmaduraPesada,ArmaMarcial"),
@@ -617,6 +619,7 @@ public class DevelopmentDataSeeder {
             PersonajeRepository personajeRepository,
             HabilidadRepository habilidadRepository,
             ObjetoRepository objetoRepository,
+            MapaRepository mapaRepository,
             DndCharacterCreationUtils dndCharacterCreationUtils,
             PasswordEncoder passwordEncoder
     ) {
@@ -1087,7 +1090,24 @@ public class DevelopmentDataSeeder {
         CrearPersonajeDndRequest saiClericCharacter = buildSeededClericRequest();
         seedCharacterIfMissing(personajeRepository, dndCharacterCreationUtils, sai, saiWizardCharacter, CHARACTER_IMAGE_TWO);
         seedCharacterIfMissing(personajeRepository, dndCharacterCreationUtils, sai, saiClericCharacter, CHARACTER_IMAGE_THREE);
+
+        seedMapIfMissing(mapaRepository, "Bosque nevado", "https://res.cloudinary.com/doxqtmi46/image/upload/v1778687906/Snowy_Forest_River_ksjtvg.jpg", true, "nevado,naturaleza", sai);
+        seedMapIfMissing(mapaRepository, "Catedral en ruinas", "https://res.cloudinary.com/doxqtmi46/image/upload/v1778687939/Catedral_en_ruinas_hemqac.jpg", true, "ruinas", sai);
     };
+    }
+
+    private void seedMapIfMissing(MapaRepository mapaRepository, String nombre, String url, boolean esPublico, String tags, Usuario usuario) {
+        boolean exists = mapaRepository.findAll().stream()
+            .anyMatch(m -> m.getNombre().equals(nombre) && m.getUsuario().getId().equals(usuario.getId()));
+        if (!exists) {
+            mapaRepository.save(Mapa.builder()
+                .nombre(nombre)
+                .mapa(url)
+                .esPublico(esPublico)
+                .tags(tags)
+                .usuario(usuario)
+                .build());
+        }
     }
 
     private Usuario buildUser(String username, String email, String password, String avatar) {

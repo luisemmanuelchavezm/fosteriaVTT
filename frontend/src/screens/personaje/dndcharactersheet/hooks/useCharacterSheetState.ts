@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   fetchDndCharacterDetail,
   type CharacterInventoryItemResponse,
@@ -154,6 +154,12 @@ export function useCharacterSheetState({
     ],
   );
 
+  const applyCharacterSheetStateRef = useRef(applyCharacterSheetState);
+
+  useEffect(() => {
+    applyCharacterSheetStateRef.current = applyCharacterSheetState;
+  }, [applyCharacterSheetState]);
+
   useEffect(() => {
     const authToken = localStorage.getItem("jwtToken");
 
@@ -175,7 +181,7 @@ export function useCharacterSheetState({
           characterId,
           abortController.signal,
         );
-        applyCharacterSheetState(data);
+        applyCharacterSheetStateRef.current(data);
       } catch (error) {
         if ((error as Error).name === "AbortError") {
           return;
@@ -199,7 +205,7 @@ export function useCharacterSheetState({
     return () => {
       abortController.abort();
     };
-  }, [characterId, applyCharacterSheetState]);
+  }, [characterId]);
 
   return {
     abilityUsage,

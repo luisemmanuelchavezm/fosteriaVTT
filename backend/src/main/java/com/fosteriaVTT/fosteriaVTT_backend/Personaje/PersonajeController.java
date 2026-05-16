@@ -26,9 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @RestController
 @RequestMapping("/api/personajes")
@@ -45,11 +43,7 @@ public class PersonajeController {
             @PathVariable Long id,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return personajeService.obtenerDetallePersonaje(id, authentication.getName());
+return personajeService.obtenerDetallePersonaje(id, authentication.getName());
     }
 
     @GetMapping
@@ -60,11 +54,7 @@ public class PersonajeController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return personajeService.obtenerPersonajesOrdenadosPorUso(authentication.getName(), nombre, sistemas, page, size);
+return personajeService.obtenerPersonajesOrdenadosPorUso(authentication.getName(), nombre, sistemas, page, size);
     }
 
     @PostMapping(path = "/dnd", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -73,11 +63,7 @@ public class PersonajeController {
             @RequestPart("portrait") MultipartFile portrait,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return personajeService.crearPersonajeDnd(payload, portrait, authentication.getName());
+return personajeService.crearPersonajeDnd(payload, portrait, authentication.getName());
     }
 
     @PostMapping("/{id}/usar")
@@ -85,11 +71,7 @@ public class PersonajeController {
             @PathVariable Long id,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        personajeService.marcarComoUsado(id, authentication.getName());
+personajeService.marcarComoUsado(id, authentication.getName());
     }
 
     @PatchMapping("/{id}/recursos")
@@ -98,11 +80,7 @@ public class PersonajeController {
             @RequestBody ActualizarRecursosPersonajeRequest request,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        personajeService.actualizarRecursos(
+personajeService.actualizarRecursos(
                 id,
                 request,
                 authentication.getName()
@@ -115,11 +93,7 @@ public class PersonajeController {
             @RequestBody ActualizarExperienciaPersonajeRequest request,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return personajeService.actualizarExperiencia(id, request, authentication.getName());
+return personajeService.actualizarExperiencia(id, request, authentication.getName());
     }
 
     @PatchMapping("/{id}/edicion")
@@ -128,11 +102,7 @@ public class PersonajeController {
             @RequestBody ActualizarHojaPersonajeRequest request,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return personajeService.actualizarHojaPersonaje(id, request, authentication.getName());
+return personajeService.actualizarHojaPersonaje(id, request, authentication.getName());
     }
 
     @PatchMapping("/{id}/mochila/{itemId}")
@@ -142,11 +112,7 @@ public class PersonajeController {
             @RequestBody ActualizarItemMochilaRequest request,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return personajeService.actualizarItemMochila(id, itemId, request, authentication.getName());
+return personajeService.actualizarItemMochila(id, itemId, request, authentication.getName());
     }
 
     @PostMapping("/{id}/mochila")
@@ -155,11 +121,7 @@ public class PersonajeController {
             @RequestBody AgregarItemMochilaRequest request,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return personajeService.agregarItemMochila(id, request, authentication.getName());
+return personajeService.agregarItemMochila(id, request, authentication.getName());
     }
 
     @DeleteMapping("/{id}/mochila/{itemId}")
@@ -168,11 +130,7 @@ public class PersonajeController {
             @PathVariable Long itemId,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return personajeService.eliminarItemMochila(id, itemId, authentication.getName());
+return personajeService.eliminarItemMochila(id, itemId, authentication.getName());
     }
 
     @PostMapping("/{id}/subir-nivel")
@@ -181,11 +139,7 @@ public class PersonajeController {
             @RequestBody SubirNivelPersonajeRequest request,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return personajeService.subirNivel(id, request, authentication.getName());
+return personajeService.subirNivel(id, request, authentication.getName());
     }
 
     @PostMapping("/{id}/bajar-nivel")
@@ -194,11 +148,7 @@ public class PersonajeController {
             @RequestBody BajarNivelPersonajeRequest request,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return personajeService.bajarNivel(id, request, authentication.getName());
+return personajeService.bajarNivel(id, request, authentication.getName());
     }
 
     @PostMapping("/{id}/habilidades")
@@ -207,11 +157,7 @@ public class PersonajeController {
             @RequestBody AgregarHabilidadPersonajeRequest request,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return personajeService.agregarHabilidad(id, request, authentication.getName());
+return personajeService.agregarHabilidad(id, request, authentication.getName());
     }
 
     @DeleteMapping("/{id}/habilidades/{habilidadId}")
@@ -220,11 +166,7 @@ public class PersonajeController {
             @PathVariable Long habilidadId,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return personajeService.eliminarHabilidad(id, habilidadId, authentication.getName());
+return personajeService.eliminarHabilidad(id, habilidadId, authentication.getName());
     }
 
     @DeleteMapping("/{id}")
@@ -232,10 +174,6 @@ public class PersonajeController {
             @PathVariable Long id,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        personajeService.eliminarPersonaje(id, authentication.getName());
+personajeService.eliminarPersonaje(id, authentication.getName());
     }
 }

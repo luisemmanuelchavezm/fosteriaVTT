@@ -18,6 +18,8 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Service
 public class PestañaService {
 
+	private static final int NIVEL_CAPA_MAPA = 2;
+
 	private final PestañaRepository pestañaRepository;
 	private final CapaRepository capaRepository;
 	private final JugadorRepository jugadorRepository;
@@ -47,6 +49,9 @@ public class PestañaService {
 
 		pestaña.setUltimaVezUsada(LocalDateTime.now());
 		Pestaña pestañaActualizada = pestañaRepository.save(pestaña);
+		String mapaCapaUrl = capaRepository.findByPestañaIdAndNivelDeCapa(pestañaActualizada.getId(), NIVEL_CAPA_MAPA)
+				.map(capa -> capa.getMapa() == null ? null : capa.getMapa().getMapa())
+				.orElse(null);
 
 		return new PestañaCampañaResponse(
 				pestañaActualizada.getId(),
@@ -57,6 +62,7 @@ public class PestañaService {
 				pestañaActualizada.getSistemaMetrico(),
 				pestañaActualizada.getNieblaDeGuerra(),
 				pestañaActualizada.getImagenBaseUrl(),
+				mapaCapaUrl,
 				pestañaActualizada.getUltimaVezUsada()
 		);
 	}

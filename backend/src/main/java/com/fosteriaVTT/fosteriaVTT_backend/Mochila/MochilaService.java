@@ -96,7 +96,7 @@ public class MochilaService {
 	}
 
 	public List<MochilaPersonajeResponse> obtenerItemsPersonaje(Long personajeId) {
-		return mochilaRepository.findByPersonajeIdOrderByIdAsc(personajeId).stream()
+		return mochilaRepository.findByPersonajeIdWithObjetoOrderByIdAsc(personajeId).stream()
 				.map(item -> new MochilaPersonajeResponse(
 						item.getId(),
 						item.getObjeto().getNombre(),

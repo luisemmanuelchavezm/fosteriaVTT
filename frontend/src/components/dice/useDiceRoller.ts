@@ -550,6 +550,52 @@ export function useDiceRoller() {
         void runRoll(request.title, request.expression);
       }
     },
+    rollTwoD20ForAdvantage: async (): Promise<[number, number]> => {
+      clearDiceTimer();
+      setDiceBoxError(null);
+      activeRollCountRef.current += 1;
+      setIsRolling(true);
+
+      try {
+        const diceBox = await ensureDiceBoxReady();
+
+        if (activeDiceCountRef.current + 2 > MAX_VISIBLE_DICE) {
+          diceBox.clear?.();
+          activeDiceCountRef.current = 0;
+        }
+
+        const rollResult = diceBox.roll?.("2d20");
+        let diceValues: number[] = [];
+
+        if (
+          rollResult &&
+          typeof (rollResult as Promise<unknown>).then === "function"
+        ) {
+          const resolved = await (rollResult as Promise<unknown>);
+          diceValues = extractDiceValues(resolved);
+        } else {
+          diceValues = rollLocally(2, 20);
+        }
+
+        // Ensure exactly 2 values; fallback to local random if dice box returned fewer
+        while (diceValues.length < 2) {
+          diceValues.push(...rollLocally(1, 20));
+        }
+
+        activeDiceCountRef.current += 2;
+        scheduleDiceClear();
+        return [diceValues[0], diceValues[1]];
+      } catch {
+        scheduleDiceClear();
+        return [secureRandomInt(1, 20), secureRandomInt(1, 20)];
+      } finally {
+        activeRollCountRef.current = Math.max(
+          0,
+          activeRollCountRef.current - 1,
+        );
+        setIsRolling(activeRollCountRef.current > 0);
+      }
+    },
     formatModifier,
   };
 }

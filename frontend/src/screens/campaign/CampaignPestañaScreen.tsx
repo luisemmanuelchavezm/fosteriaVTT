@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import type Konva from "konva";
 import {
+  ArrowLeftRight,
   Archive,
   BookOpen,
   Cloud,
@@ -21,7 +22,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { Layer, Line, Rect, Stage } from "react-konva";
+import { Layer, Image as KonvaImage, Line, Rect, Stage } from "react-konva";
 import { buildApiUrl } from "../../lib/api";
 import {
   CampaignRulerOverlay,
@@ -34,10 +35,24 @@ import {
   CampaignPencilOptionsModal,
   useCampaignPencilTool,
 } from "./campaignPencilTool";
-import { useWebSocketDrawings } from "./hooks/useWebSocketDrawings";
+import CharacterTokenPanel from "./components/CharacterTokenPanel";
+import IniciativaBar from "./components/IniciativaBar";
+import Baul from "./components/Baul";
+import { PosicionFicha } from "./components/PosicionFicha";
+import QuickActionBar from "./components/QuickActionBar";
+import DndCharacterSheetScreen from "../personaje/dndcharactersheet/DndCharacterSheetScreen";
+import {
+  useCampaignRealtime,
+  type IniciativaEstado,
+} from "./hooks/useCampaignRealtime";
 
 interface CampaignPestañaScreenProps {
   campaignId: string;
+  username: string;
+  avatarUrl: string;
+  onLogout: () => void;
+  onGoHome: () => void;
+  onGoCampaigns: () => void;
   onBack?: () => void;
 }
 
@@ -50,7 +65,29 @@ interface CampaignPestañaResponse {
   sistemaMetrico: string;
   nieblaDeGuerra: string;
   imagenBaseUrl: string;
+  mapaCapaUrl?: string;
 }
+
+interface CampaignPositionResponse {
+  id: number;
+  pestanaId: number;
+  capa: LayerSelection;
+  personajeId: number;
+  personajeNombre: string;
+  retrato?: string;
+  posicionX: number;
+  posicionY: number;
+  largo: number;
+  ancho: number;
+}
+
+interface CharacterDropPayload {
+  id: number;
+  nombre: string;
+  retrato?: string;
+}
+
+const CHARACTER_DRAG_MIME = "application/x-fosteria-character";
 
 const CELL_PX = 70;
 type LayerSelection = "fichas" | "mapa" | "dm";
@@ -62,6 +99,8 @@ type ToolSelection =
   | "fog"
   | "timer"
   | "chest";
+
+const CHARACTER_REMOTE_UPDATED_EVENT = "fosteria:character-remote-updated";
 
 function SidebarBtn({
   children,
@@ -79,36 +118,11 @@ function SidebarBtn({
       type="button"
       title={title}
       onClick={onClick}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: 34,
-        height: 34,
-        borderRadius: 7,
-        background: isActive ? "rgba(217, 119, 6, 0.18)" : "transparent",
-        border: isActive
-          ? "1px solid rgba(251, 191, 36, 0.95)"
-          : "1px solid transparent",
-        boxShadow: isActive
-          ? "0 0 0 1px rgba(146, 64, 14, 0.55) inset"
-          : "none",
-        color: isActive ? "#fef3c7" : "rgba(255,255,255,0.75)",
-        cursor: "pointer",
-        transition: "background 0.15s, color 0.15s, border-color 0.15s",
-      }}
-      onMouseEnter={(e) => {
-        if (!isActive) {
-          e.currentTarget.style.background = "rgba(255,255,255,0.12)";
-          e.currentTarget.style.color = "#fff";
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!isActive) {
-          e.currentTarget.style.background = "transparent";
-          e.currentTarget.style.color = "rgba(255,255,255,0.75)";
-        }
-      }}
+      className={`flex h-9 w-9 items-center justify-center rounded transition-all ${
+        isActive
+          ? "border border-amber-400/95 bg-amber-700/18 text-amber-100 shadow-[inset_0_0_0_1px_rgba(146,64,14,0.55)]"
+          : "border border-transparent text-white/75 hover:bg-white/12 hover:text-white"
+      }`}
     >
       {children}
     </button>
@@ -117,42 +131,24 @@ function SidebarBtn({
 
 function SidebarDivider({ label }: { label?: string }) {
   return (
-    <div
-      style={{
-        width: "100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        margin: "4px 0",
-        gap: 2,
-      }}
-    >
+    <div className="my-1 flex w-full flex-col items-center gap-0.5">
       {label ? (
-        <span
-          style={{
-            fontSize: 8,
-            fontWeight: 700,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            color: "rgba(255,255,255,0.35)",
-          }}
-        >
+        <span className="text-[8px] font-bold uppercase tracking-[0.1em] text-white/75">
           {label}
         </span>
       ) : null}
-      <div
-        style={{
-          width: 22,
-          height: 1,
-          background: "rgba(255,255,255,0.2)",
-        }}
-      />
+      <div className="h-px w-5.5 bg-white/20" />
     </div>
   );
 }
 
 export default function CampaignPestañaScreen({
   campaignId,
+  username,
+  avatarUrl,
+  onLogout,
+  onGoHome,
+  onGoCampaigns,
   onBack,
 }: CampaignPestañaScreenProps) {
   const [pestaña, setPestaña] = useState<CampaignPestañaResponse | null>(null);
@@ -160,6 +156,19 @@ export default function CampaignPestañaScreen({
   const [isLoading, setIsLoading] = useState(true);
   const [selectedLayer, setSelectedLayer] = useState<LayerSelection>("fichas");
   const [selectedTool, setSelectedTool] = useState<ToolSelection>("move");
+  const [mapLayerImageUrl, setMapLayerImageUrl] = useState<string | null>(null);
+  const [mapLayerImage, setMapLayerImage] = useState<HTMLImageElement | null>(
+    null,
+  );
+  const [positions, setPositions] = useState<CampaignPositionResponse[]>([]);
+  const [selectedPositionId, setSelectedPositionId] = useState<number | null>(
+    null,
+  );
+  const [modalCharacterId, setModalCharacterId] = useState<number | null>(null);
+  const [iniciativaEstado, setIniciativaEstado] = useState<IniciativaEstado>({
+    activa: false,
+    entradas: [],
+  });
   const [isRulerSelectorOpen, setIsRulerSelectorOpen] = useState(false);
   const [isPencilSelectorOpen, setIsPencilSelectorOpen] = useState(false);
   const stageRef = useRef<Konva.Stage>(null);
@@ -176,6 +185,16 @@ export default function CampaignPestañaScreen({
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    if (!mapLayerImageUrl) {
+      setMapLayerImage(null);
+      return;
+    }
+    const img = new Image();
+    img.src = mapLayerImageUrl;
+    img.onload = () => setMapLayerImage(img);
+  }, [mapLayerImageUrl]);
 
   useEffect(() => {
     const token = localStorage.getItem("jwtToken");
@@ -205,6 +224,7 @@ export default function CampaignPestañaScreen({
 
         const data = (await response.json()) as CampaignPestañaResponse;
         setPestaña(data);
+        setMapLayerImageUrl(data.mapaCapaUrl ?? null);
       } catch (error) {
         setLoadError((error as Error).message);
       } finally {
@@ -231,7 +251,7 @@ export default function CampaignPestañaScreen({
       (_, index) => index * CELL_PX,
     );
 
-    return { rectW, rectH, rectX, rectY, vLines, hLines };
+    return { cols, rows, rectW, rectH, rectX, rectY, vLines, hLines };
   }, [pestaña, stageSize]);
 
   const campaignIdNumber = useMemo(() => {
@@ -239,10 +259,122 @@ export default function CampaignPestañaScreen({
     return Number.isFinite(parsed) ? parsed : 0;
   }, [campaignId]);
 
-  const drawingsSocket = useWebSocketDrawings({
+  const handlePosicionCreated = useCallback(
+    (posicion: Omit<CampaignPositionResponse, "capa"> & { capa: string }) => {
+      setPositions((current) => {
+        const next = current.filter((item) => item.id !== posicion.id);
+        return [...next, posicion as CampaignPositionResponse].sort(
+          (left, right) => left.id - right.id,
+        );
+      });
+    },
+    [],
+  );
+
+  const handleMapLayerChanged = useCallback(
+    (payload: { pestanaId: number; mapaUrl?: string | null }) => {
+      if (!pestaña?.id || payload.pestanaId !== pestaña.id) {
+        return;
+      }
+      setMapLayerImageUrl(payload.mapaUrl ?? null);
+    },
+    [pestaña?.id],
+  );
+
+  const handleCharacterUpdated = useCallback((characterId: number) => {
+    window.dispatchEvent(
+      new CustomEvent(CHARACTER_REMOTE_UPDATED_EVENT, {
+        detail: { characterId },
+      }),
+    );
+  }, []);
+
+  const handleIniciativaChanged = useCallback((estado: IniciativaEstado) => {
+    setIniciativaEstado(estado);
+  }, []);
+
+  const realtime = useCampaignRealtime({
     campaignId: campaignIdNumber,
     pestanaId: pestaña?.id ?? null,
+    onPosicionCreated: handlePosicionCreated,
+    onMapLayerChanged: handleMapLayerChanged,
+    onCharacterUpdated: handleCharacterUpdated,
+    onIniciativaChanged: handleIniciativaChanged,
   });
+
+  const {
+    crearPosicionPorWebSocket,
+    moverPosicionPorWebSocket,
+    asignarMapaPorWebSocket,
+    drawings,
+    sendDrawing,
+    deleteDrawing,
+    activarIniciativa,
+    tirarIniciativa,
+    reordenarIniciativa,
+  } = realtime;
+
+  const drawingsSocket = {
+    drawings,
+    sendDrawing,
+    deleteDrawing,
+  };
+
+  const handleMapSelect = useCallback(
+    async ({ mapaId, mapaUrl }: { mapaId: number; mapaUrl: string }) => {
+      if (!pestaña?.id || !campaignIdNumber) {
+        return;
+      }
+
+      try {
+        asignarMapaPorWebSocket({
+          pestanaId: pestaña.id,
+          mapaId,
+        });
+
+        // Respuesta optimista local: si la emisión tarda, el usuario ve el cambio al instante.
+        setMapLayerImageUrl(mapaUrl);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [asignarMapaPorWebSocket, campaignIdNumber, pestaña?.id],
+  );
+
+  const loadPositions = useCallback(async () => {
+    if (!campaignIdNumber || !pestaña?.id) {
+      setPositions([]);
+      return;
+    }
+
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      setPositions([]);
+      return;
+    }
+
+    const response = await fetch(
+      buildApiUrl(
+        `/api/campanas/${campaignIdNumber}/posiciones?pestanaId=${pestaña.id}`,
+      ),
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("No se pudieron cargar las fichas de la pestaña.");
+    }
+
+    const payload = (await response.json()) as CampaignPositionResponse[];
+    setPositions(payload ?? []);
+  }, [campaignIdNumber, pestaña?.id]);
+
+  useEffect(() => {
+    void loadPositions().catch(() => {
+      setPositions([]);
+    });
+  }, [loadPositions]);
 
   const handlePencilCompleteDrawing = useCallback(
     (drawing: {
@@ -348,40 +480,102 @@ export default function CampaignPestañaScreen({
     }
   };
 
+  const handleDragOver = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      if (!event.dataTransfer.types.includes(CHARACTER_DRAG_MIME)) {
+        return;
+      }
+
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "move";
+    },
+    [],
+  );
+
+  const handleCharacterDrop = useCallback(
+    async (event: React.DragEvent<HTMLDivElement>) => {
+      if (!event.dataTransfer.types.includes(CHARACTER_DRAG_MIME)) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const stage = stageRef.current;
+      const token = localStorage.getItem("jwtToken");
+      if (!stage || !token || !pestaña?.id || !campaignIdNumber) {
+        return;
+      }
+
+      const rawPayload = event.dataTransfer.getData(CHARACTER_DRAG_MIME);
+      if (!rawPayload) {
+        return;
+      }
+
+      let payload: CharacterDropPayload;
+      try {
+        payload = JSON.parse(rawPayload) as CharacterDropPayload;
+      } catch {
+        return;
+      }
+
+      if (!payload.id) {
+        return;
+      }
+
+      const containerRect = stage.container().getBoundingClientRect();
+      const pointer = {
+        x: event.clientX - containerRect.left,
+        y: event.clientY - containerRect.top,
+      };
+
+      const transform = stage.getAbsoluteTransform().copy();
+      transform.invert();
+      const stagePoint = transform.point(pointer);
+
+      const relativeX = stagePoint.x - grid.rectX;
+      const relativeY = stagePoint.y - grid.rectY;
+      if (
+        relativeX < 0 ||
+        relativeY < 0 ||
+        relativeX >= grid.rectW ||
+        relativeY >= grid.rectH
+      ) {
+        return;
+      }
+
+      const posicionX = Math.floor(relativeX / CELL_PX);
+      const posicionY = Math.floor(relativeY / CELL_PX);
+      if (
+        posicionX < 0 ||
+        posicionY < 0 ||
+        posicionX >= grid.cols ||
+        posicionY >= grid.rows
+      ) {
+        return;
+      }
+
+      // Enviar por WebSocket en lugar de REST
+      crearPosicionPorWebSocket({
+        pestanaId: pestaña.id,
+        capa: selectedLayer,
+        personajeId: payload.id,
+        posicionX,
+        posicionY,
+      });
+    },
+    [crearPosicionPorWebSocket, grid, pestaña?.id, selectedLayer],
+  );
+
   return (
     <div
-      style={{
-        width: "100vw",
-        height: "100vh",
-        background: "#57534e",
-        overflow: "hidden",
-        position: "relative",
+      className="relative h-screen w-full overflow-hidden bg-stone-400"
+      onDragOver={handleDragOver}
+      onDrop={(event) => {
+        void handleCharacterDrop(event).catch((error: unknown) => {
+          console.error(error);
+        });
       }}
     >
-      <button
-        type="button"
-        onClick={onBack}
-        style={{
-          position: "absolute",
-          top: 14,
-          left: 14,
-          zIndex: 10,
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          padding: "6px 14px",
-          borderRadius: 8,
-          background: "rgba(0,0,0,0.45)",
-          border: "1px solid rgba(255,255,255,0.2)",
-          color: "#fff",
-          fontSize: 13,
-          fontWeight: 600,
-          cursor: "pointer",
-        }}
-      >
-        ← Volver
-      </button>
-
       <CampaignRulerShapeSelector
         visible={selectedTool === "ruler" && isRulerSelectorOpen}
         selectedShape={rulerTool.selectedShape}
@@ -402,143 +596,182 @@ export default function CampaignPestañaScreen({
         onFillToggle={pencilTool.setFillEnabled}
       />
 
-      <div
-        style={{
-          position: "absolute",
-          left: 14,
-          top: "50%",
-          transform: "translateY(-50%)",
-          zIndex: 10,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 2,
-          padding: "8px 6px",
-          borderRadius: 12,
-          background: "rgba(0,0,0,0.5)",
-          border: "1px solid rgba(255,255,255,0.15)",
+      {iniciativaEstado.activa ? (
+        <IniciativaBar
+          entradas={iniciativaEstado.entradas}
+          onReordenar={reordenarIniciativa}
+        />
+      ) : null}
+
+      <CharacterTokenPanel
+        positions={positions}
+        onOpenCharacterSheet={(characterId) => {
+          setModalCharacterId(characterId);
+          setSelectedPositionId(null);
         }}
-      >
-        <SidebarBtn title="Ajustes">
-          <Settings size={18} />
-        </SidebarBtn>
+        onInteract={() => setSelectedPositionId(null)}
+        iniciativaActiva={iniciativaEstado.activa}
+        personajesConIniciativa={
+          new Set(iniciativaEstado.entradas.map((e) => e.personajeId))
+        }
+        onTirarIniciativa={(personajeId, nombre, retrato, bonificacion) => {
+          const tirada = Math.floor(Math.random() * 20) + 1;
+          tirarIniciativa(personajeId, nombre, retrato, tirada, bonificacion);
+        }}
+      />
 
-        <SidebarDivider label="click" />
+      <QuickActionBar
+        selectedPosition={
+          selectedPositionId != null
+            ? (positions.find((p) => p.id === selectedPositionId) ?? null)
+            : null
+        }
+        onClose={() => setSelectedPositionId(null)}
+      />
 
-        <SidebarBtn
-          title="Mover"
-          isActive={selectedTool === "move"}
-          onClick={() => handleToolSelection("move")}
+      {modalCharacterId !== null ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm"
+          onClick={() => setModalCharacterId(null)}
         >
-          <Move size={18} />
-        </SidebarBtn>
-        <SidebarBtn
-          title="Seleccionar"
-          isActive={selectedTool === "select"}
-          onClick={() => handleToolSelection("select")}
-        >
-          <MousePointer2 size={18} />
-        </SidebarBtn>
+          <div
+            className="relative h-[92vh] w-[min(1500px,96vw)] overflow-hidden rounded-[28px] border border-white/15 bg-[linear-gradient(180deg,rgba(18,18,18,0.98)_0%,rgba(10,10,10,0.99)_100%)] shadow-[0_32px_90px_rgba(0,0,0,0.55)]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setModalCharacterId(null)}
+              className="absolute right-4 top-4 z-[60] rounded-full border border-white/25 bg-black/60 px-3 py-1.5 text-xs font-semibold text-white hover:bg-black/80"
+            >
+              Cerrar
+            </button>
 
-        <SidebarDivider label="Herramientas" />
+            <div className="h-full overflow-auto">
+              <DndCharacterSheetScreen
+                username={username}
+                avatarUrl={avatarUrl}
+                characterId={String(modalCharacterId)}
+                onLogout={onLogout}
+                onGoHome={onGoHome}
+                onGoCampaigns={onGoCampaigns}
+                onGoCharacters={() => setModalCharacterId(null)}
+                modalMode
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
 
-        <SidebarBtn
-          title="Lápiz"
-          isActive={selectedTool === "pencil"}
-          onClick={() => handleToolSelection("pencil")}
-        >
-          <Pencil size={18} />
-        </SidebarBtn>
-        <SidebarBtn
-          title="Regla"
-          isActive={selectedTool === "ruler"}
-          onClick={() => handleToolSelection("ruler")}
-        >
-          <Ruler size={18} />
-        </SidebarBtn>
-        <SidebarBtn
-          title="Niebla de guerra"
-          isActive={selectedTool === "fog"}
-          onClick={() => handleToolSelection("fog")}
-        >
-          <Cloud size={18} />
-        </SidebarBtn>
-        <SidebarBtn
-          title="Temporizador"
-          isActive={selectedTool === "timer"}
-          onClick={() => handleToolSelection("timer")}
-        >
-          <Timer size={18} />
-        </SidebarBtn>
-        <SidebarBtn
-          title="Baúl"
-          isActive={selectedTool === "chest"}
-          onClick={() => handleToolSelection("chest")}
-        >
-          <Archive size={18} />
-        </SidebarBtn>
+      {selectedTool !== "chest" ? (
+        <div className="absolute left-3.5 top-1/2 z-10 -translate-y-1/2 flex flex-col items-center gap-1 rounded-[12px] border border-white/15 bg-black/50 p-[8px_6px]">
+          <SidebarBtn title="Volver a campaña" onClick={onBack}>
+            <ArrowLeftRight size={18} />
+          </SidebarBtn>
 
-        <SidebarDivider label="Capas" />
+          <SidebarBtn title="Ajustes">
+            <Settings size={18} />
+          </SidebarBtn>
 
-        <SidebarBtn
-          title="Fichas"
-          isActive={selectedLayer === "fichas"}
-          onClick={() => setSelectedLayer("fichas")}
-        >
-          <User size={18} />
-        </SidebarBtn>
-        <SidebarBtn
-          title="Mapa"
-          isActive={selectedLayer === "mapa"}
-          onClick={() => setSelectedLayer("mapa")}
-        >
-          <Map size={18} />
-        </SidebarBtn>
-        <SidebarBtn
-          title="DM"
-          isActive={selectedLayer === "dm"}
-          onClick={() => setSelectedLayer("dm")}
-        >
-          <BookOpen size={18} />
-        </SidebarBtn>
-      </div>
+          <SidebarDivider label="click" />
+
+          <SidebarBtn
+            title="Mover"
+            isActive={selectedTool === "move"}
+            onClick={() => handleToolSelection("move")}
+          >
+            <Move size={18} />
+          </SidebarBtn>
+          <SidebarBtn
+            title="Seleccionar"
+            isActive={selectedTool === "select"}
+            onClick={() => handleToolSelection("select")}
+          >
+            <MousePointer2 size={18} />
+          </SidebarBtn>
+
+          <SidebarDivider label="Herramientas" />
+
+          <SidebarBtn
+            title="Lápiz"
+            isActive={selectedTool === "pencil"}
+            onClick={() => handleToolSelection("pencil")}
+          >
+            <Pencil size={18} />
+          </SidebarBtn>
+          <SidebarBtn
+            title="Regla"
+            isActive={selectedTool === "ruler"}
+            onClick={() => handleToolSelection("ruler")}
+          >
+            <Ruler size={18} />
+          </SidebarBtn>
+          <SidebarBtn
+            title="Niebla de guerra"
+            isActive={selectedTool === "fog"}
+            onClick={() => handleToolSelection("fog")}
+          >
+            <Cloud size={18} />
+          </SidebarBtn>
+          <SidebarBtn
+            title="Temporizador"
+            isActive={selectedTool === "timer"}
+            onClick={() => {
+              if (selectedTool === "timer") {
+                activarIniciativa(false);
+                handleToolSelection("move");
+              } else {
+                activarIniciativa(true);
+                handleToolSelection("timer");
+              }
+            }}
+          >
+            <Timer size={18} />
+          </SidebarBtn>
+          <SidebarBtn title="Baúl" onClick={() => handleToolSelection("chest")}>
+            <Archive size={18} />
+          </SidebarBtn>
+
+          <SidebarDivider label="Capas" />
+
+          <SidebarBtn
+            title="Fichas"
+            isActive={selectedLayer === "fichas"}
+            onClick={() => setSelectedLayer("fichas")}
+          >
+            <User size={18} />
+          </SidebarBtn>
+          <SidebarBtn
+            title="Mapa"
+            isActive={selectedLayer === "mapa"}
+            onClick={() => setSelectedLayer("mapa")}
+          >
+            <Map size={18} />
+          </SidebarBtn>
+          <SidebarBtn
+            title="DM"
+            isActive={selectedLayer === "dm"}
+            onClick={() => setSelectedLayer("dm")}
+          >
+            <BookOpen size={18} />
+          </SidebarBtn>
+        </div>
+      ) : (
+        <Baul
+          campaignId={campaignId}
+          onClose={() => handleToolSelection("move")}
+          onMapSelect={handleMapSelect}
+        />
+      )}
 
       {isLoading ? (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#fff",
-            fontSize: 14,
-          }}
-        >
+        <div className="absolute inset-0 flex items-center justify-center text-sm text-white">
           Cargando pestaña...
         </div>
       ) : null}
 
       {!isLoading && loadError ? (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <p
-            style={{
-              background: "rgba(120,0,0,0.5)",
-              border: "1px solid rgba(255,100,100,0.4)",
-              color: "#fecaca",
-              padding: "8px 14px",
-              borderRadius: 8,
-              fontSize: 13,
-            }}
-          >
+        <div className="absolute inset-0 flex items-center justify-center">
+          <p className="rounded-lg border border-red-300/40 bg-red-900/50 px-3.5 py-2 text-sm text-red-300">
             {loadError}
           </p>
         </div>
@@ -589,6 +822,19 @@ export default function CampaignPestañaScreen({
               shadowOpacity={0.4}
             />
 
+            {mapLayerImage ? (
+              <KonvaImage
+                x={grid.rectX}
+                y={grid.rectY}
+                width={grid.rectW}
+                height={grid.rectH}
+                image={mapLayerImage}
+                shadowColor="black"
+                shadowBlur={30}
+                shadowOpacity={0.4}
+              />
+            ) : null}
+
             {grid.vLines.map((x) => (
               <Line
                 key={`v-${x}`}
@@ -614,6 +860,21 @@ export default function CampaignPestañaScreen({
                 ]}
                 stroke="#d4d4d4"
                 strokeWidth={1}
+              />
+            ))}
+
+            {positions.map((position) => (
+              <PosicionFicha
+                key={position.id}
+                position={position}
+                grid={grid}
+                isSelected={selectedPositionId === position.id}
+                onDragEnd={(x, y) => {
+                  moverPosicionPorWebSocket(position.id, x, y);
+                }}
+                onTokenClick={(id) =>
+                  setSelectedPositionId((prev) => (prev === id ? null : id))
+                }
               />
             ))}
 

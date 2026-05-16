@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @RestController
 @RequestMapping("/api/campanas/{campañaId}/chat")
@@ -29,11 +27,7 @@ public class ChatController {
             @PathVariable Long campañaId,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return chatService.obtenerMensajesCampania(campañaId, authentication.getName());
+return chatService.obtenerMensajesCampania(campañaId, authentication.getName());
     }
 
     @PostMapping
@@ -42,12 +36,9 @@ public class ChatController {
             @RequestBody CrearMensajeChatRequest request,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return chatService.enviarMensajeCampania(campañaId, request, authentication.getName());
+return chatService.enviarMensajeCampania(campañaId, request, authentication.getName());
     }
 }
+
 
 

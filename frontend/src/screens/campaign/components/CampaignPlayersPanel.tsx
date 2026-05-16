@@ -1,9 +1,6 @@
-import { useState } from "react";
-import { useWebSocketChat } from "../hooks/useWebSocketChat";
-
 interface CampaignPlayersPanelProps {
-  campaignId: string;
-  username: string;
+  players: CampaignPlayerResponse[];
+  errorMessage?: string;
 }
 
 interface CampaignPlayerResponse {
@@ -12,33 +9,12 @@ interface CampaignPlayerResponse {
 }
 
 export default function CampaignPlayersPanel({
-  campaignId,
-  username,
+  players,
+  errorMessage,
 }: CampaignPlayersPanelProps) {
-  const [players, setPlayers] = useState<CampaignPlayerResponse[]>([]);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  useWebSocketChat({
-    campaignId: parseInt(campaignId),
-    username,
-    onNewMessage: () => {
-      // Los mensajes se manejan en CampaignChatPanel.
-    },
-    onPlayersUpdate: (playersList) => {
-      setPlayers(playersList.players);
-      setErrorMessage("");
-    },
-    onError: (error) => {
-      setErrorMessage(`Error: ${error}`);
-    },
-  });
-
   return (
     <aside className="flex h-full max-h-[46vh] min-h-0 w-full max-w-[280px] flex-col text-stone-50 md:max-h-[78vh]">
-      <div
-        className="w-full rounded-md border-y border-amber-200/70 px-3 py-2"
-        style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-      >
+      <div className="w-full rounded-md border-y border-amber-200/70 bg-black/50 px-3 py-2">
         <h2 className="text-center text-sm font-semibold uppercase tracking-[0.22em] text-amber-100">
           Jugadores
         </h2>
@@ -60,18 +36,9 @@ export default function CampaignPlayersPanel({
         {players.map((player) => (
           <div
             key={player.username}
-            className="rounded-xl border border-white/25 px-3 py-2"
-            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+            className="rounded-xl border border-white/25 bg-black/50 px-3 py-2"
           >
-            <p
-              className="text-sm font-semibold leading-5 text-amber-100 break-words"
-              style={{
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-              }}
-            >
+            <p className="break-words text-sm font-semibold leading-5 text-amber-100 [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] [overflow:hidden]">
               {player.username}
               {player.dm ? " (dm)" : ""}
             </p>

@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "$d = git diff --stat HEAD 2>$null; if ($d) { $t = \"Archivos modificados:`n\" + ($d -join \"`n\") + \"`n`nPara revertir todos los cambios: git stash\"; @{systemMessage=$t} | ConvertTo-Json -Compress }",
+            "statusMessage": "Calculando cambios..."
+          }
+        ]
+      }
+    ]
+  }
+}

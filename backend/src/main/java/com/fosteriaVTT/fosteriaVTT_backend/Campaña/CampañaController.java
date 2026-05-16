@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @RestController
 @RequestMapping("/api/campanas")
@@ -31,11 +29,7 @@ public class CampañaController {
 
     @GetMapping("/ultimas")
     public List<CampañaResumenResponse> obtenerUltimasCampañas(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return campañaService.obtenerUltimasCampañas(authentication.getName());
+return campañaService.obtenerUltimasCampañas(authentication.getName());
     }
 
     @GetMapping("/{campaniaId}/jugadores")
@@ -43,11 +37,7 @@ public class CampañaController {
             @PathVariable Long campaniaId,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return campañaService.obtenerJugadoresCampaña(campaniaId, authentication.getName());
+return campañaService.obtenerJugadoresCampaña(campaniaId, authentication.getName());
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -56,11 +46,7 @@ public class CampañaController {
             @RequestPart(value = "cover", required = false) MultipartFile cover,
             Authentication authentication
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return campañaService.crearCampaña(payload, cover, authentication.getName());
+return campañaService.crearCampaña(payload, cover, authentication.getName());
     }
 
     @GetMapping
@@ -72,10 +58,6 @@ public class CampañaController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size
     ) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
-
-        return campañaService.obtenerCampañasOrdenadasPorUltimoAcceso(authentication.getName(), nombre, sistemas, dm, page, size);
+return campañaService.obtenerCampañasOrdenadasPorUltimoAcceso(authentication.getName(), nombre, sistemas, dm, page, size);
     }
 }

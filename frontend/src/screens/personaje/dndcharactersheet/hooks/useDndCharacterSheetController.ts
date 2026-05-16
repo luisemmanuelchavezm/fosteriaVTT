@@ -17,6 +17,7 @@ import { resolveCharacterFormula } from "../utils/characterAbilities";
 import type { DetailTab } from "../data";
 import {
   ARMOR_CLASS_STAT,
+  HEALTH_TOTAL_STAT,
   MOVEMENT_STAT,
   extractClassCompetencies,
   sanitizeNonNegativeNumber,
@@ -107,7 +108,7 @@ export function useDndCharacterSheetController(
     classCompetencies,
     healthCurrentStat: "Vida actual",
     healthTempStat: "Vida temporal",
-    healthTotalStat: "Vida",
+    healthTotalStat: HEALTH_TOTAL_STAT,
     movementStat: MOVEMENT_STAT,
   });
 

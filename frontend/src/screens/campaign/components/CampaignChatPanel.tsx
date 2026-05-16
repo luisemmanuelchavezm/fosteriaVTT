@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
 import DiceRollOverlay from "../../../components/dice/DiceRollOverlay";
 import { useDiceRoller } from "../../../components/dice/useDiceRoller";
-import { useWebSocketChat } from "../hooks/useWebSocketChat";
 import ChatDiceRollerPanel from "./ChatDiceRollerPanel";
 
 interface CampaignChatPanelProps {
-  campaignId: string;
-  username: string;
+  messages: CampaignChatMessage[];
+  websocketError?: string;
+  onSendMessage: (message: string) => Promise<void>;
 }
 
 interface CampaignChatMessage {
@@ -17,29 +17,15 @@ interface CampaignChatMessage {
 }
 
 export default function CampaignChatPanel({
-  campaignId,
-  username,
+  messages,
+  websocketError,
+  onSendMessage,
 }: CampaignChatPanelProps) {
-  const [messages, setMessages] = useState<CampaignChatMessage[]>([]);
   const [messageInput, setMessageInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const MAX_MESSAGE_LENGTH = 500;
   const diceRoller = useDiceRoller();
-
-  const { sendMessage: sendWebSocketMessage } = useWebSocketChat({
-    campaignId: parseInt(campaignId),
-    username,
-    onNewMessage: (message) => {
-      setMessages((current) => [...current, message]);
-    },
-    onPlayersUpdate: () => {
-      // Los jugadores se manejan en CampaignPlayersPanel.
-    },
-    onError: (error) => {
-      setErrorMessage(`Error WebSocket: ${error}`);
-    },
-  });
 
   const groupedMessages = useMemo(
     () =>
@@ -68,7 +54,7 @@ export default function CampaignChatPanel({
     setIsSending(true);
 
     try {
-      await sendWebSocketMessage(message);
+      await onSendMessage(message);
       setMessageInput("");
       setErrorMessage("");
     } catch (error) {
@@ -81,10 +67,7 @@ export default function CampaignChatPanel({
   return (
     <>
       <aside className="flex h-full max-h-[72vh] min-h-0 w-full max-w-[460px] flex-col p-1 text-stone-50 md:max-h-[78vh]">
-        <div
-          className="w-full rounded-md border-y border-amber-200/70 px-3 py-2"
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-        >
+        <div className="w-full rounded-md border-y border-amber-200/70 bg-black/50 px-3 py-2">
           <h2 className="text-center text-sm font-semibold uppercase tracking-[0.22em] text-amber-100">
             Chat
           </h2>
@@ -97,10 +80,7 @@ export default function CampaignChatPanel({
             <div className="space-y-3">
               {groupedMessages.map(({ message, showUsername }) => (
                 <div key={message.id}>
-                  <div
-                    className="inline-block max-w-full rounded-2xl border border-white/30 px-3 py-2 shadow-[0_8px_20px_rgba(0,0,0,0.28)]"
-                    style={{ backgroundColor: "rgba(0, 0, 0, 0.7)" }}
-                  >
+                  <div className="inline-block max-w-full rounded-2xl border border-white/30 bg-black/70 px-3 py-2 shadow-[0_8px_20px_rgba(0,0,0,0.28)]">
                     {showUsername ? (
                       <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-amber-100">
                         {message.username}
@@ -156,6 +136,10 @@ export default function CampaignChatPanel({
           {errorMessage ? (
             <p className="mt-2 rounded-md border border-red-400 bg-red-100/90 px-3 py-1 text-center text-[12px] font-extrabold text-red-800 shadow-md">
               {errorMessage}
+            </p>
+          ) : websocketError ? (
+            <p className="mt-2 rounded-md border border-red-400 bg-red-100/90 px-3 py-1 text-center text-[12px] font-extrabold text-red-800 shadow-md">
+              {websocketError}
             </p>
           ) : null}
         </div>

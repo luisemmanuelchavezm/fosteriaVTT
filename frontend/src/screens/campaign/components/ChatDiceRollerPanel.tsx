@@ -66,13 +66,10 @@ export default function ChatDiceRollerPanel({
               key={faces}
               type="button"
               onClick={() => handleQuickRoll(faces)}
-              className="relative flex h-14 items-center justify-center overflow-hidden rounded-xl border border-white/20 bg-white/5 px-1 py-2 text-sm font-bold text-amber-100 transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-55"
+              className="relative flex h-14 items-center justify-center overflow-hidden rounded-xl border border-white/20 bg-center bg-no-repeat bg-cover text-sm font-bold text-amber-100 transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-55"
               disabled={disabled}
               style={{
                 backgroundImage: `url(${dadoPlaceholder})`,
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-                backgroundSize: "cover",
               }}
             >
               <span className="pointer-events-none rounded-md bg-black/45 px-2 py-0.5 text-amber-100">

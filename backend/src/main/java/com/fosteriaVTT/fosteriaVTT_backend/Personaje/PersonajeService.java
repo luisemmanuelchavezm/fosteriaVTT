@@ -2,7 +2,9 @@ package com.fosteriaVTT.fosteriaVTT_backend.Personaje;
 
 import com.fosteriaVTT.fosteriaVTT_backend.Cloudinary.CloudinaryService;
 import com.fosteriaVTT.fosteriaVTT_backend.Estadistica.EstadisticaService;
+import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.Habilidad;
 import com.fosteriaVTT.fosteriaVTT_backend.Mochila.MochilaService;
+import com.fosteriaVTT.fosteriaVTT_backend.Objeto.Objeto;
 import com.fosteriaVTT.fosteriaVTT_backend.Usuario.UserRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.common.dnd.DndCharacterRules;
 import com.fosteriaVTT.fosteriaVTT_backend.common.SistemaDeJuego;
@@ -14,6 +16,9 @@ import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterNormal
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterLevelUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterStatsUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCombatUtils;
+import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndWeaponProficiencies;
+import com.fosteriaVTT.fosteriaVTT_backend.Posicion.Posicion;
+import com.fosteriaVTT.fosteriaVTT_backend.Posicion.PosicionRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarRecursosPersonajeRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarHojaPersonajeRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarExperienciaPersonajeRequest;
@@ -31,8 +36,10 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,6 +62,8 @@ public class PersonajeService {
 	private final DndCharacterStatsUtils dndCharacterStatsUtils;
 	private final DndCharacterCreationUtils dndCharacterCreationUtils;
 	private final DndCharacterLevelUtils dndCharacterLevelUtils;
+	private final PosicionRepository posicionRepository;
+	private final SimpMessagingTemplate messagingTemplate;
 
 	public PersonajeService(
 			PersonajeRepository personajeRepository,
@@ -67,7 +76,9 @@ public class PersonajeService {
 			DndCombatUtils dndCombatUtils,
 			DndCharacterStatsUtils dndCharacterStatsUtils,
 			DndCharacterCreationUtils dndCharacterCreationUtils,
-			DndCharacterLevelUtils dndCharacterLevelUtils
+			DndCharacterLevelUtils dndCharacterLevelUtils,
+			PosicionRepository posicionRepository,
+			SimpMessagingTemplate messagingTemplate
 	) {
 		this.personajeRepository = personajeRepository;
 		this.estadisticaService = estadisticaService;
@@ -79,12 +90,17 @@ public class PersonajeService {
 		this.dndCharacterStatsUtils = dndCharacterStatsUtils;
 		this.dndCharacterCreationUtils = dndCharacterCreationUtils;
 		this.dndCharacterLevelUtils = dndCharacterLevelUtils;
+		this.posicionRepository = posicionRepository;
+		this.messagingTemplate = messagingTemplate;
 	}
 
 	@Transactional(readOnly = true)
 	 public PersonajeDetalleResponse obtenerDetallePersonaje(Long personajeId, String username) {
 	 		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
 			Map<String, Integer> estadisticas = estadisticaService.obtenerValoresPorPersonajeId(personajeId);
+			List<Habilidad> habilidades = personaje.getHabilidades();
+			DndWeaponProficiencies weaponProficiencies = dndCombatUtils.resolverCompetenciasArma(personaje);
+			Map<Long, Objeto> weaponObjectsById = dndCombatUtils.resolverObjetosArmaPorHabilidades(habilidades);
 
 	 		return new PersonajeDetalleResponse(
 	 				personaje.getId(),
@@ -97,11 +113,17 @@ public class PersonajeService {
 	 				dndCharacterStatsUtils.resolverClasesPersonaje(personaje),
 	 				dndCharacterStatsUtils.resolverCaracteristicaLanzamientoConjuros(personaje),
 	 				estadisticas,
-		 			personaje.getHabilidades().stream()
+	 				habilidades.stream()
 		 					.map(habilidad -> new HabilidadResponse(
 		 							habilidad.getId(),
 		 							habilidad.getNombre(),
-			 							dndCombatUtils.resolverBonificacionHabilidad(personaje, habilidad, estadisticas),
+		 								dndCombatUtils.resolverBonificacionHabilidad(
+		 										personaje,
+		 										habilidad,
+		 										estadisticas,
+		 										weaponProficiencies,
+		 										weaponObjectsById
+		 								),
 		 							habilidad.getFormula(),
 		 							habilidad.getDescripcion(),
 		 							habilidad.getTags()
@@ -185,6 +207,7 @@ public class PersonajeService {
 				request.recursosExtraActuales()
 		);
 		mochilaService.actualizarDineroPersonaje(personaje, request.dinero());
+		emitirActualizacionPersonaje(personajeId);
 	}
 
 	@Transactional
@@ -221,6 +244,7 @@ public class PersonajeService {
 				totalLevel
 		);
 		personajeRepository.save(personaje);
+		emitirActualizacionPersonaje(personajeId);
 		return obtenerDetallePersonaje(personajeId, username);
 	}
 
@@ -242,6 +266,7 @@ public class PersonajeService {
 			experience = Math.min(experience, maximum);
 		}
 		estadisticaService.actualizarExperienciaPersonaje(personaje, experience);
+		emitirActualizacionPersonaje(personajeId);
 		return obtenerDetallePersonaje(personajeId, username);
 	}
 
@@ -264,6 +289,7 @@ public class PersonajeService {
 				request.equipado(),
 				request.cantidad()
 		);
+		emitirActualizacionPersonaje(personajeId);
 		return obtenerDetallePersonaje(personajeId, username);
 	}
 
@@ -290,6 +316,7 @@ public class PersonajeService {
 				username,
 				request.cantidad()
 		);
+		emitirActualizacionPersonaje(personajeId);
 		return obtenerDetallePersonaje(personajeId, username);
 	}
 
@@ -298,6 +325,7 @@ public class PersonajeService {
 		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
 
 		mochilaService.eliminarItemPersonajeDnd(personaje, itemId);
+		emitirActualizacionPersonaje(personajeId);
 		return obtenerDetallePersonaje(personajeId, username);
 	}
 
@@ -309,6 +337,7 @@ public class PersonajeService {
 
 		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
 		dndCharacterAbilityManagementUtils.agregarHabilidadManual(personaje, request.habilidadId());
+		emitirActualizacionPersonaje(personajeId);
 
 		return obtenerDetallePersonaje(personajeId, username);
 	}
@@ -317,6 +346,7 @@ public class PersonajeService {
 	public PersonajeDetalleResponse eliminarHabilidad(Long personajeId, Long habilidadId, String username) {
 		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
 		dndCharacterAbilityManagementUtils.eliminarHabilidadManual(personaje, habilidadId);
+		emitirActualizacionPersonaje(personajeId);
 		return obtenerDetallePersonaje(personajeId, username);
 	}
 
@@ -332,13 +362,31 @@ public class PersonajeService {
 	@Transactional
 	public PersonajeDetalleResponse subirNivel(Long personajeId, SubirNivelPersonajeRequest request, String username) {
 		dndCharacterLevelUtils.subirNivel(personajeId, request, username);
+		emitirActualizacionPersonaje(personajeId);
 		return obtenerDetallePersonaje(personajeId, username);
 	}
 
 	@Transactional
 	public PersonajeDetalleResponse bajarNivel(Long personajeId, BajarNivelPersonajeRequest request, String username) {
 		dndCharacterLevelUtils.bajarNivel(personajeId, request, username);
+		emitirActualizacionPersonaje(personajeId);
 		return obtenerDetallePersonaje(personajeId, username);
+	}
+
+	private void emitirActualizacionPersonaje(Long personajeId) {
+		posicionRepository.findByPersonajeId(personajeId)
+				.map(Posicion::getCapa)
+				.filter(Objects::nonNull)
+				.map(capa -> capa.getPestaña())
+				.filter(Objects::nonNull)
+				.map(pestana -> pestana.getCampaña())
+				.filter(Objects::nonNull)
+				.map(campania -> campania.getId())
+				.filter(Objects::nonNull)
+				.ifPresent(campaniaId -> messagingTemplate.convertAndSend(
+						"/topic/campanas/" + campaniaId + "/personajes",
+						Map.of("accion", "UPDATED", "personajeId", personajeId)
+				));
 	}
 
 	private MultipartFile validarRetrato(MultipartFile portrait) {

@@ -11,6 +11,7 @@ public record PestañaCampañaResponse(
         String sistemaMetrico,
         String nieblaDeGuerra,
         String imagenBaseUrl,
+        String mapaCapaUrl,
         LocalDateTime ultimaVezUsada
 ) {
 }

@@ -2,6 +2,7 @@ import { Map, Settings } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import CampaignChatPanel from "./components/CampaignChatPanel";
 import CampaignPlayersPanel from "./components/CampaignPlayersPanel";
+import { useWebSocketChat } from "./hooks/useWebSocketChat";
 
 const CAMPAIGN_BACKGROUND_URL =
   "https://res.cloudinary.com/doxqtmi46/image/upload/v1775178243/campa%C3%B1aPlaceHolder_fhrfx2.png";
@@ -19,7 +20,29 @@ export default function CampaignHomeScreen({
 }: CampaignHomeScreenProps) {
   const [username, setUsername] = useState<string>("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [messages, setMessages] = useState<
+    Array<{ id: number; username: string; mensaje: string; enviadoEn: string }>
+  >([]);
+  const [players, setPlayers] = useState<
+    Array<{ username: string; dm: boolean }>
+  >([]);
+  const [chatRealtimeError, setChatRealtimeError] = useState<string>("");
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const { sendMessage } = useWebSocketChat({
+    campaignId: parseInt(campaignId),
+    username,
+    onNewMessage: (message) => {
+      setMessages((current) => [...current, message]);
+    },
+    onPlayersUpdate: (playersList) => {
+      setPlayers(playersList.players);
+      setChatRealtimeError("");
+    },
+    onError: (error) => {
+      setChatRealtimeError(`Error WebSocket: ${error}`);
+    },
+  });
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username") ?? "";
@@ -72,8 +95,7 @@ export default function CampaignHomeScreen({
           aria-expanded={isMenuOpen}
           aria-haspopup="menu"
           aria-label="Opciones de la campaña"
-          className="flex h-12 w-12 items-center justify-center rounded-full border border-white/25 text-white transition hover:bg-black/60"
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-white/25 text-white transition hover:bg-black/60 bg-black/50"
         >
           <Settings className="h-5 w-5" />
         </button>
@@ -98,7 +120,10 @@ export default function CampaignHomeScreen({
       <div className="mt-14 flex h-[calc(100%-3.5rem)] min-h-0 flex-col gap-4 md:mt-0 md:flex-row md:items-stretch md:justify-between md:pt-12">
         <div className="w-full max-w-[280px] min-h-0 pt-14 md:h-full md:pt-12">
           <div className="h-full min-h-0">
-            <CampaignPlayersPanel campaignId={campaignId} username={username} />
+            <CampaignPlayersPanel
+              players={players}
+              errorMessage={chatRealtimeError}
+            />
           </div>
         </div>
 
@@ -114,7 +139,11 @@ export default function CampaignHomeScreen({
             </button>
 
             <div className="min-h-0 md:flex-1">
-              <CampaignChatPanel campaignId={campaignId} username={username} />
+              <CampaignChatPanel
+                messages={messages}
+                websocketError={chatRealtimeError}
+                onSendMessage={sendMessage}
+              />
             </div>
           </div>
         </div>

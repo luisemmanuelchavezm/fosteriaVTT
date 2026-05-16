@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(grep -E \"\\\\.\\(java|xml\\)$\")",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(git -C \"c:/Users/emman/OneDrive/Escritorio/fosteriaVTT\" diff --stat HEAD)",
+      "PowerShell($d = git -C \"c:/Users/emman/OneDrive/Escritorio/fosteriaVTT\" diff --stat HEAD 2>$null; if \\($d\\) { $t = \"Archivos modificados:`n\" + \\($d -join \"`n\"\\) + \"`n`nPara revertir todos los cambios: git stash\"; @{systemMessage=$t} | ConvertTo-Json -Compress })",
+      "PowerShell($s = Get-Content \"c:/Users/emman/OneDrive/Escritorio/fosteriaVTT/.claude/settings.json\" -Raw | ConvertFrom-Json; $s.hooks.Stop[0].hooks[0].command)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
+      "Bash(npx eslint *)"
+    ]
+  }
+}
