@@ -100,7 +100,8 @@ public class PersonajeService {
 
 	@Transactional(readOnly = true)
 	public PersonajeDetalleResponse obtenerDetallePersonaje(Long personajeId, String username) {
-		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+		Personaje personaje = personajeRepository.findById(personajeId)
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Personaje no encontrado"));
 		Map<String, Integer> estadisticas = estadisticaService.obtenerValoresPorPersonajeId(personajeId);
 		String tipo = tipoFromTags(personaje.getTags());
 
@@ -147,7 +148,8 @@ public class PersonajeService {
 					mochilaService.obtenerItemsPersonaje(personajeId),
 					personaje.getUsado(),
 					tipo,
-					TagUtils.extractTagValue(personaje.getTags(), "vd")
+					TagUtils.extractTagValue(personaje.getTags(), "vd"),
+					personaje.getUsuario() != null ? personaje.getUsuario().getUsername() : null
 			);
 		}
 
@@ -185,7 +187,8 @@ public class PersonajeService {
 				mochilaService.obtenerItemsPersonaje(personajeId),
 				personaje.getUsado(),
 				tipo,
-				null
+				null,
+				personaje.getUsuario() != null ? personaje.getUsuario().getUsername() : null
 		);
 	}
 

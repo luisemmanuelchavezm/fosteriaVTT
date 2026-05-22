@@ -256,6 +256,7 @@ export interface DndCharacterDetailResponse {
   usado: string;
   tipo?: string;
   vd?: string | null;
+  propietario?: string;
 }
 
 export interface UpdateDndCharacterResourcesRequest {

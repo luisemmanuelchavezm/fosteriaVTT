@@ -10,6 +10,7 @@ interface SpellsTabProps {
   spellsByLevel: Array<{ level: number; spells: CharacterAbilityResponse[] }>;
   abilityUsage: Record<number, boolean>;
   characteristicName: string | null;
+  isOwner?: boolean;
   onOpenAddSpell: () => void;
   onRollSpellAttack: (bonus: number) => void;
   onOpenSpellDetails: (spell: CharacterAbilityResponse) => void;
@@ -25,6 +26,7 @@ export default function SpellsTab({
   spellsByLevel,
   abilityUsage,
   characteristicName,
+  isOwner = true,
   onOpenAddSpell,
   onRollSpellAttack,
   onOpenSpellDetails,
@@ -33,15 +35,17 @@ export default function SpellsTab({
 }: SpellsTabProps) {
   return (
     <div className="mt-5 space-y-6">
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={onOpenAddSpell}
-          className="rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-2 text-sm font-semibold text-amber-100"
-        >
-          Añadir hechizos
-        </button>
-      </div>
+      {isOwner ? (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={onOpenAddSpell}
+            className="rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-2 text-sm font-semibold text-amber-100"
+          >
+            Añadir hechizos
+          </button>
+        </div>
+      ) : null}
       <div className="grid gap-3 sm:grid-cols-3">
         <article className="rounded-[18px] border border-white/10 bg-black/20 px-4 py-4 text-center">
           <p className="text-xs uppercase tracking-[0.18em] text-stone-400">

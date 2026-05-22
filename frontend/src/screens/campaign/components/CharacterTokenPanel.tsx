@@ -3,6 +3,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  FolderOpen,
   MessageSquare,
   Users,
 } from "lucide-react";
@@ -60,6 +61,8 @@ interface CharacterTokenPanelProps {
     retrato: string | undefined,
     bonificacion: number,
   ) => void;
+  isTabSwitcherOpen?: boolean;
+  onTabSwitcherToggle?: () => void;
 }
 
 const CHARACTER_UPDATED_EVENT = "fosteria:character-updated";
@@ -121,6 +124,8 @@ export default function CharacterTokenPanel({
   iniciativaActiva = false,
   personajesConIniciativa,
   onTirarIniciativa,
+  isTabSwitcherOpen = false,
+  onTabSwitcherToggle,
 }: CharacterTokenPanelProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [activeTab, setActiveTab] = useState<"characters" | "chat">(
@@ -435,9 +440,24 @@ export default function CharacterTokenPanel({
     <>
       <aside
         className={`absolute bottom-0 right-0 top-0 z-20 flex h-full items-start transition-transform duration-300 ${
-          isOpen ? "translate-x-0" : "translate-x-[calc(100%-40px)]"
+          isTabSwitcherOpen
+            ? "translate-x-full"
+            : isOpen
+              ? "translate-x-0"
+              : "translate-x-[calc(100%-40px)]"
         }`}
       >
+        {/* Folder circle: sits below the toggle, visually separate */}
+        <button
+          type="button"
+          onClick={onTabSwitcherToggle}
+          className="absolute left-[2px] top-[80px] flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-black/70 text-white/60 shadow-lg transition hover:border-amber-400/50 hover:bg-black/80 hover:text-amber-300"
+          title="Cambiar pestaña"
+        >
+          <FolderOpen size={16} />
+        </button>
+
+        {/* Toggle — panel ear */}
         <button
           type="button"
           onClick={() => setIsOpen((current) => !current)}

@@ -58,7 +58,7 @@ export function ChatRollBubble({
   struck,
 }: Omit<RollMessageData, "__type">) {
   return (
-    <div className={`py-0.5 ${struck ? "opacity-50" : ""}`}>
+    <div className="py-0.5">
       <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-200/80">
         {title}
       </p>
@@ -81,23 +81,21 @@ export function ChatRollBubble({
           </div>
         ))}
 
-        {!struck && modifier !== 0 && (
+        {modifier !== 0 && (
           <span className="text-sm font-semibold text-white/60">
             {modifier > 0 ? `+${modifier}` : modifier}
           </span>
         )}
       </div>
 
-      {!struck && (
-        <div className="mt-2 flex items-center gap-1.5">
-          <span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-white/40">
-            Total
-          </span>
-          <div className="flex h-7 min-w-[1.75rem] items-center justify-center rounded-lg bg-emerald-500 px-2 text-sm font-bold text-white shadow-sm shadow-emerald-900/40">
-            {total}
-          </div>
+      <div className="mt-2 flex items-center gap-1.5">
+        <span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-white/40">
+          Total
+        </span>
+        <div className="flex h-7 min-w-[1.75rem] items-center justify-center rounded-lg bg-emerald-500 px-2 text-sm font-bold text-white shadow-sm shadow-emerald-900/40">
+          {total}
         </div>
-      )}
+      </div>
     </div>
   );
 }

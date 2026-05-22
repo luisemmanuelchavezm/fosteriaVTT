@@ -25,7 +25,9 @@
       "Bash(node -e \"const bcrypt = require\\('bcrypt'\\); const hash = bcrypt.hashSync\\('sai123', 10\\); console.log\\(hash\\);\")",
       "Bash(npx --yes bcryptjs-cli hash sai123)",
       "Bash(PGPASSWORD=superuser psql -h localhost -p 5432 -U postgres -d fosteria_db -c \"SELECT id, username, email FROM usuario ORDER BY id;\")",
-      "Bash(node -e \"const pkg=require\\('./node_modules/eslint-plugin-react-hooks/package.json'\\); console.log\\(pkg.version\\);\")"
+      "Bash(node -e \"const pkg=require\\('./node_modules/eslint-plugin-react-hooks/package.json'\\); console.log\\(pkg.version\\);\")",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\emman\\\\OneDrive\\\\Escritorio\\\\fosteriaVTT\" -Recurse -Directory)",
+      "Bash(Select-Object -First 20)"
     ]
   }
 }

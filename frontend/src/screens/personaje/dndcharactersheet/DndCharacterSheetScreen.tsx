@@ -151,6 +151,8 @@ export default function DndCharacterSheetScreen({
     totalHp,
   } = useDndCharacterSheetController(characterId, onGoCharacters);
 
+  const isOwner = !character || character.propietario === username;
+
   const handleNavChange = (tab: NavTab) => {
     if (tab === "home") {
       onGoHome();
@@ -328,6 +330,7 @@ export default function DndCharacterSheetScreen({
               <IdentitySection
                 character={character}
                 editableName={editableName}
+                isOwner={isOwner}
                 onShortRest={handleOpenShortRest}
                 onLongRest={handleLongRest}
                 isEditMode={isEditMode}
@@ -420,6 +423,7 @@ export default function DndCharacterSheetScreen({
                   activeTab={activeDetailTab}
                   abilityUsage={abilityUsage}
                   isEditMode={isEditMode}
+                  isOwner={isOwner}
                   editableAlignment={editableAlignment}
                   editableLanguagesText={editableLanguagesText}
                   editablePersonalHistory={editablePersonalHistory}

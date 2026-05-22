@@ -72,6 +72,89 @@ public class PestañaService {
 		);
 	}
 
+	@Transactional(readOnly = true)
+	public List<PestañaCampañaResponse> listarPestañas(Long campañaId, String username) {
+		jugadorRepository.buscarPorUsuarioYCampaniaId(username, campañaId)
+				.orElseThrow(() -> new ResponseStatusException(FORBIDDEN, "No tienes acceso a esta campaña"));
+
+		return pestañaRepository.findByCampañaIdOrderByUltimaVezUsadaDesc(campañaId).stream()
+				.map(p -> {
+					String mapaCapaUrl = capaRepository.findByPestañaIdAndNivelDeCapa(p.getId(), NIVEL_CAPA_MAPA)
+							.map(capa -> capa.getMapa() == null ? null : capa.getMapa().getMapa())
+							.orElse(null);
+					return new PestañaCampañaResponse(
+							p.getId(), p.getNombre(),
+							p.getNCuadriculasX(), p.getNCuadriculasY(),
+							p.getDistanciaCasilla(), p.getSistemaMetrico(),
+							p.getNieblaDeGuerra(), p.getImagenBaseUrl(),
+							mapaCapaUrl, p.getUltimaVezUsada(), null);
+				})
+				.toList();
+	}
+
+	@Transactional
+	public PestañaCampañaResponse abrirPestañaEspecifica(Long campañaId, Long pestañaId, String username) {
+		jugadorRepository.buscarPorUsuarioYCampaniaId(username, campañaId)
+				.orElseThrow(() -> new ResponseStatusException(FORBIDDEN, "No tienes acceso a esta campaña"));
+
+		Pestaña pestaña = pestañaRepository.findById(pestañaId)
+				.filter(p -> p.getCampaña() != null && campañaId.equals(p.getCampaña().getId()))
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "La pestaña no existe en esta campaña"));
+
+		asegurarCapasBase(pestaña);
+		pestaña.setUltimaVezUsada(LocalDateTime.now());
+		Pestaña updated = pestañaRepository.save(pestaña);
+
+		String mapaCapaUrl = capaRepository.findByPestañaIdAndNivelDeCapa(updated.getId(), NIVEL_CAPA_MAPA)
+				.map(capa -> capa.getMapa() == null ? null : capa.getMapa().getMapa())
+				.orElse(null);
+
+		Campaña campaña = campañaRepository.findById(campañaId).orElse(null);
+		String dmUsername = campaña == null || campaña.getDm() == null ? null : campaña.getDm().getUsername();
+
+		return new PestañaCampañaResponse(
+				updated.getId(), updated.getNombre(),
+				updated.getNCuadriculasX(), updated.getNCuadriculasY(),
+				updated.getDistanciaCasilla(), updated.getSistemaMetrico(),
+				updated.getNieblaDeGuerra(), updated.getImagenBaseUrl(),
+				mapaCapaUrl, updated.getUltimaVezUsada(), dmUsername);
+	}
+
+	@Transactional
+	public PestañaCampañaResponse crearNuevaPestaña(Long campañaId, String username) {
+		jugadorRepository.buscarPorUsuarioYCampaniaId(username, campañaId)
+				.orElseThrow(() -> new ResponseStatusException(FORBIDDEN, "No tienes acceso a esta campaña"));
+
+		Campaña campaña = campañaRepository.findById(campañaId)
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "La campaña no existe"));
+
+		long count = pestañaRepository.countByCampañaId(campañaId);
+		String nombre = count == 0 ? "Pestaña principal" : "Pestaña " + (count + 1);
+
+		Pestaña nueva = Pestaña.builder()
+				.nombre(nombre)
+				.nCuadriculasX(70)
+				.nCuadriculasY(70)
+				.distanciaCasilla(5)
+				.sistemaMetrico("ft")
+				.nieblaDeGuerra("true")
+				.imagenBaseUrl("https://res.cloudinary.com/doxqtmi46/image/upload/v1778449741/imagen_base_pesta%C3%B1a_xgtcmo.jpg")
+				.ultimaVezUsada(LocalDateTime.now())
+				.campaña(campaña)
+				.build();
+
+		Pestaña guardada = pestañaRepository.save(nueva);
+		crearCapasBase(guardada);
+
+		String dmUsername = campaña.getDm() == null ? null : campaña.getDm().getUsername();
+		return new PestañaCampañaResponse(
+				guardada.getId(), guardada.getNombre(),
+				guardada.getNCuadriculasX(), guardada.getNCuadriculasY(),
+				guardada.getDistanciaCasilla(), guardada.getSistemaMetrico(),
+				guardada.getNieblaDeGuerra(), guardada.getImagenBaseUrl(),
+				null, guardada.getUltimaVezUsada(), dmUsername);
+	}
+
 	private Pestaña crearPestañaPorDefecto(Long campañaId) {
 		Campaña campaña = campañaRepository.findById(campañaId)
 				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "La campaña no existe"));

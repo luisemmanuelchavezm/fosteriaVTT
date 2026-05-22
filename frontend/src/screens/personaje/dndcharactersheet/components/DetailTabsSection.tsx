@@ -58,6 +58,7 @@ interface DetailTabsSectionProps {
   onAddToolCompetency?: (value: string) => void;
   classCompetencies: string[];
   competencyCatalog: DndCompetencyCatalog | null;
+  isOwner?: boolean;
 }
 
 export default function DetailTabsSection({
@@ -91,6 +92,7 @@ export default function DetailTabsSection({
   onAddToolCompetency,
   classCompetencies,
   competencyCatalog,
+  isOwner = true,
 }: DetailTabsSectionProps) {
   const [weaponArmorSearch, setWeaponArmorSearch] = useState("");
   const [toolSearch, setToolSearch] = useState("");
@@ -315,6 +317,7 @@ export default function DetailTabsSection({
           characteristicName={
             character.caracteristicaLanzamientoConjuros ?? null
           }
+          isOwner={isOwner}
           onOpenAddSpell={onOpenAddSpell}
           onRollSpellAttack={onRollSpellAttack}
           onOpenSpellDetails={onOpenSpellDetails}

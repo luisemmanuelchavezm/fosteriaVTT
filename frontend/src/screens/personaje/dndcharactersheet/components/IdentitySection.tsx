@@ -14,6 +14,7 @@ interface IdentitySectionProps {
   onToggleEditMode: () => void;
   onOpenLevelManagement: () => void;
   onDeleteCharacter: () => void;
+  isOwner?: boolean;
   onEditableNameChange?: (value: string) => void;
   onSaveEdit?: () => void;
   onCancelEdit?: () => void;
@@ -25,6 +26,7 @@ export default function IdentitySection({
   onShortRest,
   onLongRest,
   isEditMode,
+  isOwner = true,
   onToggleEditMode,
   onOpenLevelManagement,
   onDeleteCharacter,
@@ -84,18 +86,20 @@ export default function IdentitySection({
                 ? " / max"
                 : ` / ${experience.nextLevelXp}`}
             </p>
-            <button
-              type="button"
-              onClick={onOpenLevelManagement}
-              className="rounded-full border border-sky-300/25 bg-sky-400/10 px-3 py-1 text-xs font-semibold text-sky-100 transition hover:bg-sky-400/20"
-            >
-              Modificar nivel
-            </button>
+            {isOwner ? (
+              <button
+                type="button"
+                onClick={onOpenLevelManagement}
+                className="rounded-full border border-sky-300/25 bg-sky-400/10 px-3 py-1 text-xs font-semibold text-sky-100 transition hover:bg-sky-400/20"
+              >
+                Modificar nivel
+              </button>
+            ) : null}
           </div>
         </div>
 
         <div className="flex flex-wrap items-end justify-start gap-3 md:justify-end">
-          {isEditMode ? (
+          {isOwner && isEditMode ? (
             <button
               type="button"
               onClick={onDeleteCharacter}
@@ -118,14 +122,16 @@ export default function IdentitySection({
           >
             Descanso largo
           </button>
-          <button
-            type="button"
-            onClick={onToggleEditMode}
-            className="rounded-full border border-amber-300/30 bg-amber-300/10 px-5 py-3 text-sm font-semibold text-amber-100 transition hover:bg-amber-300/15"
-          >
-            {isEditMode ? "Cerrar edición" : "Editar"}
-          </button>
-          {isEditMode ? (
+          {isOwner ? (
+            <button
+              type="button"
+              onClick={onToggleEditMode}
+              className="rounded-full border border-amber-300/30 bg-amber-300/10 px-5 py-3 text-sm font-semibold text-amber-100 transition hover:bg-amber-300/15"
+            >
+              {isEditMode ? "Cerrar edición" : "Editar"}
+            </button>
+          ) : null}
+          {isOwner && isEditMode ? (
             <button
               type="button"
               onClick={onCancelEdit}
@@ -134,7 +140,7 @@ export default function IdentitySection({
               Cancelar cambios
             </button>
           ) : null}
-          {isEditMode ? (
+          {isOwner && isEditMode ? (
             <button
               type="button"
               onClick={onSaveEdit}

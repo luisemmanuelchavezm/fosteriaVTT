@@ -46,6 +46,7 @@ import {
   useCampaignPencilTool,
 } from "./campaignPencilTool";
 import CharacterTokenPanel from "./components/CharacterTokenPanel";
+import PestañaSwitcherPanel from "./components/PestañaSwitcherPanel";
 import IniciativaBar from "./components/IniciativaBar";
 import Baul from "./components/Baul";
 import { PosicionFicha } from "./components/PosicionFicha";
@@ -269,6 +270,10 @@ export default function CampaignPestañaScreen({
   } | null>(null);
   const [visionArcTarget, setVisionArcTarget] = useState<number | null>(null);
   const liveRotationRef = useRef(0);
+  const pestañaIdRef = useRef<number | null>(pestaña?.id ?? null);
+  useEffect(() => {
+    pestañaIdRef.current = pestaña?.id ?? null;
+  }, [pestaña?.id]);
   // Use a ref (not state) for the dragging token so fog updates are frame-synchronous
   const draggingTokenRef = useRef<{
     posicionId: number;
@@ -297,6 +302,7 @@ export default function CampaignPestañaScreen({
     canvas: HTMLCanvasElement;
     key: string;
   } | null>(null);
+  const [isTabSwitcherOpen, setIsTabSwitcherOpen] = useState(false);
   const [isRulerSelectorOpen, setIsRulerSelectorOpen] = useState(false);
   const [isPencilSelectorOpen, setIsPencilSelectorOpen] = useState(false);
   const stageRef = useRef<Konva.Stage>(null);
@@ -400,6 +406,10 @@ export default function CampaignPestañaScreen({
     (posicion: Omit<CampaignPositionResponse, "capa"> & { capa: string }) => {
       setPositions((current) => {
         const next = current.filter((item) => item.id !== posicion.id);
+        if (posicion.pestanaId !== pestañaIdRef.current) {
+          // Token moved to another tab — remove it from this view
+          return next;
+        }
         return [...next, posicion as CampaignPositionResponse].sort(
           (left, right) => left.id - right.id,
         );
@@ -434,6 +444,16 @@ export default function CampaignPestañaScreen({
     setNieblaEstado(estado);
   }, []);
 
+  const cambioPestañaImplRef = useRef<
+    ((pestanaId: number, jugadores: string[] | null) => void) | null
+  >(null);
+  const handleCambioPestañaForzado = useCallback(
+    (pestanaId: number, jugadores: string[] | null) => {
+      cambioPestañaImplRef.current?.(pestanaId, jugadores);
+    },
+    [],
+  );
+
   const realtime = useCampaignRealtime({
     campaignId: campaignIdNumber,
     pestanaId: pestaña?.id ?? null,
@@ -442,6 +462,7 @@ export default function CampaignPestañaScreen({
     onCharacterUpdated: handleCharacterUpdated,
     onIniciativaChanged: handleIniciativaChanged,
     onNieblaChanged: handleNieblaChanged,
+    onCambioPestañaForzado: handleCambioPestañaForzado,
   });
 
   const {
@@ -458,6 +479,7 @@ export default function CampaignPestañaScreen({
     configurarVisionToken,
     agregarAreaExplorada,
     cambiarCapaToken,
+    forzarCambioPestana,
   } = realtime;
 
   // Rotation drag via right-click-hold + mouse movement
@@ -582,6 +604,37 @@ export default function CampaignPestañaScreen({
       setPositions([]);
     });
   }, [loadPositions]);
+
+  const switchPestaña = useCallback(
+    async (pestañaId: number) => {
+      const token = localStorage.getItem("jwtToken");
+      if (!token) return;
+      try {
+        const response = await fetch(
+          buildApiUrl(`/api/campanas/${campaignId}/pestana/${pestañaId}/abrir`),
+          { method: "POST", headers: { Authorization: `Bearer ${token}` } },
+        );
+        if (!response.ok) return;
+        const data = (await response.json()) as CampaignPestañaResponse;
+        setPestaña(data);
+        setMapLayerImageUrl(data.mapaCapaUrl ?? null);
+      } catch {
+        // ignore
+      } finally {
+        setIsTabSwitcherOpen(false);
+      }
+    },
+    [campaignId],
+  );
+
+  cambioPestañaImplRef.current = (
+    pestanaId: number,
+    jugadores: string[] | null,
+  ) => {
+    if (jugadores === null || jugadores.includes(username)) {
+      void switchPestaña(pestanaId);
+    }
+  };
 
   const handlePencilCompleteDrawing = useCallback(
     (drawing: {
@@ -817,6 +870,25 @@ export default function CampaignPestañaScreen({
         />
       ) : null}
 
+      {isTabSwitcherOpen ? (
+        <PestañaSwitcherPanel
+          campaignId={campaignId}
+          currentPestañaId={pestaña?.id ?? null}
+          isDM={username === (pestaña?.dmUsername ?? "")}
+          username={username}
+          onSelect={(id) => {
+            void switchPestaña(id);
+          }}
+          onClose={() => setIsTabSwitcherOpen(false)}
+          onForzarTodos={(pestañaId) => {
+            forzarCambioPestana(pestañaId, null);
+          }}
+          onForzarJugadores={(pestañaId, jugadores) => {
+            forzarCambioPestana(pestañaId, jugadores);
+          }}
+        />
+      ) : null}
+
       <CharacterTokenPanel
         positions={positions}
         isDM={username === (pestaña?.dmUsername ?? "")}
@@ -835,6 +907,8 @@ export default function CampaignPestañaScreen({
           const tirada = Math.floor(Math.random() * 20) + 1;
           tirarIniciativa(personajeId, nombre, retrato, tirada, bonificacion);
         }}
+        isTabSwitcherOpen={isTabSwitcherOpen}
+        onTabSwitcherToggle={() => setIsTabSwitcherOpen(true)}
       />
 
       <QuickActionBar
@@ -882,7 +956,13 @@ export default function CampaignPestañaScreen({
         </div>
       ) : null}
 
-      {selectedTool !== "chest" ? (
+      {selectedTool === "chest" ? (
+        <Baul
+          campaignId={campaignId}
+          onClose={() => handleToolSelection("move")}
+          onMapSelect={handleMapSelect}
+        />
+      ) : !isTabSwitcherOpen ? (
         <div className="absolute left-3.5 top-1/2 z-10 -translate-y-1/2 flex flex-col items-center gap-1 rounded-[12px] border border-white/15 bg-black/50 p-[8px_6px]">
           <SidebarBtn title="Volver a campaña" onClick={onBack}>
             <ArrowLeftRight size={18} />
@@ -991,13 +1071,7 @@ export default function CampaignPestañaScreen({
             <BookOpen size={18} />
           </SidebarBtn>
         </div>
-      ) : (
-        <Baul
-          campaignId={campaignId}
-          onClose={() => handleToolSelection("move")}
-          onMapSelect={handleMapSelect}
-        />
-      )}
+      ) : null}
 
       {isLoading ? (
         <div className="absolute inset-0 flex items-center justify-center text-sm text-white">
@@ -1110,6 +1184,7 @@ export default function CampaignPestañaScreen({
 
             {positions
               .filter((p) => {
+                if (p.pestanaId !== pestaña?.id) return false;
                 const isDM = username === (pestaña?.dmUsername ?? "");
                 return isDM || p.capa !== "dm";
               })

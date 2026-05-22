@@ -239,10 +239,6 @@ public class PosicionService {
 		Posicion posicion = posicionRepository.findById(payload.posicionId())
 				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "La posición no existe"));
 
-		if (posicion.getPersonaje() == null || !Objects.equals(posicion.getPersonaje().getUsuario().getUsername(), username)) {
-			throw new ResponseStatusException(FORBIDDEN, "No puedes mover una posición que no es tuya");
-		}
-
 		if (posicion.getCapa() == null || posicion.getCapa().getPestaña() == null) {
 			throw new ResponseStatusException(NOT_FOUND, "La pestaña de la posición no existe");
 		}

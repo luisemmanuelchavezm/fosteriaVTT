@@ -130,6 +130,11 @@ export interface NieblaEstado {
   exploredAreas: ExploredArea[];
 }
 
+interface CambioPestañaPayload {
+  pestanaId: number;
+  jugadores: string[] | null;
+}
+
 interface UseCampaignRealtimeOptions {
   campaignId: number | null | undefined;
   pestanaId: number | null;
@@ -138,6 +143,10 @@ interface UseCampaignRealtimeOptions {
   onCharacterUpdated?: (characterId: number) => void;
   onIniciativaChanged?: (estado: IniciativaEstado) => void;
   onNieblaChanged?: (estado: NieblaEstado) => void;
+  onCambioPestañaForzado?: (
+    pestanaId: number,
+    jugadores: string[] | null,
+  ) => void;
 }
 
 const RECONNECT_DELAY_MS = 3000;
@@ -197,6 +206,7 @@ export function useCampaignRealtime({
   onCharacterUpdated,
   onIniciativaChanged,
   onNieblaChanged,
+  onCambioPestañaForzado,
 }: UseCampaignRealtimeOptions) {
   const campaignIdValue = Number(campaignId ?? 0);
   const [drawings, setDrawings] = useState<DrawingItem[]>([]);
@@ -403,6 +413,20 @@ export function useCampaignRealtime({
             }
           },
         ),
+        client.subscribe(
+          `/topic/campanas/${campaignIdValue}/pestana/cambio`,
+          (message: IMessage) => {
+            try {
+              const payload = JSON.parse(message.body) as CambioPestañaPayload;
+              onCambioPestañaForzado?.(payload.pestanaId, payload.jugadores);
+            } catch (error) {
+              console.error(
+                "Error parsing cambio pestaña WebSocket message:",
+                error,
+              );
+            }
+          },
+        ),
       ];
 
       // Solicitar el estado actual de niebla al conectarse
@@ -452,6 +476,7 @@ export function useCampaignRealtime({
   }, [
     campaignIdValue,
     handleDrawingFrame,
+    onCambioPestañaForzado,
     onCharacterUpdated,
     onIniciativaChanged,
     onMapLayerChanged,
@@ -652,6 +677,19 @@ export function useCampaignRealtime({
     [campaignIdValue],
   );
 
+  const forzarCambioPestana = useCallback(
+    (pestanaId: number, jugadores: string[] | null) => {
+      const client = stompClientRef.current;
+      if (!client?.connected || !campaignIdValue) return;
+      client.publish({
+        destination: `/app/campanas/${campaignIdValue}/pestana/cambio`,
+        body: JSON.stringify({ pestanaId, jugadores }),
+        headers: { "content-type": "application/json" },
+      });
+    },
+    [campaignIdValue],
+  );
+
   const cambiarCapaToken = useCallback(
     (posicionId: number, capa: string) => {
       const client = stompClientRef.current;
@@ -680,5 +718,6 @@ export function useCampaignRealtime({
     configurarVisionToken,
     agregarAreaExplorada,
     cambiarCapaToken,
+    forzarCambioPestana,
   };
 }

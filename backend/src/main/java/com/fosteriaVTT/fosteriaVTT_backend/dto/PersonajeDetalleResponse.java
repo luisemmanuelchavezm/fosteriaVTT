@@ -19,6 +19,7 @@ public record PersonajeDetalleResponse(
         List<MochilaPersonajeResponse> mochila,
         LocalDateTime usado,
         String tipo,
-        String vd
+        String vd,
+        String propietario
 ) {
 }
