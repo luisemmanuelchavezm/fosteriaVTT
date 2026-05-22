@@ -53,6 +53,10 @@ public class PestañaService {
 				.map(capa -> capa.getMapa() == null ? null : capa.getMapa().getMapa())
 				.orElse(null);
 
+		Campaña campaña = campañaRepository.findById(campañaId)
+				.orElse(null);
+		String dmUsername = campaña == null || campaña.getDm() == null ? null : campaña.getDm().getUsername();
+
 		return new PestañaCampañaResponse(
 				pestañaActualizada.getId(),
 				pestañaActualizada.getNombre(),
@@ -63,7 +67,8 @@ public class PestañaService {
 				pestañaActualizada.getNieblaDeGuerra(),
 				pestañaActualizada.getImagenBaseUrl(),
 				mapaCapaUrl,
-				pestañaActualizada.getUltimaVezUsada()
+				pestañaActualizada.getUltimaVezUsada(),
+				dmUsername
 		);
 	}
 

@@ -36,9 +36,21 @@ public class PosicionWebSocketController {
         posicionService.moverPosicionYEmitir(campañaId, payload, username);
     }
 
+    @MessageMapping("/campanas/{campañaId}/posiciones/cambiarCapa")
+    public void cambiarCapaPosicion(
+            @DestinationVariable("campañaId") Long campañaId,
+            @Payload CambiarCapaPayload payload,
+            Authentication authentication
+    ) {
+        String username = authentication == null ? null : authentication.getName();
+        posicionService.cambiarCapaYEmitir(campañaId, payload, username);
+    }
+
     public record PosicionMovePayload(
             Long posicionId,
             Integer posicionX,
             Integer posicionY
     ) {}
+
+    public record CambiarCapaPayload(Long posicionId, String capa) {}
 }

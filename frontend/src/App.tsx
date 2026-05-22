@@ -178,6 +178,7 @@ function App() {
           onGoCampaigns={handleGoCampaigns}
           onGoCharacters={handleGoCharacters}
           onCreateCampaign={handleGoCreateCampaign}
+          onOpenCampaignHome={handleOpenCampaignHome}
         />
       )}
       {mode === "campaigns" && token && (

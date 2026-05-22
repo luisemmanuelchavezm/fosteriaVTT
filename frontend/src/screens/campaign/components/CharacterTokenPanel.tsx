@@ -1,5 +1,12 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  MessageSquare,
+  Users,
+} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import DiceRollOverlay from "../../../components/dice/DiceRollOverlay";
 import { useDiceRoller } from "../../../components/dice/useDiceRoller";
 import {
@@ -10,6 +17,12 @@ import {
 import { getAbilityModifierByName } from "../../personaje/dndcharactersheet/utils/characterAbilities";
 import { getCharacterMoney } from "../../personaje/dndcharactersheet/utils/characterInventory";
 import { applyDamage } from "../../personaje/dndcharactersheet/utils/characterResources";
+import ChatDiceRollerPanel from "./ChatDiceRollerPanel";
+import {
+  ChatRollBubble,
+  parseRollMessage,
+  serializeRollMessage,
+} from "./ChatRollBubble";
 
 interface CampaignPositionResponse {
   id: number;
@@ -22,10 +35,21 @@ interface CampaignPositionResponse {
   posicionY: number;
   largo: number;
   ancho: number;
+  tipo?: string;
+}
+
+interface CampaignChatMessage {
+  id: number;
+  username: string;
+  mensaje: string;
+  enviadoEn: string;
 }
 
 interface CharacterTokenPanelProps {
   positions: CampaignPositionResponse[];
+  isDM?: boolean;
+  chatMessages: CampaignChatMessage[];
+  onSendMessage: (text: string) => Promise<void>;
   onOpenCharacterSheet?: (characterId: number) => void;
   onInteract?: () => void;
   iniciativaActiva?: boolean;
@@ -89,6 +113,9 @@ function formatStatWithModifier(value: number, modifier: number) {
 
 export default function CharacterTokenPanel({
   positions,
+  isDM = false,
+  chatMessages,
+  onSendMessage,
   onOpenCharacterSheet,
   onInteract,
   iniciativaActiva = false,
@@ -96,6 +123,44 @@ export default function CharacterTokenPanel({
   onTirarIniciativa,
 }: CharacterTokenPanelProps) {
   const [isOpen, setIsOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState<"characters" | "chat">(
+    "characters",
+  );
+  const [chatInput, setChatInput] = useState("");
+  const [isSendingChat, setIsSendingChat] = useState(false);
+  const [chatError, setChatError] = useState("");
+  const chatScrollRef = useRef<HTMLDivElement>(null);
+  const onSendMessageRef = useRef(onSendMessage);
+  useEffect(() => {
+    onSendMessageRef.current = onSendMessage;
+  }, [onSendMessage]);
+
+  useEffect(() => {
+    if (activeTab === "chat" && chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
+  }, [chatMessages, activeTab]);
+
+  const handleSendChat = async () => {
+    const text = chatInput.trim();
+    if (!text) return;
+    setIsSendingChat(true);
+    try {
+      await onSendMessage(text);
+      setChatInput("");
+      setChatError("");
+    } catch (e) {
+      setChatError((e as Error).message);
+    } finally {
+      setIsSendingChat(false);
+    }
+  };
+
+  const [expandedSections, setExpandedSections] = useState({
+    personajes: true,
+    enemigos: true,
+    pnj: true,
+  });
   const [selectedHealthCharacterId, setSelectedHealthCharacterId] = useState<
     number | null
   >(null);
@@ -107,11 +172,27 @@ export default function CharacterTokenPanel({
     Record<number, DndCharacterDetailResponse>
   >({});
   const diceRoller = useDiceRoller();
+  const lastSeenSummaryIdRef = useRef(-1);
+  useEffect(() => {
+    if (!diceRoller.summary) return;
+    if (diceRoller.summary.id === lastSeenSummaryIdRef.current) return;
+    lastSeenSummaryIdRef.current = diceRoller.summary.id;
+    const { title, diceValues, modifier, total } = diceRoller.summary;
+    void onSendMessageRef
+      .current(serializeRollMessage(title, diceValues, modifier, total))
+      .catch(() => {});
+  }, [diceRoller.summary]);
 
-  const visibleTokens = useMemo(
-    () => positions.filter((position) => position.capa === "fichas"),
-    [positions],
-  );
+  const visibleTokens = useMemo(() => {
+    if (isDM) {
+      return positions.filter((p) => p.capa === "fichas" || p.capa === "dm");
+    }
+    return positions.filter((p) => {
+      if (p.capa !== "fichas") return false;
+      const tipo = (p.tipo ?? "personaje").toLowerCase();
+      return tipo !== "enemigo";
+    });
+  }, [positions, isDM]);
 
   const visibleCharacterIds = useMemo(
     () => [...new Set(visibleTokens.map((token) => token.personajeId))],
@@ -368,186 +449,400 @@ export default function CharacterTokenPanel({
 
         <div className="flex h-full w-[360px] rounded-l-2xl border border-white/20 bg-[linear-gradient(180deg,rgba(22,22,22,0.96)_0%,rgba(10,10,10,0.98)_100%)] text-white shadow-[0_20px_48px_rgba(0,0,0,0.55)] backdrop-blur-sm">
           <div className="flex min-h-0 flex-1 flex-col">
-            <h2 className="mb-3 px-4 pt-4 text-xs font-semibold uppercase tracking-[0.22em] text-amber-100/85">
-              Personajes
-            </h2>
-
-            <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-0 pb-3">
-              {visibleTokens.length === 0 ? (
-                <div className="mx-4 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white/80">
-                  No hay fichas en el tablero.
-                </div>
-              ) : null}
-
-              {visibleTokens.map((token) => {
-                const detail = detailsByCharacterId[token.personajeId];
-                const stats = detail?.estadisticas ?? {};
-                const maxHp = getMaxHp(stats);
-                const currentHp = Math.max(0, stats["Vida actual"] ?? 0);
-                const tempHp = Math.max(0, stats["Vida temporal"] ?? 0);
-                const hpPercent = clampPercentage((currentHp / maxHp) * 100);
-                const tempHpPercent = clampPercentage((tempHp / maxHp) * 100);
-                const armorClass = getArmorClass(stats);
-                const movement = Math.max(0, stats["Movimiento"] ?? 0);
-                const initiative = getInitiative(stats);
-
-                return (
-                  <article
-                    key={token.id}
-                    className="w-full border-y border-white/15 bg-white/[0.06] p-3"
-                  >
-                    <div className="flex items-start gap-3">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onOpenCharacterSheet?.(token.personajeId);
-                          onInteract?.();
-                        }}
-                        className="h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-amber-200/45 bg-zinc-700 transition hover:scale-[1.02] hover:border-amber-300/70"
-                        title="Abrir hoja de personaje"
-                      >
-                        {(detail?.retrato ?? token.retrato) ? (
-                          <img
-                            src={detail?.retrato ?? token.retrato}
-                            alt={detail?.nombre ?? token.personajeNombre}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : null}
-                      </button>
-
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-bold text-white">
-                          {detail?.nombre ?? token.personajeNombre}
-                        </p>
-
-                        <div className="mt-2 space-y-1.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedHealthCharacterId(token.personajeId);
-                              setHealthSaveError(null);
-                              onInteract?.();
-                            }}
-                            className="relative block h-5 w-full overflow-hidden rounded-full border border-red-300/35 bg-black/35 text-left transition hover:border-red-200/60"
-                            title="Gestionar puntos de vida"
-                          >
-                            <div
-                              className="h-full bg-red-500 transition-all"
-                              style={{ width: `${hpPercent}%` }}
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center text-[11px] font-semibold text-white">
-                              {currentHp}/{maxHp}
-                            </div>
-                          </button>
-
-                          {tempHp > 0 ? (
-                            <>
-                              <div className="flex items-center justify-between text-[11px] text-blue-100/90">
-                                <span>Temporal</span>
-                                <span>{tempHp}</span>
-                              </div>
-
-                              <div className="h-2 overflow-hidden rounded-full border border-blue-300/35 bg-black/35">
-                                <div
-                                  className="h-full bg-blue-500 transition-all"
-                                  style={{ width: `${tempHpPercent}%` }}
-                                />
-                              </div>
-                            </>
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-3 border-t border-white/10 pt-2.5">
-                      <div className="grid grid-cols-6 gap-0 text-center">
-                        {MAIN_STATS.map((stat) => (
-                          <div key={`${token.id}-${stat.key}`}>
-                            <p className="text-[10px] font-semibold text-white/70">
-                              {stat.short}
-                            </p>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (!detail) {
-                                  return;
-                                }
-
-                                diceRoller.rollD20Check(
-                                  stat.key,
-                                  getAbilityModifierByName(detail, stat.key),
-                                );
-                              }}
-                              className="text-sm font-bold text-amber-100"
-                              title={`Tirar ${stat.key}`}
-                            >
-                              {formatStatWithModifier(
-                                stats[stat.key] ?? 0,
-                                detail
-                                  ? getAbilityModifierByName(detail, stat.key)
-                                  : 0,
-                              )}
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="mt-2.5 grid grid-cols-3 gap-0 border-t border-white/10 pt-2">
-                        <div className="text-center">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/70">
-                            CA
-                          </p>
-                          <p className="text-sm font-bold text-white">
-                            {armorClass}
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/70">
-                            MOV
-                          </p>
-                          <p className="text-sm font-bold text-white">
-                            {movement}
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/70">
-                            INI
-                          </p>
-                          {iniciativaActiva && onTirarIniciativa ? (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                onTirarIniciativa(
-                                  token.personajeId,
-                                  detail?.nombre ?? token.personajeNombre,
-                                  detail?.retrato ?? token.retrato,
-                                  initiative,
-                                );
-                              }}
-                              className={[
-                                "text-sm font-bold transition-colors",
-                                personajesConIniciativa?.has(token.personajeId)
-                                  ? "text-amber-300"
-                                  : "text-white hover:text-amber-200",
-                              ].join(" ")}
-                              title="Tirar iniciativa"
-                            >
-                              {initiative >= 0
-                                ? `+${initiative}`
-                                : String(initiative)}
-                            </button>
-                          ) : (
-                            <p className="text-sm font-bold text-white">
-                              {initiative}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
+            {/* Tab bar */}
+            <div className="flex shrink-0 border-b border-white/10">
+              <button
+                type="button"
+                onClick={() => setActiveTab("characters")}
+                className={`flex flex-1 items-center justify-center gap-1.5 py-2.5 text-xs font-semibold tracking-wide transition ${
+                  activeTab === "characters"
+                    ? "border-b-2 border-amber-300 text-amber-300"
+                    : "text-white/50 hover:text-white/80"
+                }`}
+              >
+                <Users size={13} />
+                Personajes
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("chat")}
+                className={`flex flex-1 items-center justify-center gap-1.5 py-2.5 text-xs font-semibold tracking-wide transition ${
+                  activeTab === "chat"
+                    ? "border-b-2 border-amber-300 text-amber-300"
+                    : "text-white/50 hover:text-white/80"
+                }`}
+              >
+                <MessageSquare size={13} />
+                Chat
+              </button>
             </div>
+
+            {activeTab === "characters" && (
+              <div className="min-h-0 flex-1 overflow-y-auto pb-3 pt-2">
+                {visibleTokens.length === 0 ? (
+                  <div className="mx-4 mt-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white/80">
+                    No hay fichas en el tablero.
+                  </div>
+                ) : null}
+
+                {(
+                  [
+                    {
+                      key: "personajes" as const,
+                      label: "Personajes",
+                      filter: (t: (typeof visibleTokens)[number]) => {
+                        const tipo = (
+                          detailsByCharacterId[t.personajeId]?.tipo ??
+                          "personaje"
+                        ).toLowerCase();
+                        return tipo === "personaje";
+                      },
+                      headerCls: "text-amber-100/85",
+                      articleCls: "border-white/15 bg-white/[0.06]",
+                      portraitCls: "border-amber-200/45",
+                    },
+                    {
+                      key: "enemigos" as const,
+                      label: "Enemigos",
+                      filter: (t: (typeof visibleTokens)[number]) => {
+                        const tipo = (
+                          detailsByCharacterId[t.personajeId]?.tipo ??
+                          "personaje"
+                        ).toLowerCase();
+                        return tipo === "enemigo";
+                      },
+                      headerCls: "text-red-300/90",
+                      articleCls: "border-red-900/40 bg-red-950/[0.18]",
+                      portraitCls: "border-red-400/55",
+                    },
+                    {
+                      key: "pnj" as const,
+                      label: "PNJ",
+                      filter: (t: (typeof visibleTokens)[number]) => {
+                        const tipo = (
+                          detailsByCharacterId[t.personajeId]?.tipo ??
+                          "personaje"
+                        ).toLowerCase();
+                        return tipo === "pnj";
+                      },
+                      headerCls: "text-sky-200/85",
+                      articleCls: "border-sky-900/35 bg-sky-950/[0.12]",
+                      portraitCls: "border-sky-400/50",
+                    },
+                  ] as const
+                ).map(
+                  ({
+                    key,
+                    label,
+                    filter,
+                    headerCls,
+                    articleCls,
+                    portraitCls,
+                  }) => {
+                    const sectionTokens = visibleTokens.filter(filter);
+                    if (sectionTokens.length === 0) return null;
+                    const isExpanded = expandedSections[key];
+                    return (
+                      <div key={key}>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setExpandedSections((prev) => ({
+                              ...prev,
+                              [key]: !prev[key],
+                            }))
+                          }
+                          className={`flex w-full items-center justify-between px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] ${headerCls} hover:bg-white/5`}
+                        >
+                          <span>
+                            {label} ({sectionTokens.length})
+                          </span>
+                          {isExpanded ? (
+                            <ChevronUp size={12} />
+                          ) : (
+                            <ChevronDown size={12} />
+                          )}
+                        </button>
+
+                        {isExpanded &&
+                          sectionTokens.map((token) => {
+                            const detail =
+                              detailsByCharacterId[token.personajeId];
+                            const stats = detail?.estadisticas ?? {};
+                            const maxHp = getMaxHp(stats);
+                            const currentHp = Math.max(
+                              0,
+                              stats["Vida actual"] ?? 0,
+                            );
+                            const tempHp = Math.max(
+                              0,
+                              stats["Vida temporal"] ?? 0,
+                            );
+                            const hpPercent = clampPercentage(
+                              (currentHp / maxHp) * 100,
+                            );
+                            const tempHpPercent = clampPercentage(
+                              (tempHp / maxHp) * 100,
+                            );
+                            const armorClass = getArmorClass(stats);
+                            const movement = Math.max(
+                              0,
+                              stats["Movimiento"] ?? 0,
+                            );
+                            const initiative = getInitiative(stats);
+
+                            return (
+                              <article
+                                key={token.id}
+                                className={`w-full border-y p-3 ${articleCls}`}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      onOpenCharacterSheet?.(token.personajeId);
+                                      onInteract?.();
+                                    }}
+                                    className={`h-14 w-14 shrink-0 overflow-hidden rounded-lg border ${portraitCls} bg-zinc-700 transition hover:scale-[1.02]`}
+                                    title="Abrir hoja de personaje"
+                                  >
+                                    {(detail?.retrato ?? token.retrato) ? (
+                                      <img
+                                        src={detail?.retrato ?? token.retrato}
+                                        alt={
+                                          detail?.nombre ??
+                                          token.personajeNombre
+                                        }
+                                        className="h-full w-full object-cover"
+                                      />
+                                    ) : null}
+                                  </button>
+
+                                  <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-bold text-white">
+                                      {detail?.nombre ?? token.personajeNombre}
+                                    </p>
+
+                                    <div className="mt-2 space-y-1.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setSelectedHealthCharacterId(
+                                            token.personajeId,
+                                          );
+                                          setHealthSaveError(null);
+                                          onInteract?.();
+                                        }}
+                                        className="relative block h-5 w-full overflow-hidden rounded-full border border-red-300/35 bg-black/35 text-left transition hover:border-red-200/60"
+                                        title="Gestionar puntos de vida"
+                                      >
+                                        <div
+                                          className="h-full bg-red-500 transition-all"
+                                          style={{ width: `${hpPercent}%` }}
+                                        />
+                                        <div className="absolute inset-0 flex items-center justify-center text-[11px] font-semibold text-white">
+                                          {currentHp}/{maxHp}
+                                        </div>
+                                      </button>
+
+                                      {tempHp > 0 ? (
+                                        <>
+                                          <div className="flex items-center justify-between text-[11px] text-blue-100/90">
+                                            <span>Temporal</span>
+                                            <span>{tempHp}</span>
+                                          </div>
+
+                                          <div className="h-2 overflow-hidden rounded-full border border-blue-300/35 bg-black/35">
+                                            <div
+                                              className="h-full bg-blue-500 transition-all"
+                                              style={{
+                                                width: `${tempHpPercent}%`,
+                                              }}
+                                            />
+                                          </div>
+                                        </>
+                                      ) : null}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="mt-3 border-t border-white/10 pt-2.5">
+                                  <div className="grid grid-cols-6 gap-0 text-center">
+                                    {MAIN_STATS.map((stat) => (
+                                      <div key={`${token.id}-${stat.key}`}>
+                                        <p className="text-[10px] font-semibold text-white/70">
+                                          {stat.short}
+                                        </p>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            if (!detail) {
+                                              return;
+                                            }
+
+                                            diceRoller.rollD20Check(
+                                              stat.key,
+                                              getAbilityModifierByName(
+                                                detail,
+                                                stat.key,
+                                              ),
+                                            );
+                                          }}
+                                          className="text-sm font-bold text-amber-100"
+                                          title={`Tirar ${stat.key}`}
+                                        >
+                                          {formatStatWithModifier(
+                                            stats[stat.key] ?? 0,
+                                            detail
+                                              ? getAbilityModifierByName(
+                                                  detail,
+                                                  stat.key,
+                                                )
+                                              : 0,
+                                          )}
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+
+                                  <div className="mt-2.5 grid grid-cols-3 gap-0 border-t border-white/10 pt-2">
+                                    <div className="text-center">
+                                      <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/70">
+                                        CA
+                                      </p>
+                                      <p className="text-sm font-bold text-white">
+                                        {armorClass}
+                                      </p>
+                                    </div>
+                                    <div className="text-center">
+                                      <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/70">
+                                        MOV
+                                      </p>
+                                      <p className="text-sm font-bold text-white">
+                                        {movement}
+                                      </p>
+                                    </div>
+                                    <div className="text-center">
+                                      <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/70">
+                                        INI
+                                      </p>
+                                      {iniciativaActiva && onTirarIniciativa ? (
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            onTirarIniciativa(
+                                              token.personajeId,
+                                              detail?.nombre ??
+                                                token.personajeNombre,
+                                              detail?.retrato ?? token.retrato,
+                                              initiative,
+                                            );
+                                          }}
+                                          className={[
+                                            "text-sm font-bold transition-colors",
+                                            personajesConIniciativa?.has(
+                                              token.personajeId,
+                                            )
+                                              ? "text-amber-300"
+                                              : "text-white hover:text-amber-200",
+                                          ].join(" ")}
+                                          title="Tirar iniciativa"
+                                        >
+                                          {initiative >= 0
+                                            ? `+${initiative}`
+                                            : String(initiative)}
+                                        </button>
+                                      ) : (
+                                        <p className="text-sm font-bold text-white">
+                                          {initiative}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </article>
+                            );
+                          })}
+                      </div>
+                    );
+                  },
+                )}
+              </div>
+            )}
+
+            {activeTab === "chat" && (
+              <div className="flex min-h-0 flex-1 flex-col px-3 py-2">
+                <div
+                  ref={chatScrollRef}
+                  className="min-h-0 flex-1 overflow-y-auto space-y-2 pr-1 [scrollbar-width:thin] [scrollbar-color:rgba(203,213,225,0.4)_transparent]"
+                >
+                  {chatMessages.length === 0 ? (
+                    <p className="py-6 text-center text-sm text-white/40">
+                      No hay mensajes todavía.
+                    </p>
+                  ) : (
+                    chatMessages.map((msg, i) => {
+                      const showName =
+                        i === 0 ||
+                        chatMessages[i - 1]?.username !== msg.username;
+                      const rollData = parseRollMessage(msg.mensaje);
+                      return (
+                        <div key={msg.id}>
+                          <div className="inline-block max-w-full rounded-2xl border border-white/20 bg-black/50 px-3 py-2 shadow">
+                            {showName && (
+                              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-amber-200">
+                                {msg.username}
+                              </p>
+                            )}
+                            {rollData ? (
+                              <div className={showName ? "mt-1" : ""}>
+                                <ChatRollBubble {...rollData} />
+                              </div>
+                            ) : (
+                              <p
+                                className={`${showName ? "mt-0.5" : ""} whitespace-pre-line break-words text-sm text-white [overflow-wrap:anywhere]`}
+                              >
+                                {msg.mensaje}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                <div className="mt-2 shrink-0 border-t border-white/10 pt-2">
+                  <div className="flex items-end gap-2">
+                    <ChatDiceRollerPanel
+                      disabled={isSendingChat}
+                      onRollExpression={(title, expression) =>
+                        diceRoller.rollExpression(title, expression)
+                      }
+                    />
+                    <input
+                      type="text"
+                      value={chatInput}
+                      maxLength={500}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          void handleSendChat();
+                        }
+                      }}
+                      placeholder="Escribe un mensaje"
+                      className="h-10 w-full rounded-full border border-white/25 bg-black/40 px-4 text-sm text-white outline-none placeholder:text-white/50 focus:border-white/60"
+                    />
+                  </div>
+                  {chatError && (
+                    <p className="mt-1.5 text-xs font-semibold text-rose-300">
+                      {chatError}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

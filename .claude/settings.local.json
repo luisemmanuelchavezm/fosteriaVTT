@@ -9,7 +9,23 @@
       "PowerShell($d = git -C \"c:/Users/emman/OneDrive/Escritorio/fosteriaVTT\" diff --stat HEAD 2>$null; if \\($d\\) { $t = \"Archivos modificados:`n\" + \\($d -join \"`n\"\\) + \"`n`nPara revertir todos los cambios: git stash\"; @{systemMessage=$t} | ConvertTo-Json -Compress })",
       "PowerShell($s = Get-Content \"c:/Users/emman/OneDrive/Escritorio/fosteriaVTT/.claude/settings.json\" -Raw | ConvertFrom-Json; $s.hooks.Stop[0].hooks[0].command)",
       "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
-      "Bash(npx eslint *)"
+      "Bash(npx eslint *)",
+      "Bash(mvn compile *)",
+      "Bash(mvn test-compile *)",
+      "Bash(dir \"C:\\\\Users\\\\emman\\\\OneDrive\\\\Escritorio\\\\fosteriaVTT\\\\frontend\\\\src\\\\screens\" /b)",
+      "Bash(git checkout *)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(mvn test *)",
+      "Bash(mvn clean *)",
+      "Bash(dir \"c:\\\\Users\\\\emman\\\\OneDrive\\\\Escritorio\\\\fosteriaVTT\\\\frontend\\\\src\\\\screens\\\\personaje\\\\dndcharactersheet\" /b /s)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\emman\\\\OneDrive\\\\Escritorio\\\\fosteriaVTT\\\\frontend\\\\src\\\\screens\\\\campaign\" -Recurse -File)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\emman\\\\OneDrive\\\\Escritorio\\\\fosteriaVTT\" -Directory)",
+      "Bash(node -e \"const bcrypt = require\\('bcryptjs'\\); const hash = bcrypt.hashSync\\('sai123', 10\\); console.log\\(hash\\);\")",
+      "Bash(node -e \"const bcrypt = require\\('bcrypt'\\); const hash = bcrypt.hashSync\\('sai123', 10\\); console.log\\(hash\\);\")",
+      "Bash(npx --yes bcryptjs-cli hash sai123)",
+      "Bash(PGPASSWORD=superuser psql -h localhost -p 5432 -U postgres -d fosteria_db -c \"SELECT id, username, email FROM usuario ORDER BY id;\")",
+      "Bash(node -e \"const pkg=require\\('./node_modules/eslint-plugin-react-hooks/package.json'\\); console.log\\(pkg.version\\);\")"
     ]
   }
 }

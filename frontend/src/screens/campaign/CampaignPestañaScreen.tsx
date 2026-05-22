@@ -14,6 +14,9 @@ import {
   Timer,
   User,
 } from "lucide-react";
+import FogOfWarDropdown from "./components/FogOfWarDropdown";
+import TokenContextMenu from "./components/TokenContextMenu";
+import VisionArcModal from "./components/VisionArcModal";
 import {
   useCallback,
   useEffect,
@@ -22,7 +25,14 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { Layer, Image as KonvaImage, Line, Rect, Stage } from "react-konva";
+import {
+  Layer,
+  Image as KonvaImage,
+  Line,
+  Rect,
+  Shape,
+  Stage,
+} from "react-konva";
 import { buildApiUrl } from "../../lib/api";
 import {
   CampaignRulerOverlay,
@@ -43,8 +53,19 @@ import QuickActionBar from "./components/QuickActionBar";
 import DndCharacterSheetScreen from "../personaje/dndcharactersheet/DndCharacterSheetScreen";
 import {
   useCampaignRealtime,
+  type ExploredArea,
   type IniciativaEstado,
+  type NieblaEstado,
+  type VisionConfig,
 } from "./hooks/useCampaignRealtime";
+import { useWebSocketChat } from "./hooks/useWebSocketChat";
+
+interface CampaignChatMessage {
+  id: number;
+  username: string;
+  mensaje: string;
+  enviadoEn: string;
+}
 
 interface CampaignPestañaScreenProps {
   campaignId: string;
@@ -66,6 +87,7 @@ interface CampaignPestañaResponse {
   nieblaDeGuerra: string;
   imagenBaseUrl: string;
   mapaCapaUrl?: string;
+  dmUsername?: string;
 }
 
 interface CampaignPositionResponse {
@@ -79,6 +101,7 @@ interface CampaignPositionResponse {
   posicionY: number;
   largo: number;
   ancho: number;
+  tipo?: string;
 }
 
 interface CharacterDropPayload {
@@ -91,6 +114,68 @@ const CHARACTER_DRAG_MIME = "application/x-fosteria-character";
 
 const CELL_PX = 70;
 type LayerSelection = "fichas" | "mapa" | "dm";
+
+type VisionShape = {
+  radius: number;
+  apertura: number;
+  rotation: number;
+  angle: number;
+  length: number;
+  width: number;
+  height: number;
+};
+
+// No save/restore/translate/rotate — all coords computed directly (fast in tight loops)
+function addVisionShapeToPath(
+  ctx: CanvasRenderingContext2D,
+  arcType: string,
+  shape: VisionShape,
+  posicionX: number,
+  posicionY: number,
+  grid: { rectX: number; rectY: number },
+  cellPx: number,
+) {
+  const cx = grid.rectX + (posicionX + 0.5) * cellPx;
+  const cy = grid.rectY + (posicionY + 0.5) * cellPx;
+  const rot = (shape.rotation * Math.PI) / 180;
+
+  if (arcType === "semicircle") {
+    const halfAp = ((shape.apertura / 2) * Math.PI) / 180;
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, shape.radius * cellPx, rot - halfAp, rot + halfAp);
+    ctx.closePath();
+  } else if (arcType === "cone") {
+    const halfA = ((shape.angle / 2) * Math.PI) / 180;
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, shape.length * cellPx, rot - halfA, rot + halfA);
+    ctx.closePath();
+  } else if (arcType === "rectangle") {
+    const hw = (shape.width / 2) * cellPx;
+    const h = shape.height * cellPx;
+    const cosR = Math.cos(rot);
+    const sinR = Math.sin(rot);
+    // Rotate corners around (cx, cy) without modifying ctx transform
+    ctx.moveTo(cx - hw * cosR, cy - hw * sinR);
+    ctx.lineTo(cx + hw * cosR, cy + hw * sinR);
+    ctx.lineTo(cx + hw * cosR - h * sinR, cy + hw * sinR + h * cosR);
+    ctx.lineTo(cx - hw * cosR - h * sinR, cy - hw * sinR + h * cosR);
+    ctx.closePath();
+  }
+}
+
+function drawVisionShape(
+  ctx: CanvasRenderingContext2D,
+  arcType: string,
+  shape: VisionShape,
+  posicionX: number,
+  posicionY: number,
+  grid: { rectX: number; rectY: number },
+  cellPx: number,
+) {
+  ctx.beginPath();
+  addVisionShapeToPath(ctx, arcType, shape, posicionX, posicionY, grid, cellPx);
+  ctx.fill();
+}
 type ToolSelection =
   | "move"
   | "select"
@@ -169,6 +254,49 @@ export default function CampaignPestañaScreen({
     activa: false,
     entradas: [],
   });
+  const [nieblaEstado, setNieblaEstado] = useState<NieblaEstado>({
+    activa: false,
+    zonasExploradas: false,
+    vistaJugador: false,
+    visionConfigs: [],
+    exploredAreas: [],
+  });
+  const [isFogDropdownOpen, setIsFogDropdownOpen] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{
+    posicionId: number;
+    x: number;
+    y: number;
+  } | null>(null);
+  const [visionArcTarget, setVisionArcTarget] = useState<number | null>(null);
+  const liveRotationRef = useRef(0);
+  // Use a ref (not state) for the dragging token so fog updates are frame-synchronous
+  const draggingTokenRef = useRef<{
+    posicionId: number;
+    posicionX: number; // fractional grid coords
+    posicionY: number;
+  } | null>(null);
+  const fogLayerRef = useRef<Konva.Layer>(null);
+  // Cells explored locally during the current drag (keyed by "posicionId-cellX-cellY")
+  const localPathRef = useRef<ExploredArea[]>([]);
+  // Last integer cell the dragging token occupied
+  const lastDragCellRef = useRef<{
+    x: number;
+    y: number;
+    posicionId: number;
+  } | null>(null);
+  const rotationDragRef = useRef<{
+    posicionId: number;
+    tokenCenterClientX: number;
+    tokenCenterClientY: number;
+    startClientX: number;
+    startClientY: number;
+    hasMoved: boolean;
+  } | null>(null);
+  // Offscreen canvas cache for server-side explored areas (invalidated on list change or transform change)
+  const exploredBitmapRef = useRef<{
+    canvas: HTMLCanvasElement;
+    key: string;
+  } | null>(null);
   const [isRulerSelectorOpen, setIsRulerSelectorOpen] = useState(false);
   const [isPencilSelectorOpen, setIsPencilSelectorOpen] = useState(false);
   const stageRef = useRef<Konva.Stage>(null);
@@ -259,6 +387,15 @@ export default function CampaignPestañaScreen({
     return Number.isFinite(parsed) ? parsed : 0;
   }, [campaignId]);
 
+  const [chatMessages, setChatMessages] = useState<CampaignChatMessage[]>([]);
+  const { sendMessage: sendChatMessage } = useWebSocketChat({
+    campaignId: campaignIdNumber,
+    username,
+    onNewMessage: (msg) => setChatMessages((prev) => [...prev, msg]),
+    onPlayersUpdate: () => {},
+    onError: () => {},
+  });
+
   const handlePosicionCreated = useCallback(
     (posicion: Omit<CampaignPositionResponse, "capa"> & { capa: string }) => {
       setPositions((current) => {
@@ -293,6 +430,10 @@ export default function CampaignPestañaScreen({
     setIniciativaEstado(estado);
   }, []);
 
+  const handleNieblaChanged = useCallback((estado: NieblaEstado) => {
+    setNieblaEstado(estado);
+  }, []);
+
   const realtime = useCampaignRealtime({
     campaignId: campaignIdNumber,
     pestanaId: pestaña?.id ?? null,
@@ -300,6 +441,7 @@ export default function CampaignPestañaScreen({
     onMapLayerChanged: handleMapLayerChanged,
     onCharacterUpdated: handleCharacterUpdated,
     onIniciativaChanged: handleIniciativaChanged,
+    onNieblaChanged: handleNieblaChanged,
   });
 
   const {
@@ -312,13 +454,78 @@ export default function CampaignPestañaScreen({
     activarIniciativa,
     tirarIniciativa,
     reordenarIniciativa,
+    configurarNiebla,
+    configurarVisionToken,
+    agregarAreaExplorada,
+    cambiarCapaToken,
   } = realtime;
 
-  const drawingsSocket = {
-    drawings,
-    sendDrawing,
-    deleteDrawing,
-  };
+  // Rotation drag via right-click-hold + mouse movement
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      const drag = rotationDragRef.current;
+      if (!drag) return;
+      const dx = e.clientX - drag.startClientX;
+      const dy = e.clientY - drag.startClientY;
+      if (!drag.hasMoved && (Math.abs(dx) >= 5 || Math.abs(dy) >= 5)) {
+        drag.hasMoved = true;
+      }
+      if (drag.hasMoved) {
+        const angleDeg =
+          (Math.atan2(
+            e.clientY - drag.tokenCenterClientY,
+            e.clientX - drag.tokenCenterClientX,
+          ) *
+            180) /
+          Math.PI;
+        const normalized = (angleDeg + 360) % 360;
+        liveRotationRef.current = normalized;
+        setNieblaEstado((prev) => ({
+          ...prev,
+          visionConfigs: prev.visionConfigs.map((vc) =>
+            vc.posicionId === drag.posicionId
+              ? { ...vc, rotation: normalized }
+              : vc,
+          ),
+        }));
+      }
+    };
+
+    const onMouseUp = (e: MouseEvent) => {
+      const drag = rotationDragRef.current;
+      if (!drag) return;
+      rotationDragRef.current = null;
+      if (drag.hasMoved) {
+        // Persist the final rotation via WebSocket
+        setNieblaEstado((prev) => {
+          const vc = prev.visionConfigs.find(
+            (v) => v.posicionId === drag.posicionId,
+          );
+          if (vc) configurarVisionToken(vc);
+          return prev;
+        });
+      } else {
+        // Treat as right-click → show context menu
+        setContextMenu({
+          posicionId: drag.posicionId,
+          x: e.clientX,
+          y: e.clientY,
+        });
+      }
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+  }, [configurarVisionToken]);
+
+  const drawingsSocket = useMemo(
+    () => ({ drawings, sendDrawing, deleteDrawing }),
+    [drawings, sendDrawing, deleteDrawing],
+  );
 
   const handleMapSelect = useCallback(
     async ({ mapaId, mapaUrl }: { mapaId: number; mapaUrl: string }) => {
@@ -563,12 +770,19 @@ export default function CampaignPestañaScreen({
         posicionY,
       });
     },
-    [crearPosicionPorWebSocket, grid, pestaña?.id, selectedLayer],
+    [
+      campaignIdNumber,
+      crearPosicionPorWebSocket,
+      grid,
+      pestaña?.id,
+      selectedLayer,
+    ],
   );
 
   return (
     <div
       className="relative h-screen w-full overflow-hidden bg-stone-400"
+      onContextMenu={(e) => e.preventDefault()}
       onDragOver={handleDragOver}
       onDrop={(event) => {
         void handleCharacterDrop(event).catch((error: unknown) => {
@@ -605,6 +819,9 @@ export default function CampaignPestañaScreen({
 
       <CharacterTokenPanel
         positions={positions}
+        isDM={username === (pestaña?.dmUsername ?? "")}
+        chatMessages={chatMessages}
+        onSendMessage={sendChatMessage}
         onOpenCharacterSheet={(characterId) => {
           setModalCharacterId(characterId);
           setSelectedPositionId(null);
@@ -627,6 +844,9 @@ export default function CampaignPestañaScreen({
             : null
         }
         onClose={() => setSelectedPositionId(null)}
+        onRollResult={(text) => {
+          void sendChatMessage(text);
+        }}
       />
 
       {modalCharacterId !== null ? (
@@ -705,13 +925,29 @@ export default function CampaignPestañaScreen({
           >
             <Ruler size={18} />
           </SidebarBtn>
-          <SidebarBtn
-            title="Niebla de guerra"
-            isActive={selectedTool === "fog"}
-            onClick={() => handleToolSelection("fog")}
-          >
-            <Cloud size={18} />
-          </SidebarBtn>
+          <div className="relative">
+            <SidebarBtn
+              title="Niebla de guerra"
+              isActive={selectedTool === "fog" || isFogDropdownOpen}
+              onClick={() => {
+                handleToolSelection("fog");
+                setIsFogDropdownOpen((v) => !v);
+              }}
+            >
+              <Cloud size={18} />
+            </SidebarBtn>
+            {isFogDropdownOpen && (
+              <FogOfWarDropdown
+                estado={nieblaEstado}
+                onChange={(patch) => {
+                  const next = { ...nieblaEstado, ...patch };
+                  setNieblaEstado(next);
+                  configurarNiebla(patch);
+                }}
+                onClose={() => setIsFogDropdownOpen(false)}
+              />
+            )}
+          </div>
           <SidebarBtn
             title="Temporizador"
             isActive={selectedTool === "timer"}
@@ -782,9 +1018,18 @@ export default function CampaignPestañaScreen({
           ref={stageRef}
           width={stageSize.width}
           height={stageSize.height}
-          draggable={selectedTool === "move"}
+          draggable={selectedTool !== "pencil" && selectedTool !== "ruler"}
           onWheel={handleWheel}
           onMouseDown={handleStageMouseDown}
+          onClick={(e: Konva.KonvaEventObject<MouseEvent>) => {
+            if (
+              e.evt.button === 0 &&
+              selectedTool !== "pencil" &&
+              selectedTool !== "ruler"
+            ) {
+              setSelectedTool("move");
+            }
+          }}
           onMouseMove={() => {
             rulerTool.handleMouseMove();
             pencilTool.handleMouseMove();
@@ -863,20 +1108,122 @@ export default function CampaignPestañaScreen({
               />
             ))}
 
-            {positions.map((position) => (
-              <PosicionFicha
-                key={position.id}
-                position={position}
-                grid={grid}
-                isSelected={selectedPositionId === position.id}
-                onDragEnd={(x, y) => {
-                  moverPosicionPorWebSocket(position.id, x, y);
-                }}
-                onTokenClick={(id) =>
-                  setSelectedPositionId((prev) => (prev === id ? null : id))
-                }
-              />
-            ))}
+            {positions
+              .filter((p) => {
+                const isDM = username === (pestaña?.dmUsername ?? "");
+                return isDM || p.capa !== "dm";
+              })
+              .map((position) => {
+                const isDM = username === (pestaña?.dmUsername ?? "");
+                const isInteractable =
+                  position.capa === "dm"
+                    ? isDM
+                    : position.capa === "mapa"
+                      ? isDM && selectedLayer === "mapa"
+                      : isDM || (position.tipo ?? "personaje") !== "enemigo";
+                return (
+                  <PosicionFicha
+                    key={position.id}
+                    position={position}
+                    grid={grid}
+                    isInteractable={isInteractable}
+                    isSelected={selectedPositionId === position.id}
+                    onDragStart={() => {
+                      localPathRef.current = [];
+                      lastDragCellRef.current = {
+                        x: position.posicionX,
+                        y: position.posicionY,
+                        posicionId: position.id,
+                      };
+                      draggingTokenRef.current = {
+                        posicionId: position.id,
+                        posicionX: position.posicionX,
+                        posicionY: position.posicionY,
+                      };
+                    }}
+                    onDragMove={(id, gx, gy) => {
+                      draggingTokenRef.current = {
+                        posicionId: id,
+                        posicionX: gx,
+                        posicionY: gy,
+                      };
+                      fogLayerRef.current?.batchDraw();
+
+                      // Accumulate explored cells as the token moves through them
+                      if (nieblaEstado.zonasExploradas) {
+                        const vc = nieblaEstado.visionConfigs.find(
+                          (v) => v.posicionId === id,
+                        );
+                        if (vc?.revelaArea) {
+                          const cellX = Math.floor(gx);
+                          const cellY = Math.floor(gy);
+                          const last = lastDragCellRef.current;
+                          if (last && (last.x !== cellX || last.y !== cellY)) {
+                            const areaId = `${id}-${last.x}-${last.y}`;
+                            const alreadyLocal = localPathRef.current.some(
+                              (a) => a.id === areaId,
+                            );
+                            if (!alreadyLocal) {
+                              localPathRef.current = [
+                                ...localPathRef.current,
+                                {
+                                  id: areaId,
+                                  posicionX: last.x,
+                                  posicionY: last.y,
+                                  arcType: vc.arcType,
+                                  radius: vc.radius,
+                                  apertura: vc.apertura,
+                                  rotation: vc.rotation,
+                                  angle: vc.angle,
+                                  length: vc.length,
+                                  width: vc.width,
+                                  height: vc.height,
+                                },
+                              ];
+                            }
+                            lastDragCellRef.current = {
+                              x: cellX,
+                              y: cellY,
+                              posicionId: id,
+                            };
+                          }
+                        }
+                      }
+                    }}
+                    onDragEnd={(x, y) => {
+                      draggingTokenRef.current = null;
+                      // Optimistic update so fog moves to new position immediately
+                      setPositions((prev) =>
+                        prev.map((p) =>
+                          p.id === position.id
+                            ? { ...p, posicionX: x, posicionY: y }
+                            : p,
+                        ),
+                      );
+                      // Flush locally accumulated path to server
+                      for (const area of localPathRef.current) {
+                        agregarAreaExplorada(area);
+                      }
+                      localPathRef.current = [];
+                      lastDragCellRef.current = null;
+                      moverPosicionPorWebSocket(position.id, x, y);
+                    }}
+                    onTokenClick={(id) =>
+                      setSelectedPositionId((prev) => (prev === id ? null : id))
+                    }
+                    onRightMouseDown={(id, tcx, tcy, sx, sy) => {
+                      rotationDragRef.current = {
+                        posicionId: id,
+                        tokenCenterClientX: tcx,
+                        tokenCenterClientY: tcy,
+                        startClientX: sx,
+                        startClientY: sy,
+                        hasMoved: false,
+                      };
+                    }}
+                  />
+                );
+              })}
 
             <CampaignRulerOverlay
               visible={selectedTool === "ruler"}
@@ -891,8 +1238,227 @@ export default function CampaignPestañaScreen({
               previewDrawing={pencilTool.previewDrawing}
             />
           </Layer>
+
+          {/* Fog of war layer */}
+          {nieblaEstado.activa && (
+            <Layer ref={fogLayerRef} listening={false}>
+              <Shape
+                perfectDrawEnabled={false}
+                sceneFunc={(konvaCtx) => {
+                  const ctx = (
+                    konvaCtx as unknown as {
+                      _context: CanvasRenderingContext2D;
+                    }
+                  )._context;
+                  ctx.save();
+
+                  const isDmView = !nieblaEstado.vistaJugador;
+                  ctx.globalCompositeOperation = "source-over";
+                  ctx.fillStyle = isDmView
+                    ? "rgba(0,0,0,0.75)"
+                    : "rgba(0,0,0,1)";
+                  ctx.fillRect(grid.rectX, grid.rectY, grid.rectW, grid.rectH);
+
+                  ctx.globalCompositeOperation = "destination-out";
+
+                  // Explored areas: server-side areas are cached in an offscreen bitmap
+                  // (O(1) per frame after first build); local drag areas are redrawn fresh (small count).
+                  if (nieblaEstado.zonasExploradas) {
+                    const serverAreas = nieblaEstado.exploredAreas ?? [];
+                    const localAreas = localPathRef.current;
+
+                    if (serverAreas.length > 0) {
+                      const transform = ctx.getTransform();
+                      const cacheKey = [
+                        serverAreas.length,
+                        serverAreas.at(-1)?.id ?? "",
+                        ctx.canvas.width,
+                        ctx.canvas.height,
+                        transform.a.toFixed(4),
+                        transform.e.toFixed(1),
+                        transform.f.toFixed(1),
+                        grid.rectX.toFixed(1),
+                        grid.rectY.toFixed(1),
+                        grid.cols,
+                        grid.rows,
+                      ].join("|");
+
+                      if (exploredBitmapRef.current?.key !== cacheKey) {
+                        const off = document.createElement("canvas");
+                        off.width = ctx.canvas.width;
+                        off.height = ctx.canvas.height;
+                        const offCtx = off.getContext("2d")!;
+                        offCtx.setTransform(transform);
+                        offCtx.beginPath();
+                        for (const area of serverAreas) {
+                          addVisionShapeToPath(
+                            offCtx,
+                            area.arcType,
+                            area,
+                            area.posicionX,
+                            area.posicionY,
+                            grid,
+                            CELL_PX,
+                          );
+                        }
+                        offCtx.fillStyle = "#000";
+                        offCtx.fill();
+                        exploredBitmapRef.current = {
+                          canvas: off,
+                          key: cacheKey,
+                        };
+                      }
+
+                      const savedTransform = ctx.getTransform();
+                      ctx.setTransform(1, 0, 0, 1, 0, 0);
+                      ctx.globalAlpha = 0.25;
+                      ctx.drawImage(exploredBitmapRef.current.canvas, 0, 0);
+                      ctx.setTransform(savedTransform);
+                      ctx.globalAlpha = 1;
+                    }
+
+                    if (localAreas.length > 0) {
+                      ctx.beginPath();
+                      for (const area of localAreas) {
+                        addVisionShapeToPath(
+                          ctx,
+                          area.arcType,
+                          area,
+                          area.posicionX,
+                          area.posicionY,
+                          grid,
+                          CELL_PX,
+                        );
+                      }
+                      ctx.globalAlpha = 0.25;
+                      ctx.fillStyle = "#000";
+                      ctx.fill();
+                      ctx.globalAlpha = 1;
+                    }
+                  }
+
+                  // Active vision zones: fully reveal, use live drag position when dragging
+                  ctx.fillStyle = "rgba(0,0,0,1)";
+                  for (const vc of nieblaEstado.visionConfigs) {
+                    if (!vc.revelaArea) continue;
+                    const live =
+                      draggingTokenRef.current?.posicionId === vc.posicionId
+                        ? draggingTokenRef.current
+                        : null;
+                    const posX =
+                      live?.posicionX ??
+                      positions.find((p) => p.id === vc.posicionId)
+                        ?.posicionX ??
+                      null;
+                    const posY =
+                      live?.posicionY ??
+                      positions.find((p) => p.id === vc.posicionId)
+                        ?.posicionY ??
+                      null;
+                    if (posX === null || posY === null) continue;
+                    // Always reveal the token body so it's never swallowed by fog
+                    const tcx = grid.rectX + (posX + 0.5) * CELL_PX;
+                    const tcy = grid.rectY + (posY + 0.5) * CELL_PX;
+                    ctx.beginPath();
+                    ctx.arc(tcx, tcy, CELL_PX / 2 + 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Directional vision shape extends from the token's outer edge
+                    drawVisionShape(
+                      ctx,
+                      vc.arcType,
+                      vc,
+                      posX,
+                      posY,
+                      grid,
+                      CELL_PX,
+                    );
+                  }
+
+                  ctx.restore();
+                }}
+              />
+            </Layer>
+          )}
         </Stage>
       ) : null}
+
+      {/* Token context menu */}
+      {contextMenu && (
+        <TokenContextMenu
+          posicionId={contextMenu.posicionId}
+          x={contextMenu.x}
+          y={contextMenu.y}
+          fogActiva={nieblaEstado.activa}
+          isDM={username === (pestaña?.dmUsername ?? "")}
+          currentCapa={
+            (positions.find((p) => p.id === contextMenu.posicionId)?.capa ??
+              "fichas") as "fichas" | "mapa" | "dm"
+          }
+          visionConfig={
+            nieblaEstado.visionConfigs.find(
+              (vc) => vc.posicionId === contextMenu.posicionId,
+            ) ?? null
+          }
+          onCambiarCapa={(posicionId, capa) =>
+            cambiarCapaToken(posicionId, capa)
+          }
+          onToggleRevela={(posicionId, revela) => {
+            const existing = nieblaEstado.visionConfigs.find(
+              (vc) => vc.posicionId === posicionId,
+            );
+            const updated: VisionConfig = existing
+              ? { ...existing, revelaArea: revela }
+              : {
+                  posicionId,
+                  revelaArea: revela,
+                  arcType: "semicircle",
+                  radius: 6,
+                  apertura: 360,
+                  rotation: 0,
+                  angle: 45,
+                  length: 8,
+                  width: 4,
+                  height: 6,
+                };
+            configurarVisionToken(updated);
+          }}
+          onOpenVisionArc={(posicionId) => setVisionArcTarget(posicionId)}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
+
+      {/* Vision arc modal */}
+      {visionArcTarget !== null &&
+        (() => {
+          const existingVc = nieblaEstado.visionConfigs.find(
+            (vc) => vc.posicionId === visionArcTarget,
+          );
+          const initialVc: VisionConfig = existingVc ?? {
+            posicionId: visionArcTarget,
+            revelaArea: true,
+            arcType: "semicircle",
+            radius: 6,
+            apertura: 360,
+            rotation: 0,
+            angle: 45,
+            length: 8,
+            width: 4,
+            height: 6,
+          };
+          return (
+            <VisionArcModal
+              posicionId={visionArcTarget}
+              initial={initialVc}
+              rotation={
+                rotationDragRef.current?.posicionId === visionArcTarget
+                  ? liveRotationRef.current
+                  : (existingVc?.rotation ?? 0)
+              }
+              onSave={(config) => configurarVisionToken(config)}
+              onClose={() => setVisionArcTarget(null)}
+            />
+          );
+        })()}
     </div>
   );
 }

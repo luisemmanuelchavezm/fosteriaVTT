@@ -195,17 +195,25 @@ function extractDiceValues(payload: unknown): number[] {
   }
 
   const record = payload as Record<string, unknown>;
-  const directValue = record.value;
-  const values = [
-    ...(typeof directValue === "number" ? [directValue] : []),
-    ...extractDiceValues(record.values),
-    ...extractDiceValues(record.rolls),
-    ...extractDiceValues(record.results),
-    ...extractDiceValues(record.dice),
-    ...extractDiceValues(record.sets),
-  ];
 
-  return values.filter((value): value is number => typeof value === "number");
+  // Group-level result: has a nested `rolls`/`results`/`dice` array → descend into it
+  // without also collecting the group's `.value` (which is the sum, not a single die face)
+  for (const childKey of [
+    "rolls",
+    "results",
+    "dice",
+    "values",
+    "sets",
+  ] as const) {
+    const child = record[childKey];
+    if (Array.isArray(child) && child.length > 0) {
+      return extractDiceValues(child);
+    }
+  }
+
+  // Individual die result: no nested collections → return its face value
+  const directValue = record.value;
+  return typeof directValue === "number" ? [directValue] : [];
 }
 
 async function waitForDiceBoxHost(hostId: string, attempts = 10) {
@@ -261,15 +269,20 @@ export function useDiceRoller() {
     if (nextSummary) {
       summaryTimeoutRef.current = window.setTimeout(() => {
         showNextSummary();
-      }, 3000);
+      }, 2100);
     }
   };
 
   const enqueueSummary = (nextSummary: DiceRollSummary) => {
-    summaryQueueRef.current.push(nextSummary);
-    if (!hasVisibleSummaryRef.current) {
-      showNextSummary();
-    }
+    summaryQueueRef.current = [nextSummary];
+    showNextSummary();
+  };
+
+  const dismissSummary = () => {
+    clearSummaryTimer();
+    summaryQueueRef.current = [];
+    hasVisibleSummaryRef.current = false;
+    setSummary(null);
   };
 
   const scheduleDiceClear = () => {
@@ -310,7 +323,7 @@ export function useDiceRoller() {
     const instance = new DiceBox({
       container: `#${diceBoxHostIdRef.current}`,
       assetPath: "/assets/dice-box/",
-      offscreen: true,
+      offscreen: false,
       scale: 3.8,
       throwForce: 4.2,
       spinForce: 5.6,
@@ -372,6 +385,7 @@ export function useDiceRoller() {
     }
 
     clearDiceTimer();
+    dismissSummary();
     setDiceBoxError(null);
     activeRollCountRef.current += 1;
     setIsRolling(true);
@@ -460,6 +474,7 @@ export function useDiceRoller() {
     }
 
     clearDiceTimer();
+    dismissSummary();
     setDiceBoxError(null);
     activeRollCountRef.current += 1;
     setIsRolling(true);
@@ -550,8 +565,10 @@ export function useDiceRoller() {
         void runRoll(request.title, request.expression);
       }
     },
+    dismissSummary,
     rollTwoD20ForAdvantage: async (): Promise<[number, number]> => {
       clearDiceTimer();
+      dismissSummary();
       setDiceBoxError(null);
       activeRollCountRef.current += 1;
       setIsRolling(true);

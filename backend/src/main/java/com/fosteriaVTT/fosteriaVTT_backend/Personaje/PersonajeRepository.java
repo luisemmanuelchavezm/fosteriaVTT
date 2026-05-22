@@ -20,6 +20,9 @@ public interface PersonajeRepository extends JpaRepository<Personaje, Long> {
 			where p.usuario.username = :username
 			and (:nombre = '' or lower(p.nombre) like concat('%', :nombre, '%'))
 			and (:sinSistemas = true or p.sistemaDeJuego in :sistemas)
+			and (:incluirTodos = true
+			     or p.tags is null
+			     or (lower(p.tags) not like '%enemigo%' and lower(p.tags) not like '%pnj%'))
 			order by p.usado desc
 			""")
 	Page<Personaje> buscarPorFiltros(
@@ -27,6 +30,7 @@ public interface PersonajeRepository extends JpaRepository<Personaje, Long> {
 			@Param("nombre") String nombre,
 			@Param("sistemas") List<SistemaDeJuego> sistemas,
 			@Param("sinSistemas") boolean sinSistemas,
+			@Param("incluirTodos") boolean incluirTodos,
 			Pageable pageable
 	);
 }

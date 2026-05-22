@@ -3,17 +3,21 @@ package com.fosteriaVTT.fosteriaVTT_backend.Personaje;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarRecursosPersonajeRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarHojaPersonajeRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarExperienciaPersonajeRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.AgregarHabilidadNpcRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.AgregarHabilidadPersonajeRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.AgregarItemMochilaRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarItemMochilaRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.BajarNivelPersonajeRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.CrearNpcRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.CrearPersonajeDndRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PagedResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PersonajeDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PersonajeResumenResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.SubirNivelPersonajeRequest;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,10 +55,23 @@ return personajeService.obtenerDetallePersonaje(id, authentication.getName());
             Authentication authentication,
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) List<String> sistemas,
+            @RequestParam(defaultValue = "false") boolean incluirTodos,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size
     ) {
-return personajeService.obtenerPersonajesOrdenadosPorUso(authentication.getName(), nombre, sistemas, page, size);
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
+        }
+        return personajeService.obtenerPersonajesOrdenadosPorUso(authentication.getName(), nombre, sistemas, incluirTodos, page, size);
+    }
+
+    @PostMapping(path = "/npc", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public PersonajeResumenResponse crearNpc(
+            @RequestPart("payload") CrearNpcRequest payload,
+            @RequestPart(value = "portrait", required = false) MultipartFile portrait,
+            Authentication authentication
+    ) {
+return personajeService.crearNpc(payload, portrait, authentication.getName());
     }
 
     @PostMapping(path = "/dnd", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -71,7 +88,10 @@ return personajeService.crearPersonajeDnd(payload, portrait, authentication.getN
             @PathVariable Long id,
             Authentication authentication
     ) {
-personajeService.marcarComoUsado(id, authentication.getName());
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
+        }
+        personajeService.marcarComoUsado(id, authentication.getName());
     }
 
     @PatchMapping("/{id}/recursos")
@@ -149,6 +169,15 @@ return personajeService.subirNivel(id, request, authentication.getName());
             Authentication authentication
     ) {
 return personajeService.bajarNivel(id, request, authentication.getName());
+    }
+
+    @PostMapping("/{id}/habilidades/npc")
+    public void agregarHabilidadNpc(
+            @PathVariable Long id,
+            @RequestBody AgregarHabilidadNpcRequest request,
+            Authentication authentication
+    ) {
+personajeService.agregarHabilidadNpc(id, request, authentication.getName());
     }
 
     @PostMapping("/{id}/habilidades")

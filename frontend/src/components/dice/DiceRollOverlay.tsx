@@ -1,4 +1,5 @@
 import "@3d-dice/dice-box/dist/style.css";
+import { createPortal } from "react-dom";
 import type { DiceRollSummary } from "./useDiceRoller";
 
 interface DiceRollOverlayProps {
@@ -6,6 +7,7 @@ interface DiceRollOverlayProps {
   diceBoxError: string | null;
   isRolling: boolean;
   summary: DiceRollSummary | null;
+  onDismiss?: () => void;
 }
 
 function formatModifier(modifier: number) {
@@ -18,7 +20,7 @@ export default function DiceRollOverlay({
   isRolling,
   summary,
 }: DiceRollOverlayProps) {
-  return (
+  return createPortal(
     <>
       <div
         className="pointer-events-none fixed inset-0 z-40 overflow-hidden"
@@ -88,6 +90,7 @@ export default function DiceRollOverlay({
           </div>
         </div>
       ) : null}
-    </>
+    </>,
+    document.body,
   );
 }

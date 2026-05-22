@@ -93,6 +93,43 @@ export interface IniciativaEstado {
   entradas: IniciativaEntrada[];
 }
 
+export type VisionArcType = "cone" | "semicircle" | "rectangle";
+
+export interface VisionConfig {
+  posicionId: number;
+  revelaArea: boolean;
+  arcType: VisionArcType;
+  radius: number;
+  apertura: number;
+  rotation: number;
+  angle: number;
+  length: number;
+  width: number;
+  height: number;
+}
+
+export interface ExploredArea {
+  id: string;
+  posicionX: number;
+  posicionY: number;
+  arcType: VisionArcType;
+  radius: number;
+  apertura: number;
+  rotation: number;
+  angle: number;
+  length: number;
+  width: number;
+  height: number;
+}
+
+export interface NieblaEstado {
+  activa: boolean;
+  zonasExploradas: boolean;
+  vistaJugador: boolean;
+  visionConfigs: VisionConfig[];
+  exploredAreas: ExploredArea[];
+}
+
 interface UseCampaignRealtimeOptions {
   campaignId: number | null | undefined;
   pestanaId: number | null;
@@ -100,6 +137,7 @@ interface UseCampaignRealtimeOptions {
   onMapLayerChanged?: (payload: MapLayerPayload) => void;
   onCharacterUpdated?: (characterId: number) => void;
   onIniciativaChanged?: (estado: IniciativaEstado) => void;
+  onNieblaChanged?: (estado: NieblaEstado) => void;
 }
 
 const RECONNECT_DELAY_MS = 3000;
@@ -158,6 +196,7 @@ export function useCampaignRealtime({
   onMapLayerChanged,
   onCharacterUpdated,
   onIniciativaChanged,
+  onNieblaChanged,
 }: UseCampaignRealtimeOptions) {
   const campaignIdValue = Number(campaignId ?? 0);
   const [drawings, setDrawings] = useState<DrawingItem[]>([]);
@@ -353,7 +392,25 @@ export function useCampaignRealtime({
             }
           },
         ),
+        client.subscribe(
+          `/topic/campanas/${campaignIdValue}/niebla`,
+          (message: IMessage) => {
+            try {
+              const estado = JSON.parse(message.body) as NieblaEstado;
+              onNieblaChanged?.(estado);
+            } catch (error) {
+              console.error("Error parsing niebla WebSocket message:", error);
+            }
+          },
+        ),
       ];
+
+      // Solicitar el estado actual de niebla al conectarse
+      client.publish({
+        destination: `/app/campanas/${campaignIdValue}/niebla/solicitar`,
+        body: "{}",
+        headers: { "content-type": "application/json" },
+      });
     };
 
     client.onWebSocketClose = () => {
@@ -398,6 +455,7 @@ export function useCampaignRealtime({
     onCharacterUpdated,
     onIniciativaChanged,
     onMapLayerChanged,
+    onNieblaChanged,
     onPosicionCreated,
   ]);
 
@@ -551,6 +609,62 @@ export function useCampaignRealtime({
     [campaignIdValue],
   );
 
+  const configurarNiebla = useCallback(
+    (settings: {
+      activa?: boolean;
+      zonasExploradas?: boolean;
+      vistaJugador?: boolean;
+    }) => {
+      const client = stompClientRef.current;
+      if (!client?.connected || !campaignIdValue) return;
+      client.publish({
+        destination: `/app/campanas/${campaignIdValue}/niebla/configurar`,
+        body: JSON.stringify(settings),
+        headers: { "content-type": "application/json" },
+      });
+    },
+    [campaignIdValue],
+  );
+
+  const configurarVisionToken = useCallback(
+    (config: VisionConfig) => {
+      const client = stompClientRef.current;
+      if (!client?.connected || !campaignIdValue) return;
+      client.publish({
+        destination: `/app/campanas/${campaignIdValue}/niebla/vision`,
+        body: JSON.stringify(config),
+        headers: { "content-type": "application/json" },
+      });
+    },
+    [campaignIdValue],
+  );
+
+  const agregarAreaExplorada = useCallback(
+    (area: ExploredArea) => {
+      const client = stompClientRef.current;
+      if (!client?.connected || !campaignIdValue) return;
+      client.publish({
+        destination: `/app/campanas/${campaignIdValue}/niebla/explorar`,
+        body: JSON.stringify(area),
+        headers: { "content-type": "application/json" },
+      });
+    },
+    [campaignIdValue],
+  );
+
+  const cambiarCapaToken = useCallback(
+    (posicionId: number, capa: string) => {
+      const client = stompClientRef.current;
+      if (!client?.connected || !campaignIdValue) return;
+      client.publish({
+        destination: `/app/campanas/${campaignIdValue}/posiciones/cambiarCapa`,
+        body: JSON.stringify({ posicionId, capa }),
+        headers: { "content-type": "application/json" },
+      });
+    },
+    [campaignIdValue],
+  );
+
   return {
     drawings,
     isConnected,
@@ -562,5 +676,9 @@ export function useCampaignRealtime({
     activarIniciativa,
     tirarIniciativa,
     reordenarIniciativa,
+    configurarNiebla,
+    configurarVisionToken,
+    agregarAreaExplorada,
+    cambiarCapaToken,
   };
 }

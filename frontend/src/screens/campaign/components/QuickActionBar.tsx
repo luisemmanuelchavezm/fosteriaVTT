@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/refs */
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   SKILL_ROWS,
@@ -35,10 +36,10 @@ import imgHechizos from "../../../assets/habilidades DND/hechizos.jpeg";
 import DiceRollOverlay from "../../../components/dice/DiceRollOverlay";
 import SpellDetailModal from "../../../components/spells/SpellDetailModal";
 import { useDiceRoller } from "../../../components/dice/useDiceRoller";
+import { serializeRollMessage } from "./ChatRollBubble";
 import {
   fetchDndCharacterDetail,
   type CharacterAbilityResponse,
-  type CharacterInventoryItemResponse,
   type DndCharacterDetailResponse,
 } from "../../personaje/utils/dndApi";
 import {
@@ -99,6 +100,26 @@ function getSkillTotal(
   return mod + proficiencyLevel * proficiencyBonus;
 }
 
+function getEnemySkillBonus(
+  detail: DndCharacterDetailResponse | null,
+  skill: { name: string; statName: string },
+): number {
+  const flat = detail?.estadisticas[skill.name];
+  if (flat !== undefined && flat !== 0) return flat;
+  return getAbilityModifierByName(detail, skill.statName);
+}
+
+function getEnemySaveBonus(
+  detail: DndCharacterDetailResponse | null,
+  statName: string,
+): number {
+  const flat =
+    detail?.estadisticas[`Salvacion de ${statName}`] ??
+    detail?.estadisticas[`Salvación de ${statName}`];
+  if (flat !== undefined && flat !== 0) return flat;
+  return getAbilityModifierByName(detail, statName);
+}
+
 // Utilidad para obtener el total de salvación igual que en la ficha
 function getSavingThrowTotal(
   detail: DndCharacterDetailResponse | null,
@@ -156,6 +177,7 @@ interface CampaignPositionResponse {
 interface QuickActionBarProps {
   selectedPosition: CampaignPositionResponse | null;
   onClose: () => void;
+  onRollResult?: (text: string) => void;
 }
 
 type ActionKind =
@@ -187,14 +209,6 @@ interface AttackRollAction {
   onClick: () => void;
 }
 
-function normalizeName(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim();
-}
-
 function buildCriticalExpression(expression: string | null) {
   if (!expression) {
     return null;
@@ -220,28 +234,13 @@ function getWeaponOptions(detail: DndCharacterDetailResponse | null) {
     return [] as WeaponOption[];
   }
 
-  const actionAbilities = detail.habilidades.filter(isActionAbility);
-  const abilityByName = new Map<string, CharacterAbilityResponse>();
-
-  for (const ability of actionAbilities) {
-    abilityByName.set(normalizeName(ability.nombre), ability);
-  }
-
-  return detail.mochila
-    .filter((item) => item.tipoObjeto === "ARMA")
-    .map((weapon: CharacterInventoryItemResponse) => {
-      const matchingAbility = abilityByName.get(normalizeName(weapon.nombre));
-      const damage = matchingAbility
-        ? getActionDamageParts(detail, matchingAbility).expression
-        : weapon.formula;
-
-      return {
-        id: weapon.id,
-        name: weapon.nombre,
-        attackBonus: matchingAbility?.bonificacion ?? null,
-        damageExpression: damage,
-      };
-    });
+  return detail.habilidades.filter(isActionAbility).map((ability) => ({
+    id: ability.id,
+    name: ability.nombre,
+    attackBonus: ability.bonificacion ?? null,
+    damageExpression:
+      getActionDamageParts(detail, ability).expression ?? ability.formula,
+  }));
 }
 
 // Fallback SVG icons for each action when the image isn't loaded yet
@@ -390,6 +389,7 @@ function ActionButton({
 export default function QuickActionBar({
   selectedPosition,
   onClose,
+  onRollResult,
 }: QuickActionBarProps) {
   const [portraitFailed, setPortraitFailed] = useState(false);
   const [activeAction, setActiveAction] = useState<ActionKind | null>(null);
@@ -418,6 +418,20 @@ export default function QuickActionBar({
   const attackMenuWrapperRef = useRef<HTMLDivElement | null>(null);
   const advantageTimeoutRef = useRef<number | null>(null);
   const diceRoller = useDiceRoller();
+  const onRollResultRef = useRef(onRollResult);
+  useEffect(() => {
+    onRollResultRef.current = onRollResult;
+  }, [onRollResult]);
+  const lastSeenSummaryIdRef = useRef(-1);
+  useEffect(() => {
+    if (!diceRoller.summary) return;
+    if (diceRoller.summary.id === lastSeenSummaryIdRef.current) return;
+    lastSeenSummaryIdRef.current = diceRoller.summary.id;
+    const { title, diceValues, modifier, total } = diceRoller.summary;
+    onRollResultRef.current?.(
+      serializeRollMessage(title, diceValues, modifier, total),
+    );
+  }, [diceRoller.summary]);
 
   useEffect(() => {
     setActiveAction(null);
@@ -491,30 +505,34 @@ export default function QuickActionBar({
   }, [selectedPosition]);
 
   useEffect(() => {
-    if (activeAction === null) {
-      return;
-    }
+    if (!selectedPosition) return;
 
     const handlePointerDown = (event: MouseEvent) => {
       const targetNode = event.target as Node | null;
-      if (!targetNode) {
-        return;
-      }
+      if (!targetNode) return;
+      if (attackMenuWrapperRef.current?.contains(targetNode)) return;
 
-      if (attackMenuWrapperRef.current?.contains(targetNode)) {
-        return;
+      if (activeAction !== null) {
+        setActiveAction(null);
+        setSelectedWeaponId(null);
+      } else {
+        onClose();
       }
-
-      setActiveAction(null);
-      setSelectedWeaponId(null);
     };
 
     window.addEventListener("mousedown", handlePointerDown);
+    return () => window.removeEventListener("mousedown", handlePointerDown);
+  }, [selectedPosition, activeAction, onClose]);
 
-    return () => {
-      window.removeEventListener("mousedown", handlePointerDown);
-    };
-  }, [activeAction]);
+  const isEnemy = detail?.tipo === "enemigo" || detail?.tipo === "PNJ";
+
+  const visibleActions = useMemo(
+    () =>
+      isEnemy
+        ? ACTIONS.filter((a) => a.key !== "hechizos" && a.key !== "recursos")
+        : ACTIONS,
+    [isEnemy],
+  );
 
   const weaponOptions = useMemo(() => getWeaponOptions(detail), [detail]);
 
@@ -554,6 +572,25 @@ export default function QuickActionBar({
               setAdvantageResult(null);
               advantageTimeoutRef.current = null;
             }, 5000);
+            const used = Math.max(die1, die2);
+            onRollResultRef.current?.(
+              serializeRollMessage(
+                `${selectedWeapon.name} · Con ventaja`,
+                [die1],
+                attackModifier,
+                die1 + attackModifier,
+                die1 < used,
+              ),
+            );
+            onRollResultRef.current?.(
+              serializeRollMessage(
+                `${selectedWeapon.name} · Con ventaja`,
+                [die2],
+                attackModifier,
+                die2 + attackModifier,
+                die2 < used,
+              ),
+            );
           });
         },
       },
@@ -588,6 +625,25 @@ export default function QuickActionBar({
               setAdvantageResult(null);
               advantageTimeoutRef.current = null;
             }, 5000);
+            const used = Math.min(die1, die2);
+            onRollResultRef.current?.(
+              serializeRollMessage(
+                `${selectedWeapon.name} · Con desventaja`,
+                [die1],
+                attackModifier,
+                die1 + attackModifier,
+                die1 > used,
+              ),
+            );
+            onRollResultRef.current?.(
+              serializeRollMessage(
+                `${selectedWeapon.name} · Con desventaja`,
+                [die2],
+                attackModifier,
+                die2 + attackModifier,
+                die2 > used,
+              ),
+            );
           });
         },
       },
@@ -711,8 +767,7 @@ export default function QuickActionBar({
         <div className="h-10 w-px bg-white/15 mx-1" />
 
         {/* Botones de acción */}
-        {/* eslint-disable-next-line react-hooks/refs -- valor es propiedad de estado del juego, no un React ref */}
-        {ACTIONS.map((action: (typeof ACTIONS)[number]) => {
+        {visibleActions.map((action) => {
           if (action.key === "ataque") {
             const isOpen = activeAction === "ataque";
 
@@ -810,11 +865,9 @@ export default function QuickActionBar({
                       <div className="grid grid-cols-9 gap-2">
                         {SKILLS.map((skill) => {
                           const proficiencyBonus = getProficiencyBonus(detail);
-                          const total = getSkillTotal(
-                            detail,
-                            skill,
-                            proficiencyBonus,
-                          );
+                          const total = isEnemy
+                            ? getEnemySkillBonus(detail, skill)
+                            : getSkillTotal(detail, skill, proficiencyBonus);
                           const modLabel =
                             total >= 0 ? `+${total}` : `${total}`;
                           return (
@@ -873,11 +926,13 @@ export default function QuickActionBar({
                     <div className="grid grid-cols-6 gap-3">
                       {SAVING_THROW_ROWS.map((save, idx) => {
                         const proficiencyBonus = getProficiencyBonus(detail);
-                        const total = getSavingThrowTotal(
-                          detail,
-                          save.statName,
-                          proficiencyBonus,
-                        );
+                        const total = isEnemy
+                          ? getEnemySaveBonus(detail, save.statName)
+                          : getSavingThrowTotal(
+                              detail,
+                              save.statName,
+                              proficiencyBonus,
+                            );
                         const modLabel = total >= 0 ? `+${total}` : `${total}`;
                         const image = SAVING_THROWS_WITH_IMAGES[idx]?.image;
                         return (
@@ -1186,9 +1241,10 @@ export default function QuickActionBar({
                           Modificador
                         </p>
                         <p className="mt-1 text-lg font-bold text-white leading-none">
-                          {spellcastingModifier === null
-                            ? "--"
-                            : formatSignedValue(spellcastingModifier)}
+                          {spellcastingModifier !== null &&
+                          spellcastingModifier !== undefined
+                            ? formatSignedValue(spellcastingModifier)
+                            : "--"}
                         </p>
                         <p className="mt-1 text-[9px] uppercase tracking-[0.1em] text-stone-500 truncate">
                           {detail.caracteristicaLanzamientoConjuros ?? "--"}
@@ -1210,9 +1266,10 @@ export default function QuickActionBar({
                           Ataque de hechizos
                         </p>
                         <p className="mt-1 text-lg font-bold text-white leading-none">
-                          {spellAttackBonus === null
-                            ? "--"
-                            : formatSignedValue(spellAttackBonus)}
+                          {spellAttackBonus !== null &&
+                          spellAttackBonus !== undefined
+                            ? formatSignedValue(spellAttackBonus)
+                            : "--"}
                         </p>
                       </button>
                       <div className="rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-center">
@@ -1355,6 +1412,7 @@ export default function QuickActionBar({
         diceBoxError={diceRoller.diceBoxError}
         isRolling={diceRoller.isRolling}
         summary={diceRoller.summary}
+        onDismiss={diceRoller.dismissSummary}
       />
 
       {advantageResult && (

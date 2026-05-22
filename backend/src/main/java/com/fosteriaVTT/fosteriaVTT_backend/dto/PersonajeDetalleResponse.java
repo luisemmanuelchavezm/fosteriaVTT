@@ -17,6 +17,8 @@ public record PersonajeDetalleResponse(
         Map<String, Integer> estadisticas,
         List<HabilidadResponse> habilidades,
         List<MochilaPersonajeResponse> mochila,
-        LocalDateTime usado
+        LocalDateTime usado,
+        String tipo,
+        String vd
 ) {
 }

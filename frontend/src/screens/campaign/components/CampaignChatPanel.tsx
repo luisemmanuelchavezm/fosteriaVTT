@@ -1,7 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import DiceRollOverlay from "../../../components/dice/DiceRollOverlay";
 import { useDiceRoller } from "../../../components/dice/useDiceRoller";
 import ChatDiceRollerPanel from "./ChatDiceRollerPanel";
+import {
+  ChatRollBubble,
+  parseRollMessage,
+  serializeRollMessage,
+} from "./ChatRollBubble";
 
 interface CampaignChatPanelProps {
   messages: CampaignChatMessage[];
@@ -26,6 +31,20 @@ export default function CampaignChatPanel({
   const [errorMessage, setErrorMessage] = useState("");
   const MAX_MESSAGE_LENGTH = 500;
   const diceRoller = useDiceRoller();
+  const onSendMessageRef = useRef(onSendMessage);
+  useEffect(() => {
+    onSendMessageRef.current = onSendMessage;
+  }, [onSendMessage]);
+  const lastSeenSummaryIdRef = useRef(-1);
+  useEffect(() => {
+    if (!diceRoller.summary) return;
+    if (diceRoller.summary.id === lastSeenSummaryIdRef.current) return;
+    lastSeenSummaryIdRef.current = diceRoller.summary.id;
+    const { title, diceValues, modifier, total } = diceRoller.summary;
+    void onSendMessageRef
+      .current(serializeRollMessage(title, diceValues, modifier, total))
+      .catch(() => {});
+  }, [diceRoller.summary]);
 
   const groupedMessages = useMemo(
     () =>
@@ -86,11 +105,20 @@ export default function CampaignChatPanel({
                         {message.username}
                       </p>
                     ) : null}
-                    <p
-                      className={`${showUsername ? "mt-1" : ""} text-sm text-white break-words [overflow-wrap:anywhere] [word-break:break-word]`}
-                    >
-                      {message.mensaje}
-                    </p>
+                    {(() => {
+                      const rollData = parseRollMessage(message.mensaje);
+                      return rollData ? (
+                        <div className={showUsername ? "mt-1" : ""}>
+                          <ChatRollBubble {...rollData} />
+                        </div>
+                      ) : (
+                        <p
+                          className={`${showUsername ? "mt-1" : ""} whitespace-pre-line text-sm text-white break-words [overflow-wrap:anywhere] [word-break:break-word]`}
+                        >
+                          {message.mensaje}
+                        </p>
+                      );
+                    })()}
                   </div>
                 </div>
               ))}

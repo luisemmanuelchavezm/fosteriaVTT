@@ -187,7 +187,8 @@ public class DndCharacterCreationUtils {
 				personaje.getNombre(),
 				personaje.getRetrato(),
 				personaje.getSistemaDeJuego().getDisplayName(),
-				personaje.getUsado()
+				personaje.getUsado(),
+				"personaje"
 		);
 	}
 

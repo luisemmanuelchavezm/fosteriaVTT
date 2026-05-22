@@ -270,7 +270,7 @@ public class DndCombatUtils {
 		return fuerza;
 	}
 
-	private Long extraerIdObjetoArma(String tags) {
+	public Long extraerIdObjetoArma(String tags) {
 		if (tags == null || tags.isBlank()) {
 			return null;
 		}

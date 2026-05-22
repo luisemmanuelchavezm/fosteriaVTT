@@ -7,6 +7,7 @@ public record PersonajeResumenResponse(
         String nombre,
         String retrato,
         String sistemaDeJuego,
-        LocalDateTime usado
+        LocalDateTime usado,
+        String tipo
 ) {
 }

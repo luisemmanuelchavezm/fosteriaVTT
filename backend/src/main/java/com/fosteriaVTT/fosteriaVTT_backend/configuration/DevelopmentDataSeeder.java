@@ -2,9 +2,15 @@ package com.fosteriaVTT.fosteriaVTT_backend.configuration;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fosteriaVTT.fosteriaVTT_backend.Campaña.Campaña;
+import com.fosteriaVTT.fosteriaVTT_backend.Campaña.CampañaRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Capa.Capa;
+import com.fosteriaVTT.fosteriaVTT_backend.Capa.CapaRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.ContenidoSistemaJson.ContenidoSistemaJsonService;
 import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.Habilidad;
 import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.HabilidadRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Jugador.Jugador;
+import com.fosteriaVTT.fosteriaVTT_backend.Jugador.JugadorRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Mapa.Mapa;
 import com.fosteriaVTT.fosteriaVTT_backend.Mapa.MapaRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Objeto.Objeto;
@@ -12,6 +18,8 @@ import com.fosteriaVTT.fosteriaVTT_backend.Objeto.ObjetoRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Objeto.TipoObjeto;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.PersonajeRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterCreationUtils;
+import com.fosteriaVTT.fosteriaVTT_backend.Pestaña.Pestaña;
+import com.fosteriaVTT.fosteriaVTT_backend.Pestaña.PestañaRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Usuario.Rol;
 import com.fosteriaVTT.fosteriaVTT_backend.Usuario.UserRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Usuario.Usuario;
@@ -621,7 +629,11 @@ public class DevelopmentDataSeeder {
             ObjetoRepository objetoRepository,
             MapaRepository mapaRepository,
             DndCharacterCreationUtils dndCharacterCreationUtils,
-            PasswordEncoder passwordEncoder
+            PasswordEncoder passwordEncoder,
+            CampañaRepository campañaRepository,
+            JugadorRepository jugadorRepository,
+            PestañaRepository pestañaRepository,
+            CapaRepository capaRepository
     ) {
         return args -> {
             String encodedPassword = passwordEncoder.encode("123456789");
@@ -1093,6 +1105,34 @@ public class DevelopmentDataSeeder {
 
         seedMapIfMissing(mapaRepository, "Bosque nevado", "https://res.cloudinary.com/doxqtmi46/image/upload/v1778687906/Snowy_Forest_River_ksjtvg.jpg", true, "nevado,naturaleza", sai);
         seedMapIfMissing(mapaRepository, "Catedral en ruinas", "https://res.cloudinary.com/doxqtmi46/image/upload/v1778687939/Catedral_en_ruinas_hemqac.jpg", true, "ruinas", sai);
+
+        Usuario tav = userRepository.findByUsername("tav")
+            .orElseGet(() -> userRepository.save(buildUser(
+                "tav",
+                "tav@fosteria.dev",
+                encodedPassword,
+                "https://res.cloudinary.com/doxqtmi46/image/upload/w_400,h_400,c_fill,g_auto,f_auto/v1775176044/Dame_el_personaje_202604030019_jop3pc.jpg"
+            )));
+
+        boolean campañaExists = campañaRepository.findAll().stream()
+            .anyMatch(c -> c.getNombre().equals("Campaña de Sai"));
+
+        if (!campañaExists) {
+            Campaña campaña = campañaRepository.save(Campaña.builder()
+                .nombre("Campaña de Sai")
+                .sistemaDeJuego(SistemaDeJuego.DND)
+                .dm(sai)
+                .build());
+
+            jugadorRepository.save(Jugador.builder().usuario(sai).campaña(campaña).build());
+            jugadorRepository.save(Jugador.builder().usuario(tav).campaña(campaña).build());
+
+            Pestaña pestaña = pestañaRepository.save(Pestaña.crearPorDefecto(campaña));
+
+            capaRepository.save(Capa.builder().nombre("capa de fichas").nivelDeCapa(1).pestaña(pestaña).build());
+            capaRepository.save(Capa.builder().nombre("capa de mapa").nivelDeCapa(2).pestaña(pestaña).build());
+            capaRepository.save(Capa.builder().nombre("capa de DM").nivelDeCapa(3).pestaña(pestaña).build());
+        }
     };
     }
 

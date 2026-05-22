@@ -230,6 +230,19 @@ public class EstadisticaService {
 		estadisticaRepository.save(armorClassStat);
 	}
 
+	public void guardarEstadisticasNpc(Personaje personaje, Map<String, Integer> estadisticas) {
+		List<Estadistica> stats = new java.util.ArrayList<>();
+		for (Map.Entry<String, Integer> entry : estadisticas.entrySet()) {
+			Estadistica stat = Estadistica.builder()
+					.nombre(entry.getKey())
+					.valor(entry.getValue())
+					.personaje(personaje)
+					.build();
+			stats.add(stat);
+		}
+		estadisticaRepository.saveAll(stats);
+	}
+
 	public void guardarEstadisticasIniciales(
 			Personaje character,
 			Map<String, Integer> baseStats,

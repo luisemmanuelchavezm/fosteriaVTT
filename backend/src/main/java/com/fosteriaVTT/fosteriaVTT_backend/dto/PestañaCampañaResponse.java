@@ -12,6 +12,7 @@ public record PestañaCampañaResponse(
         String nieblaDeGuerra,
         String imagenBaseUrl,
         String mapaCapaUrl,
-        LocalDateTime ultimaVezUsada
+        LocalDateTime ultimaVezUsada,
+        String dmUsername
 ) {
 }

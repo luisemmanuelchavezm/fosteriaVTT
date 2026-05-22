@@ -5,9 +5,15 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
+import com.fosteriaVTT.fosteriaVTT_backend.Campaña.Campaña;
+import com.fosteriaVTT.fosteriaVTT_backend.Campaña.CampañaRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Capa.Capa;
 import com.fosteriaVTT.fosteriaVTT_backend.Capa.CapaRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Estadistica.Estadistica;
+import com.fosteriaVTT.fosteriaVTT_backend.Estadistica.EstadisticaRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Jugador.JugadorRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Mochila.Mochila;
+import com.fosteriaVTT.fosteriaVTT_backend.Mochila.MochilaRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.Personaje;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.PersonajeRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Pestaña.Pestaña;
@@ -16,6 +22,7 @@ import com.fosteriaVTT.fosteriaVTT_backend.dto.CrearPosicionRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.CrearPosicionWsRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PosicionResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.WebSocketPosicionEventDTO;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -31,7 +38,10 @@ public class PosicionService {
     private final PestañaRepository pestañaRepository;
     private final JugadorRepository jugadorRepository;
     private final PersonajeRepository personajeRepository;
+    private final EstadisticaRepository estadisticaRepository;
+    private final MochilaRepository mochilaRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final CampañaRepository campañaRepository;
 
 	public PosicionService(
 			PosicionRepository posicionRepository,
@@ -39,14 +49,20 @@ public class PosicionService {
 			PestañaRepository pestañaRepository,
 			JugadorRepository jugadorRepository,
 			PersonajeRepository personajeRepository,
-			SimpMessagingTemplate messagingTemplate
+			EstadisticaRepository estadisticaRepository,
+			MochilaRepository mochilaRepository,
+			SimpMessagingTemplate messagingTemplate,
+			CampañaRepository campañaRepository
 	) {
 		this.posicionRepository = posicionRepository;
 		this.capaRepository = capaRepository;
 		this.pestañaRepository = pestañaRepository;
 		this.jugadorRepository = jugadorRepository;
 		this.personajeRepository = personajeRepository;
+		this.estadisticaRepository = estadisticaRepository;
+		this.mochilaRepository = mochilaRepository;
 		this.messagingTemplate = messagingTemplate;
+		this.campañaRepository = campañaRepository;
 	}
 
 	@Transactional(readOnly = true)
@@ -83,9 +99,13 @@ public class PosicionService {
 		Personaje personaje = personajeRepository.findByIdAndUsuarioUsername(request.personajeId(), username)
 				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No se encontró el personaje seleccionado"));
 
-		Posicion posicion = posicionRepository.findByPersonajeId(personaje.getId())
+		final Personaje personajeEfectivo = esEnemigoOPnj(personaje.getTags()) && posicionRepository.findByPersonajeId(personaje.getId()).isPresent()
+				? clonarPersonaje(personaje)
+				: personaje;
+
+		Posicion posicion = posicionRepository.findByPersonajeId(personajeEfectivo.getId())
 				.orElseGet(() -> Posicion.builder()
-						.personaje(personaje)
+						.personaje(personajeEfectivo)
 						.build());
 
 		posicion.setPosicionX(request.posicionX());
@@ -95,6 +115,47 @@ public class PosicionService {
 		posicion.setCapa(capa);
 
 		return toResponse(posicionRepository.save(posicion));
+	}
+
+	private boolean esEnemigoOPnj(String tags) {
+		if (tags == null) return false;
+		String lower = tags.toLowerCase();
+		return lower.contains("enemigo") || lower.contains("pnj");
+	}
+
+	private Personaje clonarPersonaje(Personaje original) {
+		Personaje clon = Personaje.builder()
+				.nombre(original.getNombre())
+				.retrato(original.getRetrato())
+				.biografia(original.getBiografia())
+				.sistemaDeJuego(original.getSistemaDeJuego())
+				.esPublico(original.isEsPublico())
+				.tags(original.getTags() == null ? "instancia" : original.getTags() + ",instancia")
+				.usuario(original.getUsuario())
+				.habilidades(new ArrayList<>(original.getHabilidades()))
+				.build();
+		Personaje clonGuardado = personajeRepository.save(clon);
+
+		List<Estadistica> estadisticas = estadisticaRepository.findByPersonajeIdOrderByIdAsc(original.getId());
+		estadisticaRepository.saveAll(estadisticas.stream()
+				.map(e -> Estadistica.builder()
+						.nombre(e.getNombre())
+						.valor(e.getValor())
+						.personaje(clonGuardado)
+						.build())
+				.toList());
+
+		List<Mochila> mochila = mochilaRepository.findByPersonajeIdWithObjetoOrderByIdAsc(original.getId());
+		mochilaRepository.saveAll(mochila.stream()
+				.map(m -> Mochila.builder()
+						.cantidad(m.getCantidad())
+						.equipado(m.isEquipado())
+						.personaje(clonGuardado)
+						.objeto(m.getObjeto())
+						.build())
+				.toList());
+
+		return clonGuardado;
 	}
 
 	private void validarAccesoCampaña(Long campañaId, String username) {
@@ -204,6 +265,14 @@ public class PosicionService {
 		messagingTemplate.convertAndSend("/topic/campanas/" + campañaId + "/posiciones", event);
 	}
 
+	private String extraerTipo(String tags) {
+		if (tags == null) return "personaje";
+		String lower = tags.toLowerCase();
+		if (lower.contains("enemigo")) return "enemigo";
+		if (lower.contains("pnj")) return "pnj";
+		return "personaje";
+	}
+
 	private PosicionResponse toResponse(Posicion posicion) {
 		Personaje personaje = posicion.getPersonaje();
 		Capa capa = posicion.getCapa();
@@ -218,7 +287,31 @@ public class PosicionService {
 				posicion.getPosicionX(),
 				posicion.getPosicionY(),
 				posicion.getLargo(),
-				posicion.getAncho()
+				posicion.getAncho(),
+				personaje == null ? "personaje" : extraerTipo(personaje.getTags())
 		);
+	}
+
+	@Transactional
+	public void cambiarCapaYEmitir(Long campañaId, PosicionWebSocketController.CambiarCapaPayload payload, String username) {
+		validarAccesoCampaña(campañaId, username);
+
+		Campaña campaña = campañaRepository.findById(campañaId)
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "La campaña no existe"));
+
+		if (campaña.getDm() == null || !campaña.getDm().getUsername().equals(username)) {
+			throw new ResponseStatusException(FORBIDDEN, "Solo el DM puede cambiar la capa de un token");
+		}
+
+		Posicion posicion = posicionRepository.findById(payload.posicionId())
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "La posición no existe"));
+
+		Long pestañaId = posicion.getCapa().getPestaña().getId();
+		Integer nivelCapa = mapearNivelCapa(payload.capa());
+		Capa nuevaCapa = capaRepository.findByPestañaIdAndNivelDeCapa(pestañaId, nivelCapa)
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No existe la capa seleccionada"));
+
+		posicion.setCapa(nuevaCapa);
+		emitirEventoCreado(campañaId, toResponse(posicionRepository.save(posicion)));
 	}
 }

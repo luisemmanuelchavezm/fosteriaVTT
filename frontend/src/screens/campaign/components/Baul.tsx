@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { buildApiUrl } from "../../../lib/api";
 import MapUploadModal from "./MapUploadModal";
+import EnemyCreationModal from "./EnemyCreationModal";
+import type { CreatedCharacterResponse } from "../../personaje/utils/dndApi";
 
 interface BaulProps {
   campaignId: string;
@@ -23,6 +25,7 @@ interface CharacterSummaryResponse {
   nombre: string;
   retrato?: string;
   sistemaDeJuego: string;
+  tipo?: string;
 }
 
 interface CharacterPageResponse {
@@ -49,11 +52,14 @@ const CHARACTER_DRAG_MIME = "application/x-fosteria-character";
 
 type ChestSourceTab = "mine" | "marketplace";
 type ChestContentTab = "characters" | "map";
+type ChestTipoTab = "todos" | "personajes" | "enemigos" | "pnj";
 
 export default function Baul({ campaignId, onClose, onMapSelect }: BaulProps) {
   const [chestSourceTab, setChestSourceTab] = useState<ChestSourceTab>("mine");
   const [chestContentTab, setChestContentTab] =
     useState<ChestContentTab>("characters");
+  const [chestTipoTab, setChestTipoTab] = useState<ChestTipoTab>("todos");
+  const [isNpcModalOpen, setIsNpcModalOpen] = useState(false);
   const [chestSearchQuery, setChestSearchQuery] = useState("");
   const [chestCampaignSystem, setChestCampaignSystem] = useState<string | null>(
     null,
@@ -137,6 +143,7 @@ export default function Baul({ campaignId, onClose, onMapSelect }: BaulProps) {
         searchParams.set("page", "0");
         searchParams.set("size", "120");
         searchParams.append("sistemas", resolvedSystem);
+        searchParams.set("incluirTodos", "true");
 
         const charactersResponse = await fetch(
           buildApiUrl(`/api/personajes?${searchParams.toString()}`),
@@ -260,16 +267,38 @@ export default function Baul({ campaignId, onClose, onMapSelect }: BaulProps) {
     [loadChestMaps],
   );
 
+  const handleNpcCreated = useCallback(
+    (created: CreatedCharacterResponse) => {
+      setIsNpcModalOpen(false);
+      setChestCharacters((prev) => [
+        {
+          id: created.id,
+          nombre: created.nombre,
+          retrato: created.retrato,
+          sistemaDeJuego: chestCampaignSystem ?? "",
+          tipo: created.tipo,
+        },
+        ...prev,
+      ]);
+    },
+    [chestCampaignSystem],
+  );
+
   const filteredChestCharacters = useMemo(() => {
     const query = chestSearchQuery.trim().toLowerCase();
-    if (!query) {
-      return chestCharacters;
-    }
-
-    return chestCharacters.filter((character) =>
+    const byTipo = chestCharacters.filter((character) => {
+      if (chestTipoTab === "todos") return true;
+      const t = (character.tipo ?? "personaje").toLowerCase();
+      if (chestTipoTab === "personajes") return t === "personaje";
+      if (chestTipoTab === "enemigos") return t === "enemigo";
+      if (chestTipoTab === "pnj") return t === "pnj";
+      return true;
+    });
+    if (!query) return byTipo;
+    return byTipo.filter((character) =>
       character.nombre.toLowerCase().includes(query),
     );
-  }, [chestCharacters, chestSearchQuery]);
+  }, [chestCharacters, chestSearchQuery, chestTipoTab]);
 
   const filteredChestMaps = useMemo(() => {
     const query = chestSearchQuery.trim().toLowerCase();
@@ -362,6 +391,32 @@ export default function Baul({ campaignId, onClose, onMapSelect }: BaulProps) {
         </button>
       </div>
 
+      {chestContentTab === "characters" && (
+        <div className="flex gap-1.5 flex-wrap">
+          {(
+            [
+              { key: "todos", label: "Todos" },
+              { key: "personajes", label: "Personajes" },
+              { key: "enemigos", label: "Enemigos" },
+              { key: "pnj", label: "PNJ" },
+            ] as { key: ChestTipoTab; label: string }[]
+          ).map(({ key, label }) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setChestTipoTab(key)}
+              className={`rounded-full px-2.5 py-1 text-[11px] font-bold transition ${
+                chestTipoTab === key
+                  ? "border border-amber-400/80 bg-amber-700/20 text-amber-100"
+                  : "border border-white/15 bg-white/3 text-white/70 hover:bg-white/8"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="flex-1 min-h-0 overflow-y-auto rounded-[12px] border border-white/14 bg-gray-400/20 p-3">
         <div className="mb-3 flex items-center gap-2">
           <input
@@ -370,18 +425,30 @@ export default function Baul({ campaignId, onClose, onMapSelect }: BaulProps) {
             placeholder="Buscar"
             className="h-9 flex-1 rounded-lg border border-white/22 bg-black/35 px-2.5 text-sm text-white outline-none transition placeholder:text-white/70 focus:border-white/40"
           />
-          <button
-            type="button"
-            onClick={() => {
-              if (chestSourceTab === "mine" && chestContentTab === "map") {
-                setIsMapUploadModalOpen(true);
+          {chestSourceTab === "mine" && chestContentTab === "characters" ? (
+            <button
+              type="button"
+              onClick={() => setIsNpcModalOpen(true)}
+              className="h-9 rounded-lg border border-amber-400/50 bg-amber-700/20 px-3 text-xs font-bold text-amber-100 transition hover:bg-amber-700/35"
+            >
+              Crear NPC
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                if (chestSourceTab === "mine" && chestContentTab === "map") {
+                  setIsMapUploadModalOpen(true);
+                }
+              }}
+              disabled={
+                !(chestSourceTab === "mine" && chestContentTab === "map")
               }
-            }}
-            disabled={!(chestSourceTab === "mine" && chestContentTab === "map")}
-            className="h-9 rounded-lg border border-white/22 bg-white/8 px-3.5 font-bold text-white transition hover:bg-white/12"
-          >
-            Subir
-          </button>
+              className="h-9 rounded-lg border border-white/22 bg-white/8 px-3.5 font-bold text-white transition hover:bg-white/12"
+            >
+              Subir
+            </button>
+          )}
         </div>
 
         {chestSourceTab === "mine" && chestContentTab === "characters" ? (
@@ -523,6 +590,13 @@ export default function Baul({ campaignId, onClose, onMapSelect }: BaulProps) {
         isSubmitting={isMapSubmitting}
         onClose={() => setIsMapUploadModalOpen(false)}
         onSubmit={handleSubmitMap}
+      />
+
+      <EnemyCreationModal
+        isOpen={isNpcModalOpen}
+        sistemaDeJuego={chestCampaignSystem ?? "Dungeons and Dragons"}
+        onClose={() => setIsNpcModalOpen(false)}
+        onCreated={handleNpcCreated}
       />
     </aside>
   );

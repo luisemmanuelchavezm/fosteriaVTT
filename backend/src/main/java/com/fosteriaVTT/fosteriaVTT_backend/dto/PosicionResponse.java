@@ -10,6 +10,7 @@ public record PosicionResponse(
         Integer posicionX,
         Integer posicionY,
         Integer largo,
-        Integer ancho
+        Integer ancho,
+        String tipo
 ) {
 }

@@ -17,6 +17,7 @@ interface HomeScreenProps {
   onGoCampaigns?: () => void;
   onGoCharacters?: () => void;
   onCreateCampaign?: (system: CampaignCreationSystem) => void;
+  onOpenCampaignHome?: (campaignId: string) => void;
 }
 
 interface FeaturedCampaign {
@@ -61,6 +62,7 @@ export default function HomeScreen({
   onGoCampaigns,
   onGoCharacters,
   onCreateCampaign,
+  onOpenCampaignHome,
 }: HomeScreenProps) {
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [recentIndex, setRecentIndex] = useState(0);
@@ -340,6 +342,7 @@ export default function HomeScreen({
                     <button
                       key={campaign.id}
                       type="button"
+                      onClick={() => onOpenCampaignHome?.(campaign.id)}
                       className="overflow-hidden rounded-[24px] border border-amber-200/35 bg-stone-900 text-left shadow-xl transition duration-300 hover:-translate-y-1 hover:border-amber-200/70"
                     >
                       <div className="h-[185px] overflow-hidden bg-stone-800 md:h-[205px]">

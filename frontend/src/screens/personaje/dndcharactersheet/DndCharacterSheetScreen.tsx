@@ -11,6 +11,7 @@ import ResourcesSection from "./components/ResourcesSection";
 import ShortRestModal from "./components/ShortRestModal";
 import StatisticsSection from "./components/StatisticsSection";
 import { useDndCharacterSheetController } from "./hooks/useDndCharacterSheetController";
+import NpcSheetContent from "./NpcSheetContent";
 
 const CHARACTER_UPDATED_EVENT = "fosteria:character-updated";
 
@@ -293,7 +294,36 @@ export default function DndCharacterSheetScreen({
             </div>
           ) : null}
 
-          {!isLoading && !loadError && character ? (
+          {!isLoading &&
+          !loadError &&
+          character &&
+          (character.tipo === "enemigo" || character.tipo === "PNJ") ? (
+            <NpcSheetContent
+              character={character}
+              currentHp={currentHp}
+              totalHp={totalHp}
+              tempHp={tempHp}
+              hpDelta={hpDelta}
+              tempHpDelta={tempHpDelta}
+              onHpDeltaChange={setHpDelta}
+              onTempHpDeltaChange={setTempHpDelta}
+              onHeal={handleHeal}
+              onDamage={handleDamage}
+              onGainTempHp={handleGainTempHp}
+              onLoseTempHp={handleLoseTempHp}
+              onIncrementHpDelta={handleIncrementHpDelta}
+              onDecrementHpDelta={handleDecrementHpDelta}
+              onIncrementTempHpDelta={handleIncrementTempHpDelta}
+              onDecrementTempHpDelta={handleDecrementTempHpDelta}
+              sanitizeNonNegativeNumber={sanitizeNonNegativeNumber}
+            />
+          ) : null}
+
+          {!isLoading &&
+          !loadError &&
+          character &&
+          character.tipo !== "enemigo" &&
+          character.tipo !== "PNJ" ? (
             <div className="mt-8 space-y-8">
               <IdentitySection
                 character={character}

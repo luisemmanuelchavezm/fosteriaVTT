@@ -57,7 +57,7 @@ export default function HomeNavbar({
   };
 
   return (
-    <div className="pointer-events-none fixed bottom-5 left-1/2 z-20 w-[min(360px,calc(100vw-2rem))] -translate-x-1/2 sm:bottom-6 sm:w-[390px]">
+    <div className="pointer-events-none fixed bottom-5 left-1/2 z-50 w-[min(360px,calc(100vw-2rem))] -translate-x-1/2 sm:bottom-6 sm:w-[390px]">
       <div className="relative mx-auto aspect-[390/107] w-full drop-shadow-[0_18px_32px_rgba(0,0,0,0.45)]">
         <img
           src={navBarImage}

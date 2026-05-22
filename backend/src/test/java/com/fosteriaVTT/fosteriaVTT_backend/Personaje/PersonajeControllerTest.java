@@ -31,30 +31,31 @@ class PersonajeControllerTest {
         TestingAuthenticationToken authentication = new TestingAuthenticationToken("daria", null);
         authentication.setAuthenticated(true);
         PagedResponse<PersonajeResumenResponse> response = new PagedResponse<>(
-                List.of(new PersonajeResumenResponse(1L, "Aria", "img", "Dungeons and Dragons", LocalDateTime.now())),
+                List.of(new PersonajeResumenResponse(1L, "Aria", "img", "Dungeons and Dragons", LocalDateTime.now(), "personaje")),
                 false
         );
 
-        when(personajeService.obtenerPersonajesOrdenadosPorUso("daria", "aria", List.of("Dungeons and Dragons"), 1, 15))
+        when(personajeService.obtenerPersonajesOrdenadosPorUso("daria", "aria", List.of("Dungeons and Dragons"), false, 1, 15))
                 .thenReturn(response);
 
         PagedResponse<PersonajeResumenResponse> result = personajeController.obtenerPersonajes(
                 authentication,
                 "aria",
                 List.of("Dungeons and Dragons"),
+                false,
                 1,
                 15
         );
 
         assertEquals(response, result);
-        verify(personajeService).obtenerPersonajesOrdenadosPorUso("daria", "aria", List.of("Dungeons and Dragons"), 1, 15);
+        verify(personajeService).obtenerPersonajesOrdenadosPorUso("daria", "aria", List.of("Dungeons and Dragons"), false, 1, 15);
     }
 
     @Test
     void lanzaUnauthorizedSiNoHayAutenticacionEnListado() {
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
-                () -> personajeController.obtenerPersonajes(null, null, null, 0, 15)
+                () -> personajeController.obtenerPersonajes(null, null, null, false, 0, 15)
         );
 
         assertEquals(401, exception.getStatusCode().value());
