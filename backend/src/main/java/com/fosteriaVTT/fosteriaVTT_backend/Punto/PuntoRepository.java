@@ -8,4 +8,5 @@ import java.util.List;
 public interface PuntoRepository extends JpaRepository<Punto, Long> {
 	List<Punto> findByDibujoIdInOrderByIdAsc(List<Long> dibujoIds);
 	void deleteByDibujoId(Long dibujoId);
+	void deleteByDibujoIdIn(List<Long> dibujoIds);
 }

@@ -421,6 +421,9 @@ export function useDiceRoller() {
           const resolved = await (rollResult as Promise<unknown>);
           diceValues = extractDiceValues(resolved);
         } else {
+          // roll() returned non-promise — instance may be broken, reset it
+          diceBoxInstanceRef.current = null;
+          setIsDiceBoxReady(false);
           diceValues = parsed.dicePools.flatMap((pool) =>
             rollLocally(pool.count, pool.faces),
           );
@@ -449,6 +452,8 @@ export function useDiceRoller() {
       });
       scheduleDiceClear();
     } catch (error) {
+      diceBoxInstanceRef.current = null; // forzar re-init en el siguiente roll
+      setIsDiceBoxReady(false);
       const message =
         error instanceof Error ? error.message : "Error desconocido";
       setDiceBoxError(`Dice-Box no pudo mostrar la tirada: ${message}`);
@@ -507,6 +512,9 @@ export function useDiceRoller() {
         const resolved = await (rollResult as Promise<unknown>);
         diceValues = extractDiceValues(resolved);
       } else {
+        // roll() returned non-promise — instance may be broken, reset it
+        diceBoxInstanceRef.current = null;
+        setIsDiceBoxReady(false);
         diceValues = normalizedPools.flatMap((pool) =>
           rollLocally(pool.count, pool.faces),
         );
@@ -536,6 +544,8 @@ export function useDiceRoller() {
       scheduleDiceClear();
       return summary;
     } catch (error) {
+      diceBoxInstanceRef.current = null; // forzar re-init en el siguiente roll
+      setIsDiceBoxReady(false);
       const message =
         error instanceof Error ? error.message : "Error desconocido";
       setDiceBoxError(`Dice-Box no pudo mostrar la tirada: ${message}`);
@@ -603,6 +613,8 @@ export function useDiceRoller() {
         scheduleDiceClear();
         return [diceValues[0], diceValues[1]];
       } catch {
+        diceBoxInstanceRef.current = null; // forzar re-init en el siguiente roll
+        setIsDiceBoxReady(false);
         scheduleDiceClear();
         return [secureRandomInt(1, 20), secureRandomInt(1, 20)];
       } finally {

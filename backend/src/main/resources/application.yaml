@@ -4,6 +4,13 @@ spring:
   main:
     web-application-type: ${WEB_APPLICATION_TYPE:servlet}
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 25MB
+      max-request-size: 30MB
+      resolve-lazily: false
+
   datasource:
     url: ${DB_URL:}
     username: ${DB_USERNAME:}

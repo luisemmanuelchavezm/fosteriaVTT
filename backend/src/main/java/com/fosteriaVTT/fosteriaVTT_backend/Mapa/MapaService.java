@@ -3,6 +3,7 @@ package com.fosteriaVTT.fosteriaVTT_backend.Mapa;
 import com.fosteriaVTT.fosteriaVTT_backend.Cloudinary.CloudinaryService;
 import com.fosteriaVTT.fosteriaVTT_backend.Usuario.UserRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Usuario.Usuario;
+import com.fosteriaVTT.fosteriaVTT_backend.common.TagUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.MapaResumenResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PagedResponse;
 import java.io.IOException;
@@ -16,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
@@ -35,6 +38,24 @@ public class MapaService {
 	this.cloudinaryService = cloudinaryService;
     }
 
+    private boolean estaPublicado(String tags) {
+	return tags != null && tags.toLowerCase().contains("publicado");
+    }
+
+    private MapaResumenResponse toResumen(Mapa m) {
+	String creador = m.getUsuario() != null ? m.getUsuario().getUsername() : "Desconocido";
+	return new MapaResumenResponse(
+		m.getId(),
+		m.getNombre(),
+		m.getMapa(),
+		m.isEsPublico(),
+		estaPublicado(m.getTags()),
+		creador,
+		false,  // yaTienesCopia solo se calcula en el marketplace
+		TagUtils.extractTagValue(m.getTags(), "fuenteId") != null
+	);
+    }
+
     @Transactional(readOnly = true)
     public PagedResponse<MapaResumenResponse> obtenerMapasDeUsuario(
 	    String username,
@@ -52,12 +73,7 @@ public class MapaService {
 
 	return new PagedResponse<>(
 		resultPage.getContent().stream()
-			.map(mapa -> new MapaResumenResponse(
-				mapa.getId(),
-				mapa.getNombre(),
-				mapa.getMapa(),
-				mapa.isEsPublico()
-			))
+			.map(this::toResumen)
 			.toList(),
 		resultPage.hasNext()
 	);
@@ -111,12 +127,117 @@ public class MapaService {
 		.usuario(usuario)
 		.build());
 
-	return new MapaResumenResponse(
-		mapaGuardado.getId(),
-		mapaGuardado.getNombre(),
-		mapaGuardado.getMapa(),
-		mapaGuardado.isEsPublico()
-	);
+	return toResumen(mapaGuardado);
+    }
+
+    @Transactional
+    public MapaResumenResponse publicarMapa(Long mapaId, String username) {
+	Mapa source = mapaRepository.findById(mapaId)
+		.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Mapa no encontrado"));
+
+	if (source.getUsuario() == null || !source.getUsuario().getUsername().equals(username)) {
+	    throw new ResponseStatusException(FORBIDDEN, "Solo el dueño puede publicar este mapa");
+	}
+
+	if (TagUtils.extractTagValue(source.getTags(), "fuenteId") != null) {
+	    throw new ResponseStatusException(FORBIDDEN, "No puedes publicar un mapa guardado del marketplace");
+	}
+
+	if (estaPublicado(source.getTags())) {
+	    throw new ResponseStatusException(CONFLICT, "Este mapa ya fue publicado");
+	}
+
+	Usuario usuario = userRepository.findByUsername(username)
+		.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Usuario no encontrado"));
+
+	// Marcar el original con "publicado"
+	String sourceTags = source.getTags();
+	String tagsConPublicado = (sourceTags != null && !sourceTags.isBlank())
+		? sourceTags + ",publicado"
+		: "publicado";
+	source.setTags(tagsConPublicado);
+	mapaRepository.save(source);
+
+	// La copia lleva el fuenteId como tag
+	String copiaTags = (sourceTags != null && !sourceTags.isBlank())
+		? sourceTags + ",fuenteId;" + mapaId
+		: "fuenteId;" + mapaId;
+
+	Mapa copia = Mapa.builder()
+		.nombre(source.getNombre())
+		.mapa(source.getMapa())
+		.esPublico(true)
+		.tags(copiaTags)
+		.usuario(usuario)
+		.build();
+
+	Mapa guardado = mapaRepository.save(copia);
+	return toResumen(guardado);
+    }
+
+    @Transactional
+    public MapaResumenResponse guardarMapa(Long mapaId, String username) {
+	Mapa source = mapaRepository.findById(mapaId)
+		.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Mapa no encontrado"));
+
+	if (!source.isEsPublico()) {
+	    throw new ResponseStatusException(FORBIDDEN, "Solo puedes guardar mapas públicos");
+	}
+
+	if (mapaRepository.existsByFuenteTagAndUsuarioUsername(String.valueOf(mapaId), username)) {
+	    throw new ResponseStatusException(CONFLICT, "Ya tienes una copia guardada de este mapa");
+	}
+
+	Usuario usuario = userRepository.findByUsername(username)
+		.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Usuario no encontrado"));
+
+	// La copia privada también lleva el fuenteId como tag
+	String sourceTags = source.getTags();
+	String copiaTags = (sourceTags != null && !sourceTags.isBlank())
+		? sourceTags + ",fuenteId;" + mapaId
+		: "fuenteId;" + mapaId;
+
+	Mapa copia = Mapa.builder()
+		.nombre(source.getNombre())
+		.mapa(source.getMapa())
+		.esPublico(false)
+		.tags(copiaTags)
+		.usuario(usuario)
+		.build();
+
+	Mapa guardado = mapaRepository.save(copia);
+	return toResumen(guardado);
+    }
+
+    @Transactional
+    public void eliminarMapa(Long mapaId, String username) {
+	Mapa mapa = mapaRepository.findById(mapaId)
+		.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Mapa no encontrado"));
+
+	if (mapa.getUsuario() == null || !mapa.getUsuario().getUsername().equals(username)) {
+	    throw new ResponseStatusException(FORBIDDEN, "Solo el dueño puede borrar este mapa");
+	}
+
+	// Si es una copia pública (publicar), quitamos el tag "publicado" del original
+	String fuenteIdStr = TagUtils.extractTagValue(mapa.getTags(), "fuenteId");
+	if (mapa.isEsPublico() && fuenteIdStr != null) {
+	    try {
+		Long fuenteId = Long.parseLong(fuenteIdStr);
+		mapaRepository.findById(fuenteId).ifPresent(fuente -> {
+		    String tags = fuente.getTags();
+		    if (tags != null && tags.toLowerCase().contains("publicado")) {
+			String limpio = java.util.Arrays.stream(tags.split(","))
+				.map(String::trim)
+				.filter(t -> !t.equalsIgnoreCase("publicado"))
+				.collect(java.util.stream.Collectors.joining(","));
+			fuente.setTags(limpio.isBlank() ? null : limpio);
+			mapaRepository.save(fuente);
+		    }
+		});
+	    } catch (NumberFormatException ignored) { }
+	}
+
+	mapaRepository.delete(mapa);
     }
 
     private List<String> normalizarTags(String tagsRaw) {

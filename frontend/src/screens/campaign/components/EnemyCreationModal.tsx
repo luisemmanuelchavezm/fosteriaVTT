@@ -85,6 +85,7 @@ export default function EnemyCreationModal({
   const [movimiento, setMovimiento] = useState(30);
   const [iniciativa, setIniciativa] = useState<number | "">("");
   const [biografia, setBiografia] = useState("");
+  const [idiomas, setIdiomas] = useState("");
   const [skillOverrides, setSkillOverrides] = useState<SkillOverride[]>([]);
   const [saveOverrides, setSaveOverrides] = useState<SaveOverride[]>([]);
   const [pasivas, setPasivas] = useState<PassiveEntry[]>([]);
@@ -320,6 +321,18 @@ export default function EnemyCreationModal({
           tags: "NPC,ACCION",
         });
       }
+      if (idiomas.trim()) {
+        for (const idioma of idiomas
+          .split(",")
+          .map((i) => i.trim())
+          .filter(Boolean)) {
+          await addHabilidadNpc(token, npcId, {
+            nombre: `Idioma: ${idioma}`,
+            descripcion: null,
+            tags: "NPC,IDIOMA",
+          });
+        }
+      }
 
       onCreated(result);
       handleClose();
@@ -345,6 +358,7 @@ export default function EnemyCreationModal({
     setMovimiento(30);
     setIniciativa("");
     setBiografia("");
+    setIdiomas("");
     setSkillOverrides([]);
     setSaveOverrides([]);
     setPasivas([]);
@@ -623,6 +637,28 @@ export default function EnemyCreationModal({
               rows={3}
               maxLength={500}
               className="w-full resize-none rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-amber-400/60"
+            />
+          </div>
+
+          {/* Idiomas */}
+          <div>
+            <div className="mb-1 flex items-baseline justify-between">
+              <label className="block text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
+                Idiomas <span className="text-white/35">(opcional)</span>
+              </label>
+              <span
+                className={`text-[10px] ${idiomas.length >= 250 ? "text-red-400" : idiomas.length >= 200 ? "text-amber-400" : "text-white/30"}`}
+              >
+                {idiomas.length}/250
+              </span>
+            </div>
+            <input
+              type="text"
+              value={idiomas}
+              onChange={(e) => setIdiomas(e.target.value.slice(0, 250))}
+              placeholder="Ej. Común, élfico, telepatía 60 pies"
+              maxLength={250}
+              className="w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-amber-400/60"
             />
           </div>
 

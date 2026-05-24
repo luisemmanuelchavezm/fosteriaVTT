@@ -15,6 +15,8 @@ interface TokenContextMenuProps {
   onToggleRevela: (posicionId: number, revela: boolean) => void;
   onOpenVisionArc: (posicionId: number) => void;
   onCambiarCapa: (posicionId: number, capa: LayerSelection) => void;
+  onStartResize?: (posicionId: number) => void;
+  onEliminar: (posicionId: number) => void;
   onClose: () => void;
 }
 
@@ -35,6 +37,8 @@ export default function TokenContextMenu({
   onToggleRevela,
   onOpenVisionArc,
   onCambiarCapa,
+  onStartResize,
+  onEliminar,
   onClose,
 }: TokenContextMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -57,7 +61,7 @@ export default function TokenContextMenu({
   }, [onClose]);
 
   const menuW = 200;
-  const menuH = isDM ? 190 : 110;
+  const menuH = isDM ? 220 : 140;
   const left = Math.min(x, window.innerWidth - menuW - 8);
   const top = Math.min(y, window.innerHeight - menuH - 8);
 
@@ -111,12 +115,35 @@ export default function TokenContextMenu({
         </p>
       )}
 
-      {/* ── Cambiar capa (DM only) ── */}
+      {/* ── DM-only options ── */}
       {isDM && (
         <>
           <div className="mx-3 my-1 h-px bg-white/10" />
 
-          {/* Row: button + flyout submenu side-by-side */}
+          {/* Modificar tamaño */}
+          {onStartResize && (
+            <button
+              type="button"
+              onClick={() => {
+                onStartResize(posicionId);
+                onClose();
+              }}
+              className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-white/80 hover:bg-white/[0.08] hover:text-white"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                className="h-4 w-4 shrink-0 text-white/50"
+              >
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+              </svg>
+              Modificar tamaño
+            </button>
+          )}
+
+          {/* Cambiar capa */}
           <div className="relative">
             <button
               type="button"
@@ -135,7 +162,6 @@ export default function TokenContextMenu({
               </svg>
             </button>
 
-            {/* Flyout to the right */}
             {capaOpen && (
               <div className="absolute left-full top-0 z-10 min-w-[140px] rounded-xl border border-white/15 bg-black/95 py-1 shadow-2xl">
                 {LAYERS.filter((l) => l.value !== currentCapa).map(
@@ -159,6 +185,28 @@ export default function TokenContextMenu({
           </div>
         </>
       )}
+
+      {/* ── Eliminar token ── */}
+      <div className="mx-3 my-1 h-px bg-white/10" />
+      <button
+        type="button"
+        onClick={() => {
+          onEliminar(posicionId);
+          onClose();
+        }}
+        className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm font-semibold text-red-400 transition hover:bg-red-500/10 hover:text-red-300"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          className="h-4 w-4 shrink-0"
+        >
+          <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" />
+        </svg>
+        Eliminar token
+      </button>
     </div>
   );
 }

@@ -748,6 +748,7 @@ export interface CrearNpcPayload {
   sistemaDeJuego: string;
   vd?: string;
   biografia?: string;
+  esPublico?: boolean;
   estadisticas: Record<string, number>;
 }
 

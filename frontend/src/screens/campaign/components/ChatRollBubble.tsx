@@ -4,6 +4,7 @@ import dadoPlaceholder from "../../../assets/dado placeholder.png";
 export interface RollMessageData {
   __type: "roll";
   title: string;
+  expression?: string;
   diceValues: number[];
   modifier: number;
   total: number;
@@ -16,6 +17,7 @@ export function serializeRollMessage(
   modifier: number,
   total: number,
   struck?: boolean,
+  expression?: string,
 ): string {
   const data: RollMessageData = {
     __type: "roll",
@@ -25,6 +27,7 @@ export function serializeRollMessage(
     total,
   };
   if (struck) data.struck = true;
+  if (expression) data.expression = expression;
   return JSON.stringify(data);
 }
 
@@ -40,6 +43,8 @@ export function parseRollMessage(mensaje: string): RollMessageData | null {
     return {
       __type: "roll",
       title: parsed.title,
+      expression:
+        typeof parsed.expression === "string" ? parsed.expression : undefined,
       diceValues: parsed.diceValues as number[],
       modifier: parsed.modifier,
       total: parsed.total,
@@ -52,6 +57,7 @@ export function parseRollMessage(mensaje: string): RollMessageData | null {
 
 export function ChatRollBubble({
   title,
+  expression,
   diceValues,
   modifier,
   total,
@@ -59,9 +65,12 @@ export function ChatRollBubble({
 }: Omit<RollMessageData, "__type">) {
   return (
     <div className="py-0.5">
-      <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-200/80">
+      <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-200/80">
         {title}
       </p>
+      {expression && (
+        <p className="mb-2 font-mono text-[10px] text-white/45">{expression}</p>
+      )}
 
       <div className="flex flex-wrap items-center gap-1.5">
         {diceValues.map((value, i) => (

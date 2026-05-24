@@ -39,7 +39,15 @@ public class ObjetoService {
 		}
 
 		if (objetoExistente.isPresent()) {
-			return objetoExistente.get();
+			Objeto existente = objetoExistente.get();
+			// If the caller declares an explicit type and the stored object is still
+			// the MISCELANEO fallback, promote it so weapon attacks are created correctly.
+			if (objetoInicial.tipoObjeto() != null
+					&& existente.getTipoObjeto() == TipoObjeto.MISCELANEO) {
+				existente.setTipoObjeto(objetoInicial.tipoObjeto());
+				return objetoRepository.save(existente);
+			}
+			return existente;
 		}
 
 		return objetoRepository.save(Objeto.builder()

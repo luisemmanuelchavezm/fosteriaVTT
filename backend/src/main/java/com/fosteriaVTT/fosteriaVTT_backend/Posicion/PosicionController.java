@@ -1,10 +1,12 @@
 package com.fosteriaVTT.fosteriaVTT_backend.Posicion;
 
+import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarTamanoRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.CrearPosicionRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PosicionResponse;
 import java.util.List;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,5 +42,16 @@ public class PosicionController {
     ) {
         String username = authentication == null ? null : authentication.getName();
         return posicionService.crearOActualizarPosicion(campañaId, request, username);
+    }
+
+    @PatchMapping("/{posicionId}/tamano")
+    public PosicionResponse actualizarTamano(
+            @PathVariable("campaniaId") Long campañaId,
+            @PathVariable Long posicionId,
+            @RequestBody ActualizarTamanoRequest request,
+            Authentication authentication
+    ) {
+        String username = authentication == null ? null : authentication.getName();
+        return posicionService.actualizarTamano(campañaId, posicionId, request.largo(), request.ancho(), username);
     }
 }

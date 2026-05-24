@@ -1,4 +1,5 @@
 import {
+  ArrowLeftRight,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -63,6 +64,7 @@ interface CharacterTokenPanelProps {
   ) => void;
   isTabSwitcherOpen?: boolean;
   onTabSwitcherToggle?: () => void;
+  onBack?: () => void;
 }
 
 const CHARACTER_UPDATED_EVENT = "fosteria:character-updated";
@@ -126,6 +128,7 @@ export default function CharacterTokenPanel({
   onTirarIniciativa,
   isTabSwitcherOpen = false,
   onTabSwitcherToggle,
+  onBack,
 }: CharacterTokenPanelProps) {
   const [isOpen, setIsOpen] = useState(true);
   const [activeTab, setActiveTab] = useState<"characters" | "chat">(
@@ -182,9 +185,19 @@ export default function CharacterTokenPanel({
     if (!diceRoller.summary) return;
     if (diceRoller.summary.id === lastSeenSummaryIdRef.current) return;
     lastSeenSummaryIdRef.current = diceRoller.summary.id;
-    const { title, diceValues, modifier, total } = diceRoller.summary;
+    const { title, expression, diceValues, modifier, total } =
+      diceRoller.summary;
     void onSendMessageRef
-      .current(serializeRollMessage(title, diceValues, modifier, total))
+      .current(
+        serializeRollMessage(
+          title,
+          diceValues,
+          modifier,
+          total,
+          undefined,
+          expression,
+        ),
+      )
       .catch(() => {});
   }, [diceRoller.summary]);
 
@@ -456,6 +469,18 @@ export default function CharacterTokenPanel({
         >
           <FolderOpen size={16} />
         </button>
+
+        {/* Back circle: volver al teatro de la mente */}
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="absolute left-[2px] top-[124px] flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-black/70 text-white/60 shadow-lg transition hover:border-white/50 hover:bg-black/80 hover:text-white"
+            title="Teatro de la mente"
+          >
+            <ArrowLeftRight size={16} />
+          </button>
+        )}
 
         {/* Toggle — panel ear */}
         <button

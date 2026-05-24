@@ -302,14 +302,13 @@ export default function CampaignsScreen({
       onGoHome();
       return;
     }
-
     if (tab === "campaigns") {
       onGoCampaigns();
       return;
     }
-
     if (tab === "characters") {
       onGoCharacters();
+      return;
     }
   };
 

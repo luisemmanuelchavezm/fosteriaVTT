@@ -137,12 +137,27 @@ public class PosicionService {
 		Personaje clonGuardado = personajeRepository.save(clon);
 
 		List<Estadistica> estadisticas = estadisticaRepository.findByPersonajeIdOrderByIdAsc(original.getId());
+
+		// Obtener la vida máxima del original para que el clon nazca con vida completa
+		int vidaMaxima = estadisticas.stream()
+				.filter(e -> "Puntos de vida".equals(e.getNombre()))
+				.mapToInt(Estadistica::getValor)
+				.findFirst()
+				.orElse(0);
+
 		estadisticaRepository.saveAll(estadisticas.stream()
-				.map(e -> Estadistica.builder()
-						.nombre(e.getNombre())
-						.valor(e.getValor())
-						.personaje(clonGuardado)
-						.build())
+				.map(e -> {
+					int valorFinal = switch (e.getNombre()) {
+						case "Vida actual" -> vidaMaxima;   // clon nace con vida completa
+						case "Vida temporal" -> 0;           // sin vida temporal heredada
+						default -> e.getValor();
+					};
+					return Estadistica.builder()
+							.nombre(e.getNombre())
+							.valor(valorFinal)
+							.personaje(clonGuardado)
+							.build();
+				})
 				.toList());
 
 		List<Mochila> mochila = mochilaRepository.findByPersonajeIdWithObjetoOrderByIdAsc(original.getId());
@@ -286,6 +301,68 @@ public class PosicionService {
 				posicion.getAncho(),
 				personaje == null ? "personaje" : extraerTipo(personaje.getTags())
 		);
+	}
+
+	@Transactional
+	public void eliminarPosicionYEmitir(Long campañaId, Long posicionId, String username) {
+		validarAccesoCampaña(campañaId, username);
+
+		Posicion posicion = posicionRepository.findById(posicionId)
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "La posición no existe"));
+
+		if (posicion.getCapa() == null || posicion.getCapa().getPestaña() == null) {
+			throw new ResponseStatusException(NOT_FOUND, "La pestaña de la posición no existe");
+		}
+
+		Long campañaDePestaña = posicion.getCapa().getPestaña().getCampaña() == null
+				? null : posicion.getCapa().getPestaña().getCampaña().getId();
+		if (!Objects.equals(campañaDePestaña, campañaId)) {
+			throw new ResponseStatusException(FORBIDDEN, "La posición no pertenece a la campaña");
+		}
+
+		Campaña campaña = campañaRepository.findById(campañaId)
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "La campaña no existe"));
+		boolean isDM = campaña.getDm() != null && campaña.getDm().getUsername().equals(username);
+
+		if (!isDM) {
+			// El jugador solo puede eliminar tokens de sus propios personajes
+			com.fosteriaVTT.fosteriaVTT_backend.Personaje.Personaje personaje = posicion.getPersonaje();
+			if (personaje == null || personaje.getUsuario() == null
+					|| !personaje.getUsuario().getUsername().equals(username)) {
+				throw new ResponseStatusException(FORBIDDEN, "No tienes permiso para eliminar este token");
+			}
+		}
+
+		posicionRepository.delete(posicion);
+
+		WebSocketPosicionEventDTO event = new WebSocketPosicionEventDTO("DELETED", posicionId, null);
+		messagingTemplate.convertAndSend("/topic/campanas/" + campañaId + "/posiciones", event);
+	}
+
+	@Transactional
+	public PosicionResponse actualizarTamano(Long campañaId, Long posicionId, int largo, int ancho, String username) {
+		validarAccesoCampaña(campañaId, username);
+
+		Posicion posicion = posicionRepository.findById(posicionId)
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "La posición no existe"));
+
+		if (posicion.getCapa() == null || posicion.getCapa().getPestaña() == null) {
+			throw new ResponseStatusException(NOT_FOUND, "La pestaña de la posición no existe");
+		}
+
+		Long campañaDePestaña = posicion.getCapa().getPestaña().getCampaña() == null
+				? null : posicion.getCapa().getPestaña().getCampaña().getId();
+		if (!Objects.equals(campañaDePestaña, campañaId)) {
+			throw new ResponseStatusException(FORBIDDEN, "La posición no pertenece a la campaña");
+		}
+
+		int tamano = Math.max(1, Math.min(10, Math.max(largo, ancho)));
+		posicion.setLargo(tamano);
+		posicion.setAncho(tamano);
+
+		PosicionResponse response = toResponse(posicionRepository.save(posicion));
+		emitirEventoCreado(campañaId, response);
+		return response;
 	}
 
 	@Transactional

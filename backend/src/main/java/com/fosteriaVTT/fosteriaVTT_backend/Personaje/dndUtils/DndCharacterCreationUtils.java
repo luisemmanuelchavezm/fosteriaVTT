@@ -188,7 +188,10 @@ public class DndCharacterCreationUtils {
 				personaje.getRetrato(),
 				personaje.getSistemaDeJuego().getDisplayName(),
 				personaje.getUsado(),
-				"personaje"
+				"personaje",
+				personaje.isEsPublico(),
+				false,
+				com.fosteriaVTT.fosteriaVTT_backend.common.TagUtils.extractTagValue(personaje.getTags(), "fuenteId") != null
 		);
 	}
 

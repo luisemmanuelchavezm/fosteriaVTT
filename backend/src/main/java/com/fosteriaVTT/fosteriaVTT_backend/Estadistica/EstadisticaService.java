@@ -455,4 +455,23 @@ public class EstadisticaService {
 		return (habilidades == null ? List.<Habilidad>of() : habilidades).stream()
 				.anyMatch(habilidad -> TagUtils.normalizeText(habilidad.getNombre()).equals(normalizedName));
 	}
+
+	public void clonarEstadisticasParaPersonaje(Long sourcePersonajeId, Personaje target) {
+		Map<String, Integer> sourceStats = obtenerValoresPorPersonajeId(sourcePersonajeId);
+		if (sourceStats.isEmpty()) {
+			return;
+		}
+		// Reset current HP to match max HP so each instance starts at full health
+		Integer maxHp = sourceStats.get(MAX_HP_STAT);
+		if (maxHp != null) {
+			sourceStats = new java.util.LinkedHashMap<>(sourceStats);
+			sourceStats.put(CURRENT_HP_STAT, maxHp);
+		}
+		guardarEstadisticasNpc(target, sourceStats);
+	}
+
+	@org.springframework.transaction.annotation.Transactional
+	public void eliminarEstadisticasPersonaje(Long personajeId) {
+		estadisticaRepository.deleteByPersonajeId(personajeId);
+	}
 }

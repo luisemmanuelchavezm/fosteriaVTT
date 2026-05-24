@@ -11,7 +11,6 @@ import CampaignHomeScreen from "./screens/campaign/CampaignHomeScreen";
 import CampaignPestañaScreen from "./screens/campaign/CampaignPestañaScreen";
 import CreateDndCharacterScreen from "./screens/personaje/creatednd/CreateDndCharacterScreen";
 import DndCharacterSheetScreen from "./screens/personaje/dndcharactersheet/DndCharacterSheetScreen";
-
 type AuthMode =
   | "login"
   | "register"

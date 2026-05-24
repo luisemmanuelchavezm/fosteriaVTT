@@ -40,9 +40,19 @@ export default function CampaignChatPanel({
     if (!diceRoller.summary) return;
     if (diceRoller.summary.id === lastSeenSummaryIdRef.current) return;
     lastSeenSummaryIdRef.current = diceRoller.summary.id;
-    const { title, diceValues, modifier, total } = diceRoller.summary;
+    const { title, expression, diceValues, modifier, total } =
+      diceRoller.summary;
     void onSendMessageRef
-      .current(serializeRollMessage(title, diceValues, modifier, total))
+      .current(
+        serializeRollMessage(
+          title,
+          diceValues,
+          modifier,
+          total,
+          undefined,
+          expression,
+        ),
+      )
       .catch(() => {});
   }, [diceRoller.summary]);
 

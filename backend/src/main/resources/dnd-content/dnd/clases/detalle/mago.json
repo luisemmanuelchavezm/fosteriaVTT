@@ -378,7 +378,8 @@
                                                                          "etiqueta":  "Baston",
                                                                          "cantidad":  1,
                                                                          "objeto":  {
-                                                                                        "nombre":  "Baston"
+                                                                                        "nombre":  "Baston",
+                                                                                        "tipoObjeto":  "ARMA"
                                                                                     }
                                                                      },
                                                                      {

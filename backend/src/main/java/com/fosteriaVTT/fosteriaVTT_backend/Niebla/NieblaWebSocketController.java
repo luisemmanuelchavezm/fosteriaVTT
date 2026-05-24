@@ -90,7 +90,8 @@ public class NieblaWebSocketController {
                 toDouble(payload.get("angle"), 45.0),
                 toDouble(payload.get("length"), 8.0),
                 toDouble(payload.get("width"), 4.0),
-                toDouble(payload.get("height"), 6.0)
+                toDouble(payload.get("height"), 6.0),
+                toDouble(payload.get("tokenSize"), 1.0)
         );
 
         NieblaEstado anterior = estadoPorCampana.getOrDefault(campañaId,

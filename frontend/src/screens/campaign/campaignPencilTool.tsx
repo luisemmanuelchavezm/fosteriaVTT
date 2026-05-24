@@ -59,6 +59,9 @@ const SHAPE_OPTIONS: PencilShape[] = [
 
 const STROKE_WIDTH = 3;
 const ERASER_HIT_RADIUS = 10;
+// Auto-flush: cada N ms el trazo activo se guarda y empieza un segmento nuevo,
+// evitando payloads enormes que el broker WebSocket rechaza silenciosamente.
+const PENCIL_FLUSH_MS = 3000;
 
 function toKonvaPoints(points: DrawingPoint[]): number[] {
   return points.flatMap((point) => [point.x, point.y]);
@@ -535,13 +538,53 @@ export function useCampaignPencilTool({
   const [isErasing, setIsErasing] = useState(false);
   const deletedDuringDragRef = useRef<Set<number>>(new Set());
 
+  // Refs para el auto-flush (evitan stale-closures en el interval)
+  const activeDrawingRef = useRef<DrawingCreatePayload | null>(null);
+  const onCompleteDrawingRef = useRef(onCompleteDrawing);
+  const autoFlushIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
+
+  useEffect(() => {
+    activeDrawingRef.current = activeDrawing;
+  }, [activeDrawing]);
+
+  useEffect(() => {
+    onCompleteDrawingRef.current = onCompleteDrawing;
+  }, [onCompleteDrawing]);
+
+  const stopAutoFlush = useCallback(() => {
+    if (autoFlushIntervalRef.current !== null) {
+      clearInterval(autoFlushIntervalRef.current);
+      autoFlushIntervalRef.current = null;
+    }
+  }, []);
+
+  const startAutoFlush = useCallback(() => {
+    stopAutoFlush();
+    autoFlushIntervalRef.current = setInterval(() => {
+      const current = activeDrawingRef.current;
+      if (!current || current.tipo !== "pencil" || current.puntos.length < 2)
+        return;
+      // Guardar el segmento actual
+      onCompleteDrawingRef.current(current);
+      // Iniciar nuevo segmento desde el último punto
+      const lastPoint = current.puntos[current.puntos.length - 1];
+      setActiveDrawing({ ...current, puntos: [lastPoint, lastPoint] });
+    }, PENCIL_FLUSH_MS);
+  }, [stopAutoFlush]);
+
   useEffect(() => {
     if (!enabled) {
       setShowSelector(false);
+      stopAutoFlush();
     } else {
       setShowSelector(true);
     }
-  }, [enabled]);
+    return () => {
+      stopAutoFlush();
+    };
+  }, [enabled, stopAutoFlush]);
 
   const eraseAtPointer = useCallback(
     (pointer: DrawingPoint) => {
@@ -601,6 +644,11 @@ export function useCampaignPencilTool({
       puntos: [startPoint, startPoint],
     });
 
+    // Activar auto-flush solo para trazos de lápiz libre
+    if (selectedShape === "pencil") {
+      startAutoFlush();
+    }
+
     return true;
   }, [
     enabled,
@@ -611,6 +659,7 @@ export function useCampaignPencilTool({
     strokeColor,
     fillEnabled,
     eraseAtPointer,
+    startAutoFlush,
   ]);
 
   const handleMouseMove = useCallback(() => {
@@ -674,6 +723,9 @@ export function useCampaignPencilTool({
       return;
     }
 
+    // Detener el auto-flush antes de completar el trazo final
+    stopAutoFlush();
+
     if (!activeDrawing) {
       return;
     }
@@ -683,7 +735,7 @@ export function useCampaignPencilTool({
     }
 
     setActiveDrawing(null);
-  }, [enabled, activeDrawing, onCompleteDrawing, selectedShape]);
+  }, [enabled, activeDrawing, onCompleteDrawing, selectedShape, stopAutoFlush]);
 
   return {
     selectedShape,

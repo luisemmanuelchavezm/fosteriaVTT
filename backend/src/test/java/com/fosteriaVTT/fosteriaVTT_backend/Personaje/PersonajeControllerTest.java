@@ -31,7 +31,7 @@ class PersonajeControllerTest {
         TestingAuthenticationToken authentication = new TestingAuthenticationToken("daria", null);
         authentication.setAuthenticated(true);
         PagedResponse<PersonajeResumenResponse> response = new PagedResponse<>(
-                List.of(new PersonajeResumenResponse(1L, "Aria", "img", "Dungeons and Dragons", LocalDateTime.now(), "personaje")),
+                List.of(new PersonajeResumenResponse(1L, "Aria", "img", "Dungeons and Dragons", LocalDateTime.now(), "personaje", false, false, false)),
                 false
         );
 

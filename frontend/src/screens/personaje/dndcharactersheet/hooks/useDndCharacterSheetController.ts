@@ -457,5 +457,6 @@ export function useDndCharacterSheetController(
     totalHp: resourceManagement.totalHp,
     resolveCharacterFormula,
     normalizeText,
+    syncCharacterDetail,
   };
 }

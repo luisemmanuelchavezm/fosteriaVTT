@@ -120,6 +120,7 @@ export interface ExploredArea {
   length: number;
   width: number;
   height: number;
+  tokenSize?: number;
 }
 
 export interface NieblaEstado {
@@ -139,6 +140,7 @@ interface UseCampaignRealtimeOptions {
   campaignId: number | null | undefined;
   pestanaId: number | null;
   onPosicionCreated?: (posicion: PosicionData) => void;
+  onPosicionDeleted?: (posicionId: number) => void;
   onMapLayerChanged?: (payload: MapLayerPayload) => void;
   onCharacterUpdated?: (characterId: number) => void;
   onIniciativaChanged?: (estado: IniciativaEstado) => void;
@@ -202,6 +204,7 @@ export function useCampaignRealtime({
   campaignId,
   pestanaId,
   onPosicionCreated,
+  onPosicionDeleted,
   onMapLayerChanged,
   onCharacterUpdated,
   onIniciativaChanged,
@@ -343,6 +346,8 @@ export function useCampaignRealtime({
               const event: WebSocketPosicionEvent = JSON.parse(message.body);
               if (event.accion === "CREATED") {
                 onPosicionCreated?.(event.posicion);
+              } else if (event.accion === "DELETED") {
+                onPosicionDeleted?.(event.posicionId);
               }
             } catch (error) {
               console.error(
@@ -482,6 +487,7 @@ export function useCampaignRealtime({
     onMapLayerChanged,
     onNieblaChanged,
     onPosicionCreated,
+    onPosicionDeleted,
   ]);
 
   const crearPosicionPorWebSocket = useCallback(
@@ -690,6 +696,26 @@ export function useCampaignRealtime({
     [campaignIdValue],
   );
 
+  const eliminarPosicionPorWebSocket = useCallback(
+    (posicionId: number) => {
+      const client = stompClientRef.current;
+      if (!client?.connected || !campaignIdValue) {
+        console.warn("WebSocket no conectado");
+        return;
+      }
+      try {
+        client.publish({
+          destination: `/app/campanas/${campaignIdValue}/posiciones/eliminar`,
+          body: JSON.stringify({ posicionId }),
+          headers: { "content-type": "application/json" },
+        });
+      } catch (error) {
+        console.error("Error sending position deletion:", error);
+      }
+    },
+    [campaignIdValue],
+  );
+
   const cambiarCapaToken = useCallback(
     (posicionId: number, capa: string) => {
       const client = stompClientRef.current;
@@ -708,6 +734,7 @@ export function useCampaignRealtime({
     isConnected,
     crearPosicionPorWebSocket,
     moverPosicionPorWebSocket,
+    eliminarPosicionPorWebSocket,
     asignarMapaPorWebSocket,
     sendDrawing,
     deleteDrawing,

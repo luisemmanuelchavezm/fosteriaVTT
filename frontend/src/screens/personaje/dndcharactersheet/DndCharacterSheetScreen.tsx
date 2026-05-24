@@ -41,6 +41,7 @@ export default function DndCharacterSheetScreen({
     activeDetailTab,
     armorClass,
     character,
+    syncCharacterDetail,
     classCompetencies,
     competencyCatalog,
     currentExtraResources,
@@ -318,6 +319,9 @@ export default function DndCharacterSheetScreen({
               onIncrementTempHpDelta={handleIncrementTempHpDelta}
               onDecrementTempHpDelta={handleDecrementTempHpDelta}
               sanitizeNonNegativeNumber={sanitizeNonNegativeNumber}
+              characterId={characterId}
+              isOwner={isOwner}
+              onNpcSaved={syncCharacterDetail}
             />
           ) : null}
 

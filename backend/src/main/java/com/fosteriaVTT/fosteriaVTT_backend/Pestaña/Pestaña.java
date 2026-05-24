@@ -25,11 +25,11 @@ public class Pestaña extends NamedEntity {
 
     @Column(nullable = false)
     @Builder.Default
-    private Integer nCuadriculasX = 70;
+    private Integer nCuadriculasX = 20;
 
     @Column(nullable = false)
     @Builder.Default
-    private Integer nCuadriculasY = 70;
+    private Integer nCuadriculasY = 20;
 
     @Column(nullable = false)
     @Builder.Default
@@ -58,8 +58,8 @@ public class Pestaña extends NamedEntity {
     public static Pestaña crearPorDefecto(Campaña campaña) {
         return Pestaña.builder()
                 .nombre("Pestaña principal")
-                .nCuadriculasX(70)
-                .nCuadriculasY(70)
+                .nCuadriculasX(20)
+                .nCuadriculasY(20)
                 .distanciaCasilla(5)
                 .sistemaMetrico("ft")
                 .nieblaDeGuerra("true")

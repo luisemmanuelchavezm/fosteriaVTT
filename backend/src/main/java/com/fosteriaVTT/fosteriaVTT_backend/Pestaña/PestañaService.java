@@ -4,7 +4,11 @@ import com.fosteriaVTT.fosteriaVTT_backend.Campaña.Campaña;
 import com.fosteriaVTT.fosteriaVTT_backend.Campaña.CampañaRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Capa.Capa;
 import com.fosteriaVTT.fosteriaVTT_backend.Capa.CapaRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Dibujo.Dibujo;
+import com.fosteriaVTT.fosteriaVTT_backend.Dibujo.DibujoRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Jugador.JugadorRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Posicion.PosicionRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Punto.PuntoRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PestañaCampañaResponse;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
@@ -24,17 +29,26 @@ public class PestañaService {
 	private final CapaRepository capaRepository;
 	private final JugadorRepository jugadorRepository;
 	private final CampañaRepository campañaRepository;
+	private final DibujoRepository dibujoRepository;
+	private final PuntoRepository puntoRepository;
+	private final PosicionRepository posicionRepository;
 
 	public PestañaService(
 			PestañaRepository pestañaRepository,
 			CapaRepository capaRepository,
 			JugadorRepository jugadorRepository,
-			CampañaRepository campañaRepository
+			CampañaRepository campañaRepository,
+			DibujoRepository dibujoRepository,
+			PuntoRepository puntoRepository,
+			PosicionRepository posicionRepository
 	) {
 		this.pestañaRepository = pestañaRepository;
 		this.capaRepository = capaRepository;
 		this.jugadorRepository = jugadorRepository;
 		this.campañaRepository = campañaRepository;
+		this.dibujoRepository = dibujoRepository;
+		this.puntoRepository = puntoRepository;
+		this.posicionRepository = posicionRepository;
 	}
 
 	@Transactional
@@ -121,6 +135,36 @@ public class PestañaService {
 	}
 
 	@Transactional
+	public PestañaCampañaResponse actualizarConfiguracion(Long campañaId, Long pestañaId, ConfiguracionCasillasRequest request, String username) {
+		Campaña campaña = campañaRepository.findById(campañaId)
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "La campaña no existe"));
+		if (campaña.getDm() == null || !campaña.getDm().getUsername().equals(username)) {
+			throw new ResponseStatusException(FORBIDDEN, "Solo el DM puede configurar las casillas");
+		}
+
+		Pestaña pestaña = pestañaRepository.findById(pestañaId)
+				.filter(p -> p.getCampaña() != null && campañaId.equals(p.getCampaña().getId()))
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "La pestaña no existe en esta campaña"));
+
+		if (request.nCuadriculasX() != null) pestaña.setNCuadriculasX(request.nCuadriculasX());
+		if (request.nCuadriculasY() != null) pestaña.setNCuadriculasY(request.nCuadriculasY());
+		if (request.distanciaCasilla() != null) pestaña.setDistanciaCasilla(request.distanciaCasilla());
+		if (request.sistemaMetrico() != null) pestaña.setSistemaMetrico(request.sistemaMetrico());
+
+		Pestaña updated = pestañaRepository.save(pestaña);
+		String mapaCapaUrl = capaRepository.findByPestañaIdAndNivelDeCapa(updated.getId(), NIVEL_CAPA_MAPA)
+				.map(capa -> capa.getMapa() == null ? null : capa.getMapa().getMapa())
+				.orElse(null);
+		String dmUsername = campaña.getDm() == null ? null : campaña.getDm().getUsername();
+		return new PestañaCampañaResponse(
+				updated.getId(), updated.getNombre(),
+				updated.getNCuadriculasX(), updated.getNCuadriculasY(),
+				updated.getDistanciaCasilla(), updated.getSistemaMetrico(),
+				updated.getNieblaDeGuerra(), updated.getImagenBaseUrl(),
+				mapaCapaUrl, updated.getUltimaVezUsada(), dmUsername);
+	}
+
+	@Transactional
 	public PestañaCampañaResponse crearNuevaPestaña(Long campañaId, String username) {
 		jugadorRepository.buscarPorUsuarioYCampaniaId(username, campañaId)
 				.orElseThrow(() -> new ResponseStatusException(FORBIDDEN, "No tienes acceso a esta campaña"));
@@ -133,8 +177,8 @@ public class PestañaService {
 
 		Pestaña nueva = Pestaña.builder()
 				.nombre(nombre)
-				.nCuadriculasX(70)
-				.nCuadriculasY(70)
+				.nCuadriculasX(20)
+				.nCuadriculasY(20)
 				.distanciaCasilla(5)
 				.sistemaMetrico("ft")
 				.nieblaDeGuerra("true")
@@ -153,6 +197,46 @@ public class PestañaService {
 				guardada.getDistanciaCasilla(), guardada.getSistemaMetrico(),
 				guardada.getNieblaDeGuerra(), guardada.getImagenBaseUrl(),
 				null, guardada.getUltimaVezUsada(), dmUsername);
+	}
+
+	@Transactional
+	public void eliminarPestaña(Long campañaId, Long pestañaId, String username) {
+		// Solo el DM puede borrar pestañas
+		Campaña campaña = campañaRepository.findById(campañaId)
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "La campaña no existe"));
+		if (campaña.getDm() == null || !campaña.getDm().getUsername().equals(username)) {
+			throw new ResponseStatusException(FORBIDDEN, "Solo el DM puede borrar pestañas");
+		}
+
+		// La pestaña debe existir y pertenecer a la campaña
+		Pestaña pestaña = pestañaRepository.findById(pestañaId)
+				.filter(p -> p.getCampaña() != null && campañaId.equals(p.getCampaña().getId()))
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "La pestaña no existe en esta campaña"));
+
+		// No se puede borrar la única pestaña
+		long total = pestañaRepository.countByCampañaId(campañaId);
+		if (total <= 1) {
+			throw new ResponseStatusException(BAD_REQUEST, "No puedes borrar la única pestaña de la campaña");
+		}
+
+		// 1. Puntos de los dibujos de esta pestaña
+		List<Dibujo> dibujos = dibujoRepository.findByCapaPestañaIdOrderByIdAsc(pestañaId);
+		List<Long> dibujoIds = dibujos.stream().map(Dibujo::getId).toList();
+		if (!dibujoIds.isEmpty()) {
+			puntoRepository.deleteByDibujoIdIn(dibujoIds);
+		}
+
+		// 2. Dibujos
+		dibujoRepository.deleteAll(dibujos);
+
+		// 3. Posiciones
+		posicionRepository.deleteAll(posicionRepository.findByCapaPestañaIdOrderByIdAsc(pestañaId));
+
+		// 4. Capas
+		capaRepository.deleteAll(capaRepository.findByPestañaIdOrderByNivelDeCapaAsc(pestañaId));
+
+		// 5. Pestaña
+		pestañaRepository.delete(pestaña);
 	}
 
 	private Pestaña crearPestañaPorDefecto(Long campañaId) {

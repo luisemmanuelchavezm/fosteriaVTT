@@ -13,10 +13,16 @@ import com.fosteriaVTT.fosteriaVTT_backend.Jugador.Jugador;
 import com.fosteriaVTT.fosteriaVTT_backend.Jugador.JugadorRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Mapa.Mapa;
 import com.fosteriaVTT.fosteriaVTT_backend.Mapa.MapaRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Estadistica.Estadistica;
+import com.fosteriaVTT.fosteriaVTT_backend.Estadistica.EstadisticaRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Mochila.Mochila;
+import com.fosteriaVTT.fosteriaVTT_backend.Mochila.MochilaRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Objeto.Objeto;
 import com.fosteriaVTT.fosteriaVTT_backend.Objeto.ObjetoRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Objeto.TipoObjeto;
+import com.fosteriaVTT.fosteriaVTT_backend.Personaje.Personaje;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.PersonajeRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Personaje.PersonajeService;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterCreationUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.Pestaña.Pestaña;
 import com.fosteriaVTT.fosteriaVTT_backend.Pestaña.PestañaRepository;
@@ -1136,6 +1142,165 @@ public class DevelopmentDataSeeder {
     };
     }
 
+    @Bean
+    @Order(6)
+    CommandLineRunner seedSistemaAndLaBestia(
+            UserRepository userRepository,
+            PersonajeRepository personajeRepository,
+            EstadisticaRepository estadisticaRepository,
+            HabilidadRepository habilidadRepository,
+            ObjetoRepository objetoRepository,
+            MochilaRepository mochilaRepository,
+            PasswordEncoder passwordEncoder
+    ) {
+        return args -> {
+            Usuario sistema = userRepository.findByUsername("sistema")
+                .orElseGet(() -> userRepository.save(buildUser(
+                    "sistema",
+                    "sistema@fosteria.vtt",
+                    passwordEncoder.encode("Sistema2024!"),
+                    null
+                )));
+
+            boolean laBestiaExists = personajeRepository
+                .findByUsuarioUsernameOrderByUsadoDesc("sistema").stream()
+                .anyMatch(p -> p.getNombre().equalsIgnoreCase("La Bestia"));
+
+            if (!laBestiaExists) {
+                String biografia =
+                    "Aberración feérica grande, Neutral Malvada\n\n" +
+                    "Una presencia ancestral que acecha los bosques perdidos entre la desesperación y el olvido. " +
+                    "La Bestia rara vez se muestra por completo: adopta formas imposibles hechas de ramas, sombras, " +
+                    "cuernos y rostros apenas visibles entre la oscuridad. Su verdadera fuerza no reside en el combate " +
+                    "físico, sino en quebrar lentamente la voluntad de los viajeros hasta convertirlos en árboles de " +
+                    "Edelwood para alimentar su linterna eterna.";
+
+                Personaje laBestia = personajeRepository.save(Personaje.builder()
+                    .nombre("La Bestia")
+                    .tags("enemigo,vd;8 (3.900 PX)")
+                    .sistemaDeJuego(SistemaDeJuego.DND)
+                    .retrato("https://res.cloudinary.com/doxqtmi46/image/upload/v1778970458/la_bestia_jfv00t.jpg")
+                    .biografia(biografia)
+                    .esPublico(true)
+                    .usuario(sistema)
+                    .build());
+
+                // ── Estadísticas ──────────────────────────────────────────────
+                estadisticaRepository.saveAll(List.of(
+                    Estadistica.builder().nombre("Fuerza").valor(18).personaje(laBestia).build(),
+                    Estadistica.builder().nombre("Destreza").valor(18).personaje(laBestia).build(),
+                    Estadistica.builder().nombre("Constitucion").valor(16).personaje(laBestia).build(),
+                    Estadistica.builder().nombre("Inteligencia").valor(14).personaje(laBestia).build(),
+                    Estadistica.builder().nombre("Sabiduria").valor(17).personaje(laBestia).build(),
+                    Estadistica.builder().nombre("Carisma").valor(20).personaje(laBestia).build(),
+                    Estadistica.builder().nombre("CA").valor(17).personaje(laBestia).build(),
+                    Estadistica.builder().nombre("Puntos de vida").valor(136).personaje(laBestia).build(),
+                    Estadistica.builder().nombre("Vida actual").valor(136).personaje(laBestia).build(),
+                    Estadistica.builder().nombre("Vida temporal").valor(0).personaje(laBestia).build(),
+                    Estadistica.builder().nombre("Movimiento").valor(40).personaje(laBestia).build(),
+                    Estadistica.builder().nombre("Iniciativa").valor(4).personaje(laBestia).build(),
+                    Estadistica.builder().nombre("Engano").valor(8).personaje(laBestia).build(),
+                    Estadistica.builder().nombre("Intimidacion").valor(8).personaje(laBestia).build(),
+                    Estadistica.builder().nombre("Percepcion").valor(6).personaje(laBestia).build(),
+                    Estadistica.builder().nombre("Sigilo").valor(7).personaje(laBestia).build()
+                ));
+
+                // ── Pasivas ───────────────────────────────────────────────────
+                List<Habilidad> pasivas = habilidadRepository.saveAll(List.of(
+                    buildSkill("Inmunidad a estados", null, null,
+                        "Asustado, hechizado.",
+                        "NPC,PASIVA"),
+                    buildSkill("Resistencias al daño", null, null,
+                        "Frío, necrótico; daño contundente, cortante y perforante de ataques no mágicos.",
+                        "NPC,PASIVA"),
+                    buildSkill("Sentidos", null, null,
+                        "Visión en la oscuridad 120 pies, Percepción pasiva 16.",
+                        "NPC,PASIVA"),
+                    buildSkill("Presencia Devoradora", null, null,
+                        "Las criaturas a 30 pies de La Bestia tienen desventaja en tiradas de salvación contra miedo. " +
+                        "Las llamas no mágicas dentro de ese rango se atenúan o se extinguen.",
+                        "NPC,PASIVA"),
+                    buildSkill("Amo del Bosque Perdido", null, null,
+                        "Mientras esté en bosques o zonas oscuras, La Bestia puede intentar esconderse incluso " +
+                        "estando parcialmente visible.",
+                        "NPC,PASIVA"),
+                    buildSkill("Susurros de Desesperación", null, null,
+                        "Al inicio de cada turno de una criatura que pueda oír a La Bestia, esta debe superar una " +
+                        "salvación de Sabiduría CD 16 o sufrir desventaja en su siguiente tirada de ataque.",
+                        "NPC,PASIVA"),
+                    buildSkill("Forma Incierta", null, null,
+                        "La Bestia puede atravesar criaturas y objetos como si fueran terreno difícil. " +
+                        "Recibe (1d10) de daño de fuerza si termina su turno dentro de un objeto.",
+                        "NPC,PASIVA")
+                ));
+
+                // ── Armas (Objetos) — crear primero para obtener IDs ─────────
+                Objeto garras = objetoRepository.save(Objeto.builder()
+                    .nombre("Garras de Edelwood")
+                    .indice("BONO_ATAQUE=7")
+                    .formula("2d10 + 4 + 2d6")
+                    .descripcion("Garras primigenias de madera Edelwood que desgarran la carne y el alma.")
+                    .tipoObjeto(TipoObjeto.ARMA)
+                    .build());
+
+                Objeto consumirEsperanzaObj = objetoRepository.save(Objeto.builder()
+                    .nombre("Consumir Esperanza")
+                    .indice("BONO_ATAQUE=7")
+                    .formula("6d6")
+                    .descripcion("La Bestia drena la esperanza de una criatura asustada o inconsciente, causando daño psíquico y recuperando vida.")
+                    .tipoObjeto(TipoObjeto.ARMA)
+                    .build());
+
+                // ── Acciones ──────────────────────────────────────────────────
+                // Los ataques con arma llevan "DND,ARMA,OBJETO,{id}" en sus tags
+                // para que el sistema pueda extraer el bono de ataque del arma equipada.
+                List<Habilidad> acciones = habilidadRepository.saveAll(List.of(
+                    buildSkill("Garras de Edelwood", null, "2d10 + 4 + 2d6",
+                        "Ataque de arma cuerpo a cuerpo: +7 al ataque, alcance 10 pies, un objetivo.\n" +
+                        "Impacto: (2d10 + 4) puntos de daño cortante más (2d6) de daño necrótico.",
+                        "NPC,ACCION,DND,ARMA,OBJETO," + garras.getId()),
+                    buildSkill("Mirada del Extraviado (Recarga 5)", null, null,
+                        "La Bestia fija sus innumerables ojos sobre una criatura a 60 pies.\n\n" +
+                        "El objetivo debe realizar una tirada de salvación de Sabiduría CD 16.\n\n" +
+                        "- Si falla, queda asustado durante 1 minuto.\n" +
+                        "- Mientras esté asustado de esta manera, la criatura cree escuchar voces de seres queridos " +
+                        "o promesas de descanso.\n" +
+                        "- Puede repetir la salvación al final de cada turno.",
+                        "NPC,ACCION"),
+                    buildSkill("Consumir Esperanza", null, "6d6",
+                        "La Bestia elige una criatura asustada o inconsciente a 5 pies.\n\n" +
+                        "El objetivo recibe (6d6) de daño psíquico y La Bestia recupera una cantidad de puntos " +
+                        "de golpe igual al daño causado.",
+                        "NPC,ACCION,DND,ARMA,OBJETO," + consumirEsperanzaObj.getId()),
+                    buildSkill("Deslizarse entre Sombras (acción adicional)", null, null,
+                        "La Bestia se teletransporta hasta 30 pies a un espacio en penumbra u oscuridad que pueda ver.",
+                        "NPC,ACCION")
+                ));
+
+                // ── Idiomas ───────────────────────────────────────────────────
+                List<Habilidad> idiomasBestia = habilidadRepository.saveAll(List.of(
+                    buildSkill("Idioma: Común", null, null, null, "NPC,IDIOMA"),
+                    buildSkill("Idioma: Silvano", null, null, null, "NPC,IDIOMA"),
+                    buildSkill("Idioma: Telepatía 120 pies", null, null, null, "NPC,IDIOMA")
+                ));
+
+                // ── Vincular habilidades al personaje ─────────────────────────
+                List<Habilidad> todasHabilidades = new ArrayList<>();
+                todasHabilidades.addAll(pasivas);
+                todasHabilidades.addAll(acciones);
+                todasHabilidades.addAll(idiomasBestia);
+                laBestia.getHabilidades().addAll(todasHabilidades);
+                personajeRepository.save(laBestia);
+
+                // ── Mochila ───────────────────────────────────────────────────
+                mochilaRepository.saveAll(List.of(
+                    Mochila.builder().objeto(garras).personaje(laBestia).cantidad(1).equipado(true).build(),
+                    Mochila.builder().objeto(consumirEsperanzaObj).personaje(laBestia).cantidad(1).equipado(true).build()
+                ));
+            }
+        };
+    }
+
     private void seedMapIfMissing(MapaRepository mapaRepository, String nombre, String url, boolean esPublico, String tags, Usuario usuario) {
         boolean exists = mapaRepository.findAll().stream()
             .anyMatch(m -> m.getNombre().equals(nombre) && m.getUsuario().getId().equals(usuario.getId()));
@@ -1646,6 +1811,33 @@ public class DevelopmentDataSeeder {
             String descripcion,
             String tags
     ) {}
+
+    @Bean
+    @Order(7)
+    CommandLineRunner syncWeaponAttacksPostSeeder(
+            PersonajeRepository personajeRepository,
+            ObjetoRepository objetoRepository,
+            PersonajeService personajeService
+    ) {
+        return args -> {
+            // Ensure the Bastón object is type ARMA (may have been created as MISCELANEO
+            // during character seeding if the equipment catalog hadn't been seeded yet).
+            objetoRepository.findByNombreIgnoreCaseOrderByIdAsc("Baston").stream()
+                .findFirst()
+                .ifPresent(baston -> {
+                    if (baston.getTipoObjeto() != TipoObjeto.ARMA) {
+                        baston.setTipoObjeto(TipoObjeto.ARMA);
+                        objetoRepository.save(baston);
+                    }
+                });
+
+            // Re-sync weapon attacks for Iria Vael now that the Bastón is ARMA.
+            personajeRepository.findByUsuarioUsernameOrderByUsadoDesc("sai").stream()
+                .filter(p -> p.getNombre().equalsIgnoreCase("Iria Vael"))
+                .findFirst()
+                .ifPresent(iria -> personajeService.sincronizarAtaquesArmaPorId(iria.getId()));
+        };
+    }
 
     private Objeto buildInitialObject(
             String indice,

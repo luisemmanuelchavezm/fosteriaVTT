@@ -1,5 +1,7 @@
 package com.fosteriaVTT.fosteriaVTT_backend.Personaje;
 
+import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarArmaHabilidadNpcRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarNpcRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarRecursosPersonajeRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarHojaPersonajeRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarExperienciaPersonajeRequest;
@@ -125,6 +127,15 @@ return personajeService.actualizarExperiencia(id, request, authentication.getNam
 return personajeService.actualizarHojaPersonaje(id, request, authentication.getName());
     }
 
+    @PatchMapping("/{id}/npc")
+    public PersonajeDetalleResponse actualizarNpc(
+            @PathVariable Long id,
+            @RequestBody ActualizarNpcRequest request,
+            Authentication authentication
+    ) {
+        return personajeService.actualizarNpc(id, request, authentication.getName());
+    }
+
     @PatchMapping("/{id}/mochila/{itemId}")
     public PersonajeDetalleResponse actualizarItemMochila(
             @PathVariable Long id,
@@ -189,6 +200,25 @@ personajeService.agregarHabilidadNpc(id, request, authentication.getName());
 return personajeService.agregarHabilidad(id, request, authentication.getName());
     }
 
+    @PatchMapping("/{id}/habilidades/npc/{habilidadId}")
+    public PersonajeDetalleResponse actualizarArmaHabilidadNpc(
+            @PathVariable Long id,
+            @PathVariable Long habilidadId,
+            @RequestBody ActualizarArmaHabilidadNpcRequest request,
+            Authentication authentication
+    ) {
+        return personajeService.actualizarArmaHabilidadNpc(id, habilidadId, request, authentication.getName());
+    }
+
+    @PatchMapping(value = "/{id}/retrato", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public PersonajeDetalleResponse actualizarRetrato(
+            @PathVariable Long id,
+            @RequestPart("portrait") MultipartFile portrait,
+            Authentication authentication
+    ) {
+        return personajeService.actualizarRetratoPersonaje(id, portrait, authentication.getName());
+    }
+
     @DeleteMapping("/{id}/habilidades/{habilidadId}")
     public PersonajeDetalleResponse eliminarHabilidad(
             @PathVariable Long id,
@@ -196,6 +226,39 @@ return personajeService.agregarHabilidad(id, request, authentication.getName());
             Authentication authentication
     ) {
 return personajeService.eliminarHabilidad(id, habilidadId, authentication.getName());
+    }
+
+    @PostMapping("/{id}/guardar")
+    public PersonajeResumenResponse guardarPersonaje(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
+        }
+        return personajeService.guardarPersonaje(id, authentication.getName());
+    }
+
+    @PostMapping("/{id}/publicar")
+    public PersonajeResumenResponse publicarPersonaje(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
+        }
+        return personajeService.publicarPersonaje(id, authentication.getName());
+    }
+
+    @PostMapping("/{id}/instanciar")
+    public PersonajeResumenResponse instanciarPersonaje(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
+        }
+        return personajeService.instanciarPersonaje(id, authentication.getName());
     }
 
     @DeleteMapping("/{id}")

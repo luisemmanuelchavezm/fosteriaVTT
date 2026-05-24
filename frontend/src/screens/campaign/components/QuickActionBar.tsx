@@ -427,9 +427,17 @@ export default function QuickActionBar({
     if (!diceRoller.summary) return;
     if (diceRoller.summary.id === lastSeenSummaryIdRef.current) return;
     lastSeenSummaryIdRef.current = diceRoller.summary.id;
-    const { title, diceValues, modifier, total } = diceRoller.summary;
+    const { title, expression, diceValues, modifier, total } =
+      diceRoller.summary;
     onRollResultRef.current?.(
-      serializeRollMessage(title, diceValues, modifier, total),
+      serializeRollMessage(
+        title,
+        diceValues,
+        modifier,
+        total,
+        undefined,
+        expression,
+      ),
     );
   }, [diceRoller.summary]);
 
@@ -536,6 +544,30 @@ export default function QuickActionBar({
 
   const weaponOptions = useMemo(() => getWeaponOptions(detail), [detail]);
 
+  // Keep track of the selected weapon's name so we can re-anchor after a
+  // clone-on-edit gives the weapon a new database ID.
+  const selectedWeaponNameRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (selectedWeaponId === null) {
+      selectedWeaponNameRef.current = null;
+      return;
+    }
+    const found = weaponOptions.find((w) => w.id === selectedWeaponId);
+    if (found) {
+      // ID still valid — keep name in sync
+      selectedWeaponNameRef.current = found.name;
+    } else if (selectedWeaponNameRef.current !== null) {
+      // ID disappeared (clone created a new ID) — try to match by name
+      const byName = weaponOptions.find(
+        (w) => w.name === selectedWeaponNameRef.current,
+      );
+      setSelectedWeaponId(byName ? byName.id : null);
+      selectedWeaponNameRef.current = byName ? byName.name : null;
+    } else {
+      setSelectedWeaponId(null);
+    }
+  }, [weaponOptions, selectedWeaponId]);
+
   const selectedWeapon = useMemo(
     () =>
       weaponOptions.find((weapon) => weapon.id === selectedWeaponId) ?? null,
@@ -573,6 +605,12 @@ export default function QuickActionBar({
               advantageTimeoutRef.current = null;
             }, 5000);
             const used = Math.max(die1, die2);
+            const advExpr =
+              attackModifier === 0
+                ? "1d20"
+                : attackModifier > 0
+                  ? `1d20 + ${attackModifier}`
+                  : `1d20 - ${Math.abs(attackModifier)}`;
             onRollResultRef.current?.(
               serializeRollMessage(
                 `${selectedWeapon.name} · Con ventaja`,
@@ -580,6 +618,7 @@ export default function QuickActionBar({
                 attackModifier,
                 die1 + attackModifier,
                 die1 < used,
+                advExpr,
               ),
             );
             onRollResultRef.current?.(
@@ -589,6 +628,7 @@ export default function QuickActionBar({
                 attackModifier,
                 die2 + attackModifier,
                 die2 < used,
+                advExpr,
               ),
             );
           });
@@ -626,6 +666,12 @@ export default function QuickActionBar({
               advantageTimeoutRef.current = null;
             }, 5000);
             const used = Math.min(die1, die2);
+            const disExpr =
+              attackModifier === 0
+                ? "1d20"
+                : attackModifier > 0
+                  ? `1d20 + ${attackModifier}`
+                  : `1d20 - ${Math.abs(attackModifier)}`;
             onRollResultRef.current?.(
               serializeRollMessage(
                 `${selectedWeapon.name} · Con desventaja`,
@@ -633,6 +679,7 @@ export default function QuickActionBar({
                 attackModifier,
                 die1 + attackModifier,
                 die1 > used,
+                disExpr,
               ),
             );
             onRollResultRef.current?.(
@@ -642,6 +689,7 @@ export default function QuickActionBar({
                 attackModifier,
                 die2 + attackModifier,
                 die2 > used,
+                disExpr,
               ),
             );
           });
@@ -839,6 +887,7 @@ export default function QuickActionBar({
                 <ActionButton
                   action={action}
                   onClick={() => {
+                    setSelectedWeaponId(null);
                     setActiveAction((current) =>
                       current === "ataque" ? null : "ataque",
                     );

@@ -11,5 +11,6 @@ public record ExploredAreaEntry(
         double angle,
         double length,
         double width,
-        double height
+        double height,
+        double tokenSize
 ) {}

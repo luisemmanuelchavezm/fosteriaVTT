@@ -8,6 +8,9 @@ public record PersonajeResumenResponse(
         String retrato,
         String sistemaDeJuego,
         LocalDateTime usado,
-        String tipo
+        String tipo,
+        boolean esPublico,
+        boolean estaPublicado,
+        boolean esGuardado
 ) {
 }

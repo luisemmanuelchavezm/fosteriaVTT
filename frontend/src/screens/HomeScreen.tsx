@@ -176,14 +176,13 @@ export default function HomeScreen({
       onGoHome?.();
       return;
     }
-
     if (tab === "campaigns") {
       onGoCampaigns?.();
       return;
     }
-
     if (tab === "characters") {
       onGoCharacters?.();
+      return;
     }
   };
 

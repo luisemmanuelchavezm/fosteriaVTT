@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Check, X } from "lucide-react";
+import { Check, Trash2, X } from "lucide-react";
 import { buildApiUrl } from "../../../lib/api";
 
 interface PestañaCard {
@@ -53,6 +53,14 @@ export default function PestañaSwitcherPanel({
     new Set(),
   );
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Estado del modal de borrado
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: number;
+    nombre: string;
+  } | null>(null);
+  const [deleteInput, setDeleteInput] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchPestañas = () => {
     const token = localStorage.getItem("jwtToken");
@@ -172,6 +180,33 @@ export default function PestañaSwitcherPanel({
     resetDropdown();
   };
 
+  const handleDeletePestaña = async () => {
+    if (!deleteTarget || deleteInput.trim() !== "borrar" || isDeleting) return;
+    const token = localStorage.getItem("jwtToken");
+    if (!token) return;
+    setIsDeleting(true);
+    try {
+      // Mover a todos los jugadores a la pestaña activa antes de borrar,
+      // para que nadie se quede viendo una pestaña que ya no existe.
+      if (currentPestañaId !== null) {
+        onForzarTodos(currentPestañaId);
+      }
+
+      const res = await fetch(
+        buildApiUrl(`/api/campanas/${campaignId}/pestanas/${deleteTarget.id}`),
+        { method: "DELETE", headers: { Authorization: `Bearer ${token}` } },
+      );
+      if (!res.ok) return;
+      setPestañas((prev) => prev.filter((p) => p.id !== deleteTarget.id));
+      setDeleteTarget(null);
+      setDeleteInput("");
+    } catch {
+      // ignore
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <>
       {/* Main panel strip */}
@@ -214,7 +249,33 @@ export default function PestañaSwitcherPanel({
                           : "border-white/10 hover:border-white/30"
                     }`}
                   >
-                    <div className="relative h-24 w-full overflow-hidden bg-stone-900">
+                    {/* Botón papelera — solo DM y solo en pestañas NO activas */}
+                    {isDM && !isCurrent && (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        title="Borrar pestaña"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          resetDropdown();
+                          setDeleteTarget({ id: p.id, nombre: p.nombre });
+                          setDeleteInput("");
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.stopPropagation();
+                            resetDropdown();
+                            setDeleteTarget({ id: p.id, nombre: p.nombre });
+                            setDeleteInput("");
+                          }
+                        }}
+                        className="absolute right-1.5 top-1.5 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-red-500/60 bg-black/80 text-red-400 shadow-md transition hover:border-red-400 hover:bg-red-950 hover:text-red-300"
+                      >
+                        <Trash2 size={11} />
+                      </span>
+                    )}
+
+                    <div className="relative h-24 w-full overflow-hidden rounded-t-xl bg-stone-900">
                       {p.mapaCapaUrl ? (
                         <img
                           src={p.mapaCapaUrl}
@@ -392,6 +453,92 @@ export default function PestañaSwitcherPanel({
               </button>
             </>
           )}
+        </div>
+      )}
+
+      {/* Modal de confirmación de borrado */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) {
+              setDeleteTarget(null);
+              setDeleteInput("");
+            }
+          }}
+        >
+          <div className="w-[min(420px,92vw)] rounded-2xl border border-white/15 bg-[rgba(14,14,14,0.97)] p-6 shadow-2xl">
+            {/* Cabecera */}
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-950 text-red-400">
+                <Trash2 size={18} />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-white">
+                  ¿Borrar esta pestaña?
+                </p>
+                <p className="mt-0.5 text-xs text-white/50">
+                  Se eliminarán todos los tokens, dibujos y datos asociados a{" "}
+                  <span className="font-semibold text-white/80">
+                    {deleteTarget.nombre}
+                  </span>
+                  . Esta acción no se puede deshacer.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteTarget(null);
+                  setDeleteInput("");
+                }}
+                className="shrink-0 text-white/40 transition hover:text-white/70"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Input de confirmación */}
+            <label className="flex flex-col gap-1.5">
+              <span className="text-xs text-white/50">
+                Escribe{" "}
+                <span className="font-mono font-bold text-red-400">borrar</span>{" "}
+                para confirmar
+              </span>
+              <input
+                type="text"
+                autoFocus
+                value={deleteInput}
+                onChange={(e) => setDeleteInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") void handleDeletePestaña();
+                }}
+                placeholder="borrar"
+                className="rounded-lg border border-white/15 bg-black/50 px-3 py-2 text-sm text-white placeholder-white/20 outline-none focus:border-red-500/60"
+              />
+            </label>
+
+            {/* Botones */}
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteTarget(null);
+                  setDeleteInput("");
+                }}
+                className="flex-1 rounded-lg border border-white/15 py-2 text-xs font-semibold text-white/60 transition hover:bg-white/10"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleDeletePestaña()}
+                disabled={deleteInput.trim() !== "borrar" || isDeleting}
+                className="flex-1 rounded-lg bg-red-700 py-2 text-xs font-bold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-35"
+              >
+                {isDeleting ? "Borrando…" : "Borrar pestaña"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </>

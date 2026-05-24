@@ -12,6 +12,7 @@ import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterCreati
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterLevelUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterStatsUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCombatUtils;
+import com.fosteriaVTT.fosteriaVTT_backend.Chat.ChatRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Posicion.PosicionRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Usuario.Rol;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -97,6 +98,9 @@ class PersonajeServiceTest {
 
     @Mock
     private PosicionRepository posicionRepository;
+
+    @Mock
+    private ChatRepository chatRepository;
 
     @Mock
     private SimpMessagingTemplate messagingTemplate;
@@ -214,7 +218,7 @@ class PersonajeServiceTest {
             Map.of(),
             Map.of()
         );
-        PersonajeResumenResponse response = new PersonajeResumenResponse(1L, "Aria", "cloud", "Dungeons and Dragons", LocalDateTime.now(), "personaje");
+        PersonajeResumenResponse response = new PersonajeResumenResponse(1L, "Aria", "cloud", "Dungeons and Dragons", LocalDateTime.now(), "personaje", false, false, false);
 
         when(cloudinaryService.uploadFile(portrait)).thenReturn("cloud");
         when(dndCharacterCreationUtils.crearPersonajeDnd(request, "cloud", "daria")).thenReturn(response);

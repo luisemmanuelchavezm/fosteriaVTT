@@ -1,13 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
 import type Konva from "konva";
 import {
-  ArrowLeftRight,
   Archive,
   BookOpen,
   Cloud,
   Map,
   Move,
-  MousePointer2,
   Pencil,
   Ruler,
   Settings,
@@ -109,11 +107,13 @@ interface CharacterDropPayload {
   id: number;
   nombre: string;
   retrato?: string;
+  tipo?: string;
+  source?: string;
 }
 
 const CHARACTER_DRAG_MIME = "application/x-fosteria-character";
 
-const CELL_PX = 70;
+const CELL_SIZE = 70; // px fijos por celda
 type LayerSelection = "fichas" | "mapa" | "dm";
 
 type VisionShape = {
@@ -127,6 +127,9 @@ type VisionShape = {
 };
 
 // No save/restore/translate/rotate — all coords computed directly (fast in tight loops)
+// halfSize: half of the token's size in grid cells (0.5 for 1×1, 1.5 for 3×3, etc.)
+// Vision center is placed at the token center, and all radii/distances are extended by halfSize
+// so that the stated vision distance is measured from the token's outer edge, not its center.
 function addVisionShapeToPath(
   ctx: CanvasRenderingContext2D,
   arcType: string,
@@ -135,24 +138,37 @@ function addVisionShapeToPath(
   posicionY: number,
   grid: { rectX: number; rectY: number },
   cellPx: number,
+  halfSize: number = 0.5,
 ) {
-  const cx = grid.rectX + (posicionX + 0.5) * cellPx;
-  const cy = grid.rectY + (posicionY + 0.5) * cellPx;
+  const cx = grid.rectX + (posicionX + halfSize) * cellPx;
+  const cy = grid.rectY + (posicionY + halfSize) * cellPx;
   const rot = (shape.rotation * Math.PI) / 180;
 
   if (arcType === "semicircle") {
     const halfAp = ((shape.apertura / 2) * Math.PI) / 180;
     ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, shape.radius * cellPx, rot - halfAp, rot + halfAp);
+    ctx.arc(
+      cx,
+      cy,
+      (shape.radius + halfSize) * cellPx,
+      rot - halfAp,
+      rot + halfAp,
+    );
     ctx.closePath();
   } else if (arcType === "cone") {
     const halfA = ((shape.angle / 2) * Math.PI) / 180;
     ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, shape.length * cellPx, rot - halfA, rot + halfA);
+    ctx.arc(
+      cx,
+      cy,
+      (shape.length + halfSize) * cellPx,
+      rot - halfA,
+      rot + halfA,
+    );
     ctx.closePath();
   } else if (arcType === "rectangle") {
-    const hw = (shape.width / 2) * cellPx;
-    const h = shape.height * cellPx;
+    const hw = (shape.width / 2 + halfSize) * cellPx;
+    const h = (shape.height + halfSize) * cellPx;
     const cosR = Math.cos(rot);
     const sinR = Math.sin(rot);
     // Rotate corners around (cx, cy) without modifying ctx transform
@@ -172,9 +188,19 @@ function drawVisionShape(
   posicionY: number,
   grid: { rectX: number; rectY: number },
   cellPx: number,
+  halfSize: number = 0.5,
 ) {
   ctx.beginPath();
-  addVisionShapeToPath(ctx, arcType, shape, posicionX, posicionY, grid, cellPx);
+  addVisionShapeToPath(
+    ctx,
+    arcType,
+    shape,
+    posicionX,
+    posicionY,
+    grid,
+    cellPx,
+    halfSize,
+  );
   ctx.fill();
 }
 type ToolSelection =
@@ -250,6 +276,9 @@ export default function CampaignPestañaScreen({
   const [selectedPositionId, setSelectedPositionId] = useState<number | null>(
     null,
   );
+  const [resizingPositionId, setResizingPositionId] = useState<number | null>(
+    null,
+  );
   const [modalCharacterId, setModalCharacterId] = useState<number | null>(null);
   const [iniciativaEstado, setIniciativaEstado] = useState<IniciativaEstado>({
     activa: false,
@@ -274,6 +303,13 @@ export default function CampaignPestañaScreen({
   useEffect(() => {
     pestañaIdRef.current = pestaña?.id ?? null;
   }, [pestaña?.id]);
+
+  // Ref para acceder a la pestaña actual en callbacks sin stale-closure
+  const pestañaRef = useRef(pestaña);
+  useEffect(() => {
+    pestañaRef.current = pestaña;
+  }, [pestaña]);
+
   // Use a ref (not state) for the dragging token so fog updates are frame-synchronous
   const draggingTokenRef = useRef<{
     posicionId: number;
@@ -303,7 +339,43 @@ export default function CampaignPestañaScreen({
     key: string;
   } | null>(null);
   const [isTabSwitcherOpen, setIsTabSwitcherOpen] = useState(false);
+  const [settingsMode, setSettingsMode] = useState<
+    "options" | "gridConfig" | null
+  >(null);
+  const [gridConfigForm, setGridConfigForm] = useState({
+    nCuadriculasX: 20,
+    nCuadriculasY: 20,
+    distanciaCasilla: 5,
+    sistemaMetrico: "ft",
+  });
+  const [isSavingGridConfig, setIsSavingGridConfig] = useState(false);
+  const settingsDropdownRef = useRef<HTMLDivElement>(null);
   const [isRulerSelectorOpen, setIsRulerSelectorOpen] = useState(false);
+
+  useEffect(() => {
+    if (settingsMode === null) return;
+    const handler = (e: MouseEvent) => {
+      if (
+        settingsDropdownRef.current &&
+        !settingsDropdownRef.current.contains(e.target as Node)
+      ) {
+        setSettingsMode(null);
+      }
+    };
+    window.addEventListener("mousedown", handler);
+    return () => window.removeEventListener("mousedown", handler);
+  }, [settingsMode]);
+
+  useEffect(() => {
+    if (settingsMode === "gridConfig" && pestaña) {
+      setGridConfigForm({
+        nCuadriculasX: pestaña.nCuadriculasX,
+        nCuadriculasY: pestaña.nCuadriculasY,
+        distanciaCasilla: pestaña.distanciaCasilla,
+        sistemaMetrico: pestaña.sistemaMetrico,
+      });
+    }
+  }, [settingsMode, pestaña]);
   const [isPencilSelectorOpen, setIsPencilSelectorOpen] = useState(false);
   const stageRef = useRef<Konva.Stage>(null);
   const [stageSize, setStageSize] = useState({
@@ -370,22 +442,35 @@ export default function CampaignPestañaScreen({
   }, [campaignId]);
 
   const grid = useMemo(() => {
-    const cols = Math.max(4, pestaña?.nCuadriculasX ?? 20);
-    const rows = Math.max(4, pestaña?.nCuadriculasY ?? 20);
-    const rectW = cols * CELL_PX;
-    const rectH = rows * CELL_PX;
+    const cols = Math.max(10, Math.min(100, pestaña?.nCuadriculasX ?? 20));
+    const rows = Math.max(10, Math.min(100, pestaña?.nCuadriculasY ?? 20));
+    const cellPx = CELL_SIZE;
+    const cellPxY = CELL_SIZE;
+    const rectW = cols * CELL_SIZE;
+    const rectH = rows * CELL_SIZE;
     const rectX = (stageSize.width - rectW) / 2;
     const rectY = (stageSize.height - rectH) / 2;
     const vLines = Array.from(
       { length: cols + 1 },
-      (_, index) => index * CELL_PX,
+      (_, index) => index * cellPx,
     );
     const hLines = Array.from(
       { length: rows + 1 },
-      (_, index) => index * CELL_PX,
+      (_, index) => index * cellPxY,
     );
 
-    return { cols, rows, rectW, rectH, rectX, rectY, vLines, hLines };
+    return {
+      cols,
+      rows,
+      cellPx,
+      cellPxY,
+      rectW,
+      rectH,
+      rectX,
+      rectY,
+      vLines,
+      hLines,
+    };
   }, [pestaña, stageSize]);
 
   const campaignIdNumber = useMemo(() => {
@@ -444,6 +529,46 @@ export default function CampaignPestañaScreen({
     setNieblaEstado(estado);
   }, []);
 
+  const handlePosicionDeleted = useCallback((posicionId: number) => {
+    setPositions((prev) => prev.filter((p) => p.id !== posicionId));
+  }, []);
+
+  // Guarda la cuadrícula automática (sin pasar por gridConfigForm)
+  const saveAutoGrid = useCallback(
+    async (autoX: number, autoY: number) => {
+      const currentPestaña = pestañaRef.current;
+      if (!currentPestaña?.id) return;
+      const token = localStorage.getItem("jwtToken");
+      if (!token) return;
+      try {
+        const res = await fetch(
+          buildApiUrl(
+            `/api/campanas/${campaignId}/pestana/${currentPestaña.id}/configuracion`,
+          ),
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              nCuadriculasX: autoX,
+              nCuadriculasY: autoY,
+              distanciaCasilla: currentPestaña.distanciaCasilla,
+              sistemaMetrico: currentPestaña.sistemaMetrico,
+            }),
+          },
+        );
+        if (!res.ok) return;
+        const updated = (await res.json()) as CampaignPestañaResponse;
+        setPestaña(updated);
+      } catch {
+        // ignorar
+      }
+    },
+    [campaignId],
+  );
+
   const cambioPestañaImplRef = useRef<
     ((pestanaId: number, jugadores: string[] | null) => void) | null
   >(null);
@@ -458,6 +583,7 @@ export default function CampaignPestañaScreen({
     campaignId: campaignIdNumber,
     pestanaId: pestaña?.id ?? null,
     onPosicionCreated: handlePosicionCreated,
+    onPosicionDeleted: handlePosicionDeleted,
     onMapLayerChanged: handleMapLayerChanged,
     onCharacterUpdated: handleCharacterUpdated,
     onIniciativaChanged: handleIniciativaChanged,
@@ -468,6 +594,7 @@ export default function CampaignPestañaScreen({
   const {
     crearPosicionPorWebSocket,
     moverPosicionPorWebSocket,
+    eliminarPosicionPorWebSocket,
     asignarMapaPorWebSocket,
     drawings,
     sendDrawing,
@@ -561,13 +688,34 @@ export default function CampaignPestañaScreen({
           mapaId,
         });
 
-        // Respuesta optimista local: si la emisión tarda, el usuario ve el cambio al instante.
+        // Respuesta optimista local
         setMapLayerImageUrl(mapaUrl);
+
+        // Calcular cuadrícula automática según la proporción de la imagen nueva
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = mapaUrl;
+        img.onload = () => {
+          const imgW = img.naturalWidth;
+          const imgH = img.naturalHeight;
+          if (imgW <= 0 || imgH <= 0) return;
+          const ratio = imgW / imgH;
+          let autoX: number;
+          let autoY: number;
+          if (ratio >= 1) {
+            autoX = 20;
+            autoY = Math.max(10, Math.min(100, Math.round(20 / ratio)));
+          } else {
+            autoY = 20;
+            autoX = Math.max(10, Math.min(100, Math.round(20 * ratio)));
+          }
+          void saveAutoGrid(autoX, autoY);
+        };
       } catch (error) {
         console.error(error);
       }
     },
-    [asignarMapaPorWebSocket, campaignIdNumber, pestaña?.id],
+    [asignarMapaPorWebSocket, campaignIdNumber, pestaña?.id, saveAutoGrid],
   );
 
   const loadPositions = useCallback(async () => {
@@ -636,6 +784,94 @@ export default function CampaignPestañaScreen({
     }
   };
 
+  const handleSaveGridConfig = async () => {
+    if (!pestaña?.id || isSavingGridConfig) return;
+    const token = localStorage.getItem("jwtToken");
+    if (!token) return;
+    setIsSavingGridConfig(true);
+    try {
+      const res = await fetch(
+        buildApiUrl(
+          `/api/campanas/${campaignId}/pestana/${pestaña.id}/configuracion`,
+        ),
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(gridConfigForm),
+        },
+      );
+      if (!res.ok) return;
+      const updated = (await res.json()) as CampaignPestañaResponse;
+      setPestaña(updated);
+      setSettingsMode(null);
+    } catch {
+      // ignore
+    } finally {
+      setIsSavingGridConfig(false);
+    }
+  };
+
+  const handleAutoGrid = useCallback(() => {
+    if (
+      !mapLayerImage ||
+      mapLayerImage.naturalWidth <= 0 ||
+      mapLayerImage.naturalHeight <= 0
+    )
+      return;
+    const ratio = mapLayerImage.naturalWidth / mapLayerImage.naturalHeight;
+    let autoX: number;
+    let autoY: number;
+    if (ratio >= 1) {
+      autoX = 20;
+      autoY = Math.round(20 / ratio);
+    } else {
+      autoY = 20;
+      autoX = Math.round(20 * ratio);
+    }
+    setGridConfigForm((prev) => ({
+      ...prev,
+      nCuadriculasX: Math.max(10, Math.min(100, autoX)),
+      nCuadriculasY: Math.max(10, Math.min(100, autoY)),
+    }));
+  }, [mapLayerImage]);
+
+  const handleCambiarTamano = useCallback(
+    async (posicionId: number, largo: number, ancho: number) => {
+      const token = localStorage.getItem("jwtToken");
+      if (!token || !campaignIdNumber) return;
+      try {
+        const res = await fetch(
+          buildApiUrl(
+            `/api/campanas/${campaignIdNumber}/posiciones/${posicionId}/tamano`,
+          ),
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ largo, ancho }),
+          },
+        );
+        if (!res.ok) return;
+        const updated = (await res.json()) as CampaignPositionResponse;
+        setPositions((prev) =>
+          prev.map((p) =>
+            p.id === updated.id
+              ? { ...p, largo: updated.largo, ancho: updated.ancho }
+              : p,
+          ),
+        );
+      } catch {
+        // ignore
+      }
+    },
+    [campaignIdNumber],
+  );
+
   const handlePencilCompleteDrawing = useCallback(
     (drawing: {
       pestanaId: number;
@@ -678,7 +914,7 @@ export default function CampaignPestañaScreen({
     enabled: selectedTool === "ruler",
     stageRef,
     grid,
-    cellPx: CELL_PX,
+    cellPx: grid.cellPx,
     unitDistance: pestaña?.distanciaCasilla ?? 5,
     metric: pestaña?.sistemaMetrico ?? "ft",
   });
@@ -803,8 +1039,8 @@ export default function CampaignPestañaScreen({
         return;
       }
 
-      const posicionX = Math.floor(relativeX / CELL_PX);
-      const posicionY = Math.floor(relativeY / CELL_PX);
+      const posicionX = Math.floor(relativeX / grid.cellPx);
+      const posicionY = Math.floor(relativeY / grid.cellPxY);
       if (
         posicionX < 0 ||
         posicionY < 0 ||
@@ -814,11 +1050,36 @@ export default function CampaignPestañaScreen({
         return;
       }
 
+      // Enemies and PNJs (from any source) get a private instance so
+      // modifications don't affect the shared original.
+      const tipo = (payload.tipo ?? "").toLowerCase();
+      const needsInstance =
+        tipo === "enemigo" ||
+        tipo === "pnj" ||
+        payload.source === "marketplace";
+
+      let personajeId = payload.id;
+      if (needsInstance) {
+        const instanciarRes = await fetch(
+          buildApiUrl(`/api/personajes/${payload.id}/instanciar`),
+          {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        if (!instanciarRes.ok) {
+          console.error("No se pudo crear la instancia del personaje");
+          return;
+        }
+        const instance = (await instanciarRes.json()) as { id: number };
+        personajeId = instance.id;
+      }
+
       // Enviar por WebSocket en lugar de REST
       crearPosicionPorWebSocket({
         pestanaId: pestaña.id,
         capa: selectedLayer,
-        personajeId: payload.id,
+        personajeId,
         posicionX,
         posicionY,
       });
@@ -909,6 +1170,7 @@ export default function CampaignPestañaScreen({
         }}
         isTabSwitcherOpen={isTabSwitcherOpen}
         onTabSwitcherToggle={() => setIsTabSwitcherOpen(true)}
+        onBack={onBack}
       />
 
       <QuickActionBar
@@ -961,16 +1223,180 @@ export default function CampaignPestañaScreen({
           campaignId={campaignId}
           onClose={() => handleToolSelection("move")}
           onMapSelect={handleMapSelect}
+          onCharacterClick={(id) => {
+            handleToolSelection("move");
+            setModalCharacterId(id);
+          }}
         />
       ) : !isTabSwitcherOpen ? (
         <div className="absolute left-3.5 top-1/2 z-10 -translate-y-1/2 flex flex-col items-center gap-1 rounded-[12px] border border-white/15 bg-black/50 p-[8px_6px]">
-          <SidebarBtn title="Volver a campaña" onClick={onBack}>
-            <ArrowLeftRight size={18} />
-          </SidebarBtn>
+          <div className="relative" ref={settingsDropdownRef}>
+            <SidebarBtn
+              title="Ajustes"
+              isActive={settingsMode !== null}
+              onClick={() => setSettingsMode((v) => (v ? null : "options"))}
+            >
+              <Settings size={18} />
+            </SidebarBtn>
 
-          <SidebarBtn title="Ajustes">
-            <Settings size={18} />
-          </SidebarBtn>
+            {settingsMode === "options" && (
+              <div className="absolute left-full top-0 z-50 ml-2 w-52 rounded-xl border border-white/15 bg-black/90 p-2 shadow-2xl backdrop-blur-sm">
+                <button
+                  type="button"
+                  onClick={() => setSettingsMode("gridConfig")}
+                  className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-white/80 transition hover:bg-white/10"
+                >
+                  Configuración de casillas
+                </button>
+                <button
+                  type="button"
+                  onClick={onGoHome}
+                  className="w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-red-400 transition hover:bg-red-400/10"
+                >
+                  Salir
+                </button>
+              </div>
+            )}
+
+            {settingsMode === "gridConfig" && (
+              <div className="absolute left-full top-0 z-50 ml-2 w-64 rounded-xl border border-white/15 bg-black/90 p-3.5 shadow-2xl backdrop-blur-sm">
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+                    Casillas
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setSettingsMode("options")}
+                    className="text-[10px] text-white/40 transition hover:text-white/70"
+                  >
+                    ← Volver
+                  </button>
+                </div>
+                <div className="flex flex-col gap-2.5">
+                  <button
+                    type="button"
+                    onClick={handleAutoGrid}
+                    disabled={!mapLayerImage}
+                    title={
+                      !mapLayerImage
+                        ? "Carga un mapa primero"
+                        : "Calcular cuadrícula según la proporción de la imagen"
+                    }
+                    className="w-full rounded-lg border border-amber-400/40 bg-amber-600/15 py-1.5 text-xs font-bold text-amber-300 transition hover:bg-amber-600/30 disabled:cursor-not-allowed disabled:opacity-35"
+                  >
+                    ✦ Automático
+                  </button>
+                  <div className="flex gap-2">
+                    <label className="flex flex-1 flex-col gap-1">
+                      <span className="text-[10px] font-semibold text-white/50">
+                        Columnas
+                      </span>
+                      <input
+                        type="number"
+                        min={10}
+                        max={100}
+                        value={gridConfigForm.nCuadriculasX}
+                        onChange={(e) =>
+                          setGridConfigForm((prev) => ({
+                            ...prev,
+                            nCuadriculasX: Number(e.target.value),
+                          }))
+                        }
+                        onBlur={(e) =>
+                          setGridConfigForm((prev) => ({
+                            ...prev,
+                            nCuadriculasX: Math.max(
+                              10,
+                              Math.min(100, Number(e.target.value) || 10),
+                            ),
+                          }))
+                        }
+                        className="rounded-lg border border-white/15 bg-black/40 px-2 py-1 text-sm text-white outline-none focus:border-amber-400/60"
+                      />
+                    </label>
+                    <label className="flex flex-1 flex-col gap-1">
+                      <span className="text-[10px] font-semibold text-white/50">
+                        Filas
+                      </span>
+                      <input
+                        type="number"
+                        min={10}
+                        max={100}
+                        value={gridConfigForm.nCuadriculasY}
+                        onChange={(e) =>
+                          setGridConfigForm((prev) => ({
+                            ...prev,
+                            nCuadriculasY: Number(e.target.value),
+                          }))
+                        }
+                        onBlur={(e) =>
+                          setGridConfigForm((prev) => ({
+                            ...prev,
+                            nCuadriculasY: Math.max(
+                              10,
+                              Math.min(100, Number(e.target.value) || 10),
+                            ),
+                          }))
+                        }
+                        className="rounded-lg border border-white/15 bg-black/40 px-2 py-1 text-sm text-white outline-none focus:border-amber-400/60"
+                      />
+                    </label>
+                  </div>
+                  <label className="flex flex-col gap-1">
+                    <span className="text-[10px] font-semibold text-white/50">
+                      Distancia por casilla
+                    </span>
+                    <input
+                      type="number"
+                      min={1}
+                      value={gridConfigForm.distanciaCasilla}
+                      onChange={(e) =>
+                        setGridConfigForm((prev) => ({
+                          ...prev,
+                          distanciaCasilla: Number(e.target.value),
+                        }))
+                      }
+                      className="rounded-lg border border-white/15 bg-black/40 px-2 py-1 text-sm text-white outline-none focus:border-amber-400/60"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1">
+                    <span className="text-[10px] font-semibold text-white/50">
+                      Sistema métrico
+                    </span>
+                    <input
+                      type="text"
+                      maxLength={15}
+                      value={gridConfigForm.sistemaMetrico}
+                      onChange={(e) =>
+                        setGridConfigForm((prev) => ({
+                          ...prev,
+                          sistemaMetrico: e.target.value,
+                        }))
+                      }
+                      className="rounded-lg border border-white/15 bg-black/40 px-2 py-1 text-sm text-white outline-none focus:border-amber-400/60"
+                    />
+                  </label>
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSettingsMode(null)}
+                    className="flex-1 rounded-lg border border-white/15 py-1.5 text-xs font-semibold text-white/60 transition hover:bg-white/10"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleSaveGridConfig()}
+                    disabled={isSavingGridConfig}
+                    className="flex-1 rounded-lg bg-amber-600 py-1.5 text-xs font-bold text-white transition hover:bg-amber-500 disabled:opacity-40"
+                  >
+                    {isSavingGridConfig ? "…" : "Guardar"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           <SidebarDivider label="click" />
 
@@ -981,14 +1407,6 @@ export default function CampaignPestañaScreen({
           >
             <Move size={18} />
           </SidebarBtn>
-          <SidebarBtn
-            title="Seleccionar"
-            isActive={selectedTool === "select"}
-            onClick={() => handleToolSelection("select")}
-          >
-            <MousePointer2 size={18} />
-          </SidebarBtn>
-
           <SidebarDivider label="Herramientas" />
 
           <SidebarBtn
@@ -1239,6 +1657,11 @@ export default function CampaignPestañaScreen({
                               (a) => a.id === areaId,
                             );
                             if (!alreadyLocal) {
+                              const tokenSize = Math.max(
+                                1,
+                                position.largo ?? 1,
+                                position.ancho ?? 1,
+                              );
                               localPathRef.current = [
                                 ...localPathRef.current,
                                 {
@@ -1253,6 +1676,7 @@ export default function CampaignPestañaScreen({
                                   length: vc.length,
                                   width: vc.width,
                                   height: vc.height,
+                                  tokenSize,
                                 },
                               ];
                             }
@@ -1283,9 +1707,14 @@ export default function CampaignPestañaScreen({
                       lastDragCellRef.current = null;
                       moverPosicionPorWebSocket(position.id, x, y);
                     }}
-                    onTokenClick={(id) =>
-                      setSelectedPositionId((prev) => (prev === id ? null : id))
-                    }
+                    isResizingMode={resizingPositionId === position.id}
+                    onTokenClick={(id) => {
+                      setSelectedPositionId((prev) =>
+                        prev === id ? null : id,
+                      );
+                      // clicking a token always exits resize mode on whatever was resizing
+                      setResizingPositionId(null);
+                    }}
                     onRightMouseDown={(id, tcx, tcy, sx, sy) => {
                       rotationDragRef.current = {
                         posicionId: id,
@@ -1296,6 +1725,18 @@ export default function CampaignPestañaScreen({
                         hasMoved: false,
                       };
                     }}
+                    onResizeEnd={
+                      isDM
+                        ? (posicionId, newSize) => {
+                            void handleCambiarTamano(
+                              posicionId,
+                              newSize,
+                              newSize,
+                            );
+                            setResizingPositionId(null);
+                          }
+                        : undefined
+                    }
                   />
                 );
               })}
@@ -1373,7 +1814,8 @@ export default function CampaignPestañaScreen({
                             area.posicionX,
                             area.posicionY,
                             grid,
-                            CELL_PX,
+                            grid.cellPx,
+                            (area.tokenSize ?? 1) / 2,
                           );
                         }
                         offCtx.fillStyle = "#000";
@@ -1402,7 +1844,8 @@ export default function CampaignPestañaScreen({
                           area.posicionX,
                           area.posicionY,
                           grid,
-                          CELL_PX,
+                          grid.cellPx,
+                          (area.tokenSize ?? 1) / 2,
                         );
                       }
                       ctx.globalAlpha = 0.25;
@@ -1431,13 +1874,33 @@ export default function CampaignPestañaScreen({
                         ?.posicionY ??
                       null;
                     if (posX === null || posY === null) continue;
-                    // Always reveal the token body so it's never swallowed by fog
-                    const tcx = grid.rectX + (posX + 0.5) * CELL_PX;
-                    const tcy = grid.rectY + (posY + 0.5) * CELL_PX;
+                    // Compute token center using its actual grid size
+                    const tokenPos = positions.find(
+                      (p) => p.id === vc.posicionId,
+                    );
+                    const tokenSize = Math.max(
+                      1,
+                      tokenPos?.largo ?? 1,
+                      tokenPos?.ancho ?? 1,
+                    );
+                    const halfSize = tokenSize / 2;
+                    // Always reveal the full token body so it's never swallowed by fog.
+                    // Radius covers the diagonal of the token square (× √2) so corners aren't clipped.
+                    const tcx = grid.rectX + (posX + halfSize) * grid.cellPx;
+                    const tcy = grid.rectY + (posY + halfSize) * grid.cellPxY;
                     ctx.beginPath();
-                    ctx.arc(tcx, tcy, CELL_PX / 2 + 2, 0, Math.PI * 2);
+                    ctx.arc(
+                      tcx,
+                      tcy,
+                      halfSize *
+                        Math.min(grid.cellPx, grid.cellPxY) *
+                        Math.SQRT2 +
+                        2,
+                      0,
+                      Math.PI * 2,
+                    );
                     ctx.fill();
-                    // Directional vision shape extends from the token's outer edge
+                    // Directional vision shape extends beyond the token's outer edge
                     drawVisionShape(
                       ctx,
                       vc.arcType,
@@ -1445,7 +1908,8 @@ export default function CampaignPestañaScreen({
                       posX,
                       posY,
                       grid,
-                      CELL_PX,
+                      grid.cellPx,
+                      halfSize,
                     );
                   }
 
@@ -1474,6 +1938,10 @@ export default function CampaignPestañaScreen({
               (vc) => vc.posicionId === contextMenu.posicionId,
             ) ?? null
           }
+          onStartResize={(posicionId) => {
+            setResizingPositionId(posicionId);
+            setSelectedPositionId(posicionId);
+          }}
           onCambiarCapa={(posicionId, capa) =>
             cambiarCapaToken(posicionId, capa)
           }
@@ -1498,6 +1966,10 @@ export default function CampaignPestañaScreen({
             configurarVisionToken(updated);
           }}
           onOpenVisionArc={(posicionId) => setVisionArcTarget(posicionId)}
+          onEliminar={(posicionId) => {
+            eliminarPosicionPorWebSocket(posicionId);
+            setContextMenu(null);
+          }}
           onClose={() => setContextMenu(null)}
         />
       )}

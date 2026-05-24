@@ -1,9 +1,7 @@
 package com.fosteriaVTT.fosteriaVTT_backend.dto;
 
-public record AgregarHabilidadNpcRequest(
+public record ActualizarArmaHabilidadNpcRequest(
         String nombre,
-        String descripcion,
-        String tags,
         String formula,
         Integer bonificacion
 ) {

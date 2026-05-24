@@ -2,10 +2,14 @@ package com.fosteriaVTT.fosteriaVTT_backend.Pestaña;
 
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PestañaCampañaResponse;
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -51,5 +55,25 @@ public class PestañaController {
             Authentication authentication
     ) {
         return pestañaService.abrirPestañaEspecifica(campaniaId, pestanaId, authentication.getName());
+    }
+
+    @PatchMapping("/pestana/{pestanaId}/configuracion")
+    public PestañaCampañaResponse actualizarConfiguracion(
+            @PathVariable Long campaniaId,
+            @PathVariable Long pestanaId,
+            @RequestBody ConfiguracionCasillasRequest request,
+            Authentication authentication
+    ) {
+        return pestañaService.actualizarConfiguracion(campaniaId, pestanaId, request, authentication.getName());
+    }
+
+    @DeleteMapping("/pestanas/{pestanaId}")
+    public ResponseEntity<Void> eliminarPestaña(
+            @PathVariable Long campaniaId,
+            @PathVariable Long pestanaId,
+            Authentication authentication
+    ) {
+        pestañaService.eliminarPestaña(campaniaId, pestanaId, authentication.getName());
+        return ResponseEntity.noContent().build();
     }
 }

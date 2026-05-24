@@ -127,6 +127,25 @@ public class MochilaService {
 		return mochilaRepository.findByPersonajeIdOrderByIdAsc(personajeId);
 	}
 
+	public void clonarMochilaParaPersonaje(Long sourcePersonajeId, Personaje target) {
+		List<Mochila> sourceItems = mochilaRepository.findByPersonajeIdOrderByIdAsc(sourcePersonajeId);
+		if (sourceItems.isEmpty()) {
+			return;
+		}
+		List<Mochila> clones = sourceItems.stream()
+				.filter(item -> item.getObjeto() != null)
+				.map(item -> {
+					Mochila clone = new Mochila();
+					clone.setPersonaje(target);
+					clone.setObjeto(item.getObjeto());
+					clone.setCantidad(item.getCantidad());
+					clone.setEquipado(item.isEquipado());
+					return clone;
+				})
+				.toList();
+		mochilaRepository.saveAll(clones);
+	}
+
 	public List<Mochila> actualizarItemPersonaje(
 			Personaje personaje,
 			Long itemId,

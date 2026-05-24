@@ -291,14 +291,13 @@ export default function CharactersScreen({
       onGoHome();
       return;
     }
-
     if (tab === "campaigns") {
       onGoCampaigns();
       return;
     }
-
     if (tab === "characters") {
       onGoCharacters();
+      return;
     }
   };
 

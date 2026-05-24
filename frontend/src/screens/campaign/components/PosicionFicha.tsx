@@ -1,8 +1,6 @@
 import type Konva from "konva";
-import { useEffect, useState } from "react";
-import { Circle, Group, Image as KonvaImage } from "react-konva";
-
-const CELL_PX = 70;
+import { useEffect, useRef, useState } from "react";
+import { Circle, Group, Image as KonvaImage, Rect } from "react-konva";
 
 interface CampaignPositionResponse {
   id: number;
@@ -20,6 +18,8 @@ interface CampaignPositionResponse {
 interface Grid {
   rectX: number;
   rectY: number;
+  cellPx: number;
+  cellPxY: number;
 }
 
 interface PosicionFichaProps {
@@ -27,6 +27,8 @@ interface PosicionFichaProps {
   grid: Grid;
   isSelected?: boolean;
   isInteractable?: boolean;
+  /** When true the corner resize handle is visible and draggable */
+  isResizingMode?: boolean;
   onDragStart?: () => void;
   onDragMove?: (positionId: number, gridX: number, gridY: number) => void;
   onDragEnd?: (x: number, y: number) => void;
@@ -38,6 +40,8 @@ interface PosicionFichaProps {
     startClientX: number,
     startClientY: number,
   ) => void;
+  /** Called when resize drag ends with the new square size (largo == ancho) */
+  onResizeEnd?: (positionId: number, newSize: number) => void;
 }
 
 export function PosicionFicha({
@@ -45,22 +49,39 @@ export function PosicionFicha({
   grid,
   isSelected,
   isInteractable = true,
+  isResizingMode = false,
   onDragStart,
   onDragMove,
   onDragEnd,
   onTokenClick,
   onRightMouseDown,
+  onResizeEnd,
 }: PosicionFichaProps) {
+  const { cellPx, cellPxY } = grid;
+
   const [portraitImage, setPortraitImage] = useState<HTMLImageElement | null>(
     null,
   );
   const [localX, setLocalX] = useState(position.posicionX);
   const [localY, setLocalY] = useState(position.posicionY);
+  // Committed size (updated optimistically on drag-end)
+  const [localSize, setLocalSize] = useState(Math.max(1, position.largo ?? 1));
+  // Preview size shown while the corner handle is being dragged
+  const [previewSize, setPreviewSize] = useState<number | null>(null);
+
+  const handleRef = useRef<Konva.Circle>(null);
 
   useEffect(() => {
     setLocalX(position.posicionX);
     setLocalY(position.posicionY);
   }, [position.posicionX, position.posicionY]);
+
+  useEffect(() => {
+    // Use the max dimension (they should be equal, but guard just in case)
+    setLocalSize(
+      Math.max(1, Math.max(position.largo ?? 1, position.ancho ?? 1)),
+    );
+  }, [position.largo, position.ancho]);
 
   useEffect(() => {
     if (!position.retrato) {
@@ -74,41 +95,87 @@ export function PosicionFicha({
     image.onerror = () => setPortraitImage(null);
   }, [position.retrato]);
 
-  const x = grid.rectX + localX * CELL_PX;
-  const y = grid.rectY + localY * CELL_PX;
-  const radius = CELL_PX / 2 - 4;
+  // Display size during drag preview, otherwise committed size
+  const displaySize = previewSize ?? localSize;
+  const tokenW = displaySize * cellPx;
+  const tokenH = displaySize * cellPxY;
+  const tokenSize = Math.min(tokenW, tokenH);
+  const radius = tokenSize / 2 - 4;
 
+  // Group anchored at the top-left of the token's grid area
+  const groupX = grid.rectX + localX * cellPx;
+  const groupY = grid.rectY + localY * cellPxY;
+
+  // Token circle center in Group-local coordinates
+  const circleCX = tokenW / 2;
+  const circleCY = tokenH / 2;
+
+  // Token center in stage coords (for right-click menu)
+  const tokenCenterStageX = groupX + tokenW / 2;
+  const tokenCenterStageY = groupY + tokenH / 2;
+
+  // ── Handle drag (token movement) ────────────────────────────────────────────
   const handleDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
-    const relativeX = e.target.x() - grid.rectX;
-    const relativeY = e.target.y() - grid.rectY;
-
-    const gridX = Math.max(0, Math.round(relativeX / CELL_PX));
-    const gridY = Math.max(0, Math.round(relativeY / CELL_PX));
-
-    e.target.x(grid.rectX + gridX * CELL_PX);
-    e.target.y(grid.rectY + gridY * CELL_PX);
-
+    const relX = e.target.x() - grid.rectX;
+    const relY = e.target.y() - grid.rectY;
+    const gridX = Math.max(0, Math.round(relX / cellPx));
+    const gridY = Math.max(0, Math.round(relY / cellPxY));
+    e.target.x(grid.rectX + gridX * cellPx);
+    e.target.y(grid.rectY + gridY * cellPxY);
     setLocalX(gridX);
     setLocalY(gridY);
     onDragEnd?.(gridX, gridY);
   };
 
+  // ── Handle resize (corner handle) ───────────────────────────────────────────
+  /** Compute new square size from handle's current local position */
+  const sizeFromHandle = (hx: number, hy: number): number =>
+    Math.max(1, Math.round(Math.max(hx / cellPx, hy / cellPxY)));
+
+  const handleResizeDragMove = (e: Konva.KonvaEventObject<DragEvent>) => {
+    e.cancelBubble = true;
+    const newSize = sizeFromHandle(
+      Math.max(cellPx, e.target.x()),
+      Math.max(cellPxY, e.target.y()),
+    );
+    setPreviewSize(newSize);
+  };
+
+  const handleResizeDragEnd = (e: Konva.KonvaEventObject<DragEvent>) => {
+    e.cancelBubble = true;
+    const newSize = sizeFromHandle(
+      Math.max(cellPx, e.target.x()),
+      Math.max(cellPxY, e.target.y()),
+    );
+    // Snap handle to grid corner
+    e.target.x(newSize * cellPx);
+    e.target.y(newSize * cellPxY);
+    setLocalSize(newSize);
+    setPreviewSize(null);
+    onResizeEnd?.(position.id, newSize);
+  };
+
+  // Handle is shown only when resize mode is active for this token
+  const showHandle = isResizingMode && isInteractable && !!onResizeEnd;
+
   return (
     <Group
-      x={x}
-      y={y}
-      draggable={isInteractable}
-      onDragStart={isInteractable ? () => onDragStart?.() : undefined}
+      x={groupX}
+      y={groupY}
+      draggable={isInteractable && !isResizingMode}
+      onDragStart={
+        isInteractable && !isResizingMode ? () => onDragStart?.() : undefined
+      }
       onDragMove={
-        isInteractable
+        isInteractable && !isResizingMode
           ? (e) => {
               const relX = e.target.x() - grid.rectX;
               const relY = e.target.y() - grid.rectY;
-              onDragMove?.(position.id, relX / CELL_PX, relY / CELL_PX);
+              onDragMove?.(position.id, relX / cellPx, relY / cellPxY);
             }
           : undefined
       }
-      onDragEnd={isInteractable ? handleDragEnd : undefined}
+      onDragEnd={isInteractable && !isResizingMode ? handleDragEnd : undefined}
       onClick={
         isInteractable
           ? (e) => {
@@ -132,9 +199,6 @@ export function PosicionFicha({
               const scale = stage.scaleX();
               const stagePos = stage.position();
 
-              const tokenCenterStageX = x + CELL_PX / 2;
-              const tokenCenterStageY = y + CELL_PX / 2;
-
               const tokenCenterClientX =
                 containerRect.left + stagePos.x + tokenCenterStageX * scale;
               const tokenCenterClientY =
@@ -151,39 +215,41 @@ export function PosicionFicha({
           : undefined
       }
     >
+      {/* ── Token image clipped to circle ── */}
       <Group
         clipFunc={(context) => {
           context.beginPath();
-          context.arc(CELL_PX / 2, CELL_PX / 2, radius, 0, Math.PI * 2, false);
+          context.arc(circleCX, circleCY, radius, 0, Math.PI * 2, false);
           context.closePath();
         }}
       >
         {portraitImage ? (
-          <KonvaImage image={portraitImage} width={CELL_PX} height={CELL_PX} />
-        ) : (
-          <Circle
-            x={CELL_PX / 2}
-            y={CELL_PX / 2}
-            radius={radius}
-            fill="#6b7280"
+          <KonvaImage
+            image={portraitImage}
+            x={circleCX - tokenSize / 2}
+            y={circleCY - tokenSize / 2}
+            width={tokenSize}
+            height={tokenSize}
           />
+        ) : (
+          <Circle x={circleCX} y={circleCY} radius={radius} fill="#6b7280" />
         )}
       </Group>
 
-      {/* DM layer: dark semi-transparent overlay on top of portrait */}
+      {/* ── DM layer overlay ── */}
       {position.capa === "dm" && (
         <Circle
-          x={CELL_PX / 2}
-          y={CELL_PX / 2}
+          x={circleCX}
+          y={circleCY}
           radius={radius}
           fill="rgba(0,0,0,0.55)"
         />
       )}
 
-      {/* Base border ring */}
+      {/* ── Border ring ── */}
       <Circle
-        x={CELL_PX / 2}
-        y={CELL_PX / 2}
+        x={circleCX}
+        y={circleCY}
         radius={radius}
         stroke={position.capa === "mapa" ? "#f87171" : "#f5e6b3"}
         strokeWidth={position.capa === "mapa" ? 4 : 3}
@@ -192,11 +258,11 @@ export function PosicionFicha({
         shadowOpacity={position.capa === "mapa" ? 0.8 : 0.35}
       />
 
-      {/* Mapa layer: extra outer glow ring */}
+      {/* ── Mapa extra glow ring ── */}
       {position.capa === "mapa" && (
         <Circle
-          x={CELL_PX / 2}
-          y={CELL_PX / 2}
+          x={circleCX}
+          y={circleCY}
           radius={radius + 5}
           stroke="#f87171"
           strokeWidth={2}
@@ -207,17 +273,73 @@ export function PosicionFicha({
         />
       )}
 
-      {/* Selection ring */}
+      {/* ── Selection ring ── */}
       {isSelected && (
         <Circle
-          x={CELL_PX / 2}
-          y={CELL_PX / 2}
+          x={circleCX}
+          y={circleCY}
           radius={radius + (position.capa === "mapa" ? 9 : 5)}
           stroke="#60a5fa"
           strokeWidth={3}
           shadowColor="#60a5fa"
           shadowBlur={14}
           shadowOpacity={0.9}
+        />
+      )}
+
+      {/* ── Resize mode: grid-area outline + handle ── */}
+      {showHandle && (
+        <>
+          {/* Dashed preview outline around the full grid area */}
+          <Rect
+            x={0}
+            y={0}
+            width={localSize * cellPx}
+            height={localSize * cellPxY}
+            stroke="#60a5fa"
+            strokeWidth={1.5}
+            dash={[6, 4]}
+            opacity={0.6}
+            listening={false}
+          />
+
+          {/* Corner handle at bottom-right of grid area */}
+          <Circle
+            ref={handleRef}
+            x={localSize * cellPx}
+            y={localSize * cellPxY}
+            radius={8}
+            fill="#1e3a8a"
+            stroke="#93c5fd"
+            strokeWidth={2}
+            shadowColor="#60a5fa"
+            shadowBlur={10}
+            shadowOpacity={0.8}
+            draggable
+            onMouseDown={(e) => {
+              e.cancelBubble = true;
+            }}
+            onDragStart={(e) => {
+              e.cancelBubble = true;
+            }}
+            onDragMove={handleResizeDragMove}
+            onDragEnd={handleResizeDragEnd}
+          />
+        </>
+      )}
+
+      {/* ── Resize preview: ghost outline while dragging ── */}
+      {showHandle && previewSize !== null && previewSize !== localSize && (
+        <Rect
+          x={0}
+          y={0}
+          width={previewSize * cellPx}
+          height={previewSize * cellPxY}
+          stroke="#93c5fd"
+          strokeWidth={2}
+          dash={[4, 3]}
+          opacity={0.8}
+          listening={false}
         />
       )}
     </Group>
