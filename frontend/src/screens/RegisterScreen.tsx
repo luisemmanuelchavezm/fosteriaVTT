@@ -51,6 +51,8 @@ export default function RegisterScreen({
 
     if (!form.username.trim()) {
       newErrors.username = ["El nombre de usuario es obligatorio"];
+    } else if (form.username.trim().length < 3) {
+      newErrors.username = ["Mínimo 3 caracteres"];
     }
 
     const emailErrors: string[] = [];
@@ -96,17 +98,20 @@ export default function RegisterScreen({
 
       if (!res.ok) {
         const backendErrors: FormErrors = {};
-        if (
-          data.error?.toLowerCase().includes("username") ||
-          data.error?.toLowerCase().includes("usuario")
-        ) {
+        const errMsg = (data.error ?? data.message ?? "").toLowerCase();
+        if (errMsg.includes("username") || errMsg.includes("usuario")) {
           backendErrors.username = ["Este usuario ya existe"];
         }
-        if (
-          data.error?.toLowerCase().includes("email") ||
-          data.error?.toLowerCase().includes("correo")
-        ) {
+        if (errMsg.includes("email") || errMsg.includes("correo")) {
           backendErrors.email = ["Este email ya existe"];
+        }
+        if (Object.keys(backendErrors).length === 0) {
+          // Fallback: show a generic error so the user isn't left guessing
+          setMessage(
+            data.error ??
+              data.message ??
+              "Error al registrarse. Inténtalo de nuevo.",
+          );
         }
         setErrors(backendErrors);
         return;
@@ -227,7 +232,13 @@ export default function RegisterScreen({
 
                   {message && (
                     <div className="w-full flex justify-center">
-                      <p className="text-[12px] max-w-xs text-center text-red-800 font-extrabold mt-2 bg-red-100/90 border border-red-400 shadow-md px-3 py-1 rounded-md drop-shadow animate-pulse">
+                      <p
+                        className={`text-[12px] max-w-xs text-center font-extrabold mt-2 shadow-md px-3 py-1 rounded-md drop-shadow animate-pulse ${
+                          message.includes("completado")
+                            ? "text-emerald-800 bg-emerald-100/90 border border-emerald-400"
+                            : "text-red-800 bg-red-100/90 border border-red-400"
+                        }`}
+                      >
                         {message}
                       </p>
                     </div>

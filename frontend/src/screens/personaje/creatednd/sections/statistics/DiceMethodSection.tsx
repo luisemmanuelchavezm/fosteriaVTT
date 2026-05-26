@@ -172,7 +172,7 @@ export default function DiceMethodSection({
                               value={stat.id}
                               className="bg-stone-950 text-white"
                             >
-                              {stat.name}
+                              {stat.displayName}
                             </option>
                           ))}
                         </select>

@@ -34,7 +34,7 @@ export default function CampaignSystemSelectorModal({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Cerrar modal de creacion"
+            aria-label="Cerrar modal de creación"
             className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/10 text-xl text-white transition hover:bg-white/20"
           >
             ×

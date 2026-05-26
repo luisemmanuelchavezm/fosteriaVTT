@@ -210,7 +210,7 @@ export default function MapUploadModal({
         </div>
 
         <div className="mb-3 flex items-center justify-between rounded-lg border border-white/14 bg-black/20 px-3 py-2">
-          <span className="text-sm font-semibold">Publico</span>
+          <span className="text-sm font-semibold">Público</span>
           <button
             type="button"
             onClick={() => setIsPublic((current) => !current)}
@@ -219,7 +219,7 @@ export default function MapUploadModal({
                 ? "border-amber-300/70 bg-amber-400/35"
                 : "border-white/30 bg-white/15"
             }`}
-            aria-label="Alternar publico"
+            aria-label="Alternar público"
             aria-pressed={isPublic}
           >
             <span

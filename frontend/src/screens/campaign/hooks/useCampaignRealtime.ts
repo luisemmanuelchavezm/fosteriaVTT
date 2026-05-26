@@ -124,6 +124,7 @@ export interface ExploredArea {
 }
 
 export interface NieblaEstado {
+  pestanaId?: number | null;
   activa: boolean;
   zonasExploradas: boolean;
   vistaJugador: boolean;
@@ -134,6 +135,14 @@ export interface NieblaEstado {
 interface CambioPestañaPayload {
   pestanaId: number;
   jugadores: string[] | null;
+}
+
+export interface PestanaConfigPayload {
+  pestanaId: number;
+  nCuadriculasX: number;
+  nCuadriculasY: number;
+  distanciaCasilla: number;
+  sistemaMetrico: string;
 }
 
 interface UseCampaignRealtimeOptions {
@@ -149,6 +158,7 @@ interface UseCampaignRealtimeOptions {
     pestanaId: number,
     jugadores: string[] | null,
   ) => void;
+  onConfigPestanaChanged?: (config: PestanaConfigPayload) => void;
 }
 
 const RECONNECT_DELAY_MS = 3000;
@@ -210,12 +220,19 @@ export function useCampaignRealtime({
   onIniciativaChanged,
   onNieblaChanged,
   onCambioPestañaForzado,
+  onConfigPestanaChanged,
 }: UseCampaignRealtimeOptions) {
   const campaignIdValue = Number(campaignId ?? 0);
   const [drawings, setDrawings] = useState<DrawingItem[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const stompClientRef = useRef<Client | null>(null);
   const subscriptionsRef = useRef<StompSubscription[]>([]);
+
+  // Ref para que los closures del WebSocket siempre lean el pestanaId actual
+  const pestanaIdRef = useRef<number | null>(pestanaId);
+  useEffect(() => {
+    pestanaIdRef.current = pestanaId;
+  }, [pestanaId]);
 
   const addOrReplaceDrawing = useCallback((drawing: DrawingItem) => {
     setDrawings((previous) => {
@@ -412,6 +429,16 @@ export function useCampaignRealtime({
           (message: IMessage) => {
             try {
               const estado = JSON.parse(message.body) as NieblaEstado;
+              // Usar ref para obtener el pestanaId actual (evita closure stale)
+              const currentPestanaId = pestanaIdRef.current;
+              // Solo aplicar si el mensaje es para la pestaña actual
+              if (
+                estado.pestanaId != null &&
+                currentPestanaId != null &&
+                estado.pestanaId !== currentPestanaId
+              ) {
+                return;
+              }
               onNieblaChanged?.(estado);
             } catch (error) {
               console.error("Error parsing niebla WebSocket message:", error);
@@ -432,14 +459,30 @@ export function useCampaignRealtime({
             }
           },
         ),
+        client.subscribe(
+          `/topic/campanas/${campaignIdValue}/pestana/config`,
+          (message: IMessage) => {
+            try {
+              const config = JSON.parse(message.body) as PestanaConfigPayload;
+              onConfigPestanaChanged?.(config);
+            } catch (error) {
+              console.error(
+                "Error parsing pestaña config WebSocket message:",
+                error,
+              );
+            }
+          },
+        ),
       ];
 
-      // Solicitar el estado actual de niebla al conectarse
-      client.publish({
-        destination: `/app/campanas/${campaignIdValue}/niebla/solicitar`,
-        body: "{}",
-        headers: { "content-type": "application/json" },
-      });
+      // Solicitar el estado actual de niebla al conectarse (si ya se conoce la pestaña)
+      if (pestanaId != null) {
+        client.publish({
+          destination: `/app/campanas/${campaignIdValue}/niebla/solicitar`,
+          body: JSON.stringify({ pestanaId }),
+          headers: { "content-type": "application/json" },
+        });
+      }
     };
 
     client.onWebSocketClose = () => {
@@ -478,17 +521,32 @@ export function useCampaignRealtime({
         void stompClient.deactivate();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- pestanaId omitido intencionalmente: este efecto gestiona el ciclo de vida del WebSocket y no debe reconectarse al cambiar de pestaña; los cambios de pestaña los maneja el useEffect siguiente
   }, [
     campaignIdValue,
     handleDrawingFrame,
     onCambioPestañaForzado,
     onCharacterUpdated,
+    onConfigPestanaChanged,
     onIniciativaChanged,
     onMapLayerChanged,
     onNieblaChanged,
     onPosicionCreated,
     onPosicionDeleted,
   ]);
+
+  // Cuando cambia la pestaña activa, solicitar el estado de niebla de la nueva pestaña.
+  // El WebSocket ya está conectado (no se reconecta), así que enviamos el solicitar manualmente.
+  useEffect(() => {
+    if (!pestanaId || !campaignIdValue) return;
+    const client = stompClientRef.current;
+    if (!client?.connected) return;
+    client.publish({
+      destination: `/app/campanas/${campaignIdValue}/niebla/solicitar`,
+      body: JSON.stringify({ pestanaId }),
+      headers: { "content-type": "application/json" },
+    });
+  }, [pestanaId, campaignIdValue]);
 
   const crearPosicionPorWebSocket = useCallback(
     (data: {
@@ -647,40 +705,60 @@ export function useCampaignRealtime({
       vistaJugador?: boolean;
     }) => {
       const client = stompClientRef.current;
-      if (!client?.connected || !campaignIdValue) return;
+      if (!client?.connected || !campaignIdValue || !pestanaId) return;
       client.publish({
         destination: `/app/campanas/${campaignIdValue}/niebla/configurar`,
-        body: JSON.stringify(settings),
+        body: JSON.stringify({ ...settings, pestanaId }),
         headers: { "content-type": "application/json" },
       });
     },
-    [campaignIdValue],
+    [campaignIdValue, pestanaId],
   );
 
   const configurarVisionToken = useCallback(
     (config: VisionConfig) => {
       const client = stompClientRef.current;
-      if (!client?.connected || !campaignIdValue) return;
+      if (!client?.connected || !campaignIdValue || !pestanaId) return;
       client.publish({
         destination: `/app/campanas/${campaignIdValue}/niebla/vision`,
-        body: JSON.stringify(config),
+        body: JSON.stringify({ ...config, pestanaId }),
         headers: { "content-type": "application/json" },
       });
     },
-    [campaignIdValue],
+    [campaignIdValue, pestanaId],
   );
 
   const agregarAreaExplorada = useCallback(
     (area: ExploredArea) => {
       const client = stompClientRef.current;
-      if (!client?.connected || !campaignIdValue) return;
+      if (!client?.connected || !campaignIdValue || !pestanaId) return;
       client.publish({
         destination: `/app/campanas/${campaignIdValue}/niebla/explorar`,
-        body: JSON.stringify(area),
+        body: JSON.stringify({ ...area, pestanaId }),
         headers: { "content-type": "application/json" },
       });
     },
-    [campaignIdValue],
+    [campaignIdValue, pestanaId],
+  );
+
+  /**
+   * Versión batch: envía todas las áreas en UN solo mensaje para evitar la
+   * race condition que ocurre al enviarlas de forma individual y simultánea.
+   * Usar siempre que se vayan a enviar múltiples áreas a la vez (fin de drag,
+   * fin de rotación).
+   */
+  const agregarAreasExploradasBatch = useCallback(
+    (areas: ExploredArea[]) => {
+      if (!areas.length) return;
+      const client = stompClientRef.current;
+      if (!client?.connected || !campaignIdValue || !pestanaId) return;
+      client.publish({
+        destination: `/app/campanas/${campaignIdValue}/niebla/explorar/batch`,
+        body: JSON.stringify({ pestanaId, areas }),
+        headers: { "content-type": "application/json" },
+      });
+    },
+    [campaignIdValue, pestanaId],
   );
 
   const forzarCambioPestana = useCallback(
@@ -729,6 +807,19 @@ export function useCampaignRealtime({
     [campaignIdValue],
   );
 
+  const broadcastPestanaConfig = useCallback(
+    (config: PestanaConfigPayload) => {
+      const client = stompClientRef.current;
+      if (!client?.connected || !campaignIdValue) return;
+      client.publish({
+        destination: `/app/campanas/${campaignIdValue}/pestana/config`,
+        body: JSON.stringify(config),
+        headers: { "content-type": "application/json" },
+      });
+    },
+    [campaignIdValue],
+  );
+
   return {
     drawings,
     isConnected,
@@ -744,7 +835,9 @@ export function useCampaignRealtime({
     configurarNiebla,
     configurarVisionToken,
     agregarAreaExplorada,
+    agregarAreasExploradasBatch,
     cambiarCapaToken,
     forzarCambioPestana,
+    broadcastPestanaConfig,
   };
 }

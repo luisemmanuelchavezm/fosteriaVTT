@@ -5,6 +5,7 @@ import com.fosteriaVTT.fosteriaVTT_backend.dto.CrearCampañaRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.JugadorCampañaResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PagedResponse;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
@@ -47,6 +50,19 @@ return campañaService.obtenerJugadoresCampaña(campaniaId, authentication.getNa
             Authentication authentication
     ) {
 return campañaService.crearCampaña(payload, cover, authentication.getName());
+    }
+
+    /** Añade al usuario autenticado como jugador de la campaña (idempotente). */
+    @PostMapping("/{campaniaId}/unirse")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unirseCampaña(
+            @PathVariable Long campaniaId,
+            Authentication authentication
+    ) {
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
+        }
+        campañaService.unirseCampaña(campaniaId, authentication.getName());
     }
 
     @GetMapping

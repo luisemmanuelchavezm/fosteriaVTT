@@ -1301,6 +1301,544 @@ public class DevelopmentDataSeeder {
         };
     }
 
+    @Bean
+    @Order(7)
+    CommandLineRunner seedMarketplaceEnemigos(
+            UserRepository userRepository,
+            PersonajeRepository personajeRepository,
+            EstadisticaRepository estadisticaRepository,
+            HabilidadRepository habilidadRepository,
+            ObjetoRepository objetoRepository,
+            MochilaRepository mochilaRepository,
+            PasswordEncoder passwordEncoder
+    ) {
+        return args -> {
+            Usuario sistema = userRepository.findByUsername("sistema")
+                .orElseGet(() -> userRepository.save(buildUser(
+                    "sistema",
+                    "sistema@fosteria.vtt",
+                    passwordEncoder.encode("Sistema2024!"),
+                    null
+                )));
+
+            // ── 1. GOLEM DE PETRICITA ──────────────────────────────────
+            boolean golemExists = personajeRepository
+                .findByUsuarioUsernameOrderByUsadoDesc("sistema").stream()
+                .anyMatch(p -> p.getNombre().equalsIgnoreCase("Golem de Petricita"));
+
+            if (!golemExists) {
+                String bioGolem =
+                    "Constructo mediano, sin alineamiento\n\n" +
+                    "Este monstruoso golem de piedra blanca con vetas doradas fue creado para custodiar ruinas antiguas y templos olvidados. " +
+                    "Sus pasos hacen temblar el suelo y su cuerpo parece tallado directamente de mármol sagrado.";
+
+                Personaje golem = personajeRepository.save(Personaje.builder()
+                    .nombre("Golem de Petricita")
+                    .tags("enemigo,vd;2 (450 PX)")
+                    .sistemaDeJuego(SistemaDeJuego.DND)
+                    .retrato("https://res.cloudinary.com/doxqtmi46/image/upload/v1779714223/golem_de_petricita_myvsot.png")
+                    .biografia(bioGolem)
+                    .esPublico(true)
+                    .usuario(sistema)
+                    .build());
+
+                estadisticaRepository.saveAll(List.of(
+                    Estadistica.builder().nombre("Fuerza").valor(18).personaje(golem).build(),
+                    Estadistica.builder().nombre("Destreza").valor(8).personaje(golem).build(),
+                    Estadistica.builder().nombre("Constitucion").valor(16).personaje(golem).build(),
+                    Estadistica.builder().nombre("Inteligencia").valor(3).personaje(golem).build(),
+                    Estadistica.builder().nombre("Sabiduria").valor(10).personaje(golem).build(),
+                    Estadistica.builder().nombre("Carisma").valor(5).personaje(golem).build(),
+                    Estadistica.builder().nombre("CA").valor(14).personaje(golem).build(),
+                    Estadistica.builder().nombre("Puntos de vida").valor(52).personaje(golem).build(),
+                    Estadistica.builder().nombre("Vida actual").valor(52).personaje(golem).build(),
+                    Estadistica.builder().nombre("Vida temporal").valor(0).personaje(golem).build(),
+                    Estadistica.builder().nombre("Movimiento").valor(30).personaje(golem).build()
+                ));
+
+                List<Habilidad> pasivasGolem = habilidadRepository.saveAll(List.of(
+                    buildSkill("Tirada de salvación", null, null, "Constitución +5", "NPC,PASIVA"),
+                    buildSkill("Resistencias al daño", null, null,
+                        "Perforante y cortante de ataques no mágicos.",
+                        "NPC,PASIVA"),
+                    buildSkill("Inmunidades a condiciones", null, null,
+                        "Envenenado, agotamiento, asustado, encantado.",
+                        "NPC,PASIVA"),
+                    buildSkill("Sentidos", null, null,
+                        "Visión en la oscuridad 60 pies, Percepción pasiva 10.",
+                        "NPC,PASIVA"),
+                    buildSkill("Cuerpo de Petricita", null, null,
+                        "El golem tiene ventaja en tiradas de salvación contra efectos que alterarían su forma física o lo moverían contra su voluntad.",
+                        "NPC,PASIVA"),
+                    buildSkill("Guardián Incansable", null, null,
+                        "El golem no necesita dormir, comer ni respirar.",
+                        "NPC,PASIVA")
+                ));
+
+                Objeto golpePiedraObj = objetoRepository.save(Objeto.builder()
+                    .nombre("Golpe de Piedra")
+                    .indice("BONO_ATAQUE=6")
+                    .formula("1d8+4")
+                    .descripcion("Golpe contundente del golem de petricita.")
+                    .tipoObjeto(TipoObjeto.ARMA)
+                    .build());
+
+                List<Habilidad> accionesGolem = habilidadRepository.saveAll(List.of(
+                    buildSkill("Multiataque", null, null,
+                        "El golem realiza dos ataques de Golpe de Piedra.",
+                        "NPC,ACCION"),
+                    buildSkill("Golpe de Piedra", null, "1d8+4",
+                        "Ataque de arma cuerpo a cuerpo: +6 al ataque, alcance 5 pies, un objetivo.\n\n" +
+                        "Daño: 1d8 + 4 de daño contundente.",
+                        "NPC,ACCION,DND,ARMA,OBJETO," + golpePiedraObj.getId()),
+                    buildSkill("Pisotón Sísmico (Recarga 3)", null, null,
+                        "El golem golpea el suelo violentamente. Todas las criaturas a 10 pies deben superar una tirada de salvación de Destreza CD 13 o recibir 3d6 de daño contundente y quedar derribadas. Si superan la salvación, reciben la mitad del daño y no caen.",
+                        "NPC,ACCION")
+                ));
+
+                List<Habilidad> idiomasGolem = habilidadRepository.saveAll(List.of(
+                    buildSkill("Idioma: Entiende los idiomas de su creador pero no puede hablar", null, null, null, "NPC,IDIOMA")
+                ));
+
+                List<Habilidad> todasGolem = new ArrayList<>();
+                todasGolem.addAll(pasivasGolem);
+                todasGolem.addAll(accionesGolem);
+                todasGolem.addAll(idiomasGolem);
+                golem.getHabilidades().addAll(todasGolem);
+                personajeRepository.save(golem);
+
+                mochilaRepository.save(
+                    Mochila.builder().objeto(golpePiedraObj).personaje(golem).cantidad(1).equipado(true).build()
+                );
+            }
+
+            // ── 2. CULTISTA ───────────────────────────────────────────
+            boolean cultistaExists = personajeRepository
+                .findByUsuarioUsernameOrderByUsadoDesc("sistema").stream()
+                .anyMatch(p -> p.getNombre().equalsIgnoreCase("Cultista"));
+
+            if (!cultistaExists) {
+                String bioCultista =
+                    "Humanoide mediano (humano), caótico maligno\n\n" +
+                    "Cubierto con túnicas oscuras y símbolos prohibidos, este cultista dedica su vida a rituales oscuros y sacrificios secretos. " +
+                    "Sus ojos reflejan una fe enfermiza y una devoción absoluta a entidades antiguas.";
+
+                Personaje cultista = personajeRepository.save(Personaje.builder()
+                    .nombre("Cultista")
+                    .tags("enemigo,vd;1 (200 PX)")
+                    .sistemaDeJuego(SistemaDeJuego.DND)
+                    .retrato("https://res.cloudinary.com/doxqtmi46/image/upload/v1779730313/Cultista_piy4hc.jpg")
+                    .biografia(bioCultista)
+                    .esPublico(true)
+                    .usuario(sistema)
+                    .build());
+
+                estadisticaRepository.saveAll(List.of(
+                    Estadistica.builder().nombre("Fuerza").valor(10).personaje(cultista).build(),
+                    Estadistica.builder().nombre("Destreza").valor(14).personaje(cultista).build(),
+                    Estadistica.builder().nombre("Constitucion").valor(12).personaje(cultista).build(),
+                    Estadistica.builder().nombre("Inteligencia").valor(11).personaje(cultista).build(),
+                    Estadistica.builder().nombre("Sabiduria").valor(13).personaje(cultista).build(),
+                    Estadistica.builder().nombre("Carisma").valor(12).personaje(cultista).build(),
+                    Estadistica.builder().nombre("CA").valor(13).personaje(cultista).build(),
+                    Estadistica.builder().nombre("Puntos de vida").valor(24).personaje(cultista).build(),
+                    Estadistica.builder().nombre("Vida actual").valor(24).personaje(cultista).build(),
+                    Estadistica.builder().nombre("Vida temporal").valor(0).personaje(cultista).build(),
+                    Estadistica.builder().nombre("Movimiento").valor(30).personaje(cultista).build()
+                ));
+
+                List<Habilidad> pasivasCultista = habilidadRepository.saveAll(List.of(
+                    buildSkill("Tirada de salvación", null, null, "Sabiduría +3", "NPC,PASIVA"),
+                    buildSkill("Devoción Fanática", null, null,
+                        "El cultista tiene ventaja en tiradas de salvación contra ser asustado.",
+                        "NPC,PASIVA"),
+                    buildSkill("Sentidos", null, null,
+                        "Percepción pasiva 11.",
+                        "NPC,PASIVA"),
+                    buildSkill("Reservas de Divinidad", null, null,
+                        "El cultista comienza el combate con 0 puntos de divinidad. Algunas habilidades requieren gastar divinidad.",
+                        "NPC,PASIVA")
+                ));
+
+                Objeto dagaSacrificialObj = objetoRepository.save(Objeto.builder()
+                    .nombre("Daga Sacrificial")
+                    .indice("BONO_ATAQUE=4")
+                    .formula("1d4+2")
+                    .descripcion("Daga ceremonial cubierta de sangre seca y runas oscuras.")
+                    .tipoObjeto(TipoObjeto.ARMA)
+                    .build());
+
+                List<Habilidad> accionesCultista = habilidadRepository.saveAll(List.of(
+                    buildSkill("Daga Sacrificial", null, "1d4+2",
+                        "Ataque de arma cuerpo a cuerpo o a distancia: +4 al ataque, alcance 5 pies.\n\n" +
+                        "El cultista realiza un corte rápido con una daga ceremonial cubierta de sangre seca y runas oscuras.\n\n" +
+                        "Daño: 1d4 + 2 de daño perforante.",
+                        "NPC,ACCION,DND,ARMA,OBJETO," + dagaSacrificialObj.getId()),
+                    buildSkill("Sacrificio Profano", null, null,
+                        "El cultista sacrifica su propia carne o la de un aliado voluntario a 5 pies.\n\n" +
+                        "El objetivo pierde la mitad de sus puntos de golpe actuales y el cultista obtiene 2 puntos de divinidad.\n\n" +
+                        "Si una criatura muere mediante este efecto, el cultista obtiene ventaja en su siguiente tirada de ataque.",
+                        "NPC,ACCION"),
+                    buildSkill("Llama del Eclipse (Consume 1 Divinidad)", null, null,
+                        "El cultista invoca fuego oscuro desde sus manos hacia una criatura a 30 pies.\n\n" +
+                        "El objetivo debe realizar una tirada de salvación de Destreza CD 12. Si falla, recibe 3d6 de daño necrótico y no puede recuperar puntos de golpe hasta el inicio del próximo turno del cultista.\n\n" +
+                        "Si supera la salvación, recibe la mitad del daño.",
+                        "NPC,ACCION"),
+                    buildSkill("Marca del Hereje (Consume 1 Divinidad)", null, null,
+                        "El cultista señala a una criatura que pueda ver a 30 pies mientras pronuncia una plegaria maldita.\n\n" +
+                        "Hasta el final del siguiente turno del cultista, la criatura marcada tiene desventaja en tiradas de salvación de Sabiduría y recibe 1d4 de daño necrótico cada vez que realiza un ataque.",
+                        "NPC,ACCION")
+                ));
+
+                List<Habilidad> idiomasCultista = habilidadRepository.saveAll(List.of(
+                    buildSkill("Idioma: Común", null, null, null, "NPC,IDIOMA"),
+                    buildSkill("Idioma: Infernal", null, null, null, "NPC,IDIOMA")
+                ));
+
+                List<Habilidad> todasCultista = new ArrayList<>();
+                todasCultista.addAll(pasivasCultista);
+                todasCultista.addAll(accionesCultista);
+                todasCultista.addAll(idiomasCultista);
+                cultista.getHabilidades().addAll(todasCultista);
+                personajeRepository.save(cultista);
+
+                mochilaRepository.save(
+                    Mochila.builder().objeto(dagaSacrificialObj).personaje(cultista).cantidad(1).equipado(true).build()
+                );
+            }
+
+            // ── 3. CULTISTA CORRUPTO ──────────────────────────────────
+            boolean cultistaCorruptoExists = personajeRepository
+                .findByUsuarioUsernameOrderByUsadoDesc("sistema").stream()
+                .anyMatch(p -> p.getNombre().equalsIgnoreCase("Cultista Corrupto"));
+
+            if (!cultistaCorruptoExists) {
+                String bioCultistaCorrupto =
+                    "Humanoide mediano (humano mutado), caótico maligno\n\n" +
+                    "La corrupción consumió lentamente su cuerpo hasta deformarlo por completo. Su piel ennegrecida se agrieta dejando escapar energía oscura, " +
+                    "mientras sus brazos mutados se transformaron en armas letales.";
+
+                Personaje cultistaCorrupto = personajeRepository.save(Personaje.builder()
+                    .nombre("Cultista Corrupto")
+                    .tags("enemigo,vd;2 (450 PX)")
+                    .sistemaDeJuego(SistemaDeJuego.DND)
+                    .retrato("https://res.cloudinary.com/doxqtmi46/image/upload/v1779730317/Cultista_mutado_rjaii2.jpg")
+                    .biografia(bioCultistaCorrupto)
+                    .esPublico(true)
+                    .usuario(sistema)
+                    .build());
+
+                estadisticaRepository.saveAll(List.of(
+                    Estadistica.builder().nombre("Fuerza").valor(16).personaje(cultistaCorrupto).build(),
+                    Estadistica.builder().nombre("Destreza").valor(12).personaje(cultistaCorrupto).build(),
+                    Estadistica.builder().nombre("Constitucion").valor(16).personaje(cultistaCorrupto).build(),
+                    Estadistica.builder().nombre("Inteligencia").valor(8).personaje(cultistaCorrupto).build(),
+                    Estadistica.builder().nombre("Sabiduria").valor(12).personaje(cultistaCorrupto).build(),
+                    Estadistica.builder().nombre("Carisma").valor(13).personaje(cultistaCorrupto).build(),
+                    Estadistica.builder().nombre("CA").valor(14).personaje(cultistaCorrupto).build(),
+                    Estadistica.builder().nombre("Puntos de vida").valor(46).personaje(cultistaCorrupto).build(),
+                    Estadistica.builder().nombre("Vida actual").valor(46).personaje(cultistaCorrupto).build(),
+                    Estadistica.builder().nombre("Vida temporal").valor(0).personaje(cultistaCorrupto).build(),
+                    Estadistica.builder().nombre("Movimiento").valor(30).personaje(cultistaCorrupto).build()
+                ));
+
+                List<Habilidad> pasivasCultistaCorrupto = habilidadRepository.saveAll(List.of(
+                    buildSkill("Tirada de salvación", null, null, "Constitución +5", "NPC,PASIVA"),
+                    buildSkill("Resistencia Oscura", null, null,
+                        "Resistencia al daño necrótico.",
+                        "NPC,PASIVA"),
+                    buildSkill("Inmunidades a condiciones", null, null,
+                        "Asustado.",
+                        "NPC,PASIVA"),
+                    buildSkill("Sentidos", null, null,
+                        "Visión en la oscuridad 60 pies, Percepción pasiva 11.",
+                        "NPC,PASIVA"),
+                    buildSkill("Reservas de Divinidad", null, null,
+                        "El cultista comienza el combate con 0 puntos de divinidad. Algunas habilidades requieren gastar divinidad.",
+                        "NPC,PASIVA"),
+                    buildSkill("Sangre Corrupta", null, null,
+                        "Cuando una criatura golpea al cultista corrupto con un ataque cuerpo a cuerpo estando a 5 pies, recibe 2 de daño necrótico.",
+                        "NPC,PASIVA")
+                ));
+
+                Objeto garraCorruptaObj = objetoRepository.save(Objeto.builder()
+                    .nombre("Garra Corrupta")
+                    .indice("BONO_ATAQUE=5")
+                    .formula("1d10+3")
+                    .descripcion("Brazo mutado cubierto de venas negras y energía maldita.")
+                    .tipoObjeto(TipoObjeto.ARMA)
+                    .build());
+
+                List<Habilidad> accionesCultistaCorrupto = habilidadRepository.saveAll(List.of(
+                    buildSkill("Garra Corrupta", null, "1d10+3",
+                        "Ataque de arma cuerpo a cuerpo: +5 al ataque, alcance 5 pies, un objetivo.\n\n" +
+                        "El cultista ataca con su brazo mutado cubierto de venas negras y energía maldita, desgarrando carne y drenando vitalidad.\n\n" +
+                        "Daño: 1d10 + 3 de daño cortante más 1d4 de daño necrótico.",
+                        "NPC,ACCION,DND,ARMA,OBJETO," + garraCorruptaObj.getId()),
+                    buildSkill("Sacrificio de Carne", null, null,
+                        "El cultista desgarra parte de su propio cuerpo o consume la esencia vital de un aliado voluntario a 5 pies.\n\n" +
+                        "El objetivo pierde la mitad de sus puntos de golpe actuales y el cultista obtiene 2 puntos de divinidad.\n\n" +
+                        "Hasta el final de su siguiente turno, el cultista obtiene +2 a las tiradas de daño.",
+                        "NPC,ACCION"),
+                    buildSkill("Terreno Profano (Consume 1 Divinidad)", null, null,
+                        "El cultista golpea el suelo liberando corrupción oscura que cubre un área de 15 pies centrada en él durante 3 turnos.\n\n" +
+                        "El área se considera terreno difícil para criaturas que no adoren a la entidad del cultista.\n\n" +
+                        "Además, cualquier criatura hostil que comience su turno dentro del área recibe 1d6 de daño necrótico.",
+                        "NPC,ACCION"),
+                    buildSkill("Mirada del Abismo (Consume 1 Divinidad)", null, null,
+                        "El cultista fija sus ojos deformados en una criatura a 30 pies.\n\n" +
+                        "El objetivo debe superar una tirada de salvación de Sabiduría CD 13 o quedar asustado hasta el final de su siguiente turno.\n\n" +
+                        "Mientras esté asustado de esta forma, su velocidad se reduce en 10 pies.",
+                        "NPC,ACCION")
+                ));
+
+                List<Habilidad> idiomasCultistaCorrupto = habilidadRepository.saveAll(List.of(
+                    buildSkill("Idioma: Común", null, null, null, "NPC,IDIOMA"),
+                    buildSkill("Idioma: Infernal", null, null, null, "NPC,IDIOMA")
+                ));
+
+                List<Habilidad> todasCultistaCorrupto = new ArrayList<>();
+                todasCultistaCorrupto.addAll(pasivasCultistaCorrupto);
+                todasCultistaCorrupto.addAll(accionesCultistaCorrupto);
+                todasCultistaCorrupto.addAll(idiomasCultistaCorrupto);
+                cultistaCorrupto.getHabilidades().addAll(todasCultistaCorrupto);
+                personajeRepository.save(cultistaCorrupto);
+
+                mochilaRepository.save(
+                    Mochila.builder().objeto(garraCorruptaObj).personaje(cultistaCorrupto).cantidad(1).equipado(true).build()
+                );
+            }
+
+            // ── 4. ESQUELETO ERRANTE ──────────────────────────────────
+            boolean esqueletoExists = personajeRepository
+                .findByUsuarioUsernameOrderByUsadoDesc("sistema").stream()
+                .anyMatch(p -> p.getNombre().equalsIgnoreCase("Esqueleto Errante"));
+
+            if (!esqueletoExists) {
+                String bioEsqueleto =
+                    "No muerto mediano, legal maligno\n\n" +
+                    "Los restos animados de un antiguo guerrero se levantan una vez más para servir a fuerzas oscuras. " +
+                    "Sus huesos rechinan al moverse y un tenue brillo verdoso arde en sus cuencas vacías.";
+
+                Personaje esqueleto = personajeRepository.save(Personaje.builder()
+                    .nombre("Esqueleto Errante")
+                    .tags("enemigo,vd;1/4 (50 PX)")
+                    .sistemaDeJuego(SistemaDeJuego.DND)
+                    .retrato("https://res.cloudinary.com/doxqtmi46/image/upload/v1779731502/skeleton_xwmojs.jpg")
+                    .biografia(bioEsqueleto)
+                    .esPublico(true)
+                    .usuario(sistema)
+                    .build());
+
+                estadisticaRepository.saveAll(List.of(
+                    Estadistica.builder().nombre("Fuerza").valor(10).personaje(esqueleto).build(),
+                    Estadistica.builder().nombre("Destreza").valor(14).personaje(esqueleto).build(),
+                    Estadistica.builder().nombre("Constitucion").valor(15).personaje(esqueleto).build(),
+                    Estadistica.builder().nombre("Inteligencia").valor(6).personaje(esqueleto).build(),
+                    Estadistica.builder().nombre("Sabiduria").valor(8).personaje(esqueleto).build(),
+                    Estadistica.builder().nombre("Carisma").valor(5).personaje(esqueleto).build(),
+                    Estadistica.builder().nombre("CA").valor(13).personaje(esqueleto).build(),
+                    Estadistica.builder().nombre("Puntos de vida").valor(13).personaje(esqueleto).build(),
+                    Estadistica.builder().nombre("Vida actual").valor(13).personaje(esqueleto).build(),
+                    Estadistica.builder().nombre("Vida temporal").valor(0).personaje(esqueleto).build(),
+                    Estadistica.builder().nombre("Movimiento").valor(30).personaje(esqueleto).build()
+                ));
+
+                List<Habilidad> pasivasEsqueleto = habilidadRepository.saveAll(List.of(
+                    buildSkill("Tirada de salvación", null, null, "Destreza +4", "NPC,PASIVA"),
+                    buildSkill("Vulnerabilidad", null, null,
+                        "Daño contundente.",
+                        "NPC,PASIVA"),
+                    buildSkill("Inmunidades a condiciones", null, null,
+                        "Agotamiento, envenenado.",
+                        "NPC,PASIVA"),
+                    buildSkill("Sentidos", null, null,
+                        "Visión en la oscuridad 60 pies, Percepción pasiva 9.",
+                        "NPC,PASIVA"),
+                    buildSkill("Naturaleza No Muerta", null, null,
+                        "El esqueleto no necesita dormir, comer ni respirar.",
+                        "NPC,PASIVA")
+                ));
+
+                Objeto espadaOxidadaObj = objetoRepository.save(Objeto.builder()
+                    .nombre("Espada Oxidada")
+                    .indice("BONO_ATAQUE=4")
+                    .formula("1d6+2")
+                    .descripcion("Espada corroída por el tiempo, usada con precisión antinatural.")
+                    .tipoObjeto(TipoObjeto.ARMA)
+                    .build());
+
+                Objeto arcoQuebradoObj = objetoRepository.save(Objeto.builder()
+                    .nombre("Arco Quebrado")
+                    .indice("BONO_ATAQUE=4")
+                    .formula("1d6+2")
+                    .descripcion("Arco antiguo cubierto de polvo y grietas.")
+                    .tipoObjeto(TipoObjeto.ARMA)
+                    .build());
+
+                List<Habilidad> accionesEsqueleto = habilidadRepository.saveAll(List.of(
+                    buildSkill("Espada Oxidada", null, "1d6+2",
+                        "Ataque de arma cuerpo a cuerpo: +4 al ataque, alcance 5 pies, un objetivo.\n\n" +
+                        "El esqueleto corta con una espada corroída por el tiempo, moviéndose con precisión antinatural.\n\n" +
+                        "Daño: 1d6 + 2 de daño cortante.",
+                        "NPC,ACCION,DND,ARMA,OBJETO," + espadaOxidadaObj.getId()),
+                    buildSkill("Arco Quebrado", null, "1d6+2",
+                        "Ataque de arma a distancia: +4 al ataque, alcance 80/320 pies, un objetivo.\n\n" +
+                        "El esqueleto dispara una flecha astillada desde un arco antiguo cubierto de polvo y grietas.\n\n" +
+                        "Daño: 1d6 + 2 de daño perforante.",
+                        "NPC,ACCION,DND,ARMA,OBJETO," + arcoQuebradoObj.getId())
+                ));
+
+                List<Habilidad> idiomasEsqueleto = habilidadRepository.saveAll(List.of(
+                    buildSkill("Idioma: Entiende los idiomas que conoció en vida pero no puede hablar", null, null, null, "NPC,IDIOMA")
+                ));
+
+                List<Habilidad> todasEsqueleto = new ArrayList<>();
+                todasEsqueleto.addAll(pasivasEsqueleto);
+                todasEsqueleto.addAll(accionesEsqueleto);
+                todasEsqueleto.addAll(idiomasEsqueleto);
+                esqueleto.getHabilidades().addAll(todasEsqueleto);
+                personajeRepository.save(esqueleto);
+
+                mochilaRepository.saveAll(List.of(
+                    Mochila.builder().objeto(espadaOxidadaObj).personaje(esqueleto).cantidad(1).equipado(true).build(),
+                    Mochila.builder().objeto(arcoQuebradoObj).personaje(esqueleto).cantidad(1).equipado(true).build()
+                ));
+            }
+
+            // ── 5. ZOMBIE PUTREFACTO ──────────────────────────────────
+            boolean zombieExists = personajeRepository
+                .findByUsuarioUsernameOrderByUsadoDesc("sistema").stream()
+                .anyMatch(p -> p.getNombre().equalsIgnoreCase("Zombie Putrefacto"));
+
+            if (!zombieExists) {
+                String bioZombie =
+                    "No muerto mediano, neutral maligno\n\n" +
+                    "Este cadáver ambulante avanza lentamente impulsado por magia oscura. " +
+                    "Trozos de carne podrida cuelgan de su cuerpo y un hedor insoportable lo rodea.";
+
+                Personaje zombie = personajeRepository.save(Personaje.builder()
+                    .nombre("Zombie Putrefacto")
+                    .tags("enemigo,vd;1/4 (50 PX)")
+                    .sistemaDeJuego(SistemaDeJuego.DND)
+                    .retrato("https://res.cloudinary.com/doxqtmi46/image/upload/v1779731509/zombie_ztrcop.jpg")
+                    .biografia(bioZombie)
+                    .esPublico(true)
+                    .usuario(sistema)
+                    .build());
+
+                estadisticaRepository.saveAll(List.of(
+                    Estadistica.builder().nombre("Fuerza").valor(13).personaje(zombie).build(),
+                    Estadistica.builder().nombre("Destreza").valor(6).personaje(zombie).build(),
+                    Estadistica.builder().nombre("Constitucion").valor(16).personaje(zombie).build(),
+                    Estadistica.builder().nombre("Inteligencia").valor(3).personaje(zombie).build(),
+                    Estadistica.builder().nombre("Sabiduria").valor(6).personaje(zombie).build(),
+                    Estadistica.builder().nombre("Carisma").valor(5).personaje(zombie).build(),
+                    Estadistica.builder().nombre("CA").valor(8).personaje(zombie).build(),
+                    Estadistica.builder().nombre("Puntos de vida").valor(22).personaje(zombie).build(),
+                    Estadistica.builder().nombre("Vida actual").valor(22).personaje(zombie).build(),
+                    Estadistica.builder().nombre("Vida temporal").valor(0).personaje(zombie).build(),
+                    Estadistica.builder().nombre("Movimiento").valor(20).personaje(zombie).build()
+                ));
+
+                List<Habilidad> pasivasZombie = habilidadRepository.saveAll(List.of(
+                    buildSkill("Tirada de salvación", null, null, "Constitución +5", "NPC,PASIVA"),
+                    buildSkill("Fortaleza No Muerta", null, null,
+                        "Cuando el zombie es reducido a 0 puntos de golpe, debe realizar una tirada de salvación de Constitución CD 5 + el daño recibido, a menos que el daño sea radiante o de un golpe crítico. Si tiene éxito, cae a 1 punto de golpe en lugar de 0.",
+                        "NPC,PASIVA"),
+                    buildSkill("Inmunidades a condiciones", null, null,
+                        "Agotamiento, envenenado.",
+                        "NPC,PASIVA"),
+                    buildSkill("Sentidos", null, null,
+                        "Visión en la oscuridad 60 pies, Percepción pasiva 8.",
+                        "NPC,PASIVA"),
+                    buildSkill("Hediondez Cadavérica", null, null,
+                        "Las criaturas que comiencen su turno a 5 pies del zombie deben superar una tirada de salvación de Constitución CD 10 o tener desventaja en su siguiente tirada de ataque debido al nauseabundo olor.",
+                        "NPC,PASIVA")
+                ));
+
+                Objeto golpePudridoObj = objetoRepository.save(Objeto.builder()
+                    .nombre("Golpe Podrido")
+                    .indice("BONO_ATAQUE=3")
+                    .formula("1d6+1")
+                    .descripcion("Lento pero brutal golpe con brazos putrefactos y cubiertos de sangre seca.")
+                    .tipoObjeto(TipoObjeto.ARMA)
+                    .build());
+
+                Objeto morditaInfectaObj = objetoRepository.save(Objeto.builder()
+                    .nombre("Mordita Infecta")
+                    .indice("BONO_ATAQUE=3")
+                    .formula("1d8+1")
+                    .descripcion("Dientes ennegrecidos que desgarran y propagan corrupción.")
+                    .tipoObjeto(TipoObjeto.ARMA)
+                    .build());
+
+                List<Habilidad> accionesZombie = habilidadRepository.saveAll(List.of(
+                    buildSkill("Golpe Podrido", null, "1d6+1",
+                        "Ataque de arma cuerpo a cuerpo: +3 al ataque, alcance 5 pies, un objetivo.\n\n" +
+                        "El zombie lanza un lento pero brutal golpe con sus brazos putrefactos y cubiertos de sangre seca.\n\n" +
+                        "Daño: 1d6 + 1 de daño contundente.",
+                        "NPC,ACCION,DND,ARMA,OBJETO," + golpePudridoObj.getId()),
+                    buildSkill("Mordida Infecta", null, "1d8+1",
+                        "Ataque de arma cuerpo a cuerpo: +3 al ataque, alcance 5 pies, un objetivo derribado o incapacitado.\n\n" +
+                        "El zombie clava sus dientes ennegrecidos en la carne de la víctima intentando desgarrarla y propagar su corrupción.\n\n" +
+                        "Daño: 1d8 + 1 de daño perforante.\n\n" +
+                        "Si el objetivo es una criatura viva, no puede recuperar puntos de golpe hasta el inicio del siguiente turno del zombie.",
+                        "NPC,ACCION,DND,ARMA,OBJETO," + morditaInfectaObj.getId())
+                ));
+
+                List<Habilidad> idiomasZombie = habilidadRepository.saveAll(List.of(
+                    buildSkill("Idioma: Entiende los idiomas que conoció en vida pero no puede hablar", null, null, null, "NPC,IDIOMA")
+                ));
+
+                List<Habilidad> todasZombie = new ArrayList<>();
+                todasZombie.addAll(pasivasZombie);
+                todasZombie.addAll(accionesZombie);
+                todasZombie.addAll(idiomasZombie);
+                zombie.getHabilidades().addAll(todasZombie);
+                personajeRepository.save(zombie);
+
+                mochilaRepository.saveAll(List.of(
+                    Mochila.builder().objeto(golpePudridoObj).personaje(zombie).cantidad(1).equipado(true).build(),
+                    Mochila.builder().objeto(morditaInfectaObj).personaje(zombie).cantidad(1).equipado(true).build()
+                ));
+            }
+        };
+    }
+
+    @Bean
+    @Order(8)
+    CommandLineRunner seedMarketplaceMaps(
+            UserRepository userRepository,
+            MapaRepository mapaRepository,
+            PasswordEncoder passwordEncoder
+    ) {
+        return args -> {
+            Usuario sistema = userRepository.findByUsername("sistema")
+                .orElseGet(() -> userRepository.save(buildUser(
+                    "sistema",
+                    "sistema@fosteria.vtt",
+                    passwordEncoder.encode("Sistema2024!"),
+                    null
+                )));
+
+            seedMapIfMissing(mapaRepository,
+                "Templo Druídico",
+                "https://res.cloudinary.com/doxqtmi46/image/upload/v1779733235/templo_druidico_ms4xjw.jpg",
+                true, "templo,druida,naturaleza", sistema);
+
+            seedMapIfMissing(mapaRepository,
+                "Camino en el Bosque",
+                "https://res.cloudinary.com/doxqtmi46/image/upload/v1779733235/camino_en_el_bosque_pmlywc.png",
+                true, "bosque,camino,naturaleza", sistema);
+
+            seedMapIfMissing(mapaRepository,
+                "Santuario del Dios Antiguo",
+                "https://res.cloudinary.com/doxqtmi46/image/upload/v1779733236/templo_del_dios_antiguo_ddizmt.png",
+                true, "templo,santuario,antiguo", sistema);
+        };
+    }
+
     private void seedMapIfMissing(MapaRepository mapaRepository, String nombre, String url, boolean esPublico, String tags, Usuario usuario) {
         boolean exists = mapaRepository.findAll().stream()
             .anyMatch(m -> m.getNombre().equals(nombre) && m.getUsuario().getId().equals(usuario.getId()));

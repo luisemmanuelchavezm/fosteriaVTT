@@ -140,7 +140,7 @@ export function useCharacterSheetRestRecovery({
       dicePools: selectedDicePools,
       modifier: totalModifier,
       modifierDisplay,
-      totalLabel: "Curacion",
+      totalLabel: "Curación",
     });
 
     const healedDiceValues =

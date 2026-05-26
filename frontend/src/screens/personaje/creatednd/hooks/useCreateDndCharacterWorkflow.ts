@@ -348,7 +348,7 @@ export function useCreateDndCharacterWorkflow({
 
     const token = localStorage.getItem("jwtToken");
     if (!token) {
-      setCreationError("No se pudo autenticar la creacion del personaje.");
+      setCreationError("No se pudo autenticar la creación del personaje.");
       return;
     }
 

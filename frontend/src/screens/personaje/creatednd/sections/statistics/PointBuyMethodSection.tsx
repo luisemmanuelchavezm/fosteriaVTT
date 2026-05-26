@@ -41,7 +41,7 @@ export default function PointBuyMethodSection({
         <table className="min-w-full text-sm text-white/85">
           <thead>
             <tr className="border-b border-stone-300/10 text-left text-white/65">
-              <th className="px-4 py-3 font-medium">Puntuacion</th>
+              <th className="px-4 py-3 font-medium">Puntuación</th>
               {[8, 9, 10, 11, 12, 13, 14, 15].map((score) => (
                 <th key={score} className="px-4 py-3 font-medium">
                   {score}
@@ -72,7 +72,7 @@ export default function PointBuyMethodSection({
               className={PARCHMENT_CARD_CLASSES}
             >
               <p className="text-sm font-semibold uppercase tracking-[0.16em] text-stone-700">
-                {stat.name}
+                {stat.displayName}
               </p>
               <div className="mt-4 flex items-center justify-between gap-3 rounded-[18px] border border-[#d6bb75] bg-white/55 p-3">
                 <button

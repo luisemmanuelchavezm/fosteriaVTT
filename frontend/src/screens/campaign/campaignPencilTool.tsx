@@ -59,8 +59,6 @@ const SHAPE_OPTIONS: PencilShape[] = [
 
 const STROKE_WIDTH = 3;
 const ERASER_HIT_RADIUS = 10;
-// Auto-flush: cada N ms el trazo activo se guarda y empieza un segmento nuevo,
-// evitando payloads enormes que el broker WebSocket rechaza silenciosamente.
 const PENCIL_FLUSH_MS = 3000;
 
 function toKonvaPoints(points: DrawingPoint[]): number[] {

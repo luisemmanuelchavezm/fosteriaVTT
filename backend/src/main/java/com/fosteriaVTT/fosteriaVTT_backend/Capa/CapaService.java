@@ -70,7 +70,12 @@ public class CapaService {
 		Capa capaMapa = capaRepository.findByPestañaIdAndNivelDeCapa(request.pestanaId(), NIVEL_CAPA_MAPA)
 				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No existe la capa de mapa en la pestaña"));
 
-		Mapa mapa = mapaRepository.findByIdAndUsuarioUsername(request.mapaId(), username)
+		// Allow the user to assign maps they own OR any public map (marketplace)
+		Mapa mapa = mapaRepository.findById(request.mapaId())
+				.filter(m -> {
+					String owner = m.getUsuario() != null ? m.getUsuario().getUsername() : null;
+					return username.equals(owner) || m.isEsPublico();
+				})
 				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No se encontró el mapa seleccionado"));
 
 		capaMapa.setMapa(mapa);

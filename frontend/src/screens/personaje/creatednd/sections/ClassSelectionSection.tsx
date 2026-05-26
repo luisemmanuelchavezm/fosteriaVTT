@@ -151,7 +151,7 @@ export default function ClassSelectionSection({
               onClick={onClearSelection}
               className="rounded-full border border-stone-300/15 bg-black/30 px-4 py-2 text-sm font-semibold text-stone-100 transition hover:border-amber-300/30 hover:bg-stone-950/50"
             >
-              Eliminar eleccion
+              Eliminar elección
             </button>
           ) : null}
         </div>
@@ -293,7 +293,7 @@ export default function ClassSelectionSection({
               {selectedSubclass ? (
                 <ProgressionTablesBlock
                   tables={selectedSubclass.tablas ?? []}
-                  title="Progresion de subclase"
+                  title="Progresión de subclase"
                   onSpellReferenceClick={onSpellReferenceClick}
                 />
               ) : null}

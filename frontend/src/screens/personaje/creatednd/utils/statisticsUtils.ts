@@ -16,7 +16,10 @@ export type StatsMethod = "dice" | "standard" | "point-buy" | "custom";
 
 export interface AbilityStat {
   id: string;
+  /** Clave del backend (sin acentos) — usar para lookups de API. */
   name: string;
+  /** Nombre visible al usuario (con acentos). */
+  displayName: string;
 }
 
 export interface DiceSlot {
@@ -41,12 +44,12 @@ export interface DiceBoxRollResult {
 }
 
 export const ABILITY_STATS: AbilityStat[] = [
-  { id: "strength", name: "Fuerza" },
-  { id: "dexterity", name: "Destreza" },
-  { id: "constitution", name: "Constitucion" },
-  { id: "intelligence", name: "Inteligencia" },
-  { id: "wisdom", name: "Sabiduria" },
-  { id: "charisma", name: "Carisma" },
+  { id: "strength", name: "Fuerza", displayName: "Fuerza" },
+  { id: "dexterity", name: "Destreza", displayName: "Destreza" },
+  { id: "constitution", name: "Constitucion", displayName: "Constitución" },
+  { id: "intelligence", name: "Inteligencia", displayName: "Inteligencia" },
+  { id: "wisdom", name: "Sabiduria", displayName: "Sabiduría" },
+  { id: "charisma", name: "Carisma", displayName: "Carisma" },
 ];
 
 export const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];

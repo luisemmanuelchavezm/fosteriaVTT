@@ -14,7 +14,7 @@ export const SAVING_THROWS_WITH_IMAGES = [
   },
   {
     statName: "Constitucion",
-    displayName: "Constitucion",
+    displayName: "Constitución",
     image: imgSalvacionConstitucion,
   },
   {
@@ -24,7 +24,7 @@ export const SAVING_THROWS_WITH_IMAGES = [
   },
   {
     statName: "Sabiduria",
-    displayName: "Sabiduria",
+    displayName: "Sabiduría",
     image: imgSalvacionSabiduria,
   },
   { statName: "Carisma", displayName: "Carisma", image: imgSalvacionCarisma },

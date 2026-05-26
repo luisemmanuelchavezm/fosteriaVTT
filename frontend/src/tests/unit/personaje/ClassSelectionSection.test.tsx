@@ -176,9 +176,9 @@ describe("creacion de personaje - ClassSelectionSection", () => {
 
     expect(screen.getByText(/Clase elegida:/)).toBeInTheDocument();
     expect(screen.getByText("Rasgos de Evocación")).toBeInTheDocument();
-    expect(screen.getByText("Progresion de subclase")).toBeInTheDocument();
+    expect(screen.getByText("Progresión de subclase")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Eliminar eleccion" }));
+    fireEvent.click(screen.getByRole("button", { name: "Eliminar elección" }));
     fireEvent.click(screen.getByRole("button", { name: /Evocación/i }));
     fireEvent.click(
       screen.getByRole("button", { name: /Truco: Misil mágico/i }),

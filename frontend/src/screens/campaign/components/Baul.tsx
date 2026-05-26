@@ -1,711 +1,100 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { buildApiUrl } from "../../../lib/api";
+import { useState } from "react";
 import MapUploadModal from "./MapUploadModal";
 import EnemyCreationModal from "./EnemyCreationModal";
-import type { CreatedCharacterResponse } from "../../personaje/utils/dndApi";
+import { TIPO_BADGE } from "./baulTypes";
+import type {
+  ChestTipoTab,
+  MapSummaryResponse,
+  MarketplaceCharacterResponse,
+  CharacterSummaryResponse,
+} from "./baulTypes";
+import { useBaulData } from "../hooks/useBaulData";
 
 interface BaulProps {
   campaignId: string;
+  isDM?: boolean;
   onClose: () => void;
   onMapSelect?: (payload: { mapaId: number; mapaUrl: string }) => void;
   onCharacterClick?: (characterId: number) => void;
 }
 
-interface CampaignSummaryResponse {
-  id: number;
-  sistemaDeJuego: string;
-}
-
-interface CampaignPageResponse {
-  items: CampaignSummaryResponse[];
-  hasMore: boolean;
-}
-
-interface CharacterSummaryResponse {
-  id: number;
-  nombre: string;
-  retrato?: string;
-  sistemaDeJuego: string;
-  tipo?: string;
-  esPublico?: boolean;
-  estaPublicado?: boolean;
-  esGuardado?: boolean;
-}
-
-interface CharacterPageResponse {
-  items: CharacterSummaryResponse[];
-}
-
-interface MapSummaryResponse {
-  id: number;
-  nombre: string;
-  mapa?: string;
-  esPublico?: boolean;
-  estaPublicado?: boolean;
-  creadorUsername?: string;
-  yaTienesCopia?: boolean;
-  esGuardado?: boolean;
-}
-
-interface MapPageResponse {
-  items: MapSummaryResponse[];
-}
-
-interface CreateMapResponse {
-  id: number;
-  nombre: string;
-  mapa?: string;
-}
-
-interface MarketplaceCharacterResponse {
-  id: number;
-  nombre: string;
-  retrato?: string;
-  sistemaDeJuego: string;
-  tipo: string;
-  creadorUsername: string;
-  yaTienesCopia: boolean;
-}
-
-interface MarketplacePageResponse {
-  items: MarketplaceCharacterResponse[];
-  hasMore: boolean;
-}
-
-const CHARACTER_DRAG_MIME = "application/x-fosteria-character";
-
-type ChestSourceTab = "mine" | "marketplace";
-type ChestContentTab = "characters" | "map";
-type ChestTipoTab = "todos" | "personajes" | "enemigos" | "pnj";
-
-const TIPO_BADGE: Record<string, string> = {
-  enemigo: "bg-red-900/70 text-red-300 border border-red-500/40",
-  pnj: "bg-sky-900/70 text-sky-300 border border-sky-500/40",
-  personaje: "bg-violet-900/70 text-violet-300 border border-violet-500/40",
-};
-
 export default function Baul({
   campaignId,
+  isDM = false,
   onClose,
   onMapSelect,
   onCharacterClick,
 }: BaulProps) {
-  const [chestSourceTab, setChestSourceTab] = useState<ChestSourceTab>("mine");
-  const [chestContentTab, setChestContentTab] =
-    useState<ChestContentTab>("characters");
-  const [chestTipoTab, setChestTipoTab] = useState<ChestTipoTab>("todos");
-  const [isNpcModalOpen, setIsNpcModalOpen] = useState(false);
-  const [chestSearchQuery, setChestSearchQuery] = useState("");
-  const [chestCampaignSystem, setChestCampaignSystem] = useState<string | null>(
-    null,
-  );
+  const [mapBlockedToast, setMapBlockedToast] = useState(false);
 
-  // ── Mis elementos ───────────────────────────────────────────
-  const [chestCharacters, setChestCharacters] = useState<
-    CharacterSummaryResponse[]
-  >([]);
-  const [chestMaps, setChestMaps] = useState<MapSummaryResponse[]>([]);
-  const [isChestLoading, setIsChestLoading] = useState(false);
-  const [chestError, setChestError] = useState<string | null>(null);
-  const [isChestMapsLoading, setIsChestMapsLoading] = useState(false);
-  const [chestMapsError, setChestMapsError] = useState<string | null>(null);
-  const [isMapUploadModalOpen, setIsMapUploadModalOpen] = useState(false);
-  const [isMapSubmitting, setIsMapSubmitting] = useState(false);
-
-  // ── Usuario actual (del JWT) ─────────────────────────────────
-  const currentUsername = useMemo(() => {
-    try {
-      const token = localStorage.getItem("jwtToken");
-      if (!token) return null;
-      const payload = token.split(".")[1];
-      const decoded = JSON.parse(
-        atob(payload.replace(/-/g, "+").replace(/_/g, "/")),
-      ) as { sub?: string };
-      return decoded.sub ?? null;
-    } catch {
-      return null;
-    }
-  }, []);
-
-  // ── Menú de opciones por tarjeta ────────────────────────────
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-
-  // ── Modal publicar ───────────────────────────────────────────
-  const [publishTarget, setPublishTarget] = useState<{
-    type: "character" | "map";
-    id: number;
-    nombre: string;
-  } | null>(null);
-  const [isPublishing, setIsPublishing] = useState(false);
-
-  // ── Modal guardar ────────────────────────────────────────────
-  const [saveTarget, setSaveTarget] = useState<{
-    type: "character" | "map";
-    id: number;
-    nombre: string;
-  } | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-
-  // ── Modal borrar ─────────────────────────────────────────────
-  const [deleteTarget, setDeleteTarget] = useState<{
-    type: "character" | "map";
-    id: number;
-    nombre: string;
-    fromMarketplace?: boolean;
-  } | null>(null);
-  const [deleteConfirmText, setDeleteConfirmText] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  // ── Marketplace ─────────────────────────────────────────────
-  const [marketplaceCharacters, setMarketplaceCharacters] = useState<
-    MarketplaceCharacterResponse[]
-  >([]);
-  const [isMarketplaceCharactersLoading, setIsMarketplaceCharactersLoading] =
-    useState(false);
-  const [marketplaceCharactersError, setMarketplaceCharactersError] = useState<
-    string | null
-  >(null);
-
-  const [marketplaceMaps, setMarketplaceMaps] = useState<MapSummaryResponse[]>(
-    [],
-  );
-  const [isMarketplaceMapsLoading, setIsMarketplaceMapsLoading] =
-    useState(false);
-  const [marketplaceMapsError, setMarketplaceMapsError] = useState<
-    string | null
-  >(null);
-
-  const marketplaceSearchTimer = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
-
-  // ── Cargar personajes propios ────────────────────────────────
-  useEffect(() => {
-    const token = localStorage.getItem("jwtToken");
-    if (!token) {
-      setChestError("No hay sesión activa.");
-      setChestCharacters([]);
-      setChestCampaignSystem(null);
-      return;
-    }
-
-    const campaignIdNumber = Number(campaignId);
-    if (!Number.isFinite(campaignIdNumber)) {
-      setChestError("Campaña inválida.");
-      setChestCharacters([]);
-      setChestCampaignSystem(null);
-      return;
-    }
-
-    const abortController = new AbortController();
-
-    const loadChestCharacters = async () => {
-      try {
-        setIsChestLoading(true);
-        setChestError(null);
-
-        let page = 0;
-        let hasMore = true;
-        let resolvedSystem: string | null = null;
-
-        while (hasMore && page < 25 && !abortController.signal.aborted) {
-          const campaignsResponse = await fetch(
-            buildApiUrl(`/api/campanas?page=${page}&size=25`),
-            {
-              headers: { Authorization: `Bearer ${token}` },
-              signal: abortController.signal,
-            },
-          );
-
-          if (!campaignsResponse.ok) {
-            throw new Error("No se pudo resolver el sistema de la campaña.");
-          }
-
-          const campaignsData =
-            (await campaignsResponse.json()) as CampaignPageResponse;
-          const campaignMatch = campaignsData.items.find(
-            (campaign) => campaign.id === campaignIdNumber,
-          );
-
-          if (campaignMatch) {
-            resolvedSystem = campaignMatch.sistemaDeJuego;
-            break;
-          }
-
-          hasMore = campaignsData.hasMore;
-          page += 1;
-        }
-
-        if (!resolvedSystem) {
-          throw new Error(
-            "No se encontró el sistema de juego de esta campaña.",
-          );
-        }
-
-        setChestCampaignSystem(resolvedSystem);
-
-        const searchParams = new URLSearchParams();
-        searchParams.set("page", "0");
-        searchParams.set("size", "120");
-        searchParams.append("sistemas", resolvedSystem);
-        searchParams.set("incluirTodos", "true");
-
-        const charactersResponse = await fetch(
-          buildApiUrl(`/api/personajes?${searchParams.toString()}`),
-          {
-            headers: { Authorization: `Bearer ${token}` },
-            signal: abortController.signal,
-          },
-        );
-
-        if (!charactersResponse.ok) {
-          throw new Error("No se pudieron cargar los personajes del baúl.");
-        }
-
-        const charactersData =
-          (await charactersResponse.json()) as CharacterPageResponse;
-
-        setChestCharacters(
-          charactersData.items.filter(
-            (character) => character.sistemaDeJuego === resolvedSystem,
-          ),
-        );
-      } catch (error) {
-        if ((error as Error).name !== "AbortError") {
-          setChestCampaignSystem(null);
-          setChestCharacters([]);
-          setChestError((error as Error).message);
-        }
-      } finally {
-        if (!abortController.signal.aborted) {
-          setIsChestLoading(false);
-        }
-      }
-    };
-
-    void loadChestCharacters();
-
-    return () => {
-      abortController.abort();
-    };
-  }, [campaignId]);
-
-  // ── Cargar mapas propios ─────────────────────────────────────
-  const loadChestMaps = useCallback(async () => {
-    const token = localStorage.getItem("jwtToken");
-    if (!token) {
-      setChestMaps([]);
-      setChestMapsError("No hay sesión activa.");
-      return;
-    }
-
-    try {
-      setIsChestMapsLoading(true);
-      setChestMapsError(null);
-
-      const searchParams = new URLSearchParams();
-      searchParams.set("page", "0");
-      searchParams.set("size", "120");
-
-      const response = await fetch(
-        buildApiUrl(`/api/mapas?${searchParams.toString()}`),
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("No se pudieron cargar tus mapas.");
-      }
-
-      const mapsData = (await response.json()) as MapPageResponse;
-      setChestMaps(mapsData.items ?? []);
-    } catch (error) {
-      setChestMaps([]);
-      setChestMapsError((error as Error).message);
-    } finally {
-      setIsChestMapsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadChestMaps();
-  }, [loadChestMaps]);
-
-  // ── Refrescar personajes propios (sin re-resolver la campaña) ──
-  const refreshCharacters = useCallback(async () => {
-    const token = localStorage.getItem("jwtToken");
-    if (!token || !chestCampaignSystem) return;
-
-    try {
-      setIsChestLoading(true);
-      setChestError(null);
-
-      const searchParams = new URLSearchParams();
-      searchParams.set("page", "0");
-      searchParams.set("size", "120");
-      searchParams.append("sistemas", chestCampaignSystem);
-      searchParams.set("incluirTodos", "true");
-
-      const res = await fetch(
-        buildApiUrl(`/api/personajes?${searchParams.toString()}`),
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
-
-      if (!res.ok)
-        throw new Error("No se pudieron cargar los personajes del baúl.");
-
-      const data = (await res.json()) as CharacterPageResponse;
-      setChestCharacters(
-        data.items.filter((c) => c.sistemaDeJuego === chestCampaignSystem),
-      );
-    } catch (error) {
-      setChestCharacters([]);
-      setChestError((error as Error).message);
-    } finally {
-      setIsChestLoading(false);
-    }
-  }, [chestCampaignSystem]);
-
-  // ── Cargar personajes del marketplace ────────────────────────
-  const loadMarketplaceCharacters = useCallback(
-    async (search: string, tipoTab: ChestTipoTab) => {
-      const token = localStorage.getItem("jwtToken");
-      if (!token) return;
-
-      const tipoParam =
-        tipoTab === "todos"
-          ? ""
-          : tipoTab === "personajes"
-            ? "personaje"
-            : tipoTab === "enemigos"
-              ? "enemigo"
-              : "pnj";
-
-      try {
-        setIsMarketplaceCharactersLoading(true);
-        setMarketplaceCharactersError(null);
-
-        const url = buildApiUrl(
-          `/api/marketplace/personajes?nombre=${encodeURIComponent(search)}&tipo=${tipoParam}&page=0&size=100`,
-        );
-        const res = await fetch(url, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!res.ok) throw new Error("No se pudo cargar el marketplace.");
-
-        const data = (await res.json()) as MarketplacePageResponse;
-        setMarketplaceCharacters(data.items);
-      } catch (error) {
-        setMarketplaceCharacters([]);
-        setMarketplaceCharactersError((error as Error).message);
-      } finally {
-        setIsMarketplaceCharactersLoading(false);
-      }
-    },
-    [],
-  );
-
-  // ── Cargar mapas del marketplace ─────────────────────────────
-  const loadMarketplaceMaps = useCallback(async (search: string) => {
-    const token = localStorage.getItem("jwtToken");
-    if (!token) return;
-
-    try {
-      setIsMarketplaceMapsLoading(true);
-      setMarketplaceMapsError(null);
-
-      const url = buildApiUrl(
-        `/api/marketplace/mapas?nombre=${encodeURIComponent(search)}&page=0&size=100`,
-      );
-      const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) throw new Error("No se pudieron cargar los mapas públicos.");
-
-      const data = (await res.json()) as {
-        items: MapSummaryResponse[];
-        hasMore: boolean;
-      };
-      setMarketplaceMaps(data.items);
-    } catch (error) {
-      setMarketplaceMaps([]);
-      setMarketplaceMapsError((error as Error).message);
-    } finally {
-      setIsMarketplaceMapsLoading(false);
-    }
-  }, []);
-
-  // ── Disparar carga del marketplace con debounce ──────────────
-  useEffect(() => {
-    if (chestSourceTab !== "marketplace") return;
-
-    if (marketplaceSearchTimer.current) {
-      clearTimeout(marketplaceSearchTimer.current);
-    }
-
-    marketplaceSearchTimer.current = setTimeout(() => {
-      if (chestContentTab === "characters") {
-        void loadMarketplaceCharacters(chestSearchQuery, chestTipoTab);
-      } else {
-        void loadMarketplaceMaps(chestSearchQuery);
-      }
-    }, 300);
-
-    return () => {
-      if (marketplaceSearchTimer.current) {
-        clearTimeout(marketplaceSearchTimer.current);
-      }
-    };
-  }, [
+  const {
     chestSourceTab,
+    setChestSourceTab,
     chestContentTab,
-    chestSearchQuery,
+    setChestContentTab,
     chestTipoTab,
-    loadMarketplaceCharacters,
-    loadMarketplaceMaps,
-  ]);
-
-  // ── Acciones ─────────────────────────────────────────────────
-  const handleSubmitMap = useCallback(
-    async (payload: {
-      file: File;
-      nombre: string;
-      esPublico: boolean;
-      tags: string[];
-    }) => {
-      const token = localStorage.getItem("jwtToken");
-      if (!token) {
-        throw new Error("No hay sesión activa.");
-      }
-
-      setIsMapSubmitting(true);
-      try {
-        const formData = new FormData();
-        formData.append("mapImage", payload.file);
-        formData.append("nombre", payload.nombre);
-        formData.append("esPublico", String(payload.esPublico));
-        formData.append("tags", payload.tags.join(","));
-
-        const response = await fetch(buildApiUrl("/api/mapas"), {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(errorText || "No se pudo subir el mapa.");
-        }
-
-        const createdMap = (await response.json()) as CreateMapResponse;
-        setChestMaps((current) => [createdMap, ...current]);
-        await loadChestMaps();
-      } finally {
-        setIsMapSubmitting(false);
-      }
-    },
-    [loadChestMaps],
-  );
-
-  const handleNpcCreated = useCallback(
-    (created: CreatedCharacterResponse) => {
-      setIsNpcModalOpen(false);
-      setChestCharacters((prev) => [
-        {
-          id: created.id,
-          nombre: created.nombre,
-          retrato: created.retrato,
-          sistemaDeJuego: chestCampaignSystem ?? "",
-          tipo: created.tipo,
-        },
-        ...prev,
-      ]);
-    },
-    [chestCampaignSystem],
-  );
-
-  // ── Guardar desde marketplace ────────────────────────────────
-  const handleSave = useCallback(async () => {
-    if (!saveTarget) return;
-    const token = localStorage.getItem("jwtToken");
-    if (!token) return;
-    setIsSaving(true);
-    try {
-      const url =
-        saveTarget.type === "character"
-          ? buildApiUrl(`/api/personajes/${saveTarget.id}/guardar`)
-          : buildApiUrl(`/api/mapas/${saveTarget.id}/guardar`);
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("No se pudo guardar.");
-      // Marcar en marketplace como "ya tienes copia"
-      if (saveTarget.type === "character") {
-        setMarketplaceCharacters((prev) =>
-          prev.map((c) =>
-            c.id === saveTarget.id ? { ...c, yaTienesCopia: true } : c,
-          ),
-        );
-        // Refrescar "Tus elementos" para que aparezca el nuevo personaje
-        void refreshCharacters();
-      } else {
-        setMarketplaceMaps((prev) =>
-          prev.map((m) =>
-            m.id === saveTarget.id ? { ...m, yaTienesCopia: true } : m,
-          ),
-        );
-        void loadChestMaps();
-      }
-      setSaveTarget(null);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsSaving(false);
-    }
-  }, [saveTarget, refreshCharacters, loadChestMaps]);
-
-  // ── Publicar ─────────────────────────────────────────────────
-  const handlePublish = useCallback(async () => {
-    if (!publishTarget) return;
-    const token = localStorage.getItem("jwtToken");
-    if (!token) return;
-    setIsPublishing(true);
-    try {
-      const url =
-        publishTarget.type === "character"
-          ? buildApiUrl(`/api/personajes/${publishTarget.id}/publicar`)
-          : buildApiUrl(`/api/mapas/${publishTarget.id}/publicar`);
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("No se pudo publicar.");
-      // Refrescar la lista completa para reflejar el nuevo estado
-      if (publishTarget.type === "character") {
-        void refreshCharacters();
-      } else {
-        void loadChestMaps();
-      }
-      setPublishTarget(null);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsPublishing(false);
-    }
-  }, [publishTarget, refreshCharacters, loadChestMaps]);
-
-  // ── Borrar ───────────────────────────────────────────────────
-  const handleDelete = useCallback(async () => {
-    if (!deleteTarget || deleteConfirmText !== "borrar") return;
-    const token = localStorage.getItem("jwtToken");
-    if (!token) return;
-    setIsDeleting(true);
-    try {
-      const url =
-        deleteTarget.type === "character"
-          ? buildApiUrl(`/api/personajes/${deleteTarget.id}`)
-          : buildApiUrl(`/api/mapas/${deleteTarget.id}`);
-      const res = await fetch(url, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("No se pudo borrar.");
-
-      if (deleteTarget.type === "character") {
-        // Refrescar personajes propios y marketplace de personajes
-        void refreshCharacters();
-        void loadMarketplaceCharacters(chestSearchQuery, chestTipoTab);
-      } else {
-        // Refrescar mapas propios y marketplace de mapas
-        void loadChestMaps();
-        void loadMarketplaceMaps(chestSearchQuery);
-      }
-
-      setDeleteTarget(null);
-      setDeleteConfirmText("");
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsDeleting(false);
-    }
-  }, [
+    setChestTipoTab,
+    chestSearchQuery,
+    setChestSearchQuery,
+    isChestLoading,
+    chestError,
+    filteredChestCharacters,
+    isChestMapsLoading,
+    chestMapsError,
+    filteredChestMaps,
+    chestCampaignSystem,
+    isMarketplaceCharactersLoading,
+    marketplaceCharactersError,
+    filteredMarketplaceCharacters,
+    isMarketplaceMapsLoading,
+    marketplaceMapsError,
+    filteredMarketplaceMaps,
+    mpCharFilterOpen,
+    setMpCharFilterOpen,
+    mpCharUserFilter,
+    setMpCharUserFilter,
+    mpCharTypeFilter,
+    setMpCharTypeFilter,
+    mpMapFilterOpen,
+    setMpMapFilterOpen,
+    mpMapUserFilter,
+    setMpMapUserFilter,
+    openMenuId,
+    setOpenMenuId,
+    saveTarget,
+    setSaveTarget,
+    isSaving,
+    handleSave,
+    publishTarget,
+    setPublishTarget,
+    isPublishing,
+    handlePublish,
     deleteTarget,
+    setDeleteTarget,
     deleteConfirmText,
-    refreshCharacters,
-    loadChestMaps,
-    loadMarketplaceCharacters,
-    loadMarketplaceMaps,
-    chestSearchQuery,
-    chestTipoTab,
-  ]);
+    setDeleteConfirmText,
+    isDeleting,
+    handleDelete,
+    isMapUploadModalOpen,
+    setIsMapUploadModalOpen,
+    isMapSubmitting,
+    handleSubmitMap,
+    isNpcModalOpen,
+    setIsNpcModalOpen,
+    handleNpcCreated,
+    currentUsername,
+    handleCharacterDragStart,
+  } = useBaulData(campaignId);
 
-  // ── Filtros locales (mis elementos) ──────────────────────────
-  const filteredChestCharacters = useMemo(() => {
-    const query = chestSearchQuery.trim().toLowerCase();
-    const byTipo = chestCharacters.filter((character) => {
-      if (chestTipoTab === "todos") return true;
-      const t = (character.tipo ?? "personaje").toLowerCase();
-      if (chestTipoTab === "personajes") return t === "personaje";
-      if (chestTipoTab === "enemigos") return t === "enemigo";
-      if (chestTipoTab === "pnj") return t === "pnj";
-      return true;
-    });
-    if (!query) return byTipo;
-    return byTipo.filter((character) =>
-      character.nombre.toLowerCase().includes(query),
-    );
-  }, [chestCharacters, chestSearchQuery, chestTipoTab]);
+  const gridClass = "grid gap-2.5";
+  const gridStyle = {
+    gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+  };
 
-  const filteredChestMaps = useMemo(() => {
-    const query = chestSearchQuery.trim().toLowerCase();
-    if (!query) return chestMaps;
-    return chestMaps.filter((map) => map.nombre.toLowerCase().includes(query));
-  }, [chestMaps, chestSearchQuery]);
-
-  // ── Drag & drop ──────────────────────────────────────────────
-  const handleCharacterDragStart = useCallback(
-    (
-      event: React.DragEvent<HTMLElement>,
-      character: {
-        id: number;
-        nombre: string;
-        retrato?: string;
-        tipo?: string;
-        source?: string;
-      },
-    ) => {
-      event.dataTransfer.effectAllowed = "move";
-      event.dataTransfer.setData(
-        CHARACTER_DRAG_MIME,
-        JSON.stringify({
-          id: character.id,
-          nombre: character.nombre,
-          retrato: character.retrato,
-          tipo: character.tipo,
-          source: character.source,
-        }),
-      );
-      event.dataTransfer.setData("text/plain", character.nombre);
-    },
-    [],
-  );
-
-  // ── Helpers de render ────────────────────────────────────────
+  // ── Render character card ────────────────────────────────────
   const renderCharacterCard = (
-    character: {
-      id: number;
-      nombre: string;
-      retrato?: string;
-      sistemaDeJuego: string;
-      tipo?: string;
+    character: CharacterSummaryResponse & {
       source?: string;
-      esPublico?: boolean;
-      estaPublicado?: boolean;
-      esGuardado?: boolean;
       yaTienesCopia?: boolean;
     },
     extra?: { badge?: string; subtitle?: string; creadorUsername?: string },
@@ -714,9 +103,6 @@ export default function Baul({
     const isOwn = character.source === "mine";
     const isNpcOrEnemy = tipo === "enemigo" || tipo === "pnj";
     const menuKey = `char-${character.id}`;
-
-    // Own characters are always clickable (editable sheet).
-    // Marketplace enemies/PNJs are also clickable (read-only — isOwner will be false inside the sheet).
     const canClick = !!onCharacterClick && (isOwn || (!isOwn && isNpcOrEnemy));
 
     return (
@@ -753,7 +139,7 @@ export default function Baul({
             </span>
           )}
 
-          {/* ── Botones Tus elementos: NPC/Enemigo → ⚙ menú; Personaje → 🗑 */}
+          {/* Own NPC/Enemy: gear menu */}
           {isOwn && isNpcOrEnemy && (
             <div className="absolute top-1.5 right-1.5">
               <button
@@ -770,7 +156,6 @@ export default function Baul({
               </button>
               {openMenuId === menuKey && (
                 <div className="absolute right-0 top-full z-30 mt-1 w-28 overflow-hidden rounded-xl border border-white/20 bg-zinc-900 shadow-2xl">
-                  {/* Publicar: solo si no es ya público, no fue publicado y no es guardado del marketplace */}
                   {!character.esPublico && !character.esGuardado && (
                     <button
                       type="button"
@@ -813,6 +198,7 @@ export default function Baul({
             </div>
           )}
 
+          {/* Own non-NPC: delete button */}
           {isOwn && !isNpcOrEnemy && (
             <button
               type="button"
@@ -833,7 +219,7 @@ export default function Baul({
             </button>
           )}
 
-          {/* ── Botones Marketplace: Guardar (si no es tuyo) o Borrar (si es tuyo) */}
+          {/* Marketplace NPC/Enemy: save or delete */}
           {!isOwn && isNpcOrEnemy && (
             <>
               {extra?.creadorUsername === currentUsername ? (
@@ -859,13 +245,12 @@ export default function Baul({
                   disabled={character.yaTienesCopia === true}
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (!character.yaTienesCopia) {
+                    if (!character.yaTienesCopia)
                       setSaveTarget({
                         type: "character",
                         id: character.id,
                         nombre: character.nombre,
                       });
-                    }
                   }}
                   className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full border border-amber-400/50 bg-black/60 text-amber-300 text-xs backdrop-blur-sm transition hover:bg-amber-900/60 disabled:opacity-40 disabled:cursor-not-allowed"
                   title={
@@ -899,15 +284,20 @@ export default function Baul({
     );
   };
 
+  // ── Render map card ──────────────────────────────────────────
   const renderMapCard = (map: MapSummaryResponse, isOwn = true) => {
     const menuKey = `map-${map.id}`;
     return (
       <article
         key={map.id}
         onClick={() => {
-          if (map.mapa && onMapSelect) {
-            onMapSelect({ mapaId: map.id, mapaUrl: map.mapa });
+          if (!map.mapa) return;
+          if (!isDM) {
+            setMapBlockedToast(true);
+            setTimeout(() => setMapBlockedToast(false), 3000);
+            return;
           }
+          if (onMapSelect) onMapSelect({ mapaId: map.id, mapaUrl: map.mapa });
         }}
         className="relative flex cursor-pointer flex-col overflow-hidden rounded-[18px] border border-amber-200/35 bg-zinc-900/95 shadow-[0_12px_24px_rgba(0,0,0,0.25)] transition hover:shadow-[0_16px_32px_rgba(0,0,0,0.35)]"
       >
@@ -924,7 +314,7 @@ export default function Baul({
             </div>
           )}
 
-          {/* ── Botones Tus mapas → ⚙ menú */}
+          {/* Own map: gear menu */}
           {isOwn && (
             <div className="absolute top-1.5 right-1.5">
               <button
@@ -979,7 +369,7 @@ export default function Baul({
             </div>
           )}
 
-          {/* ── Botones Marketplace mapas: Guardar o Borrar según si es tuyo */}
+          {/* Marketplace map: save or delete */}
           {!isOwn && (
             <>
               {map.creadorUsername === currentUsername ? (
@@ -1005,13 +395,12 @@ export default function Baul({
                   disabled={map.yaTienesCopia === true}
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (!map.yaTienesCopia) {
+                    if (!map.yaTienesCopia)
                       setSaveTarget({
                         type: "map",
                         id: map.id,
                         nombre: map.nombre,
                       });
-                    }
                   }}
                   className="absolute top-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full border border-amber-400/50 bg-black/60 text-amber-300 text-xs backdrop-blur-sm transition hover:bg-amber-900/60 disabled:opacity-40 disabled:cursor-not-allowed"
                   title={
@@ -1031,14 +420,14 @@ export default function Baul({
           <p className="m-0 text-center text-[15px] font-black leading-[1.15] text-white">
             {map.nombre}
           </p>
+          {!isOwn && map.creadorUsername && (
+            <p className="mt-1 text-center text-[10px] text-white/45 truncate">
+              por {map.creadorUsername}
+            </p>
+          )}
         </div>
       </article>
     );
-  };
-
-  const gridClass = "grid gap-2.5";
-  const gridStyle = {
-    gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
   };
 
   // ── Render ───────────────────────────────────────────────────
@@ -1057,58 +446,34 @@ export default function Baul({
 
       {/* Fuente: Mis elementos / Marketplace */}
       <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => setChestSourceTab("mine")}
-          className={`flex-1 rounded-full px-2.5 py-1.5 text-xs font-bold transition ${
-            chestSourceTab === "mine"
-              ? "border border-amber-400/90 bg-amber-700/22 text-amber-100"
-              : "border border-white/20 bg-white/5 text-white hover:bg-white/12"
-          }`}
-        >
-          Tus elementos
-        </button>
-        <button
-          type="button"
-          onClick={() => setChestSourceTab("marketplace")}
-          className={`flex-1 rounded-full px-2.5 py-1.5 text-xs font-bold transition ${
-            chestSourceTab === "marketplace"
-              ? "border border-amber-400/90 bg-amber-700/22 text-amber-100"
-              : "border border-white/20 bg-white/5 text-white hover:bg-white/12"
-          }`}
-        >
-          Marketplace
-        </button>
+        {(["mine", "marketplace"] as const).map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setChestSourceTab(tab)}
+            className={`flex-1 rounded-full px-2.5 py-1.5 text-xs font-bold transition ${chestSourceTab === tab ? "border border-amber-400/90 bg-amber-700/22 text-amber-100" : "border border-white/20 bg-white/5 text-white hover:bg-white/12"}`}
+          >
+            {tab === "mine" ? "Tus elementos" : "Marketplace"}
+          </button>
+        ))}
       </div>
 
       {/* Contenido: Personajes / Mapa */}
       <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => setChestContentTab("characters")}
-          className={`flex-1 rounded-full px-2.5 py-[5px] text-xs font-bold transition ${
-            chestContentTab === "characters"
-              ? "border border-amber-400/90 bg-amber-700/18 text-amber-100"
-              : "border border-white/20 bg-white/3 text-white hover:bg-white/8"
-          }`}
-        >
-          Personajes
-        </button>
-        <button
-          type="button"
-          onClick={() => setChestContentTab("map")}
-          className={`flex-1 rounded-full px-2.5 py-[5px] text-xs font-bold transition ${
-            chestContentTab === "map"
-              ? "border border-amber-400/90 bg-amber-700/18 text-amber-100"
-              : "border border-white/20 bg-white/3 text-white hover:bg-white/8"
-          }`}
-        >
-          Mapa
-        </button>
+        {(["characters", "map"] as const).map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => setChestContentTab(tab)}
+            className={`flex-1 rounded-full px-2.5 py-[5px] text-xs font-bold transition ${chestContentTab === tab ? "border border-amber-400/90 bg-amber-700/18 text-amber-100" : "border border-white/20 bg-white/3 text-white hover:bg-white/8"}`}
+          >
+            {tab === "characters" ? "Personajes" : "Mapa"}
+          </button>
+        ))}
       </div>
 
-      {/* Filtro por tipo (solo personajes) */}
-      {chestContentTab === "characters" && (
+      {/* Filtro por tipo (solo Tus elementos → personajes) */}
+      {chestSourceTab === "mine" && chestContentTab === "characters" && (
         <div className="flex gap-1.5 flex-wrap">
           {(
             [
@@ -1122,11 +487,7 @@ export default function Baul({
               key={key}
               type="button"
               onClick={() => setChestTipoTab(key)}
-              className={`rounded-full px-2.5 py-1 text-[11px] font-bold transition ${
-                chestTipoTab === key
-                  ? "border border-amber-400/80 bg-amber-700/20 text-amber-100"
-                  : "border border-white/15 bg-white/3 text-white/70 hover:bg-white/8"
-              }`}
+              className={`rounded-full px-2.5 py-1 text-[11px] font-bold transition ${chestTipoTab === key ? "border border-amber-400/80 bg-amber-700/20 text-amber-100" : "border border-white/15 bg-white/3 text-white/70 hover:bg-white/8"}`}
             >
               {label}
             </button>
@@ -1160,8 +521,76 @@ export default function Baul({
             >
               Subir
             </button>
+          ) : chestSourceTab === "marketplace" &&
+            chestContentTab === "characters" ? (
+            <button
+              type="button"
+              title="Filtros adicionales"
+              onClick={() => setMpCharFilterOpen((v) => !v)}
+              className={`h-9 w-9 shrink-0 rounded-lg border text-sm transition ${mpCharFilterOpen ? "border-amber-400/70 bg-amber-700/25 text-amber-200" : "border-white/22 bg-white/8 text-white/70 hover:bg-white/14"}`}
+            >
+              ☰
+            </button>
+          ) : chestSourceTab === "marketplace" && chestContentTab === "map" ? (
+            <button
+              type="button"
+              title="Filtros adicionales"
+              onClick={() => setMpMapFilterOpen((v) => !v)}
+              className={`h-9 w-9 shrink-0 rounded-lg border text-sm transition ${mpMapFilterOpen ? "border-amber-400/70 bg-amber-700/25 text-amber-200" : "border-white/22 bg-white/8 text-white/70 hover:bg-white/14"}`}
+            >
+              ☰
+            </button>
           ) : null}
         </div>
+
+        {/* Panel filtros — Marketplace personajes */}
+        {chestSourceTab === "marketplace" &&
+          chestContentTab === "characters" &&
+          mpCharFilterOpen && (
+            <div className="mb-3 flex flex-col gap-2 rounded-xl border border-white/15 bg-white/5 p-3">
+              <input
+                value={mpCharUserFilter}
+                onChange={(e) => setMpCharUserFilter(e.target.value)}
+                placeholder="Filtrar por usuario..."
+                className="h-8 rounded-lg border border-white/18 bg-black/30 px-2.5 text-xs text-white outline-none transition placeholder:text-white/50 focus:border-white/35"
+              />
+              <div className="flex gap-1.5">
+                <span className="self-center text-[10px] font-bold uppercase tracking-wide text-white/40">
+                  Tipo
+                </span>
+                {(
+                  [
+                    { v: "", label: "Todos" },
+                    { v: "enemigo", label: "Enemigo" },
+                    { v: "pnj", label: "PNJ" },
+                  ] as { v: "" | "enemigo" | "pnj"; label: string }[]
+                ).map(({ v, label }) => (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => setMpCharTypeFilter(v)}
+                    className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold transition ${mpCharTypeFilter === v ? "border border-amber-400/80 bg-amber-700/20 text-amber-100" : "border border-white/15 bg-white/3 text-white/70 hover:bg-white/8"}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+        {/* Panel filtros — Marketplace mapas */}
+        {chestSourceTab === "marketplace" &&
+          chestContentTab === "map" &&
+          mpMapFilterOpen && (
+            <div className="mb-3 rounded-xl border border-white/15 bg-white/5 p-3">
+              <input
+                value={mpMapUserFilter}
+                onChange={(e) => setMpMapUserFilter(e.target.value)}
+                placeholder="Filtrar por usuario..."
+                className="h-8 w-full rounded-lg border border-white/18 bg-black/30 px-2.5 text-xs text-white outline-none transition placeholder:text-white/50 focus:border-white/35"
+              />
+            </div>
+          )}
 
         {/* ── MIS PERSONAJES ── */}
         {chestSourceTab === "mine" && chestContentTab === "characters" && (
@@ -1232,21 +661,22 @@ export default function Baul({
                 )}
               {!isMarketplaceCharactersLoading &&
                 !marketplaceCharactersError &&
-                marketplaceCharacters.length === 0 && (
+                filteredMarketplaceCharacters.length === 0 && (
                   <p className="m-0 text-sm text-white/88">
                     No hay personajes públicos disponibles.
                   </p>
                 )}
               <div className={gridClass} style={gridStyle}>
-                {marketplaceCharacters.map((c) =>
-                  renderCharacterCard(
-                    { ...c, source: "marketplace" },
-                    {
-                      badge: c.tipo,
-                      subtitle: `por ${c.creadorUsername}`,
-                      creadorUsername: c.creadorUsername,
-                    },
-                  ),
+                {filteredMarketplaceCharacters.map(
+                  (c: MarketplaceCharacterResponse) =>
+                    renderCharacterCard(
+                      { ...c, source: "marketplace" },
+                      {
+                        badge: c.tipo,
+                        subtitle: `por ${c.creadorUsername}`,
+                        creadorUsername: c.creadorUsername,
+                      },
+                    ),
                 )}
               </div>
             </>
@@ -1267,13 +697,13 @@ export default function Baul({
             )}
             {!isMarketplaceMapsLoading &&
               !marketplaceMapsError &&
-              marketplaceMaps.length === 0 && (
+              filteredMarketplaceMaps.length === 0 && (
                 <p className="m-0 text-sm text-white/88">
                   No hay mapas públicos disponibles.
                 </p>
               )}
             <div className={gridClass} style={gridStyle}>
-              {marketplaceMaps.map((m) => renderMapCard(m, false))}
+              {filteredMarketplaceMaps.map((m) => renderMapCard(m, false))}
             </div>
           </>
         )}
@@ -1399,6 +829,13 @@ export default function Baul({
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── Toast: solo DM puede cambiar el mapa ── */}
+      {mapBlockedToast && (
+        <div className="pointer-events-none absolute bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-xl border border-amber-400/40 bg-zinc-900/95 px-4 py-2.5 text-sm font-semibold text-amber-300 shadow-2xl">
+          Solo el DM puede modificar el mapa
         </div>
       )}
     </aside>

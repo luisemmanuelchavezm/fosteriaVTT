@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
@@ -11,6 +11,7 @@ import CampaignHomeScreen from "./screens/campaign/CampaignHomeScreen";
 import CampaignPestañaScreen from "./screens/campaign/CampaignPestañaScreen";
 import CreateDndCharacterScreen from "./screens/personaje/creatednd/CreateDndCharacterScreen";
 import DndCharacterSheetScreen from "./screens/personaje/dndcharactersheet/DndCharacterSheetScreen";
+import { buildApiUrl } from "./lib/api";
 type AuthMode =
   | "login"
   | "register"
@@ -39,6 +40,32 @@ function App() {
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(
     null,
   );
+
+  // Detección de link de invitación: ?join={campaignId}
+  const [pendingJoinId, setPendingJoinId] = useState<string | null>(() => {
+    return new URLSearchParams(window.location.search).get("join");
+  });
+
+  // Cuando hay token + pendingJoinId: unirse automáticamente y abrir la campaña
+  useEffect(() => {
+    if (!token || !pendingJoinId) return;
+    const doJoin = async () => {
+      try {
+        await fetch(buildApiUrl(`/api/campanas/${pendingJoinId}/unirse`), {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } catch {
+        // ignorar errores de red; el usuario podrá entrar desde campañas
+      }
+      setPendingJoinId(null);
+      window.history.replaceState({}, "", window.location.pathname);
+      // Ir directamente al CampaignHomeScreen de esa campaña
+      setSelectedCampaignId(pendingJoinId);
+      setMode("campaign-home");
+    };
+    void doJoin();
+  }, [token, pendingJoinId]);
 
   const handleGoHome = () => {
     if (token) {
@@ -159,6 +186,11 @@ function App() {
           onLoginSuccess={handleLoginSuccess}
           onSwitchToRegister={() => setMode("register")}
           onGoHome={handleGoHome}
+          joinMessage={
+            pendingJoinId
+              ? "Inicia sesión para unirte a la campaña invitada"
+              : undefined
+          }
         />
       )}
       {mode === "register" && (

@@ -39,6 +39,9 @@ public class Pestaña extends NamedEntity {
     @Builder.Default
     private String nieblaDeGuerra = "true";
 
+    @Column(columnDefinition = "TEXT")
+    private String nieblaEstadoJson;
+
     @Column(nullable = false)
     @Builder.Default
     private String sistemaMetrico = "ft";

@@ -23,7 +23,7 @@ export default function DiceRollOverlay({
   return createPortal(
     <>
       <div
-        className="pointer-events-none fixed inset-0 z-40 overflow-hidden"
+        className="pointer-events-none fixed inset-0 z-[120] overflow-hidden"
         aria-hidden="true"
       >
         <div
@@ -33,7 +33,7 @@ export default function DiceRollOverlay({
       </div>
 
       {isRolling ? (
-        <div className="pointer-events-none fixed inset-x-0 bottom-8 z-50 flex justify-center px-4">
+        <div className="pointer-events-none fixed inset-x-0 bottom-8 z-[121] flex justify-center px-4">
           <div className="rounded-full border border-amber-300/30 bg-stone-950/85 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber-100 shadow-[0_12px_35px_rgba(0,0,0,0.35)] backdrop-blur-md">
             Tirando dados
           </div>
@@ -41,7 +41,7 @@ export default function DiceRollOverlay({
       ) : null}
 
       {diceBoxError ? (
-        <div className="pointer-events-none fixed inset-x-0 top-6 z-50 flex justify-center px-4">
+        <div className="pointer-events-none fixed inset-x-0 top-6 z-[121] flex justify-center px-4">
           <div className="rounded-full border border-rose-400/35 bg-rose-950/85 px-4 py-2 text-sm font-medium text-rose-100 shadow-[0_12px_35px_rgba(0,0,0,0.35)] backdrop-blur-md">
             {diceBoxError}
           </div>
@@ -49,7 +49,7 @@ export default function DiceRollOverlay({
       ) : null}
 
       {summary ? (
-        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div className="pointer-events-none fixed inset-0 z-[121] flex items-center justify-center px-4">
           <div
             key={summary.id}
             className="min-w-[280px] max-w-[min(92vw,460px)] animate-in fade-in zoom-in-95 rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(12,10,9,0.92),rgba(28,25,23,0.9))] px-6 py-5 text-white shadow-[0_24px_70px_rgba(0,0,0,0.45)] backdrop-blur-md duration-300"

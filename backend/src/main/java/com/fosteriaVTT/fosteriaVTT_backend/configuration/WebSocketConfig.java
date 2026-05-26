@@ -8,6 +8,7 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -48,5 +49,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(webSocketAuthChannelInterceptor);
+    }
+
+    /**
+     * Raise the default inbound STOMP frame limit (64 KB) so that large fog-of-war
+     * batch messages sent at the end of a fast drag are never silently dropped.
+     * 512 KB comfortably handles a full 100×100 grid explored in one drag.
+     */
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
+        registration.setMessageSizeLimit(512 * 1024);   // 512 KB inbound
+        registration.setSendBufferSizeLimit(1024 * 1024); // 1 MB outbound
+        registration.setSendTimeLimit(20_000);            // 20 s send timeout
     }
 }

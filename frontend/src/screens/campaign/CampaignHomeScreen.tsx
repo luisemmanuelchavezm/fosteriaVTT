@@ -1,4 +1,4 @@
-import { Map, Settings } from "lucide-react";
+import { Link2, LogOut, Map } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import CampaignChatPanel from "./components/CampaignChatPanel";
 import CampaignPlayersPanel from "./components/CampaignPlayersPanel";
@@ -19,7 +19,6 @@ export default function CampaignHomeScreen({
   onOpenCampaignPestaña,
 }: CampaignHomeScreenProps) {
   const [username, setUsername] = useState<string>("");
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [messages, setMessages] = useState<
     Array<{ id: number; username: string; mensaje: string; enviadoEn: string }>
   >([]);
@@ -27,7 +26,14 @@ export default function CampaignHomeScreen({
     Array<{ username: string; dm: boolean }>
   >([]);
   const [chatRealtimeError, setChatRealtimeError] = useState<string>("");
-  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Invite popover
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const [inviteCopied, setInviteCopied] = useState(false);
+  const inviteRef = useRef<HTMLDivElement>(null);
+  const inviteLink = campaignId
+    ? `${window.location.origin}${window.location.pathname}?join=${campaignId}`
+    : "";
 
   const { sendMessage } = useWebSocketChat({
     campaignId: parseInt(campaignId),
@@ -50,12 +56,8 @@ export default function CampaignHomeScreen({
       setUsername(storedUsername);
       return;
     }
-
     const token = localStorage.getItem("jwtToken");
-    if (!token) {
-      return;
-    }
-
+    if (!token) return;
     try {
       const payload = JSON.parse(atob(token.split(".")[1])) as { sub?: string };
       setUsername(payload.sub ?? "");
@@ -64,23 +66,23 @@ export default function CampaignHomeScreen({
     }
   }, []);
 
+  // Close invite popover on outside click
   useEffect(() => {
-    const handlePointerDown = (event: MouseEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) {
-        setIsMenuOpen(false);
+    if (!isInviteOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (inviteRef.current && !inviteRef.current.contains(e.target as Node)) {
+        setIsInviteOpen(false);
       }
     };
+    window.addEventListener("mousedown", handler);
+    return () => window.removeEventListener("mousedown", handler);
+  }, [isInviteOpen]);
 
-    document.addEventListener("mousedown", handlePointerDown);
-
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-    };
-  }, []);
-
-  const handleExit = () => {
-    setIsMenuOpen(false);
-    onExit?.();
+  const handleCopyInvite = () => {
+    void navigator.clipboard.writeText(inviteLink).then(() => {
+      setInviteCopied(true);
+      setTimeout(() => setInviteCopied(false), 2000);
+    });
   };
 
   return (
@@ -88,33 +90,57 @@ export default function CampaignHomeScreen({
       className="relative h-screen w-full bg-cover bg-center bg-no-repeat px-3 pb-4 text-stone-50 md:px-6 md:pb-6"
       style={{ backgroundImage: `url(${CAMPAIGN_BACKGROUND_URL})` }}
     >
-      <div ref={menuRef} className="absolute top-3 left-3 z-20">
+      {/* Top-left: Exit + Invite buttons */}
+      <div className="absolute top-3 left-3 z-20 flex items-center gap-2">
+        {/* Exit button */}
         <button
           type="button"
-          onClick={() => setIsMenuOpen((current) => !current)}
-          aria-expanded={isMenuOpen}
-          aria-haspopup="menu"
-          aria-label="Opciones de la campaña"
-          className="flex h-12 w-12 items-center justify-center rounded-full border border-white/25 text-white transition hover:bg-black/60 bg-black/50"
+          onClick={onExit}
+          aria-label="Salir de la campaña"
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-white/25 bg-black/50 text-white transition hover:border-red-500/40 hover:bg-red-950/60 hover:text-red-300"
         >
-          <Settings className="h-5 w-5" />
+          <LogOut className="h-5 w-5" />
         </button>
 
-        {isMenuOpen ? (
-          <div
-            role="menu"
-            className="absolute left-0 mt-3 min-w-[180px] overflow-hidden rounded-[18px] border border-white/20 bg-stone-950/95 shadow-[0_20px_40px_rgba(0,0,0,0.45)] backdrop-blur-md"
+        {/* Invite button */}
+        <div ref={inviteRef}>
+          <button
+            type="button"
+            onClick={() => setIsInviteOpen((v) => !v)}
+            aria-label="Invitar a la campaña"
+            className={`flex h-12 w-12 items-center justify-center rounded-full border transition ${
+              isInviteOpen
+                ? "border-amber-400/80 bg-amber-500/30 text-amber-300"
+                : "border-white/25 bg-black/50 text-white hover:bg-black/60"
+            }`}
           >
-            <button
-              type="button"
-              role="menuitem"
-              onClick={handleExit}
-              className="w-full px-4 py-3 text-left text-sm font-semibold text-red-400 transition hover:bg-red-950/30"
-            >
-              Salir
-            </button>
-          </div>
-        ) : null}
+            <Link2 className="h-5 w-5" />
+          </button>
+
+          {isInviteOpen && (
+            <div className="absolute left-0 mt-3 w-72 rounded-[18px] border border-white/20 bg-stone-950/95 p-4 shadow-[0_20px_40px_rgba(0,0,0,0.45)] backdrop-blur-md">
+              <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-amber-400/80">
+                Link de invitación
+              </p>
+              <div className="flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5">
+                <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-white/70 select-all">
+                  {inviteLink}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopyInvite}
+                  className={`shrink-0 rounded-md px-2.5 py-1 text-[11px] font-bold transition ${
+                    inviteCopied
+                      ? "bg-emerald-600/70 text-white"
+                      : "bg-amber-600/70 text-white hover:bg-amber-500/70"
+                  }`}
+                >
+                  {inviteCopied ? "¡Copiado!" : "Copiar"}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="mt-14 flex h-[calc(100%-3.5rem)] min-h-0 flex-col gap-4 md:mt-0 md:flex-row md:items-stretch md:justify-between md:pt-12">

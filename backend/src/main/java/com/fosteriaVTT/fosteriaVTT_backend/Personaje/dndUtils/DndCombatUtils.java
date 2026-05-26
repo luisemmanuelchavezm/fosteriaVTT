@@ -270,6 +270,26 @@ public class DndCombatUtils {
 		return fuerza;
 	}
 
+	/**
+	 * Extrae el bono de ataque codificado en el campo {@code indice} de un {@code Objeto} catálogo
+	 * (formato {@code BONO_ATAQUE=N} dentro de la cadena separada por comas).
+	 * Devuelve 0 si no existe el token o no es parseable.
+	 */
+	public int extraerBonoAtaqueDesdeIndice(String indice) {
+		if (indice == null || indice.isBlank()) {
+			return 0;
+		}
+		for (String parte : indice.split(",")) {
+			String trimmed = parte.trim().toUpperCase();
+			if (trimmed.startsWith("BONO_ATAQUE=")) {
+				try {
+					return Integer.parseInt(trimmed.substring("BONO_ATAQUE=".length()).trim());
+				} catch (NumberFormatException ignored) { }
+			}
+		}
+		return 0;
+	}
+
 	public Long extraerIdObjetoArma(String tags) {
 		if (tags == null || tags.isBlank()) {
 			return null;

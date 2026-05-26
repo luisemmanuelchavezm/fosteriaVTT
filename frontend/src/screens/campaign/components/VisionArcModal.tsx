@@ -124,7 +124,10 @@ function Slider({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-sky-400"
+        // Detener propagación de pointer/mouse para que Konva no robe el foco
+        onPointerDown={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        className="w-full accent-sky-400 cursor-grab active:cursor-grabbing"
       />
     </div>
   );
@@ -180,21 +183,26 @@ export default function VisionArcModal({
     <div
       ref={ref}
       className="fixed left-[88px] top-4 z-[200] flex items-start gap-1.5"
+      // Detener mousedown Y pointerdown para que Konva no capture el puntero
+      // mientras el usuario arrastra los sliders
       onMouseDown={(e) => e.stopPropagation()}
+      onPointerDown={(e) => e.stopPropagation()}
     >
       {/* Shape button + picker row */}
-      <div className="flex items-center gap-1 rounded-xl border border-sky-400/30 bg-[#0d1b2e]/90 p-1.5 backdrop-blur-sm shadow-xl shadow-sky-900/30">
+      <div className="flex items-center gap-1 rounded-xl border border-amber-400/40 bg-[#0d1b2e]/90 p-1.5 backdrop-blur-sm shadow-xl shadow-amber-900/20">
+        {/* Botón activo: ámbar para que sea obvio que es interactivo */}
         <button
           type="button"
-          title="Cambiar forma"
+          title="Cambiar forma de visión"
           onClick={() => setPickerOpen((v) => !v)}
-          className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+          className={`flex h-8 w-8 items-center justify-center rounded-lg border transition-all ${
             pickerOpen
-              ? "bg-sky-500/20 text-sky-300"
-              : "text-sky-400/70 hover:bg-sky-500/10 hover:text-sky-300"
+              ? "border-amber-400/80 bg-amber-500/30 shadow-[0_0_8px_rgba(251,191,36,0.35)]"
+              : "border-amber-400/50 bg-amber-500/15 hover:border-amber-400/80 hover:bg-amber-500/30 hover:shadow-[0_0_8px_rgba(251,191,36,0.25)]"
           }`}
         >
-          <ShapeIcon arcType={local.arcType} size={20} active={pickerOpen} />
+          {/* Siempre mostramos el icono en modo "active" (ámbar) para que resalte */}
+          <ShapeIcon arcType={local.arcType} size={20} active={true} />
         </button>
 
         {pickerOpen &&
@@ -213,7 +221,7 @@ export default function VisionArcModal({
                 patch({ arcType: shape });
                 setPickerOpen(false);
               }}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-sky-400/60 hover:bg-sky-500/10 hover:text-sky-300 transition-colors"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-sky-400/30 bg-sky-500/10 text-sky-400/70 hover:border-sky-400/60 hover:bg-sky-500/20 hover:text-sky-300 transition-all"
             >
               <ShapeIcon arcType={shape} size={20} />
             </button>

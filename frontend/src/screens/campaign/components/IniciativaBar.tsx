@@ -4,26 +4,37 @@ import type { IniciativaEntrada } from "../hooks/useCampaignRealtime";
 
 interface IniciativaBarProps {
   entradas: IniciativaEntrada[];
+  isDM?: boolean;
   onReordenar: (orden: number[]) => void;
+  /** Click izquierdo en retrato → seleccionar token y centrar cámara */
+  onTokenClick?: (personajeId: number) => void;
+  /** Click derecho en retrato → mostrar menú contextual del token */
+  onTokenRightClick?: (personajeId: number, x: number, y: number) => void;
 }
 
 export default function IniciativaBar({
   entradas,
+  isDM = false,
   onReordenar,
+  onTokenClick,
+  onTokenRightClick,
 }: IniciativaBarProps) {
   const [dragOverId, setDragOverId] = useState<number | null>(null);
   const dragIdRef = useRef<number | null>(null);
 
   const handleDragStart = (personajeId: number) => {
+    if (!isDM) return;
     dragIdRef.current = personajeId;
   };
 
   const handleDragOver = (event: React.DragEvent, personajeId: number) => {
+    if (!isDM) return;
     event.preventDefault();
     setDragOverId(personajeId);
   };
 
   const handleDrop = (event: React.DragEvent, targetId: number) => {
+    if (!isDM) return;
     event.preventDefault();
     const sourceId = dragIdRef.current;
     if (sourceId === null || sourceId === targetId) {
@@ -48,6 +59,7 @@ export default function IniciativaBar({
   };
 
   const handleDragEnd = () => {
+    if (!isDM) return;
     setDragOverId(null);
     dragIdRef.current = null;
   };
@@ -78,24 +90,45 @@ export default function IniciativaBar({
           return (
             <div
               key={entrada.personajeId}
-              draggable
+              draggable={isDM}
               onDragStart={() => handleDragStart(entrada.personajeId)}
               onDragOver={(e) => handleDragOver(e, entrada.personajeId)}
               onDrop={(e) => handleDrop(e, entrada.personajeId)}
               onDragEnd={handleDragEnd}
               className={[
-                "flex shrink-0 cursor-grab flex-col items-center gap-1.5 select-none transition-transform",
+                "flex shrink-0 flex-col items-center gap-1.5 select-none transition-transform",
+                isDM ? "cursor-grab" : "cursor-default",
                 isDragTarget ? "scale-105" : "",
               ].join(" ")}
             >
               {/* Portrait with badge */}
               <div className="relative">
                 <div
+                  role="button"
+                  tabIndex={0}
                   className={[
-                    "h-14 w-14 overflow-hidden rounded-xl border",
+                    "h-14 w-14 overflow-hidden rounded-xl border transition hover:brightness-110",
                     isFirst ? "border-amber-400/70" : "border-white/20",
                     isDragTarget ? "ring-2 ring-sky-400/60" : "",
+                    "cursor-pointer",
                   ].join(" ")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTokenClick?.(entrada.personajeId);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ")
+                      onTokenClick?.(entrada.personajeId);
+                  }}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onTokenRightClick?.(
+                      entrada.personajeId,
+                      e.clientX,
+                      e.clientY,
+                    );
+                  }}
                 >
                   {entrada.retrato ? (
                     <img

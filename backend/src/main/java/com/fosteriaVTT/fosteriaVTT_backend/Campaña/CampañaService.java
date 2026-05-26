@@ -102,6 +102,28 @@ public class CampañaService {
 		);
 	}
 
+	/** Une al usuario autenticado a la campaña como jugador.
+	 *  Es idempotente: si ya es jugador no lanza error. */
+	@Transactional
+	public void unirseCampaña(Long campaniaId, String username) {
+		Campaña campaña = campañaRepository.findById(campaniaId)
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Campaña no encontrada"));
+
+		Usuario usuario = userRepository.findByUsername(username)
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Usuario no encontrado"));
+
+		// Idempotente: si ya es jugador no hace nada
+		if (jugadorRepository.buscarPorUsuarioYCampaniaId(username, campaniaId).isPresent()) {
+			return;
+		}
+
+		Jugador jugador = Jugador.builder()
+				.usuario(usuario)
+				.campaña(campaña)
+				.build();
+		jugadorRepository.save(jugador);
+	}
+
 	@Transactional(readOnly = true)
 	public List<JugadorCampañaResponse> obtenerJugadoresCampaña(Long campaniaId, String username) {
 		jugadorRepository.buscarPorUsuarioYCampaniaId(username, campaniaId)

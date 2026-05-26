@@ -65,7 +65,7 @@ describe("StatisticsSection", () => {
     fireEvent.click(screen.getByRole("button", { name: /Fuerza/i }));
     fireEvent.click(screen.getByRole("button", { name: /Iniciativa/i }));
     fireEvent.click(screen.getByRole("button", { name: "Curar" }));
-    fireEvent.click(screen.getByRole("button", { name: "Danio" }));
+    fireEvent.click(screen.getByRole("button", { name: "Daño" }));
     fireEvent.click(screen.getByRole("button", { name: "Temp +" }));
     fireEvent.click(screen.getByRole("button", { name: "Temp -" }));
 
