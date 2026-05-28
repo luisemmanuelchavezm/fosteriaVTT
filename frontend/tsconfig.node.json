@@ -22,5 +22,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["vite.config.ts", "rolldown-plugin-babel.d.ts"]
+  "include": ["vite.config.ts", "rolldown-plugin-babel.d.ts", "playwright.config.ts"]
 }

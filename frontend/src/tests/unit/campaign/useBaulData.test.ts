@@ -496,12 +496,10 @@ describe("useBaulData - handleSave con saveTarget", () => {
   it("llama a fetch cuando saveTarget es un personaje", async () => {
     vi.stubGlobal(
       "fetch",
-      vi
-        .fn()
-        .mockResolvedValue({
-          ok: true,
-          json: async () => ({ items: [], hasMore: false }),
-        }),
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ items: [], hasMore: false }),
+      }),
     );
     const { result } = renderHook(() => useBaulData("1"));
     await waitFor(() => expect(result.current.isChestLoading).toBe(false));
@@ -525,12 +523,10 @@ describe("useBaulData - handleSave con saveTarget", () => {
   it("limpia saveTarget tras guardar exitosamente", async () => {
     vi.stubGlobal(
       "fetch",
-      vi
-        .fn()
-        .mockResolvedValue({
-          ok: true,
-          json: async () => ({ items: [], hasMore: false }),
-        }),
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ items: [], hasMore: false }),
+      }),
     );
     const { result } = renderHook(() => useBaulData("1"));
     await waitFor(() => expect(result.current.isChestLoading).toBe(false));
@@ -556,12 +552,10 @@ describe("useBaulData - handlePublish con publishTarget", () => {
   it("llama a fetch cuando publishTarget es un personaje", async () => {
     vi.stubGlobal(
       "fetch",
-      vi
-        .fn()
-        .mockResolvedValue({
-          ok: true,
-          json: async () => ({ items: [], hasMore: false }),
-        }),
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ items: [], hasMore: false }),
+      }),
     );
     const { result } = renderHook(() => useBaulData("1"));
     await waitFor(() => expect(result.current.isChestLoading).toBe(false));
@@ -584,12 +578,10 @@ describe("useBaulData - handlePublish con publishTarget", () => {
   it("limpia publishTarget tras publicar", async () => {
     vi.stubGlobal(
       "fetch",
-      vi
-        .fn()
-        .mockResolvedValue({
-          ok: true,
-          json: async () => ({ items: [], hasMore: false }),
-        }),
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ items: [], hasMore: false }),
+      }),
     );
     const { result } = renderHook(() => useBaulData("1"));
     await waitFor(() => expect(result.current.isChestLoading).toBe(false));
@@ -629,12 +621,10 @@ describe("useBaulData - handleDelete con deleteTarget", () => {
   it("llama a fetch cuando se confirma con 'borrar'", async () => {
     vi.stubGlobal(
       "fetch",
-      vi
-        .fn()
-        .mockResolvedValue({
-          ok: true,
-          json: async () => ({ items: [], hasMore: false }),
-        }),
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ items: [], hasMore: false }),
+      }),
     );
     const { result } = renderHook(() => useBaulData("1"));
     await waitFor(() => expect(result.current.isChestLoading).toBe(false));
