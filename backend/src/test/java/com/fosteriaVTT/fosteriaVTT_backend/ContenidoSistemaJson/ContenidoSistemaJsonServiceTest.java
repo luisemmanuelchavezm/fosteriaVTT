@@ -132,4 +132,98 @@ class ContenidoSistemaJsonServiceTest {
     void rechazaIdentificadoresDePaqueteVacios() {
         assertThrows(IllegalArgumentException.class, () -> ContenidoSistemaJsonService.paqueteDetalleClase("   "));
     }
+
+    // ── Métodos de delegación (retornan vacío cuando el repositorio no tiene datos) ──
+
+    @Test
+    void obtenerClasesDnd_retornaListaVaciaCuandoNoHayDatos() {
+        when(contenidoSistemaJsonRepository.findBySistemaAndPaquete(SistemaDeJuego.DND, ContenidoSistemaJsonService.DND_PACKAGE_CLASS_SUMMARIES))
+                .thenReturn(Optional.empty());
+
+        assertTrue(contenidoSistemaJsonService.obtenerClasesDnd().isEmpty());
+    }
+
+    @Test
+    void obtenerClaseDndPorId_retornaVacioCuandoNoHayDatos() {
+        when(contenidoSistemaJsonRepository.findBySistemaAndPaquete(SistemaDeJuego.DND, ContenidoSistemaJsonService.paqueteDetalleClase("mago")))
+                .thenReturn(Optional.empty());
+
+        assertTrue(contenidoSistemaJsonService.obtenerClaseDndPorId("mago").isEmpty());
+    }
+
+    @Test
+    void obtenerSubclasesClaseDnd_retornaListaVaciaCuandoNoHayDatos() {
+        when(contenidoSistemaJsonRepository.findBySistemaAndPaquete(SistemaDeJuego.DND, ContenidoSistemaJsonService.paqueteSubclasesClase("mago")))
+                .thenReturn(Optional.empty());
+
+        assertTrue(contenidoSistemaJsonService.obtenerSubclasesClaseDnd("mago").isEmpty());
+    }
+
+    @Test
+    void obtenerRasgosSubclaseClaseDnd_retornaListaVaciaCuandoNoHayDatos() {
+        when(contenidoSistemaJsonRepository.findBySistemaAndPaquete(SistemaDeJuego.DND, ContenidoSistemaJsonService.paqueteRasgosSubclaseClase("mago")))
+                .thenReturn(Optional.empty());
+
+        assertTrue(contenidoSistemaJsonService.obtenerRasgosSubclaseClaseDnd("mago").isEmpty());
+    }
+
+    @Test
+    void obtenerTrasfondosDnd_retornaListaVaciaCuandoNoHayDatos() {
+        when(contenidoSistemaJsonRepository.findBySistemaAndPaquete(SistemaDeJuego.DND, ContenidoSistemaJsonService.DND_PACKAGE_BACKGROUND_SUMMARIES))
+                .thenReturn(Optional.empty());
+
+        assertTrue(contenidoSistemaJsonService.obtenerTrasfondosDnd().isEmpty());
+    }
+
+    @Test
+    void obtenerTrasfondoDndPorId_retornaVacioCuandoNoHayDatos() {
+        when(contenidoSistemaJsonRepository.findBySistemaAndPaquete(SistemaDeJuego.DND, ContenidoSistemaJsonService.paqueteDetalleTrasfondo("aventurero")))
+                .thenReturn(Optional.empty());
+
+        assertTrue(contenidoSistemaJsonService.obtenerTrasfondoDndPorId("aventurero").isEmpty());
+    }
+
+    @Test
+    void obtenerRazasDnd_retornaListaVaciaCuandoNoHayDatos() {
+        when(contenidoSistemaJsonRepository.findBySistemaAndPaquete(SistemaDeJuego.DND, ContenidoSistemaJsonService.DND_PACKAGE_RACE_SUMMARIES))
+                .thenReturn(Optional.empty());
+
+        assertTrue(contenidoSistemaJsonService.obtenerRazasDnd().isEmpty());
+    }
+
+    @Test
+    void obtenerRazaDndPorId_retornaVacioCuandoNoHayDatos() {
+        when(contenidoSistemaJsonRepository.findBySistemaAndPaquete(SistemaDeJuego.DND, ContenidoSistemaJsonService.paqueteDetalleRaza("elfo")))
+                .thenReturn(Optional.empty());
+
+        assertTrue(contenidoSistemaJsonService.obtenerRazaDndPorId("elfo").isEmpty());
+    }
+
+    @Test
+    void obtenerSubrazasRazaDnd_retornaListaVaciaCuandoNoHayDatos() {
+        when(contenidoSistemaJsonRepository.findBySistemaAndPaquete(SistemaDeJuego.DND, ContenidoSistemaJsonService.paqueteSubrazasRaza("elfo")))
+                .thenReturn(Optional.empty());
+
+        assertTrue(contenidoSistemaJsonService.obtenerSubrazasRazaDnd("elfo").isEmpty());
+    }
+
+    @Test
+    void obtenerCatalogoRazaDnd_retornaListaVaciaCuandoNoHayDatos() {
+        when(contenidoSistemaJsonRepository.findBySistemaAndPaquete(SistemaDeJuego.DND, ContenidoSistemaJsonService.paqueteCatalogoRaza("elfo-catalogo")))
+                .thenReturn(Optional.empty());
+
+        assertTrue(contenidoSistemaJsonService.obtenerCatalogoRazaDnd("elfo-catalogo").isEmpty());
+    }
+
+    // ── Nombres de paquetes estáticos no cubiertos antes ─────────────────────
+
+    @Test
+    void paquetesEstaticos_generanNombresCorrectos() {
+        assertEquals("clases:subclases:mago", ContenidoSistemaJsonService.paqueteSubclasesClase("mago"));
+        assertEquals("clases:rasgos-subclase:mago", ContenidoSistemaJsonService.paqueteRasgosSubclaseClase("mago"));
+        assertEquals("trasfondos:detalle:aventurero", ContenidoSistemaJsonService.paqueteDetalleTrasfondo("aventurero"));
+        assertEquals("razas:detalle:elfo", ContenidoSistemaJsonService.paqueteDetalleRaza("elfo"));
+        assertEquals("razas:subrazas:elfo", ContenidoSistemaJsonService.paqueteSubrazasRaza("elfo"));
+        assertEquals("razas:catalogo:elfo", ContenidoSistemaJsonService.paqueteCatalogoRaza("elfo"));
+    }
 }

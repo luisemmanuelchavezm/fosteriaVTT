@@ -80,6 +80,33 @@ describe("ActionsTab", () => {
     expect(screen.getByText("+5")).toBeInTheDocument();
   });
 
+  it("shows '--' in the disabled bonus button when action bonificacion is null", () => {
+    const action: CharacterAbilityResponse = {
+      id: 3,
+      nombre: "Mordisco",
+      bonificacion: null,
+      formula: "1d4",
+      descripcion: null,
+      tags: "weapon,piercing",
+    };
+    render(
+      <ActionsTab
+        character={baseCharacter}
+        actionAbilities={[action]}
+        onRollWeaponAttack={vi.fn()}
+        onRollActionDamage={vi.fn()}
+      />,
+    );
+    // "--" appears in both the bonus button and possibly the damage span
+    const dashElements = screen.getAllByText("--");
+    expect(dashElements.length).toBeGreaterThan(0);
+    // The bonus button is disabled when bonificacion is null
+    const disabledBtn = dashElements.find(
+      (el) => el.tagName === "BUTTON" && (el as HTMLButtonElement).disabled,
+    );
+    expect(disabledBtn).toBeTruthy();
+  });
+
   it("calls onRollWeaponAttack when bonus button is clicked", () => {
     const onRollWeaponAttack = vi.fn();
     const action: CharacterAbilityResponse = {

@@ -153,4 +153,19 @@ describe("IdentitySection", () => {
     const img = screen.getByRole("img");
     expect(img).toHaveAttribute("src", "https://example.com/portrait.jpg");
   });
+
+  it("shows '/ max' when character is at max level (level 20)", () => {
+    const level20Character = {
+      ...baseCharacter,
+      clases: [{ nombre: "Guerrero", nivel: 20 }],
+    };
+    render(<IdentitySection {...defaultProps} character={level20Character} />);
+    expect(screen.getByText(/\/\s*max/)).toBeInTheDocument();
+  });
+
+  it("does not show 'Modificar nivel' or 'Editar' buttons when isOwner is false", () => {
+    render(<IdentitySection {...defaultProps} isOwner={false} />);
+    expect(screen.queryByText("Modificar nivel")).not.toBeInTheDocument();
+    expect(screen.queryByText("Editar")).not.toBeInTheDocument();
+  });
 });

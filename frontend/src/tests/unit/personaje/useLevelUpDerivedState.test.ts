@@ -143,4 +143,79 @@ describe("useLevelUpDerivedState", () => {
     );
     expect(result.current.visibleClassSummaries).toHaveLength(2);
   });
+
+  // ── cantripUpgradeCount branches ─────────────────────────────────────────
+
+  it("cantripUpgradeCount returns 0 when isDownMode is true (even with spellcasting)", () => {
+    const classDetailWithSpells = {
+      lanzamientoConjuros: {
+        modo: "full",
+        caracteristica: "INT",
+        formulaConjurosPreparados: null,
+        niveles: [
+          { nivel: 1, trucosConocidos: 3 },
+          { nivel: 2, trucosConocidos: 4 },
+        ],
+      },
+      subclases: [],
+      elecciones: [],
+    } as never;
+    const { result } = renderHook(() =>
+      useLevelUpDerivedState({
+        ...BASE_OPTIONS,
+        selectedClassDetail: classDetailWithSpells,
+        selectedClassLevel: 1, // targetLevel = 2
+        isDownMode: true,
+      }),
+    );
+    expect(result.current.cantripUpgradeCount).toBe(0);
+  });
+
+  it("cantripUpgradeCount returns 0 when targetLevel < 2 (selectedClassLevel = 0)", () => {
+    const classDetailWithSpells = {
+      lanzamientoConjuros: {
+        modo: "full",
+        caracteristica: "INT",
+        formulaConjurosPreparados: null,
+        niveles: [{ nivel: 1, trucosConocidos: 2 }],
+      },
+      subclases: [],
+      elecciones: [],
+    } as never;
+    const { result } = renderHook(() =>
+      useLevelUpDerivedState({
+        ...BASE_OPTIONS,
+        selectedClassDetail: classDetailWithSpells,
+        selectedClassLevel: 0, // targetLevel = 1 < 2
+        isDownMode: false,
+      }),
+    );
+    expect(result.current.cantripUpgradeCount).toBe(0);
+  });
+
+  it("cantripUpgradeCount returns positive when cantrips increase at level up", () => {
+    const classDetailWithSpells = {
+      lanzamientoConjuros: {
+        modo: "full",
+        caracteristica: "INT",
+        formulaConjurosPreparados: null,
+        niveles: [
+          { nivel: 1, trucosConocidos: 3 },
+          { nivel: 2, trucosConocidos: 4 },
+        ],
+      },
+      subclases: [],
+      elecciones: [],
+    } as never;
+    const { result } = renderHook(() =>
+      useLevelUpDerivedState({
+        ...BASE_OPTIONS,
+        selectedClassDetail: classDetailWithSpells,
+        selectedClassLevel: 1, // targetLevel = 2
+        isDownMode: false,
+      }),
+    );
+    // 4 (level 2) - 3 (level 1) = 1 new cantrip
+    expect(result.current.cantripUpgradeCount).toBe(1);
+  });
 });

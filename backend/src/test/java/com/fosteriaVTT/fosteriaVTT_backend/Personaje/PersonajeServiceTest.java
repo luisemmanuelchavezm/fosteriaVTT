@@ -115,7 +115,7 @@ class PersonajeServiceTest {
         Habilidad habilidad = Habilidad.builder().id(5L).nombre("Misil magico").formula("1d4+1").descripcion("impacta").tags("Hechizo;nivel-1").build();
         personaje.setHabilidades(List.of(habilidad));
 
-        when(personajeRepository.findByIdAndUsuarioUsername(1L, "daria")).thenReturn(Optional.of(personaje));
+        when(personajeRepository.findById(1L)).thenReturn(Optional.of(personaje));
         when(estadisticaService.obtenerValoresPorPersonajeId(1L)).thenReturn(Map.of("Fuerza", 10));
         when(dndCharacterStatsUtils.resolverClasesPersonaje(personaje)).thenReturn(List.of());
         when(dndCharacterStatsUtils.resolverCaracteristicaLanzamientoConjuros(personaje)).thenReturn("Inteligencia");
@@ -254,6 +254,7 @@ class PersonajeServiceTest {
     void actualizaHojaYNormalizaDatosEditables() {
         Personaje personaje = personajeBase(3L, "Cora");
         when(personajeRepository.findByIdAndUsuarioUsername(3L, "daria")).thenReturn(Optional.of(personaje));
+        when(personajeRepository.findById(3L)).thenReturn(Optional.of(personaje));
         when(estadisticaService.obtenerValoresPorPersonajeId(3L)).thenReturn(Map.of("Fuerza", 10, "Destreza", 12));
         when(dndCharacterStatsUtils.resolverNivelTotalPersonaje(personaje)).thenReturn(2);
         when(dndCharacterStatsUtils.resolverClasesPersonaje(personaje)).thenReturn(List.of());
@@ -346,6 +347,7 @@ class PersonajeServiceTest {
     }
 
     private void stubDetalleMinimo(Long personajeId, Personaje personaje) {
+        when(personajeRepository.findById(personajeId)).thenReturn(Optional.of(personaje));
         when(estadisticaService.obtenerValoresPorPersonajeId(personajeId)).thenReturn(Map.of("Fuerza", 10));
         when(dndCharacterStatsUtils.resolverClasesPersonaje(personaje)).thenReturn(List.of());
         when(dndCharacterStatsUtils.resolverCaracteristicaLanzamientoConjuros(personaje)).thenReturn(null);

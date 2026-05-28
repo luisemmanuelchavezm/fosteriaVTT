@@ -72,4 +72,57 @@ describe("LevelManagementModal", () => {
       expect(screen.getByText("falló XP")).toBeInTheDocument();
     });
   });
+
+  it("does not show 'Eliminar un nivel' when canLevelDown is false", () => {
+    render(<LevelManagementModal {...baseProps} canLevelDown={false} />);
+    expect(screen.queryByText("Eliminar un nivel")).not.toBeInTheDocument();
+  });
+
+  it("decrements experience by 100 when '-' is clicked", () => {
+    render(
+      <LevelManagementModal {...baseProps} currentXp={650} nextLevelXp={900} />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "-" }));
+    // safeExperience - 100 = 650 - 100 = 550
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    expect(input.value).toBe("550");
+  });
+
+  it("updates experience value when input changes", () => {
+    render(<LevelManagementModal {...baseProps} />);
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "750" } });
+    expect(input.value).toBe("750");
+  });
+
+  it("treats NaN input as 0 for safeExperience (clears to empty then tries to save)", async () => {
+    render(<LevelManagementModal {...baseProps} />);
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+    // Type non-numeric - onChange strips non-digits → empty string → NaN → safeExperience=0
+    fireEvent.change(input, { target: { value: "abc" } });
+    fireEvent.click(
+      screen.getByRole("button", { name: /Guardar experiencia/i }),
+    );
+    await waitFor(() => {
+      expect(baseProps.onSaveExperience).toHaveBeenCalledWith(0);
+    });
+  });
+
+  it("shows generic error when onSaveExperience throws non-Error", async () => {
+    const onSaveExperience = vi.fn().mockRejectedValue("string error");
+    render(
+      <LevelManagementModal
+        {...baseProps}
+        onSaveExperience={onSaveExperience}
+      />,
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: /Guardar experiencia/i }),
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByText("No se pudo actualizar la experiencia."),
+      ).toBeInTheDocument();
+    });
+  });
 });

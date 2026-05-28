@@ -32,7 +32,10 @@ public class CampañaController {
 
     @GetMapping("/ultimas")
     public List<CampañaResumenResponse> obtenerUltimasCampañas(Authentication authentication) {
-return campañaService.obtenerUltimasCampañas(authentication.getName());
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
+        return campañaService.obtenerUltimasCampañas(authentication.getName());
     }
 
     @GetMapping("/{campaniaId}/jugadores")
@@ -66,7 +69,7 @@ return campañaService.crearCampaña(payload, cover, authentication.getName());
     }
 
     @GetMapping
-        public PagedResponse<CampañaResumenResponse> obtenerCampañas(
+    public PagedResponse<CampañaResumenResponse> obtenerCampañas(
             Authentication authentication,
             @RequestParam(required = false) String nombre,
             @RequestParam(required = false) List<String> sistemas,
@@ -74,6 +77,9 @@ return campañaService.crearCampaña(payload, cover, authentication.getName());
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size
     ) {
-return campañaService.obtenerCampañasOrdenadasPorUltimoAcceso(authentication.getName(), nombre, sistemas, dm, page, size);
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
+        return campañaService.obtenerCampañasOrdenadasPorUltimoAcceso(authentication.getName(), nombre, sistemas, dm, page, size);
     }
 }

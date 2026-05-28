@@ -135,6 +135,84 @@ describe("CharactersScreen", () => {
     });
   });
 
+  it("renders '+' placeholder button and opens filter panel", async () => {
+    vi.mocked(fetch).mockResolvedValue(okCharactersResponse([], false));
+    render(
+      <CharactersScreen
+        username="daria"
+        avatarUrl=""
+        onLogout={vi.fn()}
+        onGoHome={vi.fn()}
+        onGoCampaigns={vi.fn()}
+        onGoCharacters={vi.fn()}
+      />,
+    );
+    // Filter panel opens
+    const filterBtn = await screen.findByRole("button", {
+      name: "Filtros adicionales",
+    });
+    fireEvent.click(filterBtn);
+    expect(screen.getByText("Sistema de juego")).toBeInTheDocument();
+    // Toggle a system
+    fireEvent.click(
+      screen.getByRole("button", { name: /Dungeons and Dragons/i }),
+    );
+    expect(screen.getByText("1")).toBeInTheDocument(); // filter badge
+    // Clear filters
+    fireEvent.click(screen.getByText("Limpiar filtros"));
+    expect(screen.queryByText("1")).not.toBeInTheDocument();
+  });
+
+  it("closes filter panel when clicking outside", async () => {
+    vi.mocked(fetch).mockResolvedValue(okCharactersResponse([], false));
+    render(
+      <CharactersScreen
+        username="daria"
+        avatarUrl=""
+        onLogout={vi.fn()}
+        onGoHome={vi.fn()}
+        onGoCampaigns={vi.fn()}
+        onGoCharacters={vi.fn()}
+      />,
+    );
+    const filterBtn = await screen.findByRole("button", {
+      name: "Filtros adicionales",
+    });
+    fireEvent.click(filterBtn);
+    expect(screen.getByText("Sistema de juego")).toBeInTheDocument();
+    fireEvent.mouseDown(document.body);
+    expect(screen.queryByText("Sistema de juego")).not.toBeInTheDocument();
+  });
+
+  it("renders emoji placeholder for character without portrait", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      okCharactersResponse(
+        [
+          {
+            id: 10,
+            nombre: "Sienna",
+            retrato: undefined,
+            sistemaDeJuego: "Dungeons and Dragons",
+            usado: "2024-01-01T00:00:00Z",
+          },
+        ],
+        false,
+      ),
+    );
+    render(
+      <CharactersScreen
+        username="daria"
+        avatarUrl=""
+        onLogout={vi.fn()}
+        onGoHome={vi.fn()}
+        onGoCampaigns={vi.fn()}
+        onGoCharacters={vi.fn()}
+      />,
+    );
+    await waitFor(() => expect(screen.getByText("Sienna")).toBeInTheDocument());
+    expect(screen.getByText("⚔")).toBeInTheDocument();
+  });
+
   it("abre el modal de creación y navega al personaje DnD marcándolo como usado", async () => {
     const onCreateDndCharacter = vi.fn();
     const onOpenDndCharacterSheet = vi.fn();

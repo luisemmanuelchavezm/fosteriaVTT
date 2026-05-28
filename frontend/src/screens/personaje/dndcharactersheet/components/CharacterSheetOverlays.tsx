@@ -154,7 +154,10 @@ export default function CharacterSheetOverlays(
       />
 
       {isDeleteCharacterConfirmOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div
+          data-testid="confirm-modal"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+        >
           <div className="mx-4 w-full max-w-sm rounded-2xl border border-white/20 bg-zinc-900 p-6 shadow-2xl">
             <p className="mb-1 text-base font-bold text-white">
               ¿Borrar personaje?

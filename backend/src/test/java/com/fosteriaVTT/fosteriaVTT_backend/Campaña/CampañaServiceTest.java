@@ -9,7 +9,9 @@ import com.fosteriaVTT.fosteriaVTT_backend.Usuario.Usuario;
 import com.fosteriaVTT.fosteriaVTT_backend.common.SistemaDeJuego;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.CampañaResumenResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.CrearCampañaRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.JugadorCampañaResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PagedResponse;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -26,8 +28,10 @@ import org.springframework.web.server.ResponseStatusException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -171,5 +175,141 @@ class CampañaServiceTest {
 
         assertEquals("https://cloudinary.test/portada.jpg", response.portadaUrl());
         verify(cloudinaryService).uploadFile(portada);
+    }
+
+    // ── crearCampaña validaciones tempranas ────────────────────────────────────
+
+    @Test
+    void crearCampaña_lanzaBadRequestSiRequestEsNulo() {
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> campañaService.crearCampaña(null, null, "daria")
+        );
+        assertEquals(400, ex.getStatusCode().value());
+    }
+
+    @Test
+    void crearCampaña_lanzaBadRequestSiNombreEsBlanco() {
+        CrearCampañaRequest request = new CrearCampañaRequest("  ", "Dungeons and Dragons");
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> campañaService.crearCampaña(request, null, "daria")
+        );
+        assertEquals(400, ex.getStatusCode().value());
+    }
+
+    @Test
+    void crearCampaña_lanzaBadRequestSiSistemaEsVampire() {
+        CrearCampañaRequest request = new CrearCampañaRequest("La Noche", "Vampire the Masquerade");
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> campañaService.crearCampaña(request, null, "daria")
+        );
+        assertEquals(400, ex.getStatusCode().value());
+    }
+
+    @Test
+    void crearCampaña_lanzaNotFoundSiUsuarioNoExiste() {
+        CrearCampañaRequest request = new CrearCampañaRequest("Sombras", "Dungeons and Dragons");
+        when(userRepository.findByUsername("daria")).thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> campañaService.crearCampaña(request, null, "daria")
+        );
+        assertEquals(404, ex.getStatusCode().value());
+    }
+
+    @Test
+    void crearCampaña_lanzaBadRequestSiCloudinaryFalla() throws Exception {
+        CrearCampañaRequest request = new CrearCampañaRequest("Sombras", "Dungeons and Dragons");
+        MockMultipartFile portada = new MockMultipartFile("cover", "portada.jpg", "image/jpeg", "img".getBytes());
+        Usuario usuario = Usuario.builder().id(1L).username("daria").email("d@test.com").password("pw").role(Rol.USER).build();
+
+        when(userRepository.findByUsername("daria")).thenReturn(Optional.of(usuario));
+        when(cloudinaryService.uploadFile(portada)).thenThrow(new IOException("upload failed"));
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> campañaService.crearCampaña(request, portada, "daria")
+        );
+        assertEquals(400, ex.getStatusCode().value());
+    }
+
+    // ── unirseCampaña ──────────────────────────────────────────────────────────
+
+    @Test
+    void unirseCampaña_lanzaNotFoundSiCampañaNoExiste() {
+        when(campañaRepository.findById(99L)).thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> campañaService.unirseCampaña(99L, "daria")
+        );
+        assertEquals(404, ex.getStatusCode().value());
+    }
+
+    @Test
+    void unirseCampaña_esIdempotenteSiYaEsJugador() {
+        Usuario usuario = Usuario.builder().id(1L).username("daria").email("d@test.com").password("pw").role(Rol.USER).build();
+        Campaña campaña = Campaña.builder().id(5L).nombre("Test").sistemaDeJuego(SistemaDeJuego.DND).dm(usuario).build();
+
+        when(campañaRepository.findById(5L)).thenReturn(Optional.of(campaña));
+        when(userRepository.findByUsername("daria")).thenReturn(Optional.of(usuario));
+        when(jugadorRepository.buscarPorUsuarioYCampaniaId("daria", 5L))
+                .thenReturn(Optional.of(Jugador.builder().usuario(usuario).campaña(campaña).build()));
+
+        campañaService.unirseCampaña(5L, "daria");
+
+        // No se debe guardar un jugador nuevo
+        verify(jugadorRepository, never()).save(any());
+    }
+
+    @Test
+    void unirseCampaña_agregaJugadorNuevo() {
+        Usuario usuario = Usuario.builder().id(1L).username("nuevo").email("n@test.com").password("pw").role(Rol.USER).build();
+        Campaña campaña = Campaña.builder().id(5L).nombre("Test").sistemaDeJuego(SistemaDeJuego.DND).dm(usuario).build();
+        Jugador jugadorGuardado = Jugador.builder().usuario(usuario).campaña(campaña).build();
+
+        when(campañaRepository.findById(5L)).thenReturn(Optional.of(campaña));
+        when(userRepository.findByUsername("nuevo")).thenReturn(Optional.of(usuario));
+        when(jugadorRepository.buscarPorUsuarioYCampaniaId("nuevo", 5L)).thenReturn(Optional.empty());
+        when(jugadorRepository.save(any(Jugador.class))).thenReturn(jugadorGuardado);
+
+        campañaService.unirseCampaña(5L, "nuevo");
+
+        verify(jugadorRepository).save(any(Jugador.class));
+    }
+
+    // ── obtenerJugadoresCampaña ────────────────────────────────────────────────
+
+    @Test
+    void obtenerJugadoresCampaña_lanzaForbiddenSiNoEsJugador() {
+        when(jugadorRepository.buscarPorUsuarioYCampaniaId("intruso", 3L)).thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> campañaService.obtenerJugadoresCampaña(3L, "intruso")
+        );
+        assertEquals(403, ex.getStatusCode().value());
+    }
+
+    @Test
+    void obtenerJugadoresCampaña_devuelveLista() {
+        Usuario dm = Usuario.builder().id(1L).username("dm1").email("dm@test.com").password("pw").role(Rol.USER).build();
+        Usuario jugadorUser = Usuario.builder().id(2L).username("jugador1").email("j@test.com").password("pw").role(Rol.USER).build();
+        Campaña campaña = Campaña.builder().id(3L).nombre("Test").sistemaDeJuego(SistemaDeJuego.DND).dm(dm).build();
+
+        Jugador jugador1 = Jugador.builder().usuario(dm).campaña(campaña).build();
+        Jugador jugador2 = Jugador.builder().usuario(jugadorUser).campaña(campaña).build();
+
+        when(jugadorRepository.buscarPorUsuarioYCampaniaId("dm1", 3L)).thenReturn(Optional.of(jugador1));
+        when(jugadorRepository.findByCampañaIdOrderByUsuarioUsernameAsc(3L)).thenReturn(List.of(jugador1, jugador2));
+
+        List<JugadorCampañaResponse> resultado = campañaService.obtenerJugadoresCampaña(3L, "dm1");
+
+        assertEquals(2, resultado.size());
+        assertTrue(resultado.get(0).dm()); // dm1 es el DM
+        assertFalse(resultado.get(1).dm()); // jugador1 no es DM
     }
 }

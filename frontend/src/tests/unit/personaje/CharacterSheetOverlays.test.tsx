@@ -16,12 +16,6 @@ type CatalogModalProps = {
   onClose: () => void;
 };
 
-type ConfirmationModalProps = {
-  isOpen: boolean;
-  onCancel: () => void;
-  onConfirm: () => void;
-};
-
 type LevelManagementModalProps = {
   isOpen: boolean;
   onOpenLevelDown: () => void;
@@ -78,18 +72,6 @@ vi.mock(
     default: ({ isOpen, onClose }: CatalogModalProps) =>
       isOpen ? (
         <button onClick={onClose}>cerrar-catalogo-hechizos</button>
-      ) : null,
-  }),
-);
-vi.mock(
-  "../../../screens/personaje/dndcharactersheet/components/ConfirmationModal",
-  () => ({
-    default: ({ isOpen, onCancel, onConfirm }: ConfirmationModalProps) =>
-      isOpen ? (
-        <div data-testid="confirm-modal">
-          <button onClick={onCancel}>cancelar-confirmacion</button>
-          <button onClick={onConfirm}>confirmar-borrado</button>
-        </div>
       ) : null,
   }),
 );
@@ -226,8 +208,11 @@ describe("CharacterSheetOverlays", () => {
 
     fireEvent.click(screen.getByText("cerrar-catalogo-inventario"));
     fireEvent.click(screen.getByText("cerrar-catalogo-hechizos"));
-    fireEvent.click(screen.getByText("cancelar-confirmacion"));
-    fireEvent.click(screen.getByText("confirmar-borrado"));
+    fireEvent.change(screen.getByPlaceholderText("borrar"), {
+      target: { value: "borrar" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Borrar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
     fireEvent.click(screen.getByText("cerrar-Visión en la oscuridad"));
     fireEvent.click(screen.getByText("cerrar-Poción"));
     fireEvent.click(screen.getByText("guardar-Poción"));

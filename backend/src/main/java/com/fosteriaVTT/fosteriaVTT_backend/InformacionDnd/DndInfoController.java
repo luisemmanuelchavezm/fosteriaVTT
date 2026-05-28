@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @RestController
 @RequestMapping("/api/informacion/dnd")
@@ -31,6 +32,9 @@ public class DndInfoController {
 
     @GetMapping("/clases")
     public List<ClaseDndResumenResponse> obtenerClases(Authentication authentication) {
+        if (authentication == null) {
+            throw new ResponseStatusException(UNAUTHORIZED, "No autenticado");
+        }
         return dndInfoService.obtenerClases();
     }
 
