@@ -15,6 +15,7 @@ interface LoginScreenProps {
   onLoginSuccess: (token: string, username: string, avatarUrl: string) => void;
   onSwitchToRegister: () => void;
   onGoHome?: () => void;
+  joinMessage?: string;
 }
 
 export default function LoginScreen({

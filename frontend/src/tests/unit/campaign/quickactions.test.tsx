@@ -189,7 +189,9 @@ const BASE_CHAR: DndCharacterDetailResponse = {
   sistemaDeJuego: "DND5",
   raza: null,
   subraza: null,
-  clases: [{ nombre: "Guerrero", nivel: 5, id: "fighter", subclase: null }],
+  clases: [
+    { nombre: "Guerrero", nivel: 5, id: "fighter", subclase: null },
+  ] as never,
   caracteristicaLanzamientoConjuros: null,
   estadisticas: {
     Fuerza: 16,

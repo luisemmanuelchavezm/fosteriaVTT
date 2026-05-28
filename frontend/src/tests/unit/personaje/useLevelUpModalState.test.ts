@@ -224,9 +224,7 @@ describe("useLevelUpModalState - estado inicial", () => {
     const { result } = setup();
     // can be null or an empty array depending on derived state
     const val = result.current.cantripUpgradeChosen;
-    expect(
-      val === null || (Array.isArray(val) && val.length === 0) || val === "",
-    ).toBe(true);
+    expect(val === null || (Array.isArray(val) && val.length === 0)).toBe(true);
   });
 
   it("selectedSpell empieza en null", () => {
@@ -417,9 +415,9 @@ describe("useLevelUpModalState - setters simples", () => {
   it("setCantripUpgradeChosen cambia el truco de mejora", () => {
     const { result } = setup();
     act(() => {
-      result.current.setCantripUpgradeChosen("luz");
+      result.current.setCantripUpgradeChosen(["luz"]);
     });
-    expect(result.current.cantripUpgradeChosen).toBe("luz");
+    expect(result.current.cantripUpgradeChosen).toEqual(["luz"]);
   });
 });
 

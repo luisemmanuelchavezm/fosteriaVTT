@@ -2,7 +2,7 @@ import { useState } from "react";
 import type {
   CharacterAbilityResponse,
   DndCharacterDetailResponse,
-} from "../utils/dndApi";
+} from "../../utils/dndApi";
 import { buildApiUrl } from "../../../../lib/api";
 import { ABILITY_STATS } from "../../creatednd/utils/statisticsUtils";
 

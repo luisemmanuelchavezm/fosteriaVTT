@@ -498,15 +498,18 @@ describe("useEnemyForm - weapons", () => {
     act(() => {
       result.current.setWeapons([
         {
-          nombre: "Espada",
-          formula: "1d8",
-          bonificacion: 3,
-          descripcion: "Corte",
+          key: 1,
+          displayName: "Espada",
+          payload: {
+            nombre: "Espada",
+            formula: "1d8",
+            descripcion: "Corte",
+          },
         },
       ]);
     });
     expect(result.current.weapons).toHaveLength(1);
-    expect(result.current.weapons[0].nombre).toBe("Espada");
+    expect(result.current.weapons[0].displayName).toBe("Espada");
   });
 });
 

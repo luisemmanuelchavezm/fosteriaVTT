@@ -375,7 +375,7 @@ describe("useFogOfWarInteraction - mouseup handler", () => {
           {
             posicionId: 5,
             radius: 5,
-            arcType: "circle" as const,
+            arcType: "cone" as const,
             apertura: 360,
             rotation: 45,
             angle: 360,
@@ -454,7 +454,7 @@ describe("useFogOfWarInteraction - mousemove handler", () => {
           {
             posicionId: 9,
             radius: 5,
-            arcType: "circle" as const,
+            arcType: "cone" as const,
             apertura: 360,
             rotation: 0,
             angle: 360,

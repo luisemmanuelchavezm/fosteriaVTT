@@ -166,9 +166,9 @@ describe("useBaulData - setters de UI state", () => {
     const { result } = renderHook(() => useBaulData("1"));
     await waitFor(() => expect(result.current.isChestLoading).toBe(false));
     act(() => {
-      result.current.setChestContentTab("maps");
+      result.current.setChestContentTab("map");
     });
-    expect(result.current.chestContentTab).toBe("maps");
+    expect(result.current.chestContentTab).toBe("map");
   });
 
   it("setChestTipoTab cambia la pestaña de tipo", async () => {
@@ -683,16 +683,16 @@ describe("useBaulData - openMenuId", () => {
     const { result } = renderHook(() => useBaulData("1"));
     await waitFor(() => expect(result.current.isChestLoading).toBe(false));
     act(() => {
-      result.current.setOpenMenuId(7);
+      result.current.setOpenMenuId("7");
     });
-    expect(result.current.openMenuId).toBe(7);
+    expect(result.current.openMenuId).toBe("7");
   });
 
   it("setOpenMenuId puede limpiarse (null)", async () => {
     const { result } = renderHook(() => useBaulData("1"));
     await waitFor(() => expect(result.current.isChestLoading).toBe(false));
     act(() => {
-      result.current.setOpenMenuId(7);
+      result.current.setOpenMenuId("7");
     });
     act(() => {
       result.current.setOpenMenuId(null);

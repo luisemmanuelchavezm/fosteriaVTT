@@ -7,6 +7,8 @@ const BASE_ESTADO = {
   activa: false,
   zonasExploradas: false,
   vistaJugador: false,
+  visionConfigs: [],
+  exploredAreas: [],
 };
 
 const DEFAULT_PROPS = {

@@ -288,17 +288,17 @@ describe("useDndCharacterSheetController - setters editables", () => {
   it("setEditableMovement cambia el movimiento editable", () => {
     const { result } = setup();
     act(() => {
-      result.current.setEditableMovement("35");
+      result.current.setEditableMovement(35);
     });
-    expect(result.current.editableMovement).toBe("35");
+    expect(result.current.editableMovement).toBe(35);
   });
 
   it("setEditableMaxHp cambia el HP máximo editable", () => {
     const { result } = setup();
     act(() => {
-      result.current.setEditableMaxHp("50");
+      result.current.setEditableMaxHp(50);
     });
-    expect(result.current.editableMaxHp).toBe("50");
+    expect(result.current.editableMaxHp).toBe(50);
   });
 
   it("setEditableLanguagesText cambia el texto de idiomas", () => {

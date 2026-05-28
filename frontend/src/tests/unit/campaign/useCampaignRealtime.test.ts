@@ -36,7 +36,7 @@ vi.stubGlobal(
 function getLastMockClientInstance() {
   const MockClient = vi.mocked(Client);
   const lastCall = MockClient.mock.results[MockClient.mock.results.length - 1];
-  return lastCall?.value as ReturnType<typeof Client> & {
+  return lastCall?.value as InstanceType<typeof Client> & {
     onConnect: (() => void) | null;
     onWebSocketClose: (() => void) | null;
     onWebSocketError: (() => void) | null;
@@ -226,12 +226,7 @@ describe("useCampaignRealtime - callbacks sin conexión son no-ops", () => {
     const { result } = setup();
     expect(() => {
       act(() => {
-        result.current.activarIniciativa({
-          activa: true,
-          orden: [],
-          turnoActual: 0,
-          ronda: 1,
-        });
+        result.current.activarIniciativa(true);
       });
     }).not.toThrow();
   });
@@ -240,7 +235,7 @@ describe("useCampaignRealtime - callbacks sin conexión son no-ops", () => {
     const { result } = setup();
     expect(() => {
       act(() => {
-        result.current.tirarIniciativa({ personajeId: 1, valor: 15 });
+        result.current.tirarIniciativa(1, "Personaje", null, 15, 0);
       });
     }).not.toThrow();
   });
@@ -274,7 +269,7 @@ describe("useCampaignRealtime - callbacks sin conexión son no-ops", () => {
         result.current.configurarVisionToken({
           posicionId: 1,
           radius: 5,
-          arcType: "circle",
+          arcType: "cone",
           apertura: 360,
           rotation: 0,
           angle: 360,
@@ -355,7 +350,7 @@ describe("useCampaignRealtime - callbacks sin conexión son no-ops", () => {
     const { result } = setup();
     expect(() => {
       act(() => {
-        result.current.asignarMapaPorWebSocket(1, 5, "http://mapa.png");
+        result.current.asignarMapaPorWebSocket({ pestanaId: 1, mapaId: 5 });
       });
     }).not.toThrow();
   });
@@ -1011,7 +1006,7 @@ describe("useCampaignRealtime - funciones de publish cuando conectado", () => {
       result.current.configurarVisionToken({
         posicionId: 1,
         revelaArea: false,
-        arcType: "circle",
+        arcType: "cone",
         radius: 5,
         apertura: 360,
         rotation: 0,

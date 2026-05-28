@@ -24,7 +24,7 @@ vi.mock("@stomp/stompjs", () => ({
 function getLastMockClientInstance() {
   const MockClient = vi.mocked(Client);
   const lastCall = MockClient.mock.results[MockClient.mock.results.length - 1];
-  return lastCall?.value as ReturnType<typeof Client> & {
+  return lastCall?.value as InstanceType<typeof Client> & {
     onConnect: (() => void) | null;
     onWebSocketClose: (() => void) | null;
     onWebSocketError: (() => void) | null;

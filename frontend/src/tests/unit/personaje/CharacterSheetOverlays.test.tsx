@@ -168,7 +168,10 @@ const baseProps = {
       rollExpression: vi.fn(),
       rollDicePool: vi.fn(),
       rollExpressionsSequence: vi.fn(),
-      rollTwoD20ForAdvantage: vi.fn().mockResolvedValue([10, 15]),
+      dismissSummary: vi.fn(),
+      rollTwoD20ForAdvantage: vi
+        .fn()
+        .mockResolvedValue([10, 15] as [number, number]),
       formatModifier: vi.fn(),
     },
   },

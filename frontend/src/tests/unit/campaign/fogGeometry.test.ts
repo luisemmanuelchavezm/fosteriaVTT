@@ -145,7 +145,10 @@ describe("isInVisionShapeGrid - rectangle", () => {
 
 describe("isInVisionShapeGrid - default (tipo desconocido)", () => {
   it("usa radio de semicírculo por defecto", () => {
-    const vc = makeVisionConfig({ arcType: "unknown_type", radius: 5 });
+    const vc = makeVisionConfig({
+      arcType: "unknown_type" as never,
+      radius: 5,
+    });
     expect(isInVisionShapeGrid(3, 0, 3, 0.5, vc)).toBe(true);
     expect(isInVisionShapeGrid(10, 0, 10, 0.5, vc)).toBe(false);
   });

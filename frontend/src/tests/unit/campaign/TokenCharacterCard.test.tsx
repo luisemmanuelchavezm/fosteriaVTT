@@ -8,14 +8,20 @@ import type { DndCharacterDetailResponse } from "../../../screens/personaje/util
 // ─── Stubs ────────────────────────────────────────────────────────────────────
 
 const makeDiceRoller = () => ({
-  rollD20Check: vi.fn(),
-  rollAttack: vi.fn(),
-  rollSkill: vi.fn(),
-  rollSave: vi.fn(),
-  rollExpression: vi.fn(),
-  rollSpellAttack: vi.fn(),
-  castSpell: vi.fn(),
+  diceBoxHostId: "test-host",
+  diceBoxError: null,
+  isDiceBoxReady: false,
   isRolling: false,
+  summary: null,
+  rollD20Check: vi.fn(),
+  rollExpression: vi.fn(),
+  rollDicePool: vi.fn(),
+  rollExpressionsSequence: vi.fn(),
+  dismissSummary: vi.fn(),
+  rollTwoD20ForAdvantage: vi
+    .fn()
+    .mockResolvedValue([10, 15] as [number, number]),
+  formatModifier: vi.fn(),
 });
 
 const makeToken = (overrides = {}): CampaignPositionResponse =>

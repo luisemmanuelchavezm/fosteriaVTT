@@ -113,7 +113,6 @@ describe("useCampaignInvite", () => {
     // Crear un div y asignarlo al ref
     const container = document.createElement("div");
     document.body.appendChild(container);
-    // @ts-expect-error - acceso directo a la propiedad mutable del ref
     result.current.inviteRef.current = container;
 
     act(() => {
