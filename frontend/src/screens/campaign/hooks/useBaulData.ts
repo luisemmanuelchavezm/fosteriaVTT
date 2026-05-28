@@ -452,11 +452,13 @@ export function useBaulData(campaignId: string): BaulData {
         setIsMarketplaceCharactersLoading(true);
         setMarketplaceCharactersError(null);
 
-        const url = buildApiUrl(
-          `/api/marketplace/personajes?nombre=${encodeURIComponent(search)}&tipo=${tipoParam}&page=0&size=100`,
-        );
-        const res = await fetch(url, {
-          // nosemgrep: javascript.lang.security.audit.unsafe-fetch-url
+        // Base URL is a fixed literal — only query params vary with user input
+        const requestUrl = new URL(buildApiUrl("/api/marketplace/personajes"));
+        requestUrl.searchParams.set("nombre", search);
+        requestUrl.searchParams.set("tipo", tipoParam);
+        requestUrl.searchParams.set("page", "0");
+        requestUrl.searchParams.set("size", "100");
+        const res = await fetch(requestUrl, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -483,10 +485,12 @@ export function useBaulData(campaignId: string): BaulData {
       setIsMarketplaceMapsLoading(true);
       setMarketplaceMapsError(null);
 
-      const url = buildApiUrl(
-        `/api/marketplace/mapas?nombre=${encodeURIComponent(search)}&page=0&size=100`,
-      );
-      const res = await fetch(url, {
+      // Base URL is a fixed literal — only query params vary with user input
+      const requestUrl = new URL(buildApiUrl("/api/marketplace/mapas"));
+      requestUrl.searchParams.set("nombre", search);
+      requestUrl.searchParams.set("page", "0");
+      requestUrl.searchParams.set("size", "100");
+      const res = await fetch(requestUrl, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
