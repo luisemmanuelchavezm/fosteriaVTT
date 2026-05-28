@@ -14,7 +14,7 @@ import {
 import DiceRollOverlay from "../../../components/dice/DiceRollOverlay";
 import SpellDetailModal from "../../../components/spells/SpellDetailModal";
 import { useDiceRoller } from "../../../components/dice/useDiceRoller";
-import { serializeRollMessage } from "./ChatRollBubble";
+import { serializeRollMessage } from "./chatRollUtils";
 import {
   fetchDndCharacterDetail,
   type CharacterAbilityResponse,

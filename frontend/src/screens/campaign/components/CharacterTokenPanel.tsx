@@ -12,7 +12,7 @@ import {
 import { useRef, useState } from "react";
 import { useEffect } from "react";
 import DiceRollOverlay from "../../../components/dice/DiceRollOverlay";
-import { parseRollMessage } from "./ChatRollBubble";
+import { parseRollMessage } from "./chatRollUtils";
 import { ChatRollBubble } from "./ChatRollBubble";
 import ChatDiceRollerPanel from "./ChatDiceRollerPanel";
 import TokenCharacterCard from "./panel/TokenCharacterCard";

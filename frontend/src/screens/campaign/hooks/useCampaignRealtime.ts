@@ -476,10 +476,13 @@ export function useCampaignRealtime({
       ];
 
       // Solicitar el estado actual de niebla al conectarse (si ya se conoce la pestaña)
-      if (pestanaId != null) {
+      // pestanaIdRef.current is used (not pestanaId) so this effect doesn't re-run on tab changes;
+      // tab changes are handled by the next useEffect below.
+      const currentPestanaId = pestanaIdRef.current;
+      if (currentPestanaId != null) {
         client.publish({
           destination: `/app/campanas/${campaignIdValue}/niebla/solicitar`,
-          body: JSON.stringify({ pestanaId }),
+          body: JSON.stringify({ pestanaId: currentPestanaId }),
           headers: { "content-type": "application/json" },
         });
       }
@@ -521,7 +524,6 @@ export function useCampaignRealtime({
         void stompClient.deactivate();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- pestanaId omitido intencionalmente: este efecto gestiona el ciclo de vida del WebSocket y no debe reconectarse al cambiar de pestaña; los cambios de pestaña los maneja el useEffect siguiente
   }, [
     campaignIdValue,
     handleDrawingFrame,

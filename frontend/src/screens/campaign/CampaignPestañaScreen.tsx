@@ -12,14 +12,14 @@ import { buildApiUrl } from "../../lib/api";
 import {
   CampaignRulerOverlay,
   CampaignRulerShapeSelector,
-  useCampaignRulerTool,
 } from "./campaignRulerTool";
+import { useCampaignRulerTool } from "./hooks/useCampaignRulerTool";
 import {
   CampaignPencilOverlay,
   CampaignPencilShapeSelector,
   CampaignPencilOptionsModal,
-  useCampaignPencilTool,
 } from "./campaignPencilTool";
+import { useCampaignPencilTool } from "./hooks/useCampaignPencilTool";
 import CharacterTokenPanel from "./components/CharacterTokenPanel";
 import PestañaSwitcherPanel from "./components/PestañaSwitcherPanel";
 import IniciativaBar from "./components/IniciativaBar";

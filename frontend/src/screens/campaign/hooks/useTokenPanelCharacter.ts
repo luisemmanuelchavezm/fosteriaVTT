@@ -7,7 +7,7 @@ import {
 import { getCharacterMoney } from "../../personaje/dndcharactersheet/utils/characterInventory";
 import { applyDamage } from "../../personaje/dndcharactersheet/utils/characterResources";
 import { useDiceRoller } from "../../../components/dice/useDiceRoller";
-import { serializeRollMessage } from "../components/ChatRollBubble";
+import { serializeRollMessage } from "../components/chatRollUtils";
 import type { CampaignPositionResponse } from "../types";
 
 const CHARACTER_UPDATED_EVENT = "fosteria:character-updated";

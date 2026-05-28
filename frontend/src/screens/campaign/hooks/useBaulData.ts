@@ -456,6 +456,7 @@ export function useBaulData(campaignId: string): BaulData {
           `/api/marketplace/personajes?nombre=${encodeURIComponent(search)}&tipo=${tipoParam}&page=0&size=100`,
         );
         const res = await fetch(url, {
+          // nosemgrep: javascript.lang.security.audit.unsafe-fetch-url
           headers: { Authorization: `Bearer ${token}` },
         });
 

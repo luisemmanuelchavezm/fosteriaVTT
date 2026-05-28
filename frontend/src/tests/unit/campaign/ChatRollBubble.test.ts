@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   serializeRollMessage,
   parseRollMessage,
-} from "../../../screens/campaign/components/ChatRollBubble";
+} from "../../../screens/campaign/components/chatRollUtils";
 
 describe("serializeRollMessage", () => {
   it("serializa un mensaje de tirada básico", () => {

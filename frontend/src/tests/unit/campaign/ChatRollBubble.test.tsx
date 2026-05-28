@@ -1,11 +1,11 @@
 // @vitest-environment jsdom
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
+import { ChatRollBubble } from "../../../screens/campaign/components/ChatRollBubble";
 import {
-  ChatRollBubble,
   serializeRollMessage,
   parseRollMessage,
-} from "../../../screens/campaign/components/ChatRollBubble";
+} from "../../../screens/campaign/components/chatRollUtils";
 
 describe("serializeRollMessage", () => {
   it("serializes a basic roll message", () => {

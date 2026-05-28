@@ -2,11 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import DiceRollOverlay from "../../../components/dice/DiceRollOverlay";
 import { useDiceRoller } from "../../../components/dice/useDiceRoller";
 import ChatDiceRollerPanel from "./ChatDiceRollerPanel";
-import {
-  ChatRollBubble,
-  parseRollMessage,
-  serializeRollMessage,
-} from "./ChatRollBubble";
+import { ChatRollBubble } from "./ChatRollBubble";
+import { parseRollMessage, serializeRollMessage } from "./chatRollUtils";
 
 interface CampaignChatPanelProps {
   messages: CampaignChatMessage[];
