@@ -81,6 +81,10 @@ jobs:
         working-directory: frontend
         run: HUSKY=0 npm ci
 
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
       - name: Get Playwright version
         id: playwright-version
         working-directory: frontend

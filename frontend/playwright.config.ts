@@ -10,14 +10,14 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    // In CI use the pre-built preview server (starts instantly after build).
-    // Locally keep the HMR dev server for fast iteration.
+    // CI: the workflow builds the app first, then `vite preview` starts
+    //     instantly from the pre-built dist/ folder.
+    // Local: `vite dev` gives you HMR and fast iteration.
     command: isCI
-      ? "npm run build -- --outDir dist && npm run preview -- --host 127.0.0.1 --port 4173"
+      ? "npm run preview -- --host 127.0.0.1 --port 4173"
       : "npm run dev -- --host 127.0.0.1 --port 4173",
     port: 4173,
-    // Allow 2 min for the build + server startup on CI (30 s locally)
-    timeout: isCI ? 120_000 : 30_000,
+    timeout: 30_000,
     // In CI always start fresh; locally reuse if already running
     reuseExistingServer: !isCI,
   },
