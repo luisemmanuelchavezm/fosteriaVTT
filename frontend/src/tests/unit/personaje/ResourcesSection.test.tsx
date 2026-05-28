@@ -88,6 +88,15 @@ describe("ResourcesSection", () => {
     );
   });
 
+  it("shows extra resources in non-edit mode (grid layout)", () => {
+    // isEditMode is false by default — covers the 'grid' className branch
+    render(<ResourcesSection {...baseProps} />);
+    fireEvent.click(screen.getByRole("button", { name: "Extra" }));
+    expect(screen.getByText(/Gestionar recursos extra/i)).toBeInTheDocument();
+    // Extra resources should be visible without edit-mode controls
+    expect(screen.getByText("Extra 1")).toBeInTheDocument();
+  });
+
   it("switches to money tab and adjusts currencies", () => {
     render(<ResourcesSection {...baseProps} />);
 

@@ -2,6 +2,7 @@ package com.fosteriaVTT.fosteriaVTT_backend.Jugador;
 
 import com.fosteriaVTT.fosteriaVTT_backend.common.SistemaDeJuego;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,6 +16,20 @@ public interface JugadorRepository extends JpaRepository<Jugador, Long> {
     List<Jugador> findTop5ByUsuarioIdOrderByUltimaVezAccedidoDesc(Long usuarioId);
 
     List<Jugador> findByUsuarioIdOrderByUltimaVezAccedidoDesc(Long usuarioId);
+
+    List<Jugador> findByCampañaIdOrderByUsuarioUsernameAsc(Long campañaId);
+
+        @Query(
+            """
+            select j from Jugador j
+            where j.usuario.username = :username
+            and j.campaña.id = :campaniaId
+            """
+        )
+        Optional<Jugador> buscarPorUsuarioYCampaniaId(
+            @Param("username") String username,
+            @Param("campaniaId") Long campaniaId
+        );
 
         @Query(
             value = """

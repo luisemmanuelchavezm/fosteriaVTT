@@ -52,12 +52,14 @@ public class MochilaService {
 	public List<Mochila> actualizarItemPersonajeDnd(Personaje personaje, Long itemId, Boolean equipado, Integer cantidad) {
 		List<Mochila> mochilaActualizada = actualizarItemPersonaje(personaje, itemId, equipado, cantidad);
 		dndCombatUtils.sincronizarAtaquesArma(personaje, mochilaActualizada);
-		estadisticaService.actualizarClaseArmadura(
-				personaje,
-				estadisticaService.obtenerValoresPorPersonajeId(personaje.getId()),
-				mochilaActualizada,
-				personaje.getHabilidades()
-		);
+		if (!esEnemigoOPnj(personaje)) {
+			estadisticaService.actualizarClaseArmadura(
+					personaje,
+					estadisticaService.obtenerValoresPorPersonajeId(personaje.getId()),
+					mochilaActualizada,
+					personaje.getHabilidades()
+			);
+		}
 		return mochilaActualizada;
 	}
 
@@ -74,29 +76,40 @@ public class MochilaService {
 	) {
 		List<Mochila> mochilaActualizada = agregarItemPersonaje(personaje, objetoId, nombre, formula, descripcion, tipoObjeto, indice, username, cantidad);
 		dndCombatUtils.sincronizarAtaquesArma(personaje, mochilaActualizada);
-		estadisticaService.actualizarClaseArmadura(
-				personaje,
-				estadisticaService.obtenerValoresPorPersonajeId(personaje.getId()),
-				mochilaActualizada,
-				personaje.getHabilidades()
-		);
+		if (!esEnemigoOPnj(personaje)) {
+			estadisticaService.actualizarClaseArmadura(
+					personaje,
+					estadisticaService.obtenerValoresPorPersonajeId(personaje.getId()),
+					mochilaActualizada,
+					personaje.getHabilidades()
+			);
+		}
 		return mochilaActualizada;
 	}
 
 	public List<Mochila> eliminarItemPersonajeDnd(Personaje personaje, Long itemId) {
 		List<Mochila> mochilaActualizada = eliminarItemPersonaje(personaje, itemId);
 		dndCombatUtils.sincronizarAtaquesArma(personaje, mochilaActualizada);
-		estadisticaService.actualizarClaseArmadura(
-				personaje,
-				estadisticaService.obtenerValoresPorPersonajeId(personaje.getId()),
-				mochilaActualizada,
-				personaje.getHabilidades()
-		);
+		if (!esEnemigoOPnj(personaje)) {
+			estadisticaService.actualizarClaseArmadura(
+					personaje,
+					estadisticaService.obtenerValoresPorPersonajeId(personaje.getId()),
+					mochilaActualizada,
+					personaje.getHabilidades()
+			);
+		}
 		return mochilaActualizada;
 	}
 
+	private boolean esEnemigoOPnj(Personaje personaje) {
+		String tags = personaje.getTags();
+		if (tags == null) return false;
+		String lower = tags.toLowerCase();
+		return lower.contains("enemigo") || lower.contains("pnj");
+	}
+
 	public List<MochilaPersonajeResponse> obtenerItemsPersonaje(Long personajeId) {
-		return mochilaRepository.findByPersonajeIdOrderByIdAsc(personajeId).stream()
+		return mochilaRepository.findByPersonajeIdWithObjetoOrderByIdAsc(personajeId).stream()
 				.map(item -> new MochilaPersonajeResponse(
 						item.getId(),
 						item.getObjeto().getNombre(),
@@ -112,6 +125,25 @@ public class MochilaService {
 
 	public List<Mochila> obtenerMochilaPersonaje(Long personajeId) {
 		return mochilaRepository.findByPersonajeIdOrderByIdAsc(personajeId);
+	}
+
+	public void clonarMochilaParaPersonaje(Long sourcePersonajeId, Personaje target) {
+		List<Mochila> sourceItems = mochilaRepository.findByPersonajeIdOrderByIdAsc(sourcePersonajeId);
+		if (sourceItems.isEmpty()) {
+			return;
+		}
+		List<Mochila> clones = sourceItems.stream()
+				.filter(item -> item.getObjeto() != null)
+				.map(item -> {
+					Mochila clone = new Mochila();
+					clone.setPersonaje(target);
+					clone.setObjeto(item.getObjeto());
+					clone.setCantidad(item.getCantidad());
+					clone.setEquipado(item.isEquipado());
+					return clone;
+				})
+				.toList();
+		mochilaRepository.saveAll(clones);
 	}
 
 	public List<Mochila> actualizarItemPersonaje(
@@ -138,7 +170,7 @@ public class MochilaService {
 		}
 
 		mochilaRepository.save(item);
-		return mochilaRepository.findByPersonajeIdOrderByIdAsc(personaje.getId());
+		return mochilaRepository.findByPersonajeIdWithObjetoOrderByIdAsc(personaje.getId());
 	}
 
 	public List<Mochila> agregarItemPersonaje(
@@ -189,14 +221,14 @@ public class MochilaService {
 			mochilaRepository.save(nuevoItem);
 		}
 
-		return mochilaRepository.findByPersonajeIdOrderByIdAsc(personaje.getId());
+		return mochilaRepository.findByPersonajeIdWithObjetoOrderByIdAsc(personaje.getId());
 	}
 
 	public List<Mochila> eliminarItemPersonaje(Personaje personaje, Long itemId) {
 		Mochila item = mochilaRepository.findByIdAndPersonajeId(itemId, personaje.getId())
 				.orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "No se encontró el objeto de la mochila"));
 		mochilaRepository.delete(item);
-		return mochilaRepository.findByPersonajeIdOrderByIdAsc(personaje.getId());
+		return mochilaRepository.findByPersonajeIdWithObjetoOrderByIdAsc(personaje.getId());
 	}
 
 	public void actualizarDineroPersonaje(Personaje personaje, Map<String, Integer> dinero) {

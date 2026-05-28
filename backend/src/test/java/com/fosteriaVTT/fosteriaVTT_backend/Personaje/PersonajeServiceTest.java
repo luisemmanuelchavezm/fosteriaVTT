@@ -12,7 +12,10 @@ import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterCreati
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterLevelUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterStatsUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCombatUtils;
+import com.fosteriaVTT.fosteriaVTT_backend.Chat.ChatRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Posicion.PosicionRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Usuario.Rol;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import com.fosteriaVTT.fosteriaVTT_backend.Usuario.UserRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Usuario.Usuario;
 import com.fosteriaVTT.fosteriaVTT_backend.common.SistemaDeJuego;
@@ -93,6 +96,15 @@ class PersonajeServiceTest {
     @Mock
     private DndCharacterLevelUtils dndCharacterLevelUtils;
 
+    @Mock
+    private PosicionRepository posicionRepository;
+
+    @Mock
+    private ChatRepository chatRepository;
+
+    @Mock
+    private SimpMessagingTemplate messagingTemplate;
+
     @InjectMocks
     private PersonajeService personajeService;
 
@@ -103,11 +115,11 @@ class PersonajeServiceTest {
         Habilidad habilidad = Habilidad.builder().id(5L).nombre("Misil magico").formula("1d4+1").descripcion("impacta").tags("Hechizo;nivel-1").build();
         personaje.setHabilidades(List.of(habilidad));
 
-        when(personajeRepository.findByIdAndUsuarioUsername(1L, "daria")).thenReturn(Optional.of(personaje));
+        when(personajeRepository.findById(1L)).thenReturn(Optional.of(personaje));
         when(estadisticaService.obtenerValoresPorPersonajeId(1L)).thenReturn(Map.of("Fuerza", 10));
         when(dndCharacterStatsUtils.resolverClasesPersonaje(personaje)).thenReturn(List.of());
         when(dndCharacterStatsUtils.resolverCaracteristicaLanzamientoConjuros(personaje)).thenReturn("Inteligencia");
-        when(dndCombatUtils.resolverBonificacionHabilidad(personaje, habilidad, Map.of("Fuerza", 10))).thenReturn(7);
+        when(dndCombatUtils.resolverBonificacionHabilidad(eq(personaje), eq(habilidad), eq(Map.of("Fuerza", 10)), any(), any())).thenReturn(7);
         when(mochilaService.obtenerItemsPersonaje(1L)).thenReturn(List.of(new MochilaPersonajeResponse(3L, "Pocion", null, "cura", 2, false, "", "consumible")));
 
         PersonajeDetalleResponse detalle = personajeService.obtenerDetallePersonaje(1L, "daria");
@@ -132,13 +144,14 @@ class PersonajeServiceTest {
                 .usuario(usuario)
                 .build();
 
-        when(personajeRepository.buscarPorFiltros(eq("daria"), eq("aria"), eq(List.of(SistemaDeJuego.DND)), eq(false), any(Pageable.class)))
+        when(personajeRepository.buscarPorFiltros(eq("daria"), eq("aria"), eq(List.of(SistemaDeJuego.DND)), eq(false), eq(false), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(personaje)));
 
         PagedResponse<PersonajeResumenResponse> response = personajeService.obtenerPersonajesOrdenadosPorUso(
                 "daria",
                 " Aria ",
                 List.of("Dungeons and Dragons"),
+                false,
                 0,
                 15
         );
@@ -151,13 +164,13 @@ class PersonajeServiceTest {
 
     @Test
     void normalizaParametrosYAcotaPaginacion() {
-        when(personajeRepository.buscarPorFiltros(eq("daria"), eq(""), eq(List.of()), eq(true), any(Pageable.class)))
+        when(personajeRepository.buscarPorFiltros(eq("daria"), eq(""), eq(List.of()), eq(true), eq(false), any(Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(), org.springframework.data.domain.PageRequest.of(0, 1), 0));
 
-        personajeService.obtenerPersonajesOrdenadosPorUso("daria", null, List.of("desconocido"), -5, 0);
+        personajeService.obtenerPersonajesOrdenadosPorUso("daria", null, List.of("desconocido"), false, -5, 0);
 
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
-        verify(personajeRepository).buscarPorFiltros(eq("daria"), eq(""), eq(List.of()), eq(true), pageableCaptor.capture());
+        verify(personajeRepository).buscarPorFiltros(eq("daria"), eq(""), eq(List.of()), eq(true), eq(false), pageableCaptor.capture());
         assertEquals(0, pageableCaptor.getValue().getPageNumber());
         assertEquals(1, pageableCaptor.getValue().getPageSize());
     }
@@ -205,7 +218,7 @@ class PersonajeServiceTest {
             Map.of(),
             Map.of()
         );
-        PersonajeResumenResponse response = new PersonajeResumenResponse(1L, "Aria", "cloud", "Dungeons and Dragons", LocalDateTime.now());
+        PersonajeResumenResponse response = new PersonajeResumenResponse(1L, "Aria", "cloud", "Dungeons and Dragons", LocalDateTime.now(), "personaje", false, false, false);
 
         when(cloudinaryService.uploadFile(portrait)).thenReturn("cloud");
         when(dndCharacterCreationUtils.crearPersonajeDnd(request, "cloud", "daria")).thenReturn(response);
@@ -241,6 +254,7 @@ class PersonajeServiceTest {
     void actualizaHojaYNormalizaDatosEditables() {
         Personaje personaje = personajeBase(3L, "Cora");
         when(personajeRepository.findByIdAndUsuarioUsername(3L, "daria")).thenReturn(Optional.of(personaje));
+        when(personajeRepository.findById(3L)).thenReturn(Optional.of(personaje));
         when(estadisticaService.obtenerValoresPorPersonajeId(3L)).thenReturn(Map.of("Fuerza", 10, "Destreza", 12));
         when(dndCharacterStatsUtils.resolverNivelTotalPersonaje(personaje)).thenReturn(2);
         when(dndCharacterStatsUtils.resolverClasesPersonaje(personaje)).thenReturn(List.of());
@@ -333,6 +347,7 @@ class PersonajeServiceTest {
     }
 
     private void stubDetalleMinimo(Long personajeId, Personaje personaje) {
+        when(personajeRepository.findById(personajeId)).thenReturn(Optional.of(personaje));
         when(estadisticaService.obtenerValoresPorPersonajeId(personajeId)).thenReturn(Map.of("Fuerza", 10));
         when(dndCharacterStatsUtils.resolverClasesPersonaje(personaje)).thenReturn(List.of());
         when(dndCharacterStatsUtils.resolverCaracteristicaLanzamientoConjuros(personaje)).thenReturn(null);

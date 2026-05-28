@@ -119,7 +119,7 @@ export function computeRaceAbilityBonuses(
   return {
     bonuses,
     summary: ABILITY_STATS.flatMap((stat) =>
-      bonuses[stat.id] > 0 ? [`${stat.name} +${bonuses[stat.id]}`] : [],
+      bonuses[stat.id] > 0 ? [`${stat.displayName} +${bonuses[stat.id]}`] : [],
     ),
   };
 }

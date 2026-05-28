@@ -246,6 +246,31 @@ public class DndAbilityUtils {
 		return agregarHabilidadAPersonaje(personaje, habilidad);
 	}
 
+	public Habilidad crearHabilidadArmaExclusiva(String nombre, String descripcion, String formula, String tags) {
+		return habilidadRepository.save(
+				Habilidad.builder()
+						.nombre(nombre)
+						.descripcion(descripcion)
+						.formula(formula)
+						.tags(tags)
+						.build()
+		);
+	}
+
+	public Habilidad obtenerHabilidadPorId(Long habilidadId) {
+		return habilidadRepository.findById(habilidadId)
+				.orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+						org.springframework.http.HttpStatus.NOT_FOUND, "Habilidad no encontrada"));
+	}
+
+	public Habilidad actualizarHabilidadArma(Long habilidadId, String nombre, String formula, String tags) {
+		Habilidad h = obtenerHabilidadPorId(habilidadId);
+		if (nombre != null && !nombre.isBlank()) h.setNombre(nombre.trim());
+		if (formula != null) h.setFormula(formula); // Only overwrite formula if explicitly provided
+		h.setTags(tags);
+		return habilidadRepository.save(h);
+	}
+
 	private void agregarRasgos(Map<String, Habilidad> habilidades, List<RazaDndRasgoResponse> rasgos, String tags) {
 		for (RazaDndRasgoResponse rasgo : rasgos) {
 			agregarHabilidad(habilidades, resolverOCrearHabilidad(rasgo.titulo(), rasgo.descripcion(), null, tags));

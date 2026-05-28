@@ -195,17 +195,25 @@ function extractDiceValues(payload: unknown): number[] {
   }
 
   const record = payload as Record<string, unknown>;
-  const directValue = record.value;
-  const values = [
-    ...(typeof directValue === "number" ? [directValue] : []),
-    ...extractDiceValues(record.values),
-    ...extractDiceValues(record.rolls),
-    ...extractDiceValues(record.results),
-    ...extractDiceValues(record.dice),
-    ...extractDiceValues(record.sets),
-  ];
 
-  return values.filter((value): value is number => typeof value === "number");
+  // Group-level result: has a nested `rolls`/`results`/`dice` array → descend into it
+  // without also collecting the group's `.value` (which is the sum, not a single die face)
+  for (const childKey of [
+    "rolls",
+    "results",
+    "dice",
+    "values",
+    "sets",
+  ] as const) {
+    const child = record[childKey];
+    if (Array.isArray(child) && child.length > 0) {
+      return extractDiceValues(child);
+    }
+  }
+
+  // Individual die result: no nested collections → return its face value
+  const directValue = record.value;
+  return typeof directValue === "number" ? [directValue] : [];
 }
 
 async function waitForDiceBoxHost(hostId: string, attempts = 10) {
@@ -261,15 +269,20 @@ export function useDiceRoller() {
     if (nextSummary) {
       summaryTimeoutRef.current = window.setTimeout(() => {
         showNextSummary();
-      }, 3000);
+      }, 2100);
     }
   };
 
   const enqueueSummary = (nextSummary: DiceRollSummary) => {
-    summaryQueueRef.current.push(nextSummary);
-    if (!hasVisibleSummaryRef.current) {
-      showNextSummary();
-    }
+    summaryQueueRef.current = [nextSummary];
+    showNextSummary();
+  };
+
+  const dismissSummary = () => {
+    clearSummaryTimer();
+    summaryQueueRef.current = [];
+    hasVisibleSummaryRef.current = false;
+    setSummary(null);
   };
 
   const scheduleDiceClear = () => {
@@ -310,7 +323,7 @@ export function useDiceRoller() {
     const instance = new DiceBox({
       container: `#${diceBoxHostIdRef.current}`,
       assetPath: "/assets/dice-box/",
-      offscreen: true,
+      offscreen: false,
       scale: 3.8,
       throwForce: 4.2,
       spinForce: 5.6,
@@ -372,6 +385,7 @@ export function useDiceRoller() {
     }
 
     clearDiceTimer();
+    dismissSummary();
     setDiceBoxError(null);
     activeRollCountRef.current += 1;
     setIsRolling(true);
@@ -407,6 +421,9 @@ export function useDiceRoller() {
           const resolved = await (rollResult as Promise<unknown>);
           diceValues = extractDiceValues(resolved);
         } else {
+          // roll() returned non-promise — instance may be broken, reset it
+          diceBoxInstanceRef.current = null;
+          setIsDiceBoxReady(false);
           diceValues = parsed.dicePools.flatMap((pool) =>
             rollLocally(pool.count, pool.faces),
           );
@@ -435,6 +452,8 @@ export function useDiceRoller() {
       });
       scheduleDiceClear();
     } catch (error) {
+      diceBoxInstanceRef.current = null; // forzar re-init en el siguiente roll
+      setIsDiceBoxReady(false);
       const message =
         error instanceof Error ? error.message : "Error desconocido";
       setDiceBoxError(`Dice-Box no pudo mostrar la tirada: ${message}`);
@@ -460,6 +479,7 @@ export function useDiceRoller() {
     }
 
     clearDiceTimer();
+    dismissSummary();
     setDiceBoxError(null);
     activeRollCountRef.current += 1;
     setIsRolling(true);
@@ -492,6 +512,9 @@ export function useDiceRoller() {
         const resolved = await (rollResult as Promise<unknown>);
         diceValues = extractDiceValues(resolved);
       } else {
+        // roll() returned non-promise — instance may be broken, reset it
+        diceBoxInstanceRef.current = null;
+        setIsDiceBoxReady(false);
         diceValues = normalizedPools.flatMap((pool) =>
           rollLocally(pool.count, pool.faces),
         );
@@ -521,6 +544,8 @@ export function useDiceRoller() {
       scheduleDiceClear();
       return summary;
     } catch (error) {
+      diceBoxInstanceRef.current = null; // forzar re-init en el siguiente roll
+      setIsDiceBoxReady(false);
       const message =
         error instanceof Error ? error.message : "Error desconocido";
       setDiceBoxError(`Dice-Box no pudo mostrar la tirada: ${message}`);
@@ -548,6 +573,56 @@ export function useDiceRoller() {
     rollExpressionsSequence: (requests: QueuedRollRequest[]) => {
       for (const request of requests) {
         void runRoll(request.title, request.expression);
+      }
+    },
+    dismissSummary,
+    rollTwoD20ForAdvantage: async (): Promise<[number, number]> => {
+      clearDiceTimer();
+      dismissSummary();
+      setDiceBoxError(null);
+      activeRollCountRef.current += 1;
+      setIsRolling(true);
+
+      try {
+        const diceBox = await ensureDiceBoxReady();
+
+        if (activeDiceCountRef.current + 2 > MAX_VISIBLE_DICE) {
+          diceBox.clear?.();
+          activeDiceCountRef.current = 0;
+        }
+
+        const rollResult = diceBox.roll?.("2d20");
+        let diceValues: number[] = [];
+
+        if (
+          rollResult &&
+          typeof (rollResult as Promise<unknown>).then === "function"
+        ) {
+          const resolved = await (rollResult as Promise<unknown>);
+          diceValues = extractDiceValues(resolved);
+        } else {
+          diceValues = rollLocally(2, 20);
+        }
+
+        // Ensure exactly 2 values; fallback to local random if dice box returned fewer
+        while (diceValues.length < 2) {
+          diceValues.push(...rollLocally(1, 20));
+        }
+
+        activeDiceCountRef.current += 2;
+        scheduleDiceClear();
+        return [diceValues[0], diceValues[1]];
+      } catch {
+        diceBoxInstanceRef.current = null; // forzar re-init en el siguiente roll
+        setIsDiceBoxReady(false);
+        scheduleDiceClear();
+        return [secureRandomInt(1, 20), secureRandomInt(1, 20)];
+      } finally {
+        activeRollCountRef.current = Math.max(
+          0,
+          activeRollCountRef.current - 1,
+        );
+        setIsRolling(activeRollCountRef.current > 0);
       }
     },
     formatModifier,

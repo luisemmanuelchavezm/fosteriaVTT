@@ -230,6 +230,19 @@ public class EstadisticaService {
 		estadisticaRepository.save(armorClassStat);
 	}
 
+	public void guardarEstadisticasNpc(Personaje personaje, Map<String, Integer> estadisticas) {
+		List<Estadistica> stats = new java.util.ArrayList<>();
+		for (Map.Entry<String, Integer> entry : estadisticas.entrySet()) {
+			Estadistica stat = Estadistica.builder()
+					.nombre(entry.getKey())
+					.valor(entry.getValue())
+					.personaje(personaje)
+					.build();
+			stats.add(stat);
+		}
+		estadisticaRepository.saveAll(stats);
+	}
+
 	public void guardarEstadisticasIniciales(
 			Personaje character,
 			Map<String, Integer> baseStats,
@@ -441,5 +454,24 @@ public class EstadisticaService {
 		String normalizedName = TagUtils.normalizeText(nombre);
 		return (habilidades == null ? List.<Habilidad>of() : habilidades).stream()
 				.anyMatch(habilidad -> TagUtils.normalizeText(habilidad.getNombre()).equals(normalizedName));
+	}
+
+	public void clonarEstadisticasParaPersonaje(Long sourcePersonajeId, Personaje target) {
+		Map<String, Integer> sourceStats = obtenerValoresPorPersonajeId(sourcePersonajeId);
+		if (sourceStats.isEmpty()) {
+			return;
+		}
+		// Reset current HP to match max HP so each instance starts at full health
+		Integer maxHp = sourceStats.get(MAX_HP_STAT);
+		if (maxHp != null) {
+			sourceStats = new java.util.LinkedHashMap<>(sourceStats);
+			sourceStats.put(CURRENT_HP_STAT, maxHp);
+		}
+		guardarEstadisticasNpc(target, sourceStats);
+	}
+
+	@org.springframework.transaction.annotation.Transactional
+	public void eliminarEstadisticasPersonaje(Long personajeId) {
+		estadisticaRepository.deleteByPersonajeId(personajeId);
 	}
 }

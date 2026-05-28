@@ -121,7 +121,7 @@ export default function StatisticsSection({
                 className="rounded-[20px] border border-amber-200/25 bg-[linear-gradient(180deg,rgba(245,158,11,0.16),rgba(28,25,23,0.72))] px-3 py-3 text-center shadow-[0_14px_30px_rgba(0,0,0,0.2)] transition hover:border-amber-200/40"
               >
                 <p className="text-sm uppercase tracking-[0.18em] text-amber-100/80">
-                  {stat.name}
+                  {stat.displayName}
                 </p>
                 <p className="mt-1.5 text-[2rem] font-bold text-white">
                   {formatAbilityModifier(displayScore)}
@@ -175,7 +175,7 @@ export default function StatisticsSection({
                     inputMode="numeric"
                     value={hpDelta}
                     onChange={(event) => onHpDeltaChange(event.target.value)}
-                    aria-label="Cantidad de curacion o danio"
+                    aria-label="Cantidad de curación o daño"
                     className="h-full w-full bg-transparent text-center text-lg font-semibold text-white outline-none"
                   />
                   <button
@@ -193,7 +193,7 @@ export default function StatisticsSection({
                 onClick={onDamage}
                 className="rounded-[16px] border border-rose-300/35 bg-rose-400/10 px-3 text-sm font-semibold text-rose-100 transition hover:bg-rose-400/15"
               >
-                Danio
+                Daño
               </button>
             </div>
 

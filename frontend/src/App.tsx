@@ -1,18 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import LoginScreen from "./screens/LoginScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import HomeScreen from "./screens/HomeScreen";
 import CharactersScreen from "./screens/CharactersScreen";
 import CampaignsScreen from "./screens/CampaignsScreen.tsx";
+import type { CampaignCreationSystem } from "./components/campaignSystem";
+import CreateCampaignScreen from "./screens/CreateCampaignScreen";
+import CampaignHomeScreen from "./screens/campaign/CampaignHomeScreen";
+import CampaignPestañaScreen from "./screens/campaign/CampaignPestañaScreen";
 import CreateDndCharacterScreen from "./screens/personaje/creatednd/CreateDndCharacterScreen";
 import DndCharacterSheetScreen from "./screens/personaje/dndcharactersheet/DndCharacterSheetScreen";
-
+import { buildApiUrl } from "./lib/api";
 type AuthMode =
   | "login"
   | "register"
   | "home"
   | "campaigns"
+  | "campaign-create"
+  | "campaign-home"
+  | "campaign-pestaña"
   | "characters"
   | "character-create-dnd"
   | "character-sheet-dnd";
@@ -28,6 +35,37 @@ function App() {
   const [selectedCharacterId, setSelectedCharacterId] = useState<string | null>(
     null,
   );
+  const [selectedCampaignSystem, setSelectedCampaignSystem] =
+    useState<CampaignCreationSystem>("Dungeons and Dragons");
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(
+    null,
+  );
+
+  // Detección de link de invitación: ?join={campaignId}
+  const [pendingJoinId, setPendingJoinId] = useState<string | null>(() => {
+    return new URLSearchParams(window.location.search).get("join");
+  });
+
+  // Cuando hay token + pendingJoinId: unirse automáticamente y abrir la campaña
+  useEffect(() => {
+    if (!token || !pendingJoinId) return;
+    const doJoin = async () => {
+      try {
+        await fetch(buildApiUrl(`/api/campanas/${pendingJoinId}/unirse`), {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } catch {
+        // ignorar errores de red; el usuario podrá entrar desde campañas
+      }
+      setPendingJoinId(null);
+      window.history.replaceState({}, "", window.location.pathname);
+      // Ir directamente al CampaignHomeScreen de esa campaña
+      setSelectedCampaignId(pendingJoinId);
+      setMode("campaign-home");
+    };
+    void doJoin();
+  }, [token, pendingJoinId]);
 
   const handleGoHome = () => {
     if (token) {
@@ -54,6 +92,44 @@ function App() {
     }
 
     setMode("login");
+  };
+
+  const handleGoCreateCampaign = (system: CampaignCreationSystem) => {
+    if (token) {
+      setSelectedCampaignSystem(system);
+      setMode("campaign-create");
+      return;
+    }
+
+    setMode("login");
+  };
+
+  const handleOpenCampaignHome = (campaignId: string) => {
+    if (token) {
+      setSelectedCampaignId(campaignId);
+      setMode("campaign-home");
+      return;
+    }
+
+    setMode("login");
+  };
+
+  const handleOpenCampaignPestaña = () => {
+    if (token && selectedCampaignId) {
+      setMode("campaign-pestaña");
+      return;
+    }
+
+    setMode("login");
+  };
+
+  const handleBackToCampaignHome = () => {
+    if (token && selectedCampaignId) {
+      setMode("campaign-home");
+      return;
+    }
+
+    setMode("campaigns");
   };
 
   const handleGoCreateDndCharacter = () => {
@@ -110,6 +186,11 @@ function App() {
           onLoginSuccess={handleLoginSuccess}
           onSwitchToRegister={() => setMode("register")}
           onGoHome={handleGoHome}
+          joinMessage={
+            pendingJoinId
+              ? "Inicia sesión para unirte a la campaña invitada"
+              : undefined
+          }
         />
       )}
       {mode === "register" && (
@@ -127,6 +208,8 @@ function App() {
           onGoHome={handleGoHome}
           onGoCampaigns={handleGoCampaigns}
           onGoCharacters={handleGoCharacters}
+          onCreateCampaign={handleGoCreateCampaign}
+          onOpenCampaignHome={handleOpenCampaignHome}
         />
       )}
       {mode === "campaigns" && token && (
@@ -137,6 +220,38 @@ function App() {
           onGoHome={handleGoHome}
           onGoCampaigns={handleGoCampaigns}
           onGoCharacters={handleGoCharacters}
+          onCreateCampaign={handleGoCreateCampaign}
+          onOpenCampaignHome={handleOpenCampaignHome}
+        />
+      )}
+      {mode === "campaign-create" && token && (
+        <CreateCampaignScreen
+          username={username}
+          avatarUrl={avatarUrl}
+          onLogout={handleLogout}
+          onGoHome={handleGoHome}
+          onGoCampaigns={handleGoCampaigns}
+          onGoCharacters={handleGoCharacters}
+          initialSystem={selectedCampaignSystem}
+          onCampaignCreated={handleOpenCampaignHome}
+        />
+      )}
+      {mode === "campaign-home" && token && selectedCampaignId && (
+        <CampaignHomeScreen
+          campaignId={selectedCampaignId}
+          onExit={handleGoCampaigns}
+          onOpenCampaignPestaña={handleOpenCampaignPestaña}
+        />
+      )}
+      {mode === "campaign-pestaña" && token && selectedCampaignId && (
+        <CampaignPestañaScreen
+          campaignId={selectedCampaignId}
+          username={username}
+          avatarUrl={avatarUrl}
+          onLogout={handleLogout}
+          onGoHome={handleGoHome}
+          onGoCampaigns={handleGoCampaigns}
+          onBack={handleBackToCampaignHome}
         />
       )}
       {mode === "characters" && token && (

@@ -3,6 +3,7 @@ package com.fosteriaVTT.fosteriaVTT_backend.Chat;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.Personaje;
 import com.fosteriaVTT.fosteriaVTT_backend.common.SistemaDeJuego;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndSubclaseResponse;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.CrearMensajeChatRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.SeleccionDoteRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.SubirNivelPersonajeRequest;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class ChatServiceTest {
@@ -106,5 +109,89 @@ class ChatServiceTest {
         chatService.registrarEleccionProgresion(null, "mago", 4, null, null);
 
         verify(chatRepository, never()).save(any());
+    }
+
+    // ── enviarMensajeCampania validaciones tempranas ──────────────────────────
+
+    @Test
+    void enviarMensajeCampania_lanzaBadRequestSiRequestEsNulo() {
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> chatService.enviarMensajeCampania(5L, null, "daria")
+        );
+
+        assertEquals(400, ex.getStatusCode().value());
+    }
+
+    @Test
+    void enviarMensajeCampania_lanzaBadRequestSiMensajeEsBlanco() {
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> chatService.enviarMensajeCampania(5L, new CrearMensajeChatRequest("   "), "daria")
+        );
+
+        assertEquals(400, ex.getStatusCode().value());
+    }
+
+    @Test
+    void enviarMensajeCampania_lanzaBadRequestSiMensajeEsDemasiadoLargo() {
+        String mensajeLargo = "a".repeat(501);
+
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> chatService.enviarMensajeCampania(5L, new CrearMensajeChatRequest(mensajeLargo), "daria")
+        );
+
+        assertEquals(400, ex.getStatusCode().value());
+    }
+
+    // ── obtenerUltimoRegistroInterno guardias iniciales ───────────────────────
+
+    @Test
+    void obtenerUltimoRegistroInterno_retornaVacioSiPersonajeEsNulo() {
+        assertTrue(chatService.obtenerUltimoRegistroInterno(null, "mago", 1).isEmpty());
+    }
+
+    @Test
+    void obtenerUltimoRegistroInterno_retornaVacioSiClassIdEsBlanco() {
+        Personaje personaje = Personaje.builder()
+                .id(9L)
+                .nombre("Iria")
+                .sistemaDeJuego(SistemaDeJuego.DND)
+                .build();
+
+        assertTrue(chatService.obtenerUltimoRegistroInterno(personaje, "  ", 1).isEmpty());
+    }
+
+    @Test
+    void obtenerUltimoRegistroInterno_retornaVacioSiClassIdEsNulo() {
+        Personaje personaje = Personaje.builder()
+                .id(9L)
+                .nombre("Iria")
+                .sistemaDeJuego(SistemaDeJuego.DND)
+                .build();
+
+        assertTrue(chatService.obtenerUltimoRegistroInterno(personaje, null, 1).isEmpty());
+    }
+
+    // ── registrarEleccionProgresion sin dote ─────────────────────────────────
+
+    @Test
+    void registrarEleccionProgresionSinDoteNoLanzaExcepcion() {
+        Personaje personaje = Personaje.builder()
+                .id(9L)
+                .nombre("Iria")
+                .sistemaDeJuego(SistemaDeJuego.DND)
+                .build();
+        SubirNivelPersonajeRequest request = new SubirNivelPersonajeRequest(
+                "guerrero", null, Map.of(), null, null, null, null
+        );
+
+        chatService.registrarEleccionProgresion(personaje, "guerrero", 2, request, null);
+
+        ArgumentCaptor<Chat> captor = ArgumentCaptor.forClass(Chat.class);
+        verify(chatRepository).save(captor.capture());
+        assertTrue(captor.getValue().getMensaje().startsWith("LEVEL_UP|classId=guerrero|level=2|"));
+        assertTrue(captor.getValue().getMensaje().contains("subclaseNombre="));
     }
 }

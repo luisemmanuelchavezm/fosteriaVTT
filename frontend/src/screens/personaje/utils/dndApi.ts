@@ -204,6 +204,7 @@ export interface CreatedCharacterResponse {
   retrato: string;
   sistemaDeJuego: string;
   usado: string;
+  tipo?: string;
 }
 
 export interface CharacterClassLevelResponse {
@@ -253,6 +254,9 @@ export interface DndCharacterDetailResponse {
   habilidades: CharacterAbilityResponse[];
   mochila: CharacterInventoryItemResponse[];
   usado: string;
+  tipo?: string;
+  vd?: string | null;
+  propietario?: string;
 }
 
 export interface UpdateDndCharacterResourcesRequest {
@@ -736,4 +740,66 @@ export async function createDndCharacter(
   }
 
   return (await response.json()) as CreatedCharacterResponse;
+}
+
+export interface CrearNpcPayload {
+  nombre: string;
+  tipo: string;
+  sistemaDeJuego: string;
+  vd?: string;
+  biografia?: string;
+  esPublico?: boolean;
+  estadisticas: Record<string, number>;
+}
+
+export async function crearNpc(
+  token: string,
+  payload: CrearNpcPayload,
+  portrait: File | null,
+) {
+  const formData = new FormData();
+  formData.append(
+    "payload",
+    new Blob([JSON.stringify(payload)], { type: "application/json" }),
+  );
+  if (portrait) {
+    formData.append("portrait", portrait);
+  }
+
+  const response = await fetch(buildApiUrl("/api/personajes/npc"), {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new Error(text.trim() || "No se pudo crear el NPC");
+  }
+
+  return (await response.json()) as CreatedCharacterResponse;
+}
+
+export async function addHabilidadNpc(
+  token: string,
+  characterId: number,
+  payload: { nombre: string; descripcion?: string | null; tags: string },
+) {
+  const response = await fetch(
+    buildApiUrl(`/api/personajes/${characterId}/habilidades/npc`),
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error("No se pudo agregar la habilidad al NPC");
+  }
 }

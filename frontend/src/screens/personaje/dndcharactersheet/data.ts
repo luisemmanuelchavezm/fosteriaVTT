@@ -12,9 +12,9 @@ export const ABILITY_ABBREVIATIONS: Record<string, string> = {
 export const SAVING_THROW_ROWS = [
   { statName: "Fuerza", displayName: "Fuerza" },
   { statName: "Destreza", displayName: "Destreza" },
-  { statName: "Constitucion", displayName: "Constitucion" },
+  { statName: "Constitucion", displayName: "Constitución" },
   { statName: "Inteligencia", displayName: "Inteligencia" },
-  { statName: "Sabiduria", displayName: "Sabiduria" },
+  { statName: "Sabiduria", displayName: "Sabiduría" },
   { statName: "Carisma", displayName: "Carisma" },
 ] as const;
 

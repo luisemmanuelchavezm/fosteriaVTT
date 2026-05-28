@@ -1,6 +1,7 @@
 package com.fosteriaVTT.fosteriaVTT_backend.Campaña;
 
 import com.fosteriaVTT.fosteriaVTT_backend.dto.CampañaResumenResponse;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.JugadorCampañaResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PagedResponse;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,9 +19,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -158,5 +161,72 @@ class CampañaControllerTest {
                 1,
                 15
         );
+    }
+
+    @Test
+    void obtenerJugadoresCampañaDevuelveLaLista() {
+        List<JugadorCampañaResponse> jugadores = List.of(
+                new JugadorCampañaResponse("dm1", true),
+                new JugadorCampañaResponse("jugador1", false)
+        );
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("dm1", null);
+        auth.setAuthenticated(true);
+        when(campañaService.obtenerJugadoresCampaña(5L, "dm1")).thenReturn(jugadores);
+
+        List<JugadorCampañaResponse> resultado = campañaController.obtenerJugadoresCampaña(5L, auth);
+
+        assertEquals(2, resultado.size());
+        assertEquals("dm1", resultado.get(0).username());
+        verify(campañaService).obtenerJugadoresCampaña(5L, "dm1");
+    }
+
+    @Test
+    void obtenerJugadoresViaHttpDevuelveJson() throws Exception {
+        List<JugadorCampañaResponse> jugadores = List.of(
+                new JugadorCampañaResponse("maestro", true)
+        );
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("maestro", null);
+        auth.setAuthenticated(true);
+        when(campañaService.obtenerJugadoresCampaña(3L, "maestro")).thenReturn(jugadores);
+
+        mockMvc.perform(get("/api/campanas/3/jugadores")
+                        .principal(auth)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].username").value("maestro"))
+                .andExpect(jsonPath("$[0].dm").value(true));
+    }
+
+    @Test
+    void unirseCampañaLlamaAlServicio() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("jugador1", null);
+        auth.setAuthenticated(true);
+        doNothing().when(campañaService).unirseCampaña(7L, "jugador1");
+
+        campañaController.unirseCampaña(7L, auth);
+
+        verify(campañaService).unirseCampaña(7L, "jugador1");
+    }
+
+    @Test
+    void unirseCampañaViaHttpDevuelve204() throws Exception {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("jugador2", null);
+        auth.setAuthenticated(true);
+        doNothing().when(campañaService).unirseCampaña(8L, "jugador2");
+
+        mockMvc.perform(post("/api/campanas/8/unirse")
+                        .principal(auth))
+                .andExpect(status().isNoContent());
+
+        verify(campañaService).unirseCampaña(8L, "jugador2");
+    }
+
+    @Test
+    void unirseCampañaConAuthNulaLanzaUnauthorized() {
+        ResponseStatusException ex = assertThrows(
+                ResponseStatusException.class,
+                () -> campañaController.unirseCampaña(9L, null)
+        );
+        assertEquals(401, ex.getStatusCode().value());
     }
 }

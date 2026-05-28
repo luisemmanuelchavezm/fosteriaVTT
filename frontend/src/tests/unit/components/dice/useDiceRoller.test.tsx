@@ -142,7 +142,7 @@ describe("lanzamiento de dados - useDiceRoller", () => {
         ],
         modifier: 4,
         modifierDisplay: "+2 CON por dado",
-        totalLabel: "Curacion",
+        totalLabel: "Curación",
       });
     });
 
@@ -153,7 +153,7 @@ describe("lanzamiento de dados - useDiceRoller", () => {
         diceValues: [9, 4],
         modifier: 4,
         modifierDisplay: "+2 CON por dado",
-        totalLabel: "Curacion",
+        totalLabel: "Curación",
         total: 17,
       });
     });
@@ -169,7 +169,7 @@ describe("lanzamiento de dados - useDiceRoller", () => {
     const { result } = renderHook(() => useDiceRoller());
 
     await act(async () => {
-      result.current.rollExpression("Dano", "2d6 + 1");
+      result.current.rollExpression("Daño", "2d6 + 1");
     });
 
     await waitFor(() => {

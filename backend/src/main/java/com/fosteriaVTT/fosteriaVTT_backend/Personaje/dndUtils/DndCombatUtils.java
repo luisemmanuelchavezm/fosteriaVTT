@@ -15,6 +15,8 @@ import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.RazaDndDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.SubrazaDndDetalleResponse;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -121,7 +123,47 @@ public class DndCombatUtils {
 	}
 
 	public Integer resolverBonificacionHabilidad(Personaje personaje, Habilidad habilidad, Map<String, Integer> estadisticas) {
-		DndWeaponProficiencies weaponProficiencies = resolverCompetenciasArma(personaje);
+		return resolverBonificacionHabilidad(
+				personaje,
+				habilidad,
+				estadisticas,
+				resolverCompetenciasArma(personaje),
+				Map.of()
+		);
+	}
+
+	public Map<Long, Objeto> resolverObjetosArmaPorHabilidades(List<Habilidad> habilidades) {
+		Set<Long> weaponObjectIds = new HashSet<>();
+		for (Habilidad habilidad : habilidades == null ? List.<Habilidad>of() : habilidades) {
+			Long weaponObjectId = extraerIdObjetoArma(habilidad == null ? null : habilidad.getTags());
+			if (weaponObjectId != null) {
+				weaponObjectIds.add(weaponObjectId);
+			}
+		}
+
+		if (weaponObjectIds.isEmpty()) {
+			return Map.of();
+		}
+
+		Map<Long, Objeto> objectsById = new HashMap<>();
+		for (Objeto objeto : objetoRepository.findAllById(weaponObjectIds)) {
+			if (objeto.getId() != null) {
+				objectsById.put(objeto.getId(), objeto);
+			}
+		}
+
+		return objectsById;
+	}
+
+	public Integer resolverBonificacionHabilidad(
+			Personaje personaje,
+			Habilidad habilidad,
+			Map<String, Integer> estadisticas,
+			DndWeaponProficiencies weaponProficiencies,
+			Map<Long, Objeto> weaponObjectsById
+	) {
+		DndWeaponProficiencies effectiveWeaponProficiencies =
+				weaponProficiencies == null ? resolverCompetenciasArma(personaje) : weaponProficiencies;
 		int proficiencyBonus = DndCharacterRules.calculateProficiencyBonus(dndCharacterStatsUtils.resolverNivelTotalPersonaje(personaje));
 		if (DndCharacterCheckers.esAtaqueSinArmas(habilidad)) {
 			int fuerza = DndCharacterRules.calculateModifier(estadisticas.getOrDefault("Fuerza", 10));
@@ -134,7 +176,10 @@ public class DndCombatUtils {
 			return null;
 		}
 
-		Objeto objeto = objetoRepository.findById(weaponObjectId).orElse(null);
+		Objeto objeto = weaponObjectsById == null ? null : weaponObjectsById.get(weaponObjectId);
+		if (objeto == null) {
+			objeto = objetoRepository.findById(weaponObjectId).orElse(null);
+		}
 		if (objeto == null || objeto.getTipoObjeto() != TipoObjeto.ARMA) {
 			return null;
 		}
@@ -142,7 +187,7 @@ public class DndCombatUtils {
 		int fuerza = DndCharacterRules.calculateModifier(estadisticas.getOrDefault("Fuerza", 10));
 		int destreza = DndCharacterRules.calculateModifier(estadisticas.getOrDefault("Destreza", 10));
 		int modificadorCaracteristica = resolverModificadorArma(objeto, fuerza, destreza);
-		int competencia = weaponProficiencies.aplicaA(objeto) || esArmaCustomCompetente(objeto) ? proficiencyBonus : 0;
+		int competencia = effectiveWeaponProficiencies.aplicaA(objeto) || esArmaCustomCompetente(objeto) ? proficiencyBonus : 0;
 		if (tieneEstiloTiroConArco(personaje, objeto)) {
 			competencia += 2;
 		}
@@ -225,7 +270,27 @@ public class DndCombatUtils {
 		return fuerza;
 	}
 
-	private Long extraerIdObjetoArma(String tags) {
+	/**
+	 * Extrae el bono de ataque codificado en el campo {@code indice} de un {@code Objeto} catálogo
+	 * (formato {@code BONO_ATAQUE=N} dentro de la cadena separada por comas).
+	 * Devuelve 0 si no existe el token o no es parseable.
+	 */
+	public int extraerBonoAtaqueDesdeIndice(String indice) {
+		if (indice == null || indice.isBlank()) {
+			return 0;
+		}
+		for (String parte : indice.split(",")) {
+			String trimmed = parte.trim().toUpperCase();
+			if (trimmed.startsWith("BONO_ATAQUE=")) {
+				try {
+					return Integer.parseInt(trimmed.substring("BONO_ATAQUE=".length()).trim());
+				} catch (NumberFormatException ignored) { }
+			}
+		}
+		return 0;
+	}
+
+	public Long extraerIdObjetoArma(String tags) {
 		if (tags == null || tags.isBlank()) {
 			return null;
 		}

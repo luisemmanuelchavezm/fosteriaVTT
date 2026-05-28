@@ -7,7 +7,6 @@ import {
   getAbilityResetLabel,
   getLocalizedAbilityName,
 } from "../../utils/characterAbilities";
-import { getInventoryTagLabel } from "../../utils/characterInventory";
 import { EmptyRowsMessage } from "../SheetPrimitives";
 import { extractFirstRollableExpression } from "../../../../../components/spells/spellUtils";
 
@@ -193,17 +192,16 @@ export function InventoryRows({
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-bold text-white">{title}</h3>
-      <div className="grid grid-cols-[28px_minmax(0,1fr)_72px_88px] gap-3 border-b border-white/10 pb-2 text-xs uppercase tracking-[0.18em] text-stone-400">
+      <div className="grid grid-cols-[28px_minmax(0,1fr)_72px] gap-3 border-b border-white/10 pb-2 text-xs uppercase tracking-[0.18em] text-stone-400">
         <span />
         <span>Nombre</span>
         <span className="text-right">Cantidad</span>
-        <span className="text-right">Tags</span>
       </div>
       {items.length > 0 ? (
         items.map((item) => (
           <div
             key={item.id}
-            className="grid grid-cols-[28px_minmax(0,1fr)_72px_88px] gap-3 text-sm text-stone-200"
+            className="grid grid-cols-[28px_minmax(0,1fr)_72px] gap-3 text-sm text-stone-200"
           >
             <label className="flex items-center justify-center">
               <input
@@ -222,9 +220,6 @@ export function InventoryRows({
             </button>
             <span className="text-right font-semibold text-white">
               {item.cantidad}
-            </span>
-            <span className="text-right text-stone-300">
-              {getInventoryTagLabel(item)}
             </span>
           </div>
         ))

@@ -33,7 +33,10 @@ import {
   getCharacterCompetencies,
   splitCharacterCompetencies,
 } from "../../../screens/personaje/dndcharactersheet/utils/characterCompetencies";
-import { getCharacterMoney } from "../../../screens/personaje/dndcharactersheet/utils/characterInventory";
+import {
+  getCharacterMoney,
+  getInventoryTagLabel,
+} from "../../../screens/personaje/dndcharactersheet/utils/characterInventory";
 import { getCharacterLanguages } from "../../../screens/personaje/dndcharactersheet/utils/characterProfile";
 import {
   normalizeText,
@@ -554,5 +557,108 @@ describe("hoja de personaje - utilidades", () => {
     // totalLevel 0 => remainingRecovery = max(1, floor(0/2)) = 1, solo recupera 1 dado
     expect(result.d8).toBe(2);
     expect(result.d6).toBe(1);
+  });
+
+  it("buildCharacterSheetState asigna nivel 2 (expertise) cuando storedValue >= proficiencyBonus * 2", () => {
+    const expertiseCharacter = {
+      ...baseCharacter,
+      estadisticas: {
+        ...baseCharacter.estadisticas,
+        // proficiencyBonus = 3, expertise requires storedValue >= 6
+        "Bonificador por competencia": 3,
+        Acrobacias: 6, // 6 >= 3*2 → level 2
+      },
+    } as never;
+    const state = buildCharacterSheetState(
+      expertiseCharacter,
+      "Vida actual",
+      "Vida temporal",
+      "Puntos de vida",
+      "Movimiento",
+    );
+    expect(state.editableSkillProficiencyLevels["Acrobacias"]).toBe(2);
+  });
+
+  it("parseBiographySections devuelve nulls cuando biografia es nula o vacia", () => {
+    expect(parseBiographySections(null)).toEqual({
+      alignment: null,
+      personalHistory: null,
+    });
+    expect(parseBiographySections("")).toEqual({
+      alignment: null,
+      personalHistory: null,
+    });
+  });
+
+  it("resolveShortRestHealing retorna zeros cuando usedDice es 0", () => {
+    const result = resolveShortRestHealing("d8", 0, 0, vi.fn());
+    expect(result).toEqual({ totalHealed: 0, rollExpression: null });
+  });
+
+  it("resolveShortRestHealing retorna zeros cuando el dado es invalido", () => {
+    const result = resolveShortRestHealing("dadoInvalido", 2, 0, vi.fn());
+    expect(result).toEqual({ totalHealed: 0, rollExpression: null });
+  });
+});
+
+// ── getInventoryTagLabel ─────────────────────────────────────────────────────
+
+describe("getInventoryTagLabel", () => {
+  function makeItem(tags: string) {
+    return { tags } as never;
+  }
+
+  it("retorna string vacío para tags vacío", () => {
+    expect(getInventoryTagLabel(makeItem(""))).toBe("");
+  });
+
+  it("retorna el nombre del tag simple", () => {
+    expect(getInventoryTagLabel(makeItem("ARMA"))).toBe("ARMA");
+  });
+
+  it("une múltiples tags con coma y espacio", () => {
+    expect(getInventoryTagLabel(makeItem("ARMA, ARMA CUERPO A CUERPO"))).toBe(
+      "ARMA, ARMA CUERPO A CUERPO",
+    );
+  });
+
+  it("filtra tag de visibilidad oficial", () => {
+    expect(getInventoryTagLabel(makeItem("VisibilidadOficial, ARMA"))).toBe(
+      "ARMA",
+    );
+  });
+
+  it("filtra tag de visibilidad privado", () => {
+    expect(getInventoryTagLabel(makeItem("VisibilidadPrivado, ARMA"))).toBe(
+      "ARMA",
+    );
+  });
+
+  it("filtra tags que empiezan con propietario", () => {
+    expect(getInventoryTagLabel(makeItem("propietario123, ARMA"))).toBe("ARMA");
+  });
+
+  it("filtra tag competentepordefecto", () => {
+    expect(getInventoryTagLabel(makeItem("competentepordefecto, ARMA"))).toBe(
+      "ARMA",
+    );
+  });
+
+  it("usa la parte derecha si el tag tiene punto y coma (tipo;descripcion)", () => {
+    expect(getInventoryTagLabel(makeItem("tipo;EspadaLarga"))).toBe(
+      "EspadaLarga",
+    );
+  });
+
+  it("reemplaza guiones bajos con espacios en la etiqueta", () => {
+    expect(getInventoryTagLabel(makeItem("tipo;Espada_Larga"))).toBe(
+      "Espada Larga",
+    );
+  });
+
+  it("retorna string vacío si todos los tags son filtrados", () => {
+    expect(
+      getInventoryTagLabel(makeItem("VisibilidadOficial, VisibilidadPrivado")),
+    ).toBe("");
   });
 });

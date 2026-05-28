@@ -128,13 +128,13 @@ public final class DndActualizacionRecursosUtils {
 		if (tempHp == null) {
 			return;
 		}
-
-		Estadistica tempHpStat = statsByName.get(VIDA_TEMPORAL);
 		if (tempHp < 0) {
 			throw new ResponseStatusException(BAD_REQUEST, "La vida temporal no es válida");
 		}
+
+		Estadistica tempHpStat = statsByName.get(VIDA_TEMPORAL);
 		if (tempHpStat == null) {
-			throw new ResponseStatusException(BAD_REQUEST, "El personaje no tiene vida temporal registrada");
+			return;
 		}
 		tempHpStat.setValor(tempHp);
 	}

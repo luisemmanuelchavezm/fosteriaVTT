@@ -202,41 +202,45 @@ export default function SpellCatalogModal({
               </div>
             ) : null}
 
-            {spells.map((spell) => (
-              <article
-                key={spell.id}
-                className="rounded-[18px] border border-white/10 bg-black/20 px-4 py-4"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="text-lg font-semibold text-white">
-                      {spell.nombre}
-                    </p>
-                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-stone-400">
-                      {getSpellLevel(spell) === 0
-                        ? "Truco"
-                        : `Nivel ${getSpellLevel(spell)}`}
-                    </p>
-                    {spell.formula ? (
-                      <p className="mt-3 text-sm font-semibold text-amber-100">
-                        {spell.formula}
+            {[...spells]
+              .sort(
+                (a, b) => (getSpellLevel(a) ?? -1) - (getSpellLevel(b) ?? -1),
+              )
+              .map((spell) => (
+                <article
+                  key={spell.id}
+                  className="rounded-[18px] border border-white/10 bg-black/20 px-4 py-4"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-lg font-semibold text-white">
+                        {spell.nombre}
                       </p>
-                    ) : null}
-                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-stone-300">
-                      {spell.descripcion || "Sin descripción."}
-                    </p>
+                      <p className="mt-1 text-xs uppercase tracking-[0.18em] text-stone-400">
+                        {getSpellLevel(spell) === 0
+                          ? "Truco"
+                          : `Nivel ${getSpellLevel(spell)}`}
+                      </p>
+                      {spell.formula ? (
+                        <p className="mt-3 text-sm font-semibold text-amber-100">
+                          {spell.formula}
+                        </p>
+                      ) : null}
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-stone-300">
+                        {spell.descripcion || "Sin descripción."}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isSubmitting}
+                      onClick={() => void handleAdd(spell.id)}
+                      className="rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-2 text-sm font-semibold text-amber-100 disabled:opacity-50"
+                    >
+                      Añadir
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    disabled={isSubmitting}
-                    onClick={() => void handleAdd(spell.id)}
-                    className="rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-2 text-sm font-semibold text-amber-100 disabled:opacity-50"
-                  >
-                    Añadir
-                  </button>
-                </div>
-              </article>
-            ))}
+                </article>
+              ))}
           </div>
         </div>
       </div>

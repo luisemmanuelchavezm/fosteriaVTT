@@ -469,7 +469,7 @@ describe("CreateDndCharacterScreen", () => {
 
     expect(
       await screen.findByText(
-        "No se pudo autenticar la creacion del personaje.",
+        "No se pudo autenticar la creación del personaje.",
       ),
     ).toBeInTheDocument();
     expect(createDndCharacterMock).not.toHaveBeenCalled();

@@ -12,7 +12,7 @@ interface ProgressionTablesBlockProps {
 
 export default function ProgressionTablesBlock({
   tables,
-  title = "Tablas de progresion",
+  title = "Tablas de progresión",
   onSpellReferenceClick,
 }: ProgressionTablesBlockProps) {
   if (tables.length === 0) {

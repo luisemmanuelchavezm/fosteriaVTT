@@ -27,7 +27,7 @@ describe("ProgressionTablesBlock", () => {
   it("renders table title and default section heading when provided", () => {
     render(<ProgressionTablesBlock tables={[sampleTable]} />);
 
-    expect(screen.getByText("Tablas de progresion")).toBeInTheDocument();
+    expect(screen.getByText("Tablas de progresión")).toBeInTheDocument();
     expect(screen.getByText("Tabla de Guerrero")).toBeInTheDocument();
   });
 

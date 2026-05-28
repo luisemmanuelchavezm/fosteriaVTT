@@ -162,7 +162,7 @@ export default function LevelUpSelectionColumn({
               <p className="mt-2 text-sm text-stone-300">
                 {isDownMode
                   ? "Se retirará el promedio de PV correspondiente a ese nivel y se reajustarán los dados de golpe."
-                  : "Aumento de PV por promedio + modificador de Constitucion."}
+                  : "Aumento de PV por promedio + modificador de Constitución."}
               </p>
             </div>
             <div className="rounded-[20px] border border-stone-300/10 bg-black/20 p-4">

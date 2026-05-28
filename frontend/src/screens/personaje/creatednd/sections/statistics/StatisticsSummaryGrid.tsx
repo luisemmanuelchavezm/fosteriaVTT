@@ -30,7 +30,7 @@ export default function StatisticsSummaryGrid({
         return (
           <div key={stat.id}>
             <p className="mb-2 text-center text-sm font-semibold uppercase tracking-[0.18em] text-amber-100">
-              {stat.name}
+              {stat.displayName}
             </p>
             <div
               className={`${STAT_BOX_CLASSES} ${fieldError ? "border-rose-400" : ""}`}
@@ -45,7 +45,7 @@ export default function StatisticsSummaryGrid({
                   }
                   placeholder="0"
                   className="w-full bg-transparent text-center text-4xl font-bold text-stone-950 outline-none placeholder:text-stone-500"
-                  aria-label={`Valor custom de ${stat.name}`}
+                  aria-label={`Valor custom de ${stat.displayName}`}
                 />
               ) : (
                 <p className="text-4xl font-bold text-stone-950">

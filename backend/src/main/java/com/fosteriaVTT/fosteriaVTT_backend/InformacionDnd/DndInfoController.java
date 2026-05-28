@@ -32,20 +32,20 @@ public class DndInfoController {
 
     @GetMapping("/clases")
     public List<ClaseDndResumenResponse> obtenerClases(Authentication authentication) {
-        validarAutenticacion(authentication);
+        if (authentication == null) {
+            throw new ResponseStatusException(UNAUTHORIZED, "No autenticado");
+        }
         return dndInfoService.obtenerClases();
     }
 
     @GetMapping("/clases/{id}")
     public ClaseDndDetalleResponse obtenerClasePorId(@PathVariable String id, Authentication authentication) {
-        validarAutenticacion(authentication);
         return dndInfoService.obtenerClasePorId(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Clase DnD no encontrada"));
     }
 
     @GetMapping("/clases/{id}/subclases")
     public List<ClaseDndSubclaseResponse> obtenerSubclasesClase(@PathVariable String id, Authentication authentication) {
-        validarAutenticacion(authentication);
         List<ClaseDndSubclaseResponse> subclases = dndInfoService.obtenerSubclasesClase(id);
         if (subclases.isEmpty()) {
             throw new ResponseStatusException(NOT_FOUND, "Subclases DnD no encontradas para la clase indicada");
@@ -55,45 +55,33 @@ public class DndInfoController {
 
     @GetMapping("/trasfondos")
     public List<TrasfondoDndResumenResponse> obtenerTrasfondos(Authentication authentication) {
-        validarAutenticacion(authentication);
         return dndInfoService.obtenerTrasfondos();
     }
 
     @GetMapping("/trasfondos/{id}")
     public TrasfondoDndDetalleResponse obtenerTrasfondoPorId(@PathVariable String id, Authentication authentication) {
-        validarAutenticacion(authentication);
         return dndInfoService.obtenerTrasfondoPorId(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Trasfondo DnD no encontrado"));
     }
 
     @GetMapping("/razas")
     public List<RazaDndResumenResponse> obtenerRazas(Authentication authentication) {
-        validarAutenticacion(authentication);
         return dndInfoService.obtenerRazas();
     }
 
     @GetMapping("/razas/{id}")
     public RazaDndDetalleResponse obtenerRazaPorId(@PathVariable String id, Authentication authentication) {
-        validarAutenticacion(authentication);
         return dndInfoService.obtenerRazaPorId(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Raza DnD no encontrada"));
     }
 
     @GetMapping("/razas/{id}/subrazas")
     public List<SubrazaDndDetalleResponse> obtenerSubrazasRaza(@PathVariable String id, Authentication authentication) {
-        validarAutenticacion(authentication);
         return dndInfoService.obtenerSubrazasRaza(id);
     }
 
     @GetMapping("/catalogos/competencias")
     public DndCompetencyCatalogResponse obtenerCatalogoCompetencias(Authentication authentication) {
-        validarAutenticacion(authentication);
         return dndInfoService.obtenerCatalogoCompetencias();
-    }
-
-    private void validarAutenticacion(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ResponseStatusException(UNAUTHORIZED, "Usuario no autenticado");
-        }
     }
 }

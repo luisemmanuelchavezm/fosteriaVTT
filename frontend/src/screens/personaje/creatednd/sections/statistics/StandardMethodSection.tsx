@@ -38,7 +38,7 @@ export default function StandardMethodSection({
           return (
             <div key={`standard-${stat.id}`} className={PARCHMENT_CARD_CLASSES}>
               <p className="text-sm font-semibold uppercase tracking-[0.16em] text-stone-700">
-                {stat.name}
+                {stat.displayName}
               </p>
               <div className="relative mt-4">
                 <select

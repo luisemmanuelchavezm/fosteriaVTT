@@ -17,3 +17,26 @@ export function buildApiUrl(path: string): string {
 
   return `${normalizedBase}${normalizedPath}`;
 }
+
+export function buildWebSocketUrl(path: string): string {
+  if (/^wss?:\/\//.test(path)) {
+    return path;
+  }
+
+  if (/^https?:\/\//.test(path)) {
+    const url = new URL(path);
+    url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+    return url.toString();
+  }
+
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+
+  if (apiBaseUrl) {
+    const baseUrl = new URL(apiBaseUrl);
+    const wsProtocol = baseUrl.protocol === "https:" ? "wss:" : "ws:";
+    return `${wsProtocol}//${baseUrl.host}${normalizedPath}`;
+  }
+
+  const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  return `${wsProtocol}//${window.location.host}${normalizedPath}`;
+}

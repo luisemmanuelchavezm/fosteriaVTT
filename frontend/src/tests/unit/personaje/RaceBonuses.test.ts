@@ -71,7 +71,7 @@ describe("raceBonuses", () => {
         "Fuerza +1",
         "Destreza +1",
         "Inteligencia +1",
-        "Sabiduria +1",
+        "Sabiduría +1",
         "Carisma +2",
       ],
     });

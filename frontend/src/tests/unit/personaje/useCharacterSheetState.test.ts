@@ -254,7 +254,8 @@ describe("useCharacterSheetState", () => {
 
     it("selectedInventoryItem se actualiza cuando el personaje cambia", async () => {
       const item = { id: 5, nombre: "Espada" } as never;
-      const character = { ...makeCharacter(1), mochila: [item] } as never;
+      const baseCharacter = makeCharacter(1) as Record<string, unknown>;
+      const character = { ...baseCharacter, mochila: [item] } as never;
       vi.mocked(fetchDndCharacterDetail).mockResolvedValueOnce(
         character as never,
       );
@@ -271,6 +272,59 @@ describe("useCharacterSheetState", () => {
       });
 
       expect(result.current.selectedInventoryItem).toEqual(item);
+    });
+
+    it("syncCharacterDetail actualiza selectedInventoryItem cuando ya hay uno seleccionado (rama truthy)", async () => {
+      const item = { id: 5, nombre: "Espada" } as never;
+      const updatedItem = { id: 5, nombre: "Espada mejorada" } as never;
+      const baseCharacter = makeCharacter(1) as Record<string, unknown>;
+      const character = { ...baseCharacter, mochila: [item] } as never;
+      vi.mocked(fetchDndCharacterDetail).mockResolvedValueOnce(
+        character as never,
+      );
+
+      const { result } = renderHook(() =>
+        useCharacterSheetState(defaultOpts()),
+      );
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+      // Seleccionar el item primero
+      act(() => {
+        result.current.setSelectedInventoryItem(item);
+      });
+      expect(result.current.selectedInventoryItem).toEqual(item);
+
+      // Sync con personaje actualizado (item con mismo id pero diferente nombre)
+      const updatedCharacter = {
+        ...baseCharacter,
+        mochila: [updatedItem],
+      } as never;
+      vi.mocked(buildCharacterSheetState).mockReturnValueOnce(
+        makeSheetState() as never,
+      );
+      act(() => {
+        result.current.syncCharacterDetail(updatedCharacter);
+      });
+      // selectedInventoryItem debería actualizarse al item encontrado en mochila
+      expect(result.current.selectedInventoryItem).toEqual(updatedItem);
+    });
+
+    it("no establece loadError cuando fetchDndCharacterDetail lanza AbortError", async () => {
+      const abortError = new Error("aborted");
+      abortError.name = "AbortError";
+      vi.mocked(fetchDndCharacterDetail).mockRejectedValueOnce(abortError);
+
+      const { result } = renderHook(() =>
+        useCharacterSheetState(defaultOpts()),
+      );
+
+      // After abort, isLoading stays true (abortController not aborted in test)
+      // The key thing: loadError remains null because AbortError is swallowed
+      await waitFor(() => {
+        // The hook processes the rejected promise
+        expect(fetchDndCharacterDetail).toHaveBeenCalled();
+      });
+      expect(result.current.loadError).toBeNull();
     });
   });
 });

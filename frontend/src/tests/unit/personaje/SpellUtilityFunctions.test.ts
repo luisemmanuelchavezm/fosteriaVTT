@@ -93,4 +93,99 @@ describe("hechizos y referencias - utilidades", () => {
     expect(extractRollableExpressions(null)).toEqual([]);
     expect(extractRollableExpressions("")).toEqual([]);
   });
+
+  it("extractTagValue devuelve null cuando tags es null o undefined", () => {
+    expect(extractTagValue(null, "Duracion")).toBeNull();
+    expect(extractTagValue(undefined, "Alcance")).toBeNull();
+  });
+});
+
+// ── normalizeChoiceCatalog - casos adicionales ────────────────────────────────
+
+describe("normalizeChoiceCatalog - casos adicionales", () => {
+  it("normaliza 'cantrips' y 'trucos' a 'trucos'", () => {
+    expect(normalizeChoiceCatalog("cantrips")).toBe("trucos");
+    expect(normalizeChoiceCatalog("trucos")).toBe("trucos");
+  });
+
+  it("normaliza 'skills' a 'habilidades'", () => {
+    expect(normalizeChoiceCatalog("skills")).toBe("habilidades");
+    expect(normalizeChoiceCatalog("habilidades")).toBe("habilidades");
+  });
+
+  it("normaliza 'languages' a 'idiomas'", () => {
+    expect(normalizeChoiceCatalog("languages")).toBe("idiomas");
+    expect(normalizeChoiceCatalog("idiomas")).toBe("idiomas");
+  });
+
+  it("normaliza 'abilityscores' a 'puntuacionescaracteristica'", () => {
+    expect(normalizeChoiceCatalog("abilityscores")).toBe(
+      "puntuacionescaracteristica",
+    );
+    expect(normalizeChoiceCatalog("puntuacionesCaracteristica")).toBe(
+      "puntuacionescaracteristica",
+    );
+  });
+
+  it("normaliza 'artisantools' a 'herramientasartesano'", () => {
+    expect(normalizeChoiceCatalog("artisantools")).toBe("herramientasartesano");
+    expect(normalizeChoiceCatalog("herramientasArtesano")).toBe(
+      "herramientasartesano",
+    );
+  });
+
+  it("normaliza 'games' a 'juegos'", () => {
+    expect(normalizeChoiceCatalog("games")).toBe("juegos");
+    expect(normalizeChoiceCatalog("juegos")).toBe("juegos");
+  });
+
+  it("normaliza 'instruments' a 'instrumentos'", () => {
+    expect(normalizeChoiceCatalog("instruments")).toBe("instrumentos");
+    expect(normalizeChoiceCatalog("instrumentos")).toBe("instrumentos");
+  });
+
+  it("normaliza 'draconicancestors' a 'ancestrosdraconicos'", () => {
+    expect(normalizeChoiceCatalog("draconicancestors")).toBe(
+      "ancestrosdraconicos",
+    );
+    expect(normalizeChoiceCatalog("ancestrosDraconicos")).toBe(
+      "ancestrosdraconicos",
+    );
+  });
+
+  it("retorna el valor normalizado en caso default", () => {
+    expect(normalizeChoiceCatalog("unknown_value")).toBe("unknownvalue");
+  });
+
+  it("retorna string vacío para null/undefined", () => {
+    expect(normalizeChoiceCatalog(null)).toBe("");
+    expect(normalizeChoiceCatalog(undefined)).toBe("");
+  });
+});
+
+// ── extractSpellReferenceItems - casos adicionales ────────────────────────────
+
+describe("extractSpellReferenceItems - casos adicionales", () => {
+  it("retorna array vacío para texto vacío", () => {
+    expect(extractSpellReferenceItems("")).toEqual([]);
+  });
+
+  it("retorna array vacío para texto que contiene dígitos", () => {
+    expect(extractSpellReferenceItems("1d6")).toEqual([]);
+    expect(extractSpellReferenceItems("3 hechizos")).toEqual([]);
+  });
+
+  it("retorna un solo item para texto sin comas", () => {
+    expect(extractSpellReferenceItems("Escudo")).toEqual([
+      { displayText: "Escudo", lookupName: "Escudo" },
+    ]);
+  });
+
+  it("trata 'truco' sin nombre como un item normal (no hace match del regex)", () => {
+    // "truco" sin nombre después → el regex /^truco\s+(.+)$/i no hace match
+    // se trata como un item normal
+    expect(extractSpellReferenceItems("truco")).toEqual([
+      { displayText: "truco", lookupName: "truco" },
+    ]);
+  });
 });

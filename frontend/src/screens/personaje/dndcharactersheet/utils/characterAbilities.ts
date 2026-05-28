@@ -158,6 +158,12 @@ function getWeaponAbilityModifier(
   character: DndCharacterDetailResponse,
   ability: CharacterAbilityResponse,
 ) {
+  // NPC weapons (tagged NPC,ARMA,BONO;X) encode everything in their formula
+  // — never add an ability modifier on top of it.
+  if (hasTag(ability, "NPC")) {
+    return 0;
+  }
+
   const matchingWeapon = character.mochila.find(
     (item) =>
       item.tipoObjeto === "ARMA" &&

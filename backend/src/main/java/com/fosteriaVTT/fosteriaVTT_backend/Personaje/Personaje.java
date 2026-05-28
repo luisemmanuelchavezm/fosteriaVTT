@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.Habilidad;
-import com.fosteriaVTT.fosteriaVTT_backend.Posicion.Posicion;
 import com.fosteriaVTT.fosteriaVTT_backend.Usuario.Usuario;
 import com.fosteriaVTT.fosteriaVTT_backend.common.NamedEntity;
 import com.fosteriaVTT.fosteriaVTT_backend.common.SistemaDeJuego;
@@ -71,10 +70,6 @@ public class Personaje extends NamedEntity {
         inverseJoinColumns = @JoinColumn(name = "habilidad_id")
     )
     private List<Habilidad> habilidades = new ArrayList<>();
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "posicion_id")
-    private Posicion posicion;
 
     @PrePersist
     void assignUsadoIfMissing() {

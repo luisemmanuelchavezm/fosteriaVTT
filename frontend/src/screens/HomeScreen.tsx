@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import HomeNavbar, { type NavTab } from "../components/HomeNavbar";
 import LogoLayout from "../components/LogoLayout";
 import UserMenu from "../components/UserMenu";
+import CampaignSystemSelectorModal from "../components/CampaignSystemSelectorModal";
+import type { CampaignCreationSystem } from "../components/campaignSystem";
 import dndImage from "../assets/DND.png";
 import cocImage from "../assets/COC.png";
 import vampireImage from "../assets/Vampire.png";
@@ -14,6 +16,8 @@ interface HomeScreenProps {
   onGoHome?: () => void;
   onGoCampaigns?: () => void;
   onGoCharacters?: () => void;
+  onCreateCampaign?: (system: CampaignCreationSystem) => void;
+  onOpenCampaignHome?: (campaignId: string) => void;
 }
 
 interface FeaturedCampaign {
@@ -57,10 +61,13 @@ export default function HomeScreen({
   onGoHome,
   onGoCampaigns,
   onGoCharacters,
+  onCreateCampaign,
+  onOpenCampaignHome,
 }: HomeScreenProps) {
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [recentIndex, setRecentIndex] = useState(0);
   const [recentCampaigns, setRecentCampaigns] = useState<RecentCampaign[]>([]);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("jwtToken");
@@ -155,19 +162,27 @@ export default function HomeScreen({
     setRecentIndex((current) => Math.min(current + 1, maxRecentIndex));
   };
 
+  const handleOpenCreateCampaignModal = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCreateBySystem = (system: CampaignCreationSystem) => {
+    setIsCreateModalOpen(false);
+    onCreateCampaign?.(system);
+  };
+
   const handleNavChange = (tab: NavTab) => {
     if (tab === "home") {
       onGoHome?.();
       return;
     }
-
     if (tab === "campaigns") {
       onGoCampaigns?.();
       return;
     }
-
     if (tab === "characters") {
       onGoCharacters?.();
+      return;
     }
   };
 
@@ -180,6 +195,12 @@ export default function HomeScreen({
           username={username}
           avatarUrl={avatarUrl}
           onLogout={onLogout}
+        />
+
+        <CampaignSystemSelectorModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSelect={handleCreateBySystem}
         />
 
         <div className="relative z-10 w-full px-4 pt-28 pb-32 md:px-8 md:pb-36">
@@ -305,6 +326,7 @@ export default function HomeScreen({
                       <button
                         key={`placeholder-${recentIndex + index}`}
                         type="button"
+                        onClick={handleOpenCreateCampaignModal}
                         aria-label="Crear una nueva campaña"
                         className="flex min-h-[260px] items-center justify-center rounded-[24px] border border-dashed border-white/15 bg-white shadow-xl transition duration-300 hover:scale-[1.04] hover:shadow-[0_20px_35px_rgba(255,255,255,0.18)]"
                       >
@@ -319,6 +341,7 @@ export default function HomeScreen({
                     <button
                       key={campaign.id}
                       type="button"
+                      onClick={() => onOpenCampaignHome?.(campaign.id)}
                       className="overflow-hidden rounded-[24px] border border-amber-200/35 bg-stone-900 text-left shadow-xl transition duration-300 hover:-translate-y-1 hover:border-amber-200/70"
                     >
                       <div className="h-[185px] overflow-hidden bg-stone-800 md:h-[205px]">

@@ -189,7 +189,7 @@ export default function ClassDetailModal({
 
                       <ProgressionTablesBlock
                         tables={subclass.tablas ?? []}
-                        title="Progresion"
+                        title="Progresión"
                       />
                     </section>
                   ))}

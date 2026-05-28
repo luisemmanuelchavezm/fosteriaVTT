@@ -18,7 +18,7 @@ export const FEAT_OPTIONS: FeatOption[] = [
     id: "actor",
     nombre: "Actor",
     descripcion:
-      "Ventaja en Engano e Interpretacion al hacerte pasar por otra persona. Puedes imitar voces y sonidos tras escucharlos durante 1 minuto.",
+      "Ventaja en Engaño e Interpretación al hacerte pasar por otra persona. Puedes imitar voces y sonidos tras escucharlos durante 1 minuto.",
     requisitos: [],
     fixedBonuses: { Carisma: 1 },
   }),
@@ -45,7 +45,7 @@ export const FEAT_OPTIONS: FeatOption[] = [
     id: "cargador",
     nombre: "Cargador",
     descripcion:
-      "Tras usar la accion de Correr puedes hacer un ataque cuerpo a cuerpo o empujar como accion adicional.",
+      "Tras usar la acción de Correr puedes hacer un ataque cuerpo a cuerpo o empujar como acción adicional.",
     requisitos: [],
   }),
   buildFeat({
@@ -53,22 +53,22 @@ export const FEAT_OPTIONS: FeatOption[] = [
     nombre: "Duelista defensivo",
     descripcion:
       "Mientras portes un arma sutil con la que seas competente, puedes usar tu reaccion para sumar tu bonificador por competencia a la CA contra un ataque cuerpo a cuerpo.",
-    requisitos: ["Destreza 13 o mas"],
+    requisitos: ["Destreza 13 o más"],
     validate: (character) => hasAbilityScore(character, "Destreza", 13),
   }),
   buildFeat({
     id: "explorador-de-mazmorras",
     nombre: "Explorador de mazmorras",
     descripcion:
-      "Ventaja para detectar puertas secretas y trampas, y resistencia a dano de trampas.",
+      "Ventaja para detectar puertas secretas y trampas, y resistencia a daño de trampas.",
     requisitos: [],
   }),
   buildFeat({
     id: "duradero",
     nombre: "Duradero",
     descripcion:
-      "Al gastar dados de golpe, el minimo que recuperas por dado es el doble de tu modificador de Constitucion.",
-    requisitos: ["Constitucion 13 o mas"],
+      "Al gastar dados de golpe, el mínimo que recuperas por dado es el doble de tu modificador de Constitución.",
+    requisitos: ["Constitución 13 o más"],
     validate: (character) => hasAbilityScore(character, "Constitucion", 13),
     fixedBonuses: { Constitucion: 1 },
   }),
@@ -76,7 +76,7 @@ export const FEAT_OPTIONS: FeatOption[] = [
     id: "adepto-elemental",
     nombre: "Adepto elemental",
     descripcion:
-      "Tus conjuros ignoran resistencia al tipo elegido y los 1 del dano se tratan como 2.",
+      "Tus conjuros ignoran resistencia al tipo elegido y los 1 del daño se tratan como 2.",
     requisitos: ["Poder lanzar al menos un conjuro"],
     validate: (character) => hasSpellcasting(character),
   }),
@@ -85,15 +85,15 @@ export const FEAT_OPTIONS: FeatOption[] = [
     nombre: "Agarrador",
     descripcion:
       "Ventaja al atacar criaturas apresadas por ti y puedes inmovilizarte con el objetivo.",
-    requisitos: ["Fuerza 13 o mas"],
+    requisitos: ["Fuerza 13 o más"],
     validate: (character) => hasAbilityScore(character, "Fuerza", 13),
   }),
   buildFeat({
     id: "gran-maestro-de-armas",
     nombre: "Gran maestro de armas",
     descripcion:
-      "Puedes hacer un ataque adicional tras un critico o derribar a 0 PG, y cambiar precision por dano con armas pesadas.",
-    requisitos: ["Fuerza 13 o mas"],
+      "Puedes hacer un ataque adicional tras un crítico o derribar a 0 PG, y cambiar precisión por daño con armas pesadas.",
+    requisitos: ["Fuerza 13 o más"],
     validate: (character) => hasAbilityScore(character, "Fuerza", 13),
   }),
   buildFeat({
@@ -125,7 +125,7 @@ export const FEAT_OPTIONS: FeatOption[] = [
     id: "maestro-armaduras-pesadas",
     nombre: "Maestro en armaduras pesadas",
     descripcion:
-      "Mientras vistas armadura pesada, el dano contundente, cortante y perforante no magico se reduce en 3.",
+      "Mientras vistas armadura pesada, el daño contundente, cortante y perforante no mágico se reduce en 3.",
     requisitos: ["Competencia con armadura pesada"],
     validate: (_, classCompetencies) =>
       hasCompetency(classCompetencies, "armaduras pesadas", "armadura pesada"),
@@ -136,15 +136,15 @@ export const FEAT_OPTIONS: FeatOption[] = [
     nombre: "Lider inspirador",
     descripcion:
       "Tras un discurso de 10 minutos, hasta seis criaturas ganan PG temporales iguales a tu nivel + mod. Carisma.",
-    requisitos: ["Carisma 13 o mas"],
+    requisitos: ["Carisma 13 o más"],
     validate: (character) => hasAbilityScore(character, "Carisma", 13),
   }),
   buildFeat({
     id: "mente-prodigiosa",
     nombre: "Mente prodigiosa",
     descripcion:
-      "Siempre sabes orientarte, recuerdas lo visto u oido el ultimo mes y conoces la hora aproximada del dia.",
-    requisitos: ["Inteligencia 13 o mas"],
+      "Siempre sabes orientarte, recuerdas lo visto u oído el último mes y conoces la hora aproximada del día.",
+    requisitos: ["Inteligencia 13 o más"],
     validate: (character) => hasAbilityScore(character, "Inteligencia", 13),
     fixedBonuses: { Inteligencia: 1 },
   }),
@@ -153,8 +153,8 @@ export const FEAT_OPTIONS: FeatOption[] = [
     nombre: "Lingüista",
     descripcion: "Aprendes tres idiomas y puedes crear cifrados sencillos.",
     descripcionCompleta:
-      "Aumentas tu Inteligencia en 1, hasta un maximo de 20. Aprendes tres idiomas a tu eleccion y puedes elaborar por escrito cifrados y mensajes codificados que otras criaturas no pueden descifrar sin tiempo o ayuda adecuada.",
-    requisitos: ["Inteligencia 13 o mas"],
+      "Aumentas tu Inteligencia en 1, hasta un máximo de 20. Aprendes tres idiomas a tu elección y puedes elaborar por escrito cifrados y mensajes codificados que otras criaturas no pueden descifrar sin tiempo o ayuda adecuada.",
+    requisitos: ["Inteligencia 13 o más"],
     validate: (character) => hasAbilityScore(character, "Inteligencia", 13),
     fixedBonuses: { Inteligencia: 1 },
     selectableLanguages: {
@@ -183,7 +183,7 @@ export const FEAT_OPTIONS: FeatOption[] = [
       "Aprendes dos trucos y un conjuro de nivel 1 de una lista de clase.",
     requisitos: [],
     descripcionCompleta:
-      "Elige una clase entre bardo, brujo, clerigo, druida, hechicero o mago. Aprendes dos trucos y un conjuro de nivel 1 de esa lista. El conjuro de nivel 1 puede lanzarse una vez por descanso largo sin gastar espacios, y tambien puedes lanzarlo con tus propios espacios si mas adelante obtienes Lanzamiento de Conjuros o Magia de Pacto.",
+      "Elige una clase entre bardo, brujo, clérigo, druida, hechicero o mago. Aprendes dos trucos y un conjuro de nivel 1 de esa lista. El conjuro de nivel 1 puede lanzarse una vez por descanso largo sin gastar espacios, y también puedes lanzarlo con tus propios espacios si más adelante obtienes Lanzamiento de Conjuros o Magia de Pacto.",
     spellSelection: {
       chooseClass: true,
       classOptions: MAGIC_INITIATE_CLASS_OPTIONS,
@@ -234,7 +234,7 @@ export const FEAT_OPTIONS: FeatOption[] = [
     id: "observador",
     nombre: "Observador",
     descripcion:
-      "+5 a Percepcion e Investigacion pasivas y puedes leer labios si entiendes el idioma.",
+      "+5 a Percepción e Investigación pasivas y puedes leer labios si entiendes el idioma.",
     requisitos: [],
     selectableBonus: {
       count: 1,
@@ -253,7 +253,7 @@ export const FEAT_OPTIONS: FeatOption[] = [
     id: "resiliente",
     nombre: "Resiliente",
     descripcion:
-      "Ganas competencia en tiradas de salvacion de una caracteristica elegida.",
+      "Ganas competencia en tiradas de salvación de una característica elegida.",
     requisitos: [],
     selectableBonus: {
       count: 1,
@@ -265,8 +265,8 @@ export const FEAT_OPTIONS: FeatOption[] = [
     id: "lanzador-ritual",
     nombre: "Lanzador ritual",
     descripcion:
-      "Obtienes un libro ritual y puedes lanzar conjuros con la etiqueta ritual desde el.",
-    requisitos: ["Inteligencia 13 o Sabiduria 13"],
+      "Obtienes un libro ritual y puedes lanzar conjuros con la etiqueta ritual desde él.",
+    requisitos: ["Inteligencia 13 o Sabiduría 13"],
     validate: (character) =>
       hasAbilityScore(character, "Inteligencia", 13) ||
       hasAbilityScore(character, "Sabiduria", 13),
@@ -275,7 +275,7 @@ export const FEAT_OPTIONS: FeatOption[] = [
     id: "atacante-salvaje",
     nombre: "Atacante salvaje",
     descripcion:
-      "Una vez por turno puedes repetir los dados de dano de un ataque cuerpo a cuerpo y usar cualquiera de los resultados.",
+      "Una vez por turno puedes repetir los dados de daño de un ataque cuerpo a cuerpo y usar cualquiera de los resultados.",
     requisitos: [],
   }),
   buildFeat({
@@ -289,15 +289,15 @@ export const FEAT_OPTIONS: FeatOption[] = [
     id: "tirador-experto",
     nombre: "Tirador experto",
     descripcion:
-      "Ignoras cobertura parcial, largo alcance sin desventaja y puedes cambiar precision por dano con armas a distancia.",
-    requisitos: ["Destreza 13 o mas"],
+      "Ignoras cobertura parcial, largo alcance sin desventaja y puedes cambiar precisión por daño con armas a distancia.",
+    requisitos: ["Destreza 13 o más"],
     validate: (character) => hasAbilityScore(character, "Destreza", 13),
   }),
   buildFeat({
     id: "maestro-de-escudo",
     nombre: "Maestro de escudo",
     descripcion:
-      "Puedes empujar con accion adicional tras atacar y sumar el bono del escudo a salvaciones de Destreza.",
+      "Puedes empujar con acción adicional tras atacar y sumar el bono del escudo a salvaciones de Destreza.",
     requisitos: ["Competencia con escudos"],
     validate: (_, classCompetencies) =>
       hasCompetency(classCompetencies, "escudos", "escudo"),
@@ -306,10 +306,10 @@ export const FEAT_OPTIONS: FeatOption[] = [
     id: "habilidoso",
     nombre: "Habilidoso",
     descripcion:
-      "Ganas competencia en tres habilidades o herramientas a tu eleccion.",
+      "Ganas competencia en tres habilidades o herramientas a tu elección.",
     requisitos: [],
     descripcionCompleta:
-      "Obtienes competencia en cualquier combinacion de tres habilidades o herramientas de tu eleccion. En esta hoja, la seleccion se aplica a tres habilidades basicas de DnD.",
+      "Obtienes competencia en cualquier combinación de tres habilidades o herramientas de tu elección. En esta hoja, la selección se aplica a tres habilidades básicas de DnD.",
     selectableSkills: {
       count: 3,
       options: FEAT_SKILL_OPTIONS,
@@ -320,7 +320,7 @@ export const FEAT_OPTIONS: FeatOption[] = [
     nombre: "Escurridizo",
     descripcion:
       "Puedes esconderte con cobertura ligera y las criaturas tienen desventaja para detectarte en penumbra.",
-    requisitos: ["Destreza 13 o mas"],
+    requisitos: ["Destreza 13 o más"],
     validate: (character) => hasAbilityScore(character, "Destreza", 13),
   }),
   buildFeat({
@@ -342,7 +342,7 @@ export const FEAT_OPTIONS: FeatOption[] = [
     id: "maton-de-taberna",
     nombre: "Matón de taberna",
     descripcion:
-      "Competencia con armas improvisadas, golpe desarmado mejorado y agarre como accion adicional.",
+      "Competencia con armas improvisadas, golpe desarmado mejorado y agarre como acción adicional.",
     requisitos: [],
     selectableBonus: {
       count: 1,
@@ -354,14 +354,14 @@ export const FEAT_OPTIONS: FeatOption[] = [
     id: "duro",
     nombre: "Duro",
     descripcion:
-      "Tus puntos de golpe maximos aumentan en el doble de tu nivel actual y 2 mas por nivel futuro.",
+      "Tus puntos de golpe máximos aumentan en el doble de tu nivel actual y 2 más por nivel futuro.",
     requisitos: [],
   }),
   buildFeat({
     id: "lanzador-de-guerra",
     nombre: "Lanzador de guerra",
     descripcion:
-      "Ventaja para mantener concentracion y puedes lanzar conjuros como ataque de oportunidad.",
+      "Ventaja para mantener concentración y puedes lanzar conjuros como ataque de oportunidad.",
     requisitos: ["Poder lanzar al menos un conjuro"],
     validate: (character) => hasSpellcasting(character),
   }),
@@ -369,7 +369,7 @@ export const FEAT_OPTIONS: FeatOption[] = [
     id: "maestro-de-armas",
     nombre: "Maestro de armas",
     descripcion:
-      "Aumentas tu Fuerza o Destreza en 1 y ganas competencia con cuatro armas simples o marciales a eleccion.",
+      "Aumentas tu Fuerza o Destreza en 1 y ganas competencia con cuatro armas simples o marciales a elección.",
     requisitos: [],
     selectableBonus: {
       count: 1,
