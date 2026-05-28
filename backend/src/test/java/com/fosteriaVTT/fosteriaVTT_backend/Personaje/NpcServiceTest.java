@@ -56,11 +56,14 @@ class NpcServiceTest {
     // Helpers
     // ─────────────────────────────────────────────
 
+    /** Credencial ficticia usada solo en tests — no es una contraseña real. */
+    private static final String DUMMY_TEST_PASSWORD = "[TEST-PLACEHOLDER]";
+
     private Usuario buildUsuario(String username) {
         Usuario u = new Usuario();
         u.setUsername(username);
         u.setEmail(username + "@test.com");
-        u.setPassword("pw");
+        u.setPassword(DUMMY_TEST_PASSWORD);
         return u;
     }
 

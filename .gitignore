@@ -35,3 +35,6 @@ test-results-snapshots/
 
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
+
+# --- Claude Code (configuración local con permisos de sesión) ---
+.claude/settings.local.json
