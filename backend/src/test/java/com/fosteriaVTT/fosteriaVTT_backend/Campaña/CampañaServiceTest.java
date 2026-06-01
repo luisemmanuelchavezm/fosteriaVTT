@@ -57,7 +57,7 @@ class CampañaServiceTest {
     void obtieneUltimasCampañasMapeadas() {
         Usuario usuario = Usuario.builder().id(1L).username("daria").email("d@test.com").password("pw").role(Rol.USER).build();
         Usuario dm = Usuario.builder().username("sai").email("s@test.com").password("pw").role(Rol.USER).build();
-        Campaña campaña = Campaña.builder().id(2L).nombre("Sombras").dm(dm).sistemaDeJuego(SistemaDeJuego.COC).portadaUrl("img").build();
+        Campaña campaña = Campaña.builder().id(2L).nombre("Sombras").dm(dm).sistemaDeJuego(SistemaDeJuego.MORK_BORG).portadaUrl("img").build();
         Jugador jugador = Jugador.builder().usuario(usuario).campaña(campaña).ultimaVezAccedido(LocalDateTime.of(2026, 4, 10, 12, 0)).build();
 
         when(userRepository.findByUsername("daria")).thenReturn(Optional.of(usuario));
@@ -67,7 +67,7 @@ class CampañaServiceTest {
 
         assertEquals(1, response.size());
         assertEquals("Sombras", response.getFirst().nombre());
-        assertEquals("Call Of Cthulhu", response.getFirst().sistemaDeJuego());
+        assertEquals("Mork Borg", response.getFirst().sistemaDeJuego());
         assertEquals("sai", response.getFirst().dmUsername());
     }
 
@@ -123,12 +123,12 @@ class CampañaServiceTest {
     @Test
     void creaCampañaConPortadaPorDefectoCuandoNoHayArchivo() {
         Usuario usuario = Usuario.builder().id(7L).username("daria").email("d@test.com").password("pw").role(Rol.USER).build();
-        CrearCampañaRequest request = new CrearCampañaRequest("Sombras de Arkham", "Call Of Cthulhu");
+        CrearCampañaRequest request = new CrearCampañaRequest("Sombras de Arkham", "Mork Borg");
 
         Campaña campañaGuardada = Campaña.builder()
                 .id(10L)
                 .nombre("Sombras de Arkham")
-                .sistemaDeJuego(SistemaDeJuego.COC)
+                .sistemaDeJuego(SistemaDeJuego.MORK_BORG)
                 .dm(usuario)
                 .build();
 
@@ -145,7 +145,7 @@ class CampañaServiceTest {
         CampañaResumenResponse response = campañaService.crearCampaña(request, null, "daria");
 
         assertEquals("Sombras de Arkham", response.nombre());
-        assertEquals("Call Of Cthulhu", response.sistemaDeJuego());
+        assertEquals("Mork Borg", response.sistemaDeJuego());
         assertEquals("daria", response.dmUsername());
         verify(campañaRepository).save(any(Campaña.class));
         verify(jugadorRepository).save(any(Jugador.class));
@@ -191,16 +191,6 @@ class CampañaServiceTest {
     @Test
     void crearCampaña_lanzaBadRequestSiNombreEsBlanco() {
         CrearCampañaRequest request = new CrearCampañaRequest("  ", "Dungeons and Dragons");
-        ResponseStatusException ex = assertThrows(
-                ResponseStatusException.class,
-                () -> campañaService.crearCampaña(request, null, "daria")
-        );
-        assertEquals(400, ex.getStatusCode().value());
-    }
-
-    @Test
-    void crearCampaña_lanzaBadRequestSiSistemaEsVampire() {
-        CrearCampañaRequest request = new CrearCampañaRequest("La Noche", "Vampire the Masquerade");
         ResponseStatusException ex = assertThrows(
                 ResponseStatusException.class,
                 () -> campañaService.crearCampaña(request, null, "daria")

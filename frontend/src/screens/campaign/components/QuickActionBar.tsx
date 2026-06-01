@@ -8,12 +8,15 @@ import {
   imgDanoVentaja,
   imgHabilidad,
   imgRecursos,
-  imgSalvacion,
+  imgSalvacionDestreza,
   imgHechizos,
 } from "../utils/quickActionImages";
 import DiceRollOverlay from "../../../components/dice/DiceRollOverlay";
 import SpellDetailModal from "../../../components/spells/SpellDetailModal";
-import { useDiceRoller } from "../../../components/dice/useDiceRoller";
+import {
+  useDiceRoller,
+  type DiceRollSummary,
+} from "../../../components/dice/useDiceRoller";
 import { serializeRollMessage } from "./chatRollUtils";
 import {
   fetchDndCharacterDetail,
@@ -28,12 +31,18 @@ import { groupSpellsByLevel } from "../utils/quickActionHelpers";
 import {
   buildCriticalExpression,
   getWeaponOptions,
+  getMBWeaponOptions,
+  getMBEnemyWeaponOptions,
   type AdvantageResult,
   type AttackRollAction,
 } from "./quickactions/attackTypes";
 import AttackPanel from "./quickactions/AttackPanel";
 import SkillPanel from "./quickactions/SkillPanel";
-import SavePanel from "./quickactions/SavePanel";
+import RasgosPanel from "./quickactions/RasgosPanel";
+import MBEstadisticasPanel from "./quickactions/MBEstadisticasPanel";
+import MBRasgosClasePanel from "./quickactions/MBRasgosClasePanel";
+import EspecialidadPanel from "./quickactions/EspecialidadPanel";
+import LootPanel from "./quickactions/LootPanel";
 import SpellsPanel from "./quickactions/SpellsPanel";
 import ResourcesPanel from "./quickactions/ResourcesPanel";
 import AdvantageResultOverlay from "./quickactions/AdvantageResultOverlay";
@@ -54,7 +63,9 @@ interface QuickActionBarProps {
 type ActionKind =
   | "ataque"
   | "habilidad"
-  | "salvacion"
+  | "rasgos-clase"
+  | "especialidad"
+  | "botin"
   | "hechizos"
   | "recursos";
 
@@ -90,7 +101,7 @@ const FALLBACK_ICONS: Record<string, React.ReactNode> = {
       <rect x="18" y="2" width="4" height="18" rx="1" />
     </svg>
   ),
-  salvacion: (
+  especialidad: (
     <svg
       viewBox="0 0 24 24"
       fill="none"
@@ -100,7 +111,22 @@ const FALLBACK_ICONS: Record<string, React.ReactNode> = {
       strokeLinejoin="round"
       className="h-5 w-5"
     >
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+    </svg>
+  ),
+  botin: (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-5 w-5"
+    >
+      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <path d="M16 10a4 4 0 0 1-8 0" />
     </svg>
   ),
   hechizos: (
@@ -134,27 +160,46 @@ const FALLBACK_ICONS: Record<string, React.ReactNode> = {
       <path d="M12 17v4" />
     </svg>
   ),
+  "rasgos-clase": (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-5 w-5"
+    >
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+    </svg>
+  ),
 };
 
 const ACTIONS = [
   { key: "ataque", label: "Ataque", img: imgAtaque },
-  { key: "habilidad", label: "Habilidad", img: imgHabilidad },
-  { key: "salvacion", label: "Salvación", img: imgSalvacion },
+  { key: "habilidad", label: "Rasgos", img: imgHabilidad },
+  { key: "rasgos-clase", label: "Rasgos", img: imgHechizos },
+  { key: "especialidad", label: "Especialidad", img: imgSalvacionDestreza },
+  { key: "botin", label: "Botín", img: imgRecursos },
   { key: "hechizos", label: "Hechizos", img: imgHechizos },
   { key: "recursos", label: "Recursos", img: imgRecursos },
 ] as const;
 
 function ActionButton({
   action,
+  label: labelOverride,
   onClick,
 }: {
   action: (typeof ACTIONS)[number];
+  label?: string;
   onClick?: () => void;
 }) {
   const [imgFailed, setImgFailed] = useState(false);
+  const displayLabel = labelOverride ?? action.label;
   return (
     <button
-      title={action.label}
+      title={displayLabel}
       onClick={onClick}
       className="group flex flex-col items-center gap-1 rounded-xl px-3 py-2 transition-all duration-150 hover:bg-white/10 active:scale-95"
     >
@@ -166,14 +211,14 @@ function ActionButton({
         ) : (
           <img
             src={action.img}
-            alt={action.label}
+            alt={displayLabel}
             className="h-full w-full object-cover"
             onError={() => setImgFailed(true)}
           />
         )}
       </div>
       <span className="text-[10px] text-white/70 group-hover:text-amber-200 transition-colors">
-        {action.label}
+        {displayLabel}
       </span>
     </button>
   );
@@ -211,6 +256,9 @@ export default function QuickActionBar({
 
   const attackMenuWrapperRef = useRef<HTMLDivElement | null>(null);
   const advantageTimeoutRef = useRef<number | null>(null);
+  const pendingMBCritRef = useRef(false);
+  const [critDisplaySummary, setCritDisplaySummary] =
+    useState<DiceRollSummary | null>(null);
   const diceRoller = useDiceRoller();
   const onRollResultRef = useRef(onRollResult);
 
@@ -220,11 +268,30 @@ export default function QuickActionBar({
 
   const lastSeenSummaryIdRef = useRef(-1);
   useEffect(() => {
-    if (!diceRoller.summary) return;
+    if (!diceRoller.summary) {
+      setCritDisplaySummary(null);
+      return;
+    }
     if (diceRoller.summary.id === lastSeenSummaryIdRef.current) return;
     lastSeenSummaryIdRef.current = diceRoller.summary.id;
-    const { title, expression, diceValues, modifier, total } =
-      diceRoller.summary;
+
+    const { title, expression, diceValues, modifier } = diceRoller.summary;
+    let { total } = diceRoller.summary;
+
+    if (pendingMBCritRef.current) {
+      pendingMBCritRef.current = false;
+      // MB critical: show raw dice values, double only the total
+      total = total * 2;
+      setCritDisplaySummary({
+        ...diceRoller.summary,
+        total,
+        diceValues,
+        totalLabel: "Daño crítico (×2)",
+      });
+    } else {
+      setCritDisplaySummary(null);
+    }
+
     onRollResultRef.current?.(
       serializeRollMessage(
         title,
@@ -311,15 +378,46 @@ export default function QuickActionBar({
     return () => window.removeEventListener("mousedown", handlePointerDown);
   }, [selectedPosition, activeAction, onClose]);
 
+  const isMB = detail?.sistemaDeJuego === "Mork Borg";
   const isEnemy = detail?.tipo === "enemigo" || detail?.tipo === "PNJ";
-  const visibleActions = useMemo(
+  const isMBEnemy = isMB && isEnemy;
+  const visibleActions = useMemo(() => {
+    if (isEnemy) {
+      // Enemies: attack, rasgos, especialidad, botín — no class traits, no DnD actions
+      return ACTIONS.filter(
+        (a) =>
+          a.key !== "hechizos" &&
+          a.key !== "recursos" &&
+          a.key !== "rasgos-clase",
+      );
+    }
+    if (isMB) {
+      // MB players: attack, estadísticas, rasgos de clase, no DnD actions
+      return ACTIONS.filter(
+        (a) =>
+          a.key !== "hechizos" &&
+          a.key !== "recursos" &&
+          a.key !== "especialidad" &&
+          a.key !== "botin",
+      );
+    }
+    // DnD players: no MB-specific buttons
+    return ACTIONS.filter(
+      (a) =>
+        a.key !== "especialidad" &&
+        a.key !== "botin" &&
+        a.key !== "rasgos-clase",
+    );
+  }, [isEnemy, isMB]);
+  const weaponOptions = useMemo(
     () =>
-      isEnemy
-        ? ACTIONS.filter((a) => a.key !== "hechizos" && a.key !== "recursos")
-        : ACTIONS,
-    [isEnemy],
+      isMBEnemy
+        ? getMBEnemyWeaponOptions(detail)
+        : isMB
+          ? getMBWeaponOptions(detail)
+          : getWeaponOptions(detail),
+    [detail, isMB, isMBEnemy],
   );
-  const weaponOptions = useMemo(() => getWeaponOptions(detail), [detail]);
 
   const selectedWeaponNameRef = useRef<string | null>(null);
   useEffect(() => {
@@ -351,6 +449,81 @@ export default function QuickActionBar({
     const attackModifier = selectedWeapon.attackBonus ?? 0;
     const damageExpr = selectedWeapon.damageExpression;
     const critExpr = buildCriticalExpression(damageExpr);
+
+    // ── MB enemies: solo Daño / Daño crítico (sin tirada de ataque) ───────────
+    // Critical = roll the weapon dice normally, then multiply the result × 2
+    if (isMBEnemy) {
+      return [
+        {
+          id: "dmg-neutral",
+          label: "Daño",
+          image: imgDanoNeutral,
+          onClick: () => {
+            if (damageExpr) {
+              pendingMBCritRef.current = false;
+              diceRoller.rollExpression(
+                `Daño · ${selectedWeapon.name}`,
+                damageExpr,
+              );
+            }
+          },
+        },
+        {
+          id: "dmg-crit",
+          label: "Daño crítico",
+          image: imgDanoVentaja,
+          onClick: () => {
+            if (damageExpr) {
+              pendingMBCritRef.current = true;
+              diceRoller.rollExpression(
+                `Daño crítico · ${selectedWeapon.name}`,
+                damageExpr,
+              );
+            }
+          },
+        },
+      ];
+    }
+
+    // ── MB players: Ataque / Daño / Daño crítico (sin ventaja/desventaja) ─────
+    if (isMB) {
+      return [
+        {
+          id: "atk-neutral",
+          label: "Ataque",
+          image: imgAtaque,
+          onClick: () =>
+            diceRoller.rollD20Check(
+              `Ataque con ${selectedWeapon.name}`,
+              attackModifier,
+            ),
+        },
+        {
+          id: "dmg-neutral",
+          label: "Daño",
+          image: imgDanoNeutral,
+          onClick: () => {
+            if (damageExpr)
+              diceRoller.rollExpression(
+                `Daño · ${selectedWeapon.name}`,
+                damageExpr,
+              );
+          },
+        },
+        {
+          id: "dmg-crit",
+          label: "Daño crítico",
+          image: imgDanoVentaja,
+          onClick: () => {
+            if (critExpr)
+              diceRoller.rollExpression(
+                `Daño crítico · ${selectedWeapon.name}`,
+                critExpr,
+              );
+          },
+        },
+      ];
+    }
 
     function scheduleAdvantageRoll(
       die1: number,
@@ -474,7 +647,7 @@ export default function QuickActionBar({
         },
       },
     ];
-  }, [diceRoller, selectedWeapon, setAdvantageResult]);
+  }, [diceRoller, isMB, isMBEnemy, selectedWeapon, setAdvantageResult]);
 
   const spellsByLevel = useMemo(
     () => groupSpellsByLevel(detail?.habilidades ?? []),
@@ -589,20 +762,36 @@ export default function QuickActionBar({
             );
           }
           if (action.key === "habilidad") {
+            const isMBPlayer = isMB && !isEnemy;
             return (
               <div key={action.key}>
-                {activeAction === "habilidad" && (
-                  <SkillPanel
-                    detail={detail}
-                    isLoadingDetail={isLoadingDetail}
-                    isEnemy={isEnemy}
-                    onRollSkill={(name, total) =>
-                      diceRoller.rollD20Check(name, total)
-                    }
-                  />
-                )}
+                {activeAction === "habilidad" &&
+                  (isEnemy ? (
+                    <RasgosPanel
+                      detail={detail}
+                      isLoadingDetail={isLoadingDetail}
+                    />
+                  ) : isMBPlayer ? (
+                    <MBEstadisticasPanel
+                      detail={detail}
+                      isLoadingDetail={isLoadingDetail}
+                      onRollStat={(nombre, modifier) =>
+                        diceRoller.rollD20Check(nombre, modifier)
+                      }
+                    />
+                  ) : (
+                    <SkillPanel
+                      detail={detail}
+                      isLoadingDetail={isLoadingDetail}
+                      isEnemy={isEnemy}
+                      onRollSkill={(name, total) =>
+                        diceRoller.rollD20Check(name, total)
+                      }
+                    />
+                  ))}
                 <ActionButton
                   action={action}
+                  label={isMBPlayer ? "Estadísticas" : undefined}
                   onClick={() =>
                     setActiveAction((c) =>
                       c === "habilidad" ? null : "habilidad",
@@ -612,24 +801,59 @@ export default function QuickActionBar({
               </div>
             );
           }
-          if (action.key === "salvacion") {
+          if (action.key === "rasgos-clase") {
             return (
               <div key={action.key}>
-                {activeAction === "salvacion" && detail && (
-                  <SavePanel
+                {activeAction === "rasgos-clase" && (
+                  <MBRasgosClasePanel
                     detail={detail}
-                    isEnemy={isEnemy}
-                    onRollSave={(name, total) =>
-                      diceRoller.rollD20Check(name, total)
-                    }
+                    isLoadingDetail={isLoadingDetail}
                   />
                 )}
                 <ActionButton
                   action={action}
                   onClick={() =>
                     setActiveAction((c) =>
-                      c === "salvacion" ? null : "salvacion",
+                      c === "rasgos-clase" ? null : "rasgos-clase",
                     )
+                  }
+                />
+              </div>
+            );
+          }
+          if (action.key === "especialidad") {
+            return (
+              <div key={action.key}>
+                {activeAction === "especialidad" && (
+                  <EspecialidadPanel
+                    detail={detail}
+                    isLoadingDetail={isLoadingDetail}
+                  />
+                )}
+                <ActionButton
+                  action={action}
+                  onClick={() =>
+                    setActiveAction((c) =>
+                      c === "especialidad" ? null : "especialidad",
+                    )
+                  }
+                />
+              </div>
+            );
+          }
+          if (action.key === "botin") {
+            return (
+              <div key={action.key}>
+                {activeAction === "botin" && (
+                  <LootPanel
+                    detail={detail}
+                    isLoadingDetail={isLoadingDetail}
+                  />
+                )}
+                <ActionButton
+                  action={action}
+                  onClick={() =>
+                    setActiveAction((c) => (c === "botin" ? null : "botin"))
                   }
                 />
               </div>
@@ -755,7 +979,7 @@ export default function QuickActionBar({
         diceBoxHostId={diceRoller.diceBoxHostId}
         diceBoxError={diceRoller.diceBoxError}
         isRolling={diceRoller.isRolling}
-        summary={diceRoller.summary}
+        summary={critDisplaySummary ?? diceRoller.summary}
         onDismiss={diceRoller.dismissSummary}
       />
 

@@ -215,7 +215,7 @@ class PersonajeControllerTest {
         PersonajeDetalleResponse detalle = new PersonajeDetalleResponse(
                 3L, "Aria", null, null, "Dungeons and Dragons",
                 null, null, List.of(), null, Map.of(), List.of(), List.of(),
-                LocalDateTime.now(), "personaje", null, "daria");
+                LocalDateTime.now(), "personaje", null, "daria", null);
         when(personajeService.obtenerDetallePersonaje(3L, "daria")).thenReturn(detalle);
 
         PersonajeDetalleResponse result = personajeController.obtenerPersonaje(3L, auth);
@@ -237,7 +237,7 @@ class PersonajeControllerTest {
         PersonajeDetalleResponse detalle = new PersonajeDetalleResponse(
                 3L, "Aria", null, null, "Dungeons and Dragons",
                 null, null, List.of(), null, Map.of(), List.of(), List.of(),
-                LocalDateTime.now(), "personaje", null, "daria");
+                LocalDateTime.now(), "personaje", null, "daria", null);
         when(personajeService.subirNivel(3L, request, "daria")).thenReturn(detalle);
 
         PersonajeDetalleResponse result = personajeController.subirNivel(3L, request, auth);
@@ -254,7 +254,7 @@ class PersonajeControllerTest {
         PersonajeDetalleResponse detalle = new PersonajeDetalleResponse(
                 3L, "Aria", null, null, "Dungeons and Dragons",
                 null, null, List.of(), null, Map.of(), List.of(), List.of(),
-                LocalDateTime.now(), "personaje", null, "daria");
+                LocalDateTime.now(), "personaje", null, "daria", null);
         when(personajeService.bajarNivel(3L, request, "daria")).thenReturn(detalle);
 
         PersonajeDetalleResponse result = personajeController.bajarNivel(3L, request, auth);
@@ -303,7 +303,7 @@ class PersonajeControllerTest {
         PersonajeDetalleResponse detalle = new PersonajeDetalleResponse(
                 3L, "Aria", null, null, "Dungeons and Dragons",
                 null, null, List.of(), null, Map.of(), List.of(), List.of(),
-                LocalDateTime.now(), "personaje", null, "daria");
+                LocalDateTime.now(), "personaje", null, "daria", null);
         when(personajeService.actualizarExperiencia(3L, request, "daria")).thenReturn(detalle);
 
         PersonajeDetalleResponse result = personajeController.actualizarExperienciaPersonaje(3L, request, auth);

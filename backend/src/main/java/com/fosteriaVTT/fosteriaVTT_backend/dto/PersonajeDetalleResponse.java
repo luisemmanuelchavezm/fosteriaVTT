@@ -20,6 +20,7 @@ public record PersonajeDetalleResponse(
         LocalDateTime usado,
         String tipo,
         String vd,
-        String propietario
+        String propietario,
+        String tags
 ) {
 }

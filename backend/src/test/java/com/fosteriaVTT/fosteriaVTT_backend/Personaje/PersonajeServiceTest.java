@@ -120,7 +120,7 @@ class PersonajeServiceTest {
         when(dndCharacterStatsUtils.resolverClasesPersonaje(personaje)).thenReturn(List.of());
         when(dndCharacterStatsUtils.resolverCaracteristicaLanzamientoConjuros(personaje)).thenReturn("Inteligencia");
         when(dndCombatUtils.resolverBonificacionHabilidad(eq(personaje), eq(habilidad), eq(Map.of("Fuerza", 10)), any(), any())).thenReturn(7);
-        when(mochilaService.obtenerItemsPersonaje(1L)).thenReturn(List.of(new MochilaPersonajeResponse(3L, "Pocion", null, "cura", 2, false, "", "consumible")));
+        when(mochilaService.obtenerItemsPersonaje(1L)).thenReturn(List.of(new MochilaPersonajeResponse(3L, null, "Pocion", null, "cura", 2, false, "", "consumible")));
 
         PersonajeDetalleResponse detalle = personajeService.obtenerDetallePersonaje(1L, "daria");
 

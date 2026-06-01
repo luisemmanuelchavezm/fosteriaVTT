@@ -10,7 +10,9 @@ import CreateCampaignScreen from "./screens/CreateCampaignScreen";
 import CampaignHomeScreen from "./screens/campaign/CampaignHomeScreen";
 import CampaignPestañaScreen from "./screens/campaign/CampaignPestañaScreen";
 import CreateDndCharacterScreen from "./screens/personaje/creatednd/CreateDndCharacterScreen";
+import CreateMorkBorgCharacterScreen from "./screens/personaje/createmorkborg/CreateMorkBorgCharacterScreen";
 import DndCharacterSheetScreen from "./screens/personaje/dndcharactersheet/DndCharacterSheetScreen";
+import MorkBorgCharacterSheetScreen from "./screens/personaje/morkborgcharactersheet/MorkBorgCharacterSheetScreen";
 import { buildApiUrl } from "./lib/api";
 type AuthMode =
   | "login"
@@ -22,7 +24,9 @@ type AuthMode =
   | "campaign-pestaña"
   | "characters"
   | "character-create-dnd"
-  | "character-sheet-dnd";
+  | "character-create-morkborg"
+  | "character-sheet-dnd"
+  | "character-sheet-morkborg";
 
 function App() {
   const storedToken = localStorage.getItem("jwtToken");
@@ -141,10 +145,29 @@ function App() {
     setMode("login");
   };
 
+  const handleGoCreateMorkBorgCharacter = () => {
+    if (token) {
+      setMode("character-create-morkborg");
+      return;
+    }
+
+    setMode("login");
+  };
+
   const handleOpenDndCharacterSheet = (characterId: string) => {
     if (token) {
       setSelectedCharacterId(characterId);
       setMode("character-sheet-dnd");
+      return;
+    }
+
+    setMode("login");
+  };
+
+  const handleOpenMorkBorgCharacterSheet = (characterId: string) => {
+    if (token) {
+      setSelectedCharacterId(characterId);
+      setMode("character-sheet-morkborg");
       return;
     }
 
@@ -263,7 +286,9 @@ function App() {
           onGoCampaigns={handleGoCampaigns}
           onGoCharacters={handleGoCharacters}
           onCreateDndCharacter={handleGoCreateDndCharacter}
+          onCreateMorkBorgCharacter={handleGoCreateMorkBorgCharacter}
           onOpenDndCharacterSheet={handleOpenDndCharacterSheet}
+          onOpenMorkBorgCharacterSheet={handleOpenMorkBorgCharacterSheet}
         />
       )}
       {mode === "character-create-dnd" && token && (
@@ -277,8 +302,29 @@ function App() {
           onCharacterCreated={handleOpenDndCharacterSheet}
         />
       )}
+      {mode === "character-create-morkborg" && token && (
+        <CreateMorkBorgCharacterScreen
+          username={username}
+          avatarUrl={avatarUrl}
+          onLogout={handleLogout}
+          onGoHome={handleGoHome}
+          onGoCampaigns={handleGoCampaigns}
+          onGoCharacters={handleGoCharacters}
+        />
+      )}
       {mode === "character-sheet-dnd" && token && selectedCharacterId && (
         <DndCharacterSheetScreen
+          username={username}
+          avatarUrl={avatarUrl}
+          characterId={selectedCharacterId}
+          onLogout={handleLogout}
+          onGoHome={handleGoHome}
+          onGoCampaigns={handleGoCampaigns}
+          onGoCharacters={handleGoCharacters}
+        />
+      )}
+      {mode === "character-sheet-morkborg" && token && selectedCharacterId && (
+        <MorkBorgCharacterSheetScreen
           username={username}
           avatarUrl={avatarUrl}
           characterId={selectedCharacterId}

@@ -1,0 +1,583 @@
+import { useState, useCallback, useEffect, useRef } from "react";
+import { Trash2 } from "lucide-react";
+import { createPortal } from "react-dom";
+import { useDiceRoller } from "../../../../components/dice/useDiceRoller";
+import DiceRollOverlay from "../../../../components/dice/DiceRollOverlay";
+import type { DndCharacterDetailResponse } from "../../utils/dndApi";
+import {
+  MB_RASGOS_TERRIBLES,
+  MB_CUERPOS_ROTOS,
+  MB_HABITOS,
+  MB_HISTORIAS_PERTURBADORAS,
+} from "../../createmorkborg/utils/morkBorgUtils";
+import { MB_CATASTROFES } from "../../createmorkborg/utils/morkBorgCatastrofes";
+
+const SCROLL_KEYWORDS = ["PergaminoImpuro", "PergaminoSagrado"];
+const CLASS_ABILITY_KEYWORDS = [
+  "EscEspecialidadIdx",
+  "DesertorItemIdx",
+  "ErmitanoEspecialidadIdx",
+  "RealezaItemIdx",
+  "HerboristaHabilidadIdx",
+  "ContenedorSinClase;6",
+  "ItemSinClase2;3",
+  "ItemSinClase2;4",
+  "MorkBorgCustom",
+];
+const CLASS_OBJECT_KEYWORDS = [
+  "DesertorItemIdx",
+  "RealezaItemIdx",
+  "SacerdoteItemIdx",
+  "ErmitanoEspecialidadIdx",
+  "ArmaEspecial",
+  "ItemEspecial",
+];
+
+const DECOCCIONES_CATALOGO = [
+  { idx: 1, nombre: "Veneno rojo", efecto: "Resistencia CD12 o −d10 PV." },
+  {
+    idx: 2,
+    nombre: "Vapores de Ezumiels",
+    efecto:
+      "Pasa una prueba CD14 o alucinaciones graves (y posiblemente divertidas) durante d4 horas.",
+  },
+  {
+    idx: 3,
+    nombre: "Estofado de rana sureña",
+    efecto:
+      "Vomita durante d4 horas, pasa una prueba CD14 o no puedes hacer nada más.",
+  },
+  {
+    idx: 4,
+    nombre: "Elixir Vitalis",
+    efecto: "Cura d6 PV y detiene la infección. Puede crear hábito.",
+  },
+  {
+    idx: 5,
+    nombre: "Sopa de araña-búho",
+    efecto: "Ver en la oscuridad, trepar por las paredes durante 30 minutos.",
+  },
+  {
+    idx: 6,
+    nombre: "Filtro de Fernor",
+    efecto:
+      "Aceite translúcido, debe aplicarse directamente en el ojo. Cura la infección y da +2 en las pruebas de Presencia durante d4 horas.",
+  },
+  {
+    idx: 7,
+    nombre: "Rapé enervante de Hyphos",
+    efecto:
+      "¡Berkerser! Dos ataques por asalto pero defiende con CD14. Dura una pelea. Debe ser inhalado, provoca estornudos.",
+  },
+  {
+    idx: 8,
+    nombre: "Veneno negro",
+    efecto: "Resistencia CD14 o −d6 PV y cegado durante una hora.",
+  },
+];
+
+function extractTagNumber(tags: string, key: string): number | null {
+  const match = tags.match(new RegExp(`${key};(\\d+)`));
+  return match ? Number.parseInt(match[1], 10) : null;
+}
+
+function hasKeyword(
+  tags: string | null | undefined,
+  keywords: string[],
+): boolean {
+  if (!tags) return false;
+  return keywords.some((kw) => tags.includes(kw));
+}
+
+interface Props {
+  character: DndCharacterDetailResponse;
+  isOwner?: boolean;
+  onOpenClassTraitsCatalog?: () => void;
+  onOpenScrollCatalog?: () => void;
+  onDeleteClassTrait?: (habilidadId: number) => void;
+  onDeleteClassItem?: (itemId: number) => void;
+  onDeleteScroll?: (habilidadId: number) => void;
+}
+
+function DecoccionesModal({ onClose }: { onClose: () => void }) {
+  const [d10Result, setD10Result] = useState<number | null>(null);
+  const pendingD10Ref = useRef(false);
+
+  const { diceBoxHostId, diceBoxError, isRolling, summary, rollExpression } =
+    useDiceRoller();
+
+  useEffect(() => {
+    if (!pendingD10Ref.current || !summary || isRolling) return;
+    pendingD10Ref.current = false;
+    const raw = summary.diceValues[0] ?? summary.total;
+    setD10Result(Math.max(1, Math.min(10, raw)));
+  }, [summary, isRolling]);
+
+  const handleRollD10 = () => {
+    if (isRolling) return;
+    pendingD10Ref.current = true;
+    rollExpression("Decocción d10", "1d10");
+  };
+
+  return createPortal(
+    <>
+      <DiceRollOverlay
+        diceBoxHostId={diceBoxHostId}
+        diceBoxError={diceBoxError}
+        isRolling={isRolling}
+        summary={summary}
+      />
+      <div
+        className="fixed inset-0 z-[60] overflow-y-auto bg-black/70 backdrop-blur-sm"
+        onClick={onClose}
+      >
+        <div className="flex min-h-full items-center justify-center p-4">
+          <div
+            className="relative w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-[24px] border border-white/10 bg-[#1a1410] p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <h3 className="text-xl font-bold text-amber-200">
+                  Catálogo de Decocciones
+                </h3>
+                <button
+                  type="button"
+                  onClick={handleRollD10}
+                  disabled={isRolling}
+                  className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-950/40 px-3 py-1.5 text-sm font-bold text-amber-200 transition hover:bg-amber-900/50 disabled:opacity-50"
+                >
+                  <span className="text-base">{isRolling ? "…" : "🎲"}</span>
+                  d10
+                  {d10Result !== null && !isRolling ? (
+                    <span className="text-amber-400">({d10Result})</span>
+                  ) : null}
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-full border border-white/10 px-3 py-1 text-sm text-stone-400 hover:text-white transition"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {DECOCCIONES_CATALOGO.map((dec) => (
+                <div
+                  key={dec.idx}
+                  className={`rounded-[14px] border px-4 py-3 transition ${
+                    d10Result === dec.idx
+                      ? "border-amber-400/60 bg-amber-950/40"
+                      : "border-white/10 bg-black/20"
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="shrink-0 mt-0.5 text-sm font-bold tabular-nums text-stone-500">
+                      {dec.idx}.
+                    </span>
+                    <div>
+                      <p className="text-base font-semibold text-amber-100">
+                        {dec.nombre}
+                      </p>
+                      <p className="mt-1 text-sm leading-5 text-stone-300">
+                        {dec.efecto}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>,
+    document.body,
+  );
+}
+
+export default function MorkBorgTraitsAndScrollsSection({
+  character,
+  isOwner = true,
+  onOpenClassTraitsCatalog,
+  onOpenScrollCatalog,
+  onDeleteClassTrait,
+  onDeleteClassItem,
+  onDeleteScroll,
+}: Props) {
+  const characterTags = character.tags ?? "";
+  const storageKey = `mb_catastrofas_${character.id}`;
+
+  // ── Catástrofes ──────────────────────────────────────────────────────────
+  const [catastrofasIdx, setCatastrofasIdx] = useState<number[]>(() => {
+    try {
+      const stored = localStorage.getItem(storageKey);
+      return stored ? (JSON.parse(stored) as number[]) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [revealed, setRevealed] = useState<Set<number>>(new Set());
+  const [rolling, setRolling] = useState(false);
+  const [lastRoll, setLastRoll] = useState<number | null>(null);
+  const [decoccionModalOpen, setDecoccionModalOpen] = useState(false);
+
+  const handleRollCatastrofe = useCallback(() => {
+    const available = MB_CATASTROFES.map((c) => c.idx).filter(
+      (idx) => !catastrofasIdx.includes(idx),
+    );
+    if (available.length === 0 || rolling) return;
+
+    setRolling(true);
+    setLastRoll(null);
+
+    setTimeout(() => {
+      const picked = available[Math.floor(Math.random() * available.length)];
+      const next = [...catastrofasIdx, picked];
+      setCatastrofasIdx(next);
+      localStorage.setItem(storageKey, JSON.stringify(next));
+      setLastRoll(picked);
+      setRolling(false);
+    }, 350);
+  }, [catastrofasIdx, rolling, storageKey]);
+
+  const handleReveal = (idx: number) =>
+    setRevealed((prev) => new Set([...prev, idx]));
+
+  const allUsed = catastrofasIdx.length >= 20;
+
+  // ── Rasgos ───────────────────────────────────────────────────────────────
+  const rasgoIdx1 = extractTagNumber(characterTags, "rasgoTerrible1");
+  const rasgoIdx2 = extractTagNumber(characterTags, "rasgoTerrible2");
+  const cuerpoIdx = extractTagNumber(characterTags, "cuerpoRoto");
+  const habitoIdx = extractTagNumber(characterTags, "habito");
+  const historiaIdx = extractTagNumber(characterTags, "historia");
+
+  const rasgo1 = MB_RASGOS_TERRIBLES.find((t) => t.idx === rasgoIdx1) ?? null;
+  const rasgo2 = MB_RASGOS_TERRIBLES.find((t) => t.idx === rasgoIdx2) ?? null;
+  const cuerpo = MB_CUERPOS_ROTOS.find((t) => t.idx === cuerpoIdx) ?? null;
+  const habito = MB_HABITOS.find((t) => t.idx === habitoIdx) ?? null;
+  const historia =
+    MB_HISTORIAS_PERTURBADORAS.find((t) => t.idx === historiaIdx) ?? null;
+
+  // ── Habilidades ──────────────────────────────────────────────────────────
+  const scrolls = character.habilidades.filter((h) =>
+    hasKeyword(h.tags, SCROLL_KEYWORDS),
+  );
+  const classAbilities = character.habilidades.filter((h) =>
+    hasKeyword(h.tags, CLASS_ABILITY_KEYWORDS),
+  );
+  const classItems = character.mochila.filter((item) =>
+    hasKeyword(item.tags, CLASS_OBJECT_KEYWORDS),
+  );
+
+  return (
+    <section className="mt-8 space-y-6">
+      {decoccionModalOpen && (
+        <DecoccionesModal onClose={() => setDecoccionModalOpen(false)} />
+      )}
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* ── Columna izquierda ────────────────────────────────────────────── */}
+        <div className="space-y-8">
+          {/* Pergaminos */}
+          <div>
+            <div className="flex items-center justify-between">
+              <h4 className="text-2xl font-bold text-white">Pergaminos</h4>
+              {isOwner && onOpenScrollCatalog && (
+                <button
+                  type="button"
+                  onClick={onOpenScrollCatalog}
+                  className="flex h-7 w-7 items-center justify-center rounded-full border border-purple-300/30 bg-purple-300/10 text-lg font-bold leading-none text-purple-100 transition hover:bg-purple-300/20"
+                  aria-label="Añadir pergamino"
+                >
+                  +
+                </button>
+              )}
+            </div>
+            {scrolls.length === 0 ? (
+              <p className="mt-3 text-base text-stone-500">Sin pergaminos.</p>
+            ) : (
+              <div className="mt-3 space-y-2">
+                {scrolls.map((scroll) => {
+                  const isSagrado = scroll.tags?.includes("PergaminoSagrado");
+                  return (
+                    <div
+                      key={scroll.id}
+                      className={`rounded-[14px] border px-4 py-3 ${
+                        isSagrado
+                          ? "border-yellow-500/30 bg-yellow-950/25"
+                          : "border-purple-500/25 bg-purple-950/25"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p
+                          className={`text-lg font-semibold ${isSagrado ? "text-yellow-200" : "text-amber-200"}`}
+                        >
+                          {scroll.nombre}
+                        </p>
+                        {isOwner && onDeleteScroll && (
+                          <button
+                            type="button"
+                            onClick={() => onDeleteScroll(scroll.id)}
+                            className="shrink-0 flex h-7 w-7 items-center justify-center rounded-full text-rose-500/60 transition hover:bg-rose-950/50 hover:text-rose-400"
+                            title="Eliminar pergamino"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                      {scroll.descripcion ? (
+                        <p className="mt-1.5 text-base leading-6 text-white">
+                          {scroll.descripcion}
+                        </p>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Catástrofes Arcanas */}
+          <div>
+            <div className="flex items-center justify-between">
+              <h4 className="text-2xl font-bold text-white">
+                Catástrofes Arcanas
+              </h4>
+              <button
+                type="button"
+                disabled={allUsed || rolling}
+                onClick={handleRollCatastrofe}
+                className="flex items-center gap-1.5 rounded-full border border-rose-500/35 bg-rose-950/30 px-3 py-1.5 text-xs font-bold text-rose-200 transition hover:bg-rose-950/50 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <span className="text-base leading-none">
+                  {rolling ? "…" : "🎲"}
+                </span>
+                d20
+                {lastRoll !== null && !rolling ? (
+                  <span className="ml-1 text-rose-400">({lastRoll})</span>
+                ) : null}
+              </button>
+            </div>
+
+            {catastrofasIdx.length === 0 ? (
+              <p className="mt-3 text-base text-stone-500">
+                Sin catástrofes aún.
+              </p>
+            ) : (
+              <div className="mt-3 space-y-2">
+                {catastrofasIdx.map((idx) => {
+                  const cat = MB_CATASTROFES.find((c) => c.idx === idx);
+                  if (!cat) return null;
+                  const isRevealed = revealed.has(idx);
+                  return (
+                    <div
+                      key={idx}
+                      className="rounded-[14px] border border-rose-800/30 bg-rose-950/20 px-4 py-3"
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="shrink-0 text-sm font-bold tabular-nums text-rose-500/60 mt-0.5">
+                          {idx}.
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-base text-white whitespace-pre-line leading-6">
+                            {cat.visible}
+                          </p>
+                          {cat.oculto && isRevealed ? (
+                            <p className="mt-2 text-base text-rose-200 whitespace-pre-line leading-6">
+                              {cat.oculto}
+                            </p>
+                          ) : null}
+                        </div>
+                        {cat.oculto && !isRevealed ? (
+                          <button
+                            type="button"
+                            onClick={() => handleReveal(idx)}
+                            className="shrink-0 self-start rounded-full border border-rose-500/30 bg-rose-950/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-rose-300 transition hover:bg-rose-900/50"
+                          >
+                            Efecto oculto
+                          </button>
+                        ) : null}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Rasgos */}
+          <div>
+            <h4 className="text-2xl font-bold text-white">Rasgos</h4>
+
+            <div className="mt-4">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-400">
+                Rasgos terribles
+              </p>
+              <div className="mt-2 space-y-2">
+                {rasgo1 ? (
+                  <div className="rounded-[12px] border border-rose-500/25 bg-rose-950/25 px-3 py-2.5">
+                    <p className="text-base text-white">{rasgo1.nombre}</p>
+                  </div>
+                ) : null}
+                {rasgo2 ? (
+                  <div className="rounded-[12px] border border-rose-500/25 bg-rose-950/25 px-3 py-2.5">
+                    <p className="text-base text-white">{rasgo2.nombre}</p>
+                  </div>
+                ) : null}
+                {!rasgo1 && !rasgo2 ? (
+                  <p className="text-base text-stone-500">No registrados.</p>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="mt-4 space-y-4">
+              {cuerpo ? (
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-400">
+                    Cuerpo roto
+                  </p>
+                  <div className="mt-2 rounded-[12px] border border-stone-600/30 bg-stone-900/40 px-3 py-2.5">
+                    <p className="text-base text-white">{cuerpo.nombre}</p>
+                  </div>
+                </div>
+              ) : null}
+              {habito ? (
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-400">
+                    Hábito
+                  </p>
+                  <div className="mt-2 rounded-[12px] border border-stone-600/30 bg-stone-900/40 px-3 py-2.5">
+                    <p className="text-base text-white">{habito.nombre}</p>
+                  </div>
+                </div>
+              ) : null}
+              {historia ? (
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-amber-400">
+                    Historia perturbadora
+                  </p>
+                  <div className="mt-2 rounded-[12px] border border-stone-600/30 bg-stone-900/40 px-3 py-2.5">
+                    <p className="text-base text-white">{historia.nombre}</p>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Columna derecha: Rasgos de clase ─────────────────────────────── */}
+        <div>
+          <div className="flex items-center justify-between">
+            <h4 className="text-2xl font-bold text-white">
+              Rasgos de clase y otros
+            </h4>
+            {isOwner && onOpenClassTraitsCatalog && (
+              <button
+                type="button"
+                onClick={onOpenClassTraitsCatalog}
+                className="flex h-7 w-7 items-center justify-center rounded-full border border-amber-300/30 bg-amber-300/10 text-lg font-bold leading-none text-amber-100 transition hover:bg-amber-300/20"
+                aria-label="Añadir rasgo de clase"
+              >
+                +
+              </button>
+            )}
+          </div>
+          {classAbilities.length === 0 && classItems.length === 0 ? (
+            <p className="mt-3 text-base text-stone-500">
+              Sin rasgos de clase.
+            </p>
+          ) : (
+            <div className="mt-3 space-y-2">
+              {classAbilities.map((ability) => {
+                const isHerborista = ability.tags?.includes(
+                  "HerboristaHabilidadIdx",
+                );
+                return (
+                  <div
+                    key={ability.id}
+                    className="rounded-[14px] border border-amber-500/20 bg-amber-950/20 px-4 py-3"
+                  >
+                    <div className="flex items-center gap-2 flex-wrap justify-between">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-lg font-semibold text-amber-200">
+                          {ability.nombre}
+                        </p>
+                        {isHerborista && (
+                          <button
+                            type="button"
+                            onClick={() => setDecoccionModalOpen(true)}
+                            className="rounded-full border border-amber-400/40 bg-amber-950/50 px-2.5 py-0.5 text-sm font-bold text-amber-300 transition hover:bg-amber-900/60"
+                            title="Ver catálogo de decocciones"
+                          >
+                            ?
+                          </button>
+                        )}
+                      </div>
+                      {isOwner && onDeleteClassTrait && (
+                        <button
+                          type="button"
+                          onClick={() => onDeleteClassTrait(ability.id)}
+                          className="shrink-0 flex h-7 w-7 items-center justify-center rounded-full text-rose-500/60 transition hover:bg-rose-950/50 hover:text-rose-400"
+                          title="Quitar rasgo"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                    {ability.descripcion ? (
+                      <p className="mt-1.5 text-base leading-6 text-white">
+                        {ability.descripcion}
+                      </p>
+                    ) : null}
+                  </div>
+                );
+              })}
+              {classItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-[14px] border border-amber-500/20 bg-amber-950/20 px-4 py-3"
+                >
+                  <div className="flex flex-wrap items-center gap-2 justify-between">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-lg font-semibold text-amber-200">
+                        {item.nombre}
+                      </p>
+                      {item.tipoObjeto === "ARMA" && item.formula ? (
+                        <span className="text-sm font-mono text-red-300/80">
+                          {item.formula}
+                        </span>
+                      ) : null}
+                      {item.tipoObjeto === "ARMA" ? (
+                        <span className="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-red-900/50 text-red-300 border border-red-500/30">
+                          arma
+                        </span>
+                      ) : null}
+                    </div>
+                    {isOwner && onDeleteClassItem && (
+                      <button
+                        type="button"
+                        onClick={() => onDeleteClassItem(item.id)}
+                        className="shrink-0 flex h-7 w-7 items-center justify-center rounded-full text-rose-500/60 transition hover:bg-rose-950/50 hover:text-rose-400"
+                        title="Quitar rasgo"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  {item.descripcion ? (
+                    <p className="mt-1.5 text-base leading-6 text-white">
+                      {item.descripcion}
+                    </p>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}

@@ -21,4 +21,6 @@ public interface MochilaRepository extends JpaRepository<Mochila, Long> {
 	List<Mochila> findByPersonajeIdWithObjetoOrderByIdAsc(@Param("personajeId") Long personajeId);
 
 	Optional<Mochila> findByIdAndPersonajeId(Long id, Long personajeId);
+
+	void deleteByPersonajeId(Long personajeId);
 }

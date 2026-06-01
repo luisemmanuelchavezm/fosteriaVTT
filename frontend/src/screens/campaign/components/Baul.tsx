@@ -15,7 +15,7 @@ interface BaulProps {
   isDM?: boolean;
   onClose: () => void;
   onMapSelect?: (payload: { mapaId: number; mapaUrl: string }) => void;
-  onCharacterClick?: (characterId: number) => void;
+  onCharacterClick?: (characterId: number, sistemaDeJuego: string) => void;
 }
 
 export default function Baul({
@@ -116,7 +116,12 @@ export default function Baul({
             source: character.source,
           })
         }
-        onClick={canClick ? () => onCharacterClick(character.id) : undefined}
+        onClick={
+          canClick
+            ? () =>
+                onCharacterClick(character.id, character.sistemaDeJuego ?? "")
+            : undefined
+        }
         className={`relative flex flex-col overflow-hidden rounded-[18px] border border-amber-200/35 bg-zinc-900/95 shadow-[0_12px_24px_rgba(0,0,0,0.25)] transition hover:shadow-[0_16px_32px_rgba(0,0,0,0.35)] ${canClick ? "cursor-pointer active:scale-[0.98]" : "cursor-grab active:cursor-grabbing"}`}
       >
         <div className="relative h-[140px] bg-gradient-to-br from-zinc-700 to-zinc-900">

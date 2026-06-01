@@ -13,7 +13,9 @@ interface CharactersScreenProps {
   onGoCampaigns: () => void;
   onGoCharacters: () => void;
   onCreateDndCharacter?: () => void;
+  onCreateMorkBorgCharacter?: () => void;
   onOpenDndCharacterSheet?: (characterId: string) => void;
+  onOpenMorkBorgCharacterSheet?: (characterId: string) => void;
 }
 
 interface CharacterSummary {
@@ -36,11 +38,7 @@ interface CharacterPageResponse {
 }
 
 const INITIAL_VISIBLE_CHARACTERS = 15;
-const GAME_SYSTEMS = [
-  "Dungeons and Dragons",
-  "Call Of Cthulhu",
-  "Vampire: The Masquerade",
-];
+const GAME_SYSTEMS = ["Dungeons and Dragons", "Mork Borg"];
 
 function formatUsedAt(usedAt: string) {
   const parsedDate = new Date(usedAt);
@@ -63,7 +61,9 @@ export default function CharactersScreen({
   onGoCampaigns,
   onGoCharacters,
   onCreateDndCharacter,
+  onCreateMorkBorgCharacter,
   onOpenDndCharacterSheet,
+  onOpenMorkBorgCharacterSheet,
 }: CharactersScreenProps) {
   const [characters, setCharacters] = useState<CharacterSummary[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -268,8 +268,16 @@ export default function CharactersScreen({
     onCreateDndCharacter?.();
   };
 
+  const handleCreateMorkBorg = () => {
+    setIsCreateModalOpen(false);
+    onCreateMorkBorgCharacter?.();
+  };
+
   const handleOpenCharacter = async (character: CharacterSummary) => {
-    if (character.system !== "Dungeons and Dragons") {
+    const isMorkBorg = character.system === "Mork Borg";
+    const isDnd = character.system === "Dungeons and Dragons";
+
+    if (!isDnd && !isMorkBorg) {
       return;
     }
 
@@ -283,7 +291,11 @@ export default function CharactersScreen({
       }
     }
 
-    onOpenDndCharacterSheet?.(character.id);
+    if (isMorkBorg) {
+      onOpenMorkBorgCharacterSheet?.(character.id);
+    } else {
+      onOpenDndCharacterSheet?.(character.id);
+    }
   };
 
   const handleNavChange = (tab: NavTab) => {
@@ -322,8 +334,7 @@ export default function CharactersScreen({
                     Elige el sistema de juego
                   </h3>
                   <p className="mt-2 text-sm text-stone-300">
-                    Por ahora la creación guiada está disponible para Dungeons
-                    and Dragons.
+                    Elige el sistema para empezar a crear tu personaje.
                   </p>
                 </div>
 
@@ -356,30 +367,18 @@ export default function CharactersScreen({
 
                 <button
                   type="button"
-                  disabled
-                  className="rounded-[24px] border border-white/10 bg-white/5 p-5 text-left opacity-60"
+                  onClick={handleCreateMorkBorg}
+                  className="group rounded-[24px] border border-red-500/40 bg-red-900/10 p-5 text-left transition hover:border-red-400/70 hover:bg-red-900/20"
                 >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold text-stone-200">
-                    COC
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-900/30 text-lg font-bold text-red-200">
+                    MB
                   </div>
                   <h4 className="mt-4 text-lg font-semibold text-white">
-                    Call of Cthulhu
+                    Mork Borg
                   </h4>
-                  <p className="mt-2 text-sm text-stone-300">Próximamente.</p>
-                </button>
-
-                <button
-                  type="button"
-                  disabled
-                  className="rounded-[24px] border border-white/10 bg-white/5 p-5 text-left opacity-60"
-                >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold text-stone-200">
-                    VTM
-                  </div>
-                  <h4 className="mt-4 text-lg font-semibold text-white">
-                    Vampire: The Masquerade
-                  </h4>
-                  <p className="mt-2 text-sm text-stone-300">Próximamente.</p>
+                  <p className="mt-2 text-sm text-stone-300">
+                    Crear personaje por fases.
+                  </p>
                 </button>
               </div>
             </div>
@@ -498,8 +497,11 @@ export default function CharactersScreen({
                     onClick={() => {
                       void handleOpenCharacter(character);
                     }}
-                    disabled={character.system !== "Dungeons and Dragons"}
-                    className="grid min-h-[250px] overflow-hidden rounded-[24px] border border-amber-200/35 bg-stone-900 text-left shadow-xl transition duration-300 hover:-translate-y-1 hover:border-amber-200/70"
+                    className={`grid min-h-[250px] overflow-hidden rounded-[24px] bg-stone-900 text-left shadow-xl transition duration-300 hover:-translate-y-1 ${
+                      character.system === "Mork Borg"
+                        ? "border border-rose-400/35 hover:border-rose-400/70"
+                        : "border border-amber-200/35 hover:border-amber-200/70"
+                    }`}
                   >
                     <div className="grid h-full md:grid-cols-[1fr_1fr]">
                       <div className="relative min-h-[180px] bg-stone-800 md:min-h-full">
@@ -518,7 +520,9 @@ export default function CharactersScreen({
 
                       <div className="flex flex-col justify-between gap-4 p-5">
                         <div>
-                          <p className="text-xs uppercase tracking-[0.28em] text-amber-200/80">
+                          <p
+                            className={`text-xs uppercase tracking-[0.28em] ${character.system === "Mork Borg" ? "text-rose-300/80" : "text-amber-200/80"}`}
+                          >
                             Personaje
                           </p>
                           <h3 className="mt-2 text-2xl font-bold text-white">

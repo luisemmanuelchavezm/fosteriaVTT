@@ -5,8 +5,7 @@ import UserMenu from "../components/UserMenu";
 import CampaignSystemSelectorModal from "../components/CampaignSystemSelectorModal";
 import type { CampaignCreationSystem } from "../components/campaignSystem";
 import dndImage from "../assets/DND.png";
-import cocImage from "../assets/COC.png";
-import vampireImage from "../assets/Vampire.png";
+import morkBorgImage from "../assets/COC.png";
 import { buildApiUrl } from "../lib/api";
 
 interface HomeScreenProps {
@@ -50,8 +49,7 @@ function formatLastPlayed(lastPlayedAt: string) {
 
 const featuredCampaigns: FeaturedCampaign[] = [
   { id: "dnd", title: "Dungeons & Dragons", image: dndImage },
-  { id: "coc", title: "Call of Cthulhu", image: cocImage },
-  { id: "vampire", title: "Vampire", image: vampireImage },
+  { id: "mork-borg", title: "Mork Borg", image: morkBorgImage },
 ];
 
 export default function HomeScreen({

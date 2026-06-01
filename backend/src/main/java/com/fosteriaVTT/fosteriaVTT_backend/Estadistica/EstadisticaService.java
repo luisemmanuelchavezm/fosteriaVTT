@@ -16,6 +16,9 @@ import com.fosteriaVTT.fosteriaVTT_backend.common.TagUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.common.dnd.DndCharacterRules;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndLanzamientoConjurosResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndNivelLanzamientoConjurosResponse;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.ActualizarHPMBRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.ActualizarSuministrosMBRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.MejorarPersonajeMBRequest;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -78,6 +81,80 @@ public class EstadisticaService {
 			experienceStat.setValor(Math.max(0, experience));
 		}
 		estadisticaRepository.save(experienceStat);
+	}
+
+	public void actualizarSuministrosMB(Personaje personaje, ActualizarSuministrosMBRequest request) {
+		List<Estadistica> stats = estadisticaRepository.findByPersonajeIdOrderByIdAsc(personaje.getId());
+		Map<String, Estadistica> byName = new LinkedHashMap<>();
+		for (Estadistica s : stats) byName.put(s.getNombre(), s);
+
+		if (request.plata() != null) {
+			upsertMBStat(byName, personaje, "MB_Plata", Math.min(999, Math.max(-999, request.plata())));
+		}
+		if (request.comida() != null) {
+			upsertMBStat(byName, personaje, "MB_Comida", Math.min(99, Math.max(0, request.comida())));
+		}
+		if (request.decocciones() != null) {
+			for (int i = 1; i <= 8; i++) {
+				Integer val = request.decocciones().get(i);
+				if (val != null) {
+					upsertMBStat(byName, personaje, "MB_Decoccion_" + i, Math.min(10, Math.max(0, val)));
+				}
+			}
+		}
+		estadisticaRepository.saveAll(byName.values());
+	}
+
+	public void upsertStat(Personaje personaje, String nombre, int valor) {
+		List<Estadistica> stats = estadisticaRepository.findByPersonajeIdOrderByIdAsc(personaje.getId());
+		Estadistica stat = stats.stream().filter(s -> nombre.equals(s.getNombre())).findFirst()
+				.orElse(Estadistica.builder().personaje(personaje).nombre(nombre).build());
+		stat.setValor(valor);
+		estadisticaRepository.save(stat);
+	}
+
+	private void upsertMBStat(Map<String, Estadistica> byName, Personaje personaje, String nombre, int valor) {
+		Estadistica stat = byName.get(nombre);
+		if (stat == null) {
+			stat = Estadistica.builder().personaje(personaje).nombre(nombre).valor(valor).build();
+			byName.put(nombre, stat);
+		} else {
+			stat.setValor(valor);
+		}
+	}
+
+	public void actualizarHPMB(Personaje personaje, ActualizarHPMBRequest request) {
+		List<Estadistica> stats = estadisticaRepository.findByPersonajeIdOrderByIdAsc(personaje.getId());
+		Map<String, Estadistica> byName = new LinkedHashMap<>();
+		for (Estadistica s : stats) byName.put(s.getNombre(), s);
+		int maxHp = byName.containsKey("MB_VidaMaxima") ? byName.get("MB_VidaMaxima").getValor() : 100;
+		upsertMBStat(byName, personaje, "MB_VidaActual", Math.min(maxHp, Math.max(0, request.vidaActual())));
+		estadisticaRepository.saveAll(byName.values());
+	}
+
+	public void mejorarPersonajeMB(Personaje personaje, MejorarPersonajeMBRequest request) {
+		List<Estadistica> stats = estadisticaRepository.findByPersonajeIdOrderByIdAsc(personaje.getId());
+		Map<String, Estadistica> byName = new LinkedHashMap<>();
+		for (Estadistica s : stats) byName.put(s.getNombre(), s);
+
+		if (request.modFuerza() != null) {
+			int clampedMod = clamp(request.modFuerza(), -3, 6);
+			upsertMBStat(byName, personaje, "MB_ModFuerza", clampedMod);
+			upsertMBStat(byName, personaje, "MB_Carga", Math.max(1, clampedMod + 8));
+		}
+		if (request.modAgilidad() != null)   upsertMBStat(byName, personaje, "MB_ModAgilidad",   clamp(request.modAgilidad(), -3, 6));
+		if (request.modPresencia() != null)  upsertMBStat(byName, personaje, "MB_ModPresencia",  clamp(request.modPresencia(), -3, 6));
+		if (request.modResistencia() != null) upsertMBStat(byName, personaje, "MB_ModResistencia", clamp(request.modResistencia(), -3, 6));
+		if (request.vidaMaxima() != null)    upsertMBStat(byName, personaje, "MB_VidaMaxima",    Math.min(100, Math.max(1, request.vidaMaxima())));
+		if (request.plataGanada() != null && request.plataGanada() > 0) {
+			int current = byName.containsKey("MB_Plata") ? byName.get("MB_Plata").getValor() : 0;
+			upsertMBStat(byName, personaje, "MB_Plata", Math.min(999, current + request.plataGanada()));
+		}
+		estadisticaRepository.saveAll(byName.values());
+	}
+
+	private int clamp(int value, int min, int max) {
+		return Math.min(max, Math.max(min, value));
 	}
 
 	public void aplicarSubidaNivel(

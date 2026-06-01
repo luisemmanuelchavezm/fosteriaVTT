@@ -7,8 +7,7 @@ import HomeScreen from "../../screens/HomeScreen";
 
 // Mock asset imports
 vi.mock("../../assets/DND.png", () => ({ default: "dnd.png" }));
-vi.mock("../../assets/COC.png", () => ({ default: "coc.png" }));
-vi.mock("../../assets/Vampire.png", () => ({ default: "vampire.png" }));
+vi.mock("../../assets/COC.png", () => ({ default: "mork-borg.png" }));
 
 vi.mock("../../components/HomeNavbar", () => ({
   default: ({
@@ -117,8 +116,7 @@ describe("HomeScreen", () => {
     render(<HomeScreen {...DEFAULT_PROPS} />);
     // D&D appears multiple times (featured + thumbnails), so use getAllByText
     expect(screen.getAllByText("Dungeons & Dragons").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Call of Cthulhu").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Vampire").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Mork Borg").length).toBeGreaterThan(0);
   });
 
   it("renders 'Sistema destacado' label", () => {
@@ -138,22 +136,22 @@ describe("HomeScreen", () => {
     // Click next - should not crash
     fireEvent.click(screen.getByLabelText("Ver siguiente campaña"));
     // All three thumbnails are always visible; check the page still renders correctly
-    expect(screen.getAllByText("Call of Cthulhu").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Mork Borg").length).toBeGreaterThan(0);
   });
 
   it("navigates to previous featured campaign wrapping around", () => {
     render(<HomeScreen {...DEFAULT_PROPS} />);
     fireEvent.click(screen.getByLabelText("Ver campaña anterior"));
-    // Wraps to last — Vampire thumbnails are always visible
-    expect(screen.getAllByText("Vampire").length).toBeGreaterThan(0);
+    // Wraps to last — Mork Borg thumbnails are always visible
+    expect(screen.getAllByText("Mork Borg").length).toBeGreaterThan(0);
   });
 
   it("changes featured campaign when thumbnail is clicked", () => {
     render(<HomeScreen {...DEFAULT_PROPS} />);
-    // Click on "Call of Cthulhu" thumbnail
-    const cocBtn = screen.getAllByText("Call of Cthulhu")[0];
-    fireEvent.click(cocBtn);
-    // Featured should now be Call of Cthulhu
+    // Click on "Mork Borg" thumbnail
+    const morkBorgBtn = screen.getAllByText("Mork Borg")[0];
+    fireEvent.click(morkBorgBtn);
+    // Featured should now be Mork Borg
     expect(screen.getByText("Sistema destacado")).toBeInTheDocument();
   });
 

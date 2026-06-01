@@ -58,10 +58,6 @@ public class CampañaService {
 		SistemaDeJuego sistema = SistemaDeJuego.fromValue(request.sistemaDeJuego())
 				.orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "El sistema de juego es obligatorio"));
 
-		if (sistema == SistemaDeJuego.VAMPIRE) {
-			throw new ResponseStatusException(BAD_REQUEST, "Solo se permiten campañas de Dungeons and Dragons o Call Of Cthulhu");
-		}
-
 		Usuario usuario = userRepository.findByUsername(username)
 				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Usuario no encontrado"));
 

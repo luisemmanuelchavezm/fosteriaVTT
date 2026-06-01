@@ -112,6 +112,7 @@ public class MochilaService {
 		return mochilaRepository.findByPersonajeIdWithObjetoOrderByIdAsc(personajeId).stream()
 				.map(item -> new MochilaPersonajeResponse(
 						item.getId(),
+						item.getObjeto().getId(),
 						item.getObjeto().getNombre(),
 						item.getObjeto().getFormula(),
 						item.getObjeto().getDescripcion(),

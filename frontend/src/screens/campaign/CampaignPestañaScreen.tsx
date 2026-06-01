@@ -28,6 +28,9 @@ import { PosicionFicha } from "./components/PosicionFicha";
 import QuickActionBar from "./components/QuickActionBar";
 import CampaignSidebar from "./components/CampaignSidebar";
 import CharacterSheetModal from "./components/CharacterSheetModal";
+import MBEnemyTraitsModal from "./components/MBEnemyTraitsModal";
+import type { MBEnemyTraitsResult } from "./components/MBEnemyTraitsModal";
+import { saveMBEnemyTraits } from "../personaje/utils/dndApi";
 import TokenContextMenu from "./components/TokenContextMenu";
 import VisionArcModal from "./components/VisionArcModal";
 import {
@@ -91,6 +94,15 @@ export default function CampaignPestañaScreen({
     null,
   );
   const [modalCharacterId, setModalCharacterId] = useState<number | null>(null);
+  const [modalCharacterSystem, setModalCharacterSystem] = useState<
+    string | undefined
+  >(undefined);
+  const [pendingMBDrop, setPendingMBDrop] = useState<{
+    posicionX: number;
+    posicionY: number;
+    payload: CharacterDropPayload;
+    biografia: string | null;
+  } | null>(null);
   const [iniciativaEstado, setIniciativaEstado] = useState<IniciativaEstado>({
     activa: false,
     entradas: [],
@@ -612,6 +624,39 @@ export default function CampaignPestañaScreen({
         tipo === "pnj" ||
         payload.source === "marketplace";
 
+      // Check if MB enemy needs pre-placement trait rolling
+      const isMBEnemy =
+        payload.sistemaDeJuego === "Mork Borg" &&
+        (tipo === "enemigo" || tipo === "pnj");
+
+      if (isMBEnemy) {
+        const detailRes = await fetch(
+          buildApiUrl(`/api/personajes/${payload.id}`),
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        if (detailRes.ok) {
+          const detail = (await detailRes.json()) as {
+            tags?: string;
+            biografia?: string;
+          };
+          const srcTags = detail.tags ?? "";
+          if (
+            srcTags.includes("MBRasgosAleatorios") ||
+            srcTags.includes("MBArmaAleatoria")
+          ) {
+            setPendingMBDrop({
+              posicionX,
+              posicionY,
+              payload,
+              biografia: detail.biografia ?? null,
+            });
+            return;
+          }
+        }
+      }
+
       let personajeId = payload.id;
       if (needsInstance) {
         const baseName = payload.nombre ?? "";
@@ -662,6 +707,60 @@ export default function CampaignPestañaScreen({
   );
 
   const isDM = username === (pestaña?.dmUsername ?? "");
+
+  // ── MB enemy traits confirmation ──────────────────────────────────────────
+  const handleMBTraitsConfirm = useCallback(
+    async (result: MBEnemyTraitsResult) => {
+      if (!pendingMBDrop || !pestaña?.id) return;
+      const { posicionX, posicionY, payload } = pendingMBDrop;
+      setPendingMBDrop(null);
+      const token = localStorage.getItem("jwtToken");
+      if (!token) return;
+
+      const baseName = payload.nombre ?? "";
+      const baseNameEscaped = baseName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const baseNameRegex = new RegExp(`^${baseNameEscaped}( \\d+)?$`);
+      const sameNameCount = positions.filter(
+        (p) =>
+          p.pestanaId === pestaña.id && baseNameRegex.test(p.personajeNombre),
+      ).length;
+      const instanceName =
+        sameNameCount === 0 ? baseName : `${baseName} ${sameNameCount + 1}`;
+
+      const instanciarRes = await fetch(
+        buildApiUrl(`/api/personajes/${payload.id}/instanciar`),
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ nombre: instanceName }),
+        },
+      );
+      if (!instanciarRes.ok) return;
+      const instance = (await instanciarRes.json()) as { id: number };
+
+      if (result.tagsToAdd) {
+        await saveMBEnemyTraits(token, instance.id, result.tagsToAdd);
+      }
+
+      crearPosicionPorWebSocket({
+        pestanaId: pestaña.id,
+        capa: selectedLayer,
+        personajeId: instance.id,
+        posicionX,
+        posicionY,
+      });
+    },
+    [
+      pendingMBDrop,
+      pestaña?.id,
+      positions,
+      selectedLayer,
+      crearPosicionPorWebSocket,
+    ],
+  );
 
   // ── Cámara y selección de tokens ──────────────────────────────────────────
   const panToToken = useCallback(
@@ -796,8 +895,9 @@ export default function CampaignPestañaScreen({
         isDM={isDM}
         chatMessages={chatMessages}
         onSendMessage={sendChatMessage}
-        onOpenCharacterSheet={(characterId) => {
+        onOpenCharacterSheet={(characterId, sistemaDeJuego) => {
           setModalCharacterId(characterId);
+          setModalCharacterSystem(sistemaDeJuego);
           setSelectedPositionId(null);
         }}
         onInteract={() => setSelectedPositionId(null)}
@@ -829,16 +929,30 @@ export default function CampaignPestañaScreen({
         }}
       />
 
+      {/* Modal de rasgos aleatorios MB */}
+      {pendingMBDrop && (
+        <MBEnemyTraitsModal
+          nombreEnemigo={pendingMBDrop.payload.nombre}
+          biografia={pendingMBDrop.biografia}
+          onConfirm={(result) => void handleMBTraitsConfirm(result)}
+          onCancel={() => setPendingMBDrop(null)}
+        />
+      )}
+
       {/* Modal de hoja de personaje */}
       {modalCharacterId !== null && (
         <CharacterSheetModal
           characterId={modalCharacterId}
+          sistemaDeJuego={modalCharacterSystem}
           username={username}
           avatarUrl={avatarUrl}
           onLogout={onLogout}
           onGoHome={onGoHome}
           onGoCampaigns={onGoCampaigns}
-          onClose={() => setModalCharacterId(null)}
+          onClose={() => {
+            setModalCharacterId(null);
+            setModalCharacterSystem(undefined);
+          }}
         />
       )}
 
@@ -849,9 +963,9 @@ export default function CampaignPestañaScreen({
           isDM={isDM}
           onClose={() => handleToolSelection("move")}
           onMapSelect={handleMapSelect}
-          onCharacterClick={(id) => {
-            handleToolSelection("move");
+          onCharacterClick={(id, sistemaDeJuego) => {
             setModalCharacterId(id);
+            setModalCharacterSystem(sistemaDeJuego || undefined);
           }}
         />
       ) : !isTabSwitcherOpen ? (

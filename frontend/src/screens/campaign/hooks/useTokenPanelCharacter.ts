@@ -56,6 +56,10 @@ export interface UseTokenPanelCharacterReturn {
   adjustHealth: (
     mode: "heal" | "damage" | "tempGain" | "tempLose",
   ) => Promise<void>;
+  updateCharacterStat: (
+    characterId: number,
+    statUpdates: Record<string, number>,
+  ) => void;
   diceRoller: ReturnType<typeof useDiceRoller>;
 }
 
@@ -323,6 +327,23 @@ export function useTokenPanelCharacter(
     );
   };
 
+  const updateCharacterStat = (
+    characterId: number,
+    statUpdates: Record<string, number>,
+  ) => {
+    setDetailsByCharacterId((current) => {
+      const existing = current[characterId];
+      if (!existing) return current;
+      return {
+        ...current,
+        [characterId]: {
+          ...existing,
+          estadisticas: { ...existing.estadisticas, ...statUpdates },
+        },
+      };
+    });
+  };
+
   return {
     detailsByCharacterId,
     visibleTokens,
@@ -337,6 +358,7 @@ export function useTokenPanelCharacter(
     setHealthSaveError,
     isSavingHealth,
     adjustHealth,
+    updateCharacterStat,
     diceRoller,
   };
 }

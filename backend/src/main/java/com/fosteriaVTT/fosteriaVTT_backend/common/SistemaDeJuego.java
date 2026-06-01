@@ -6,8 +6,7 @@ import java.util.Optional;
 
 public enum SistemaDeJuego {
     DND("Dungeons and Dragons"),
-    COC("Call Of Cthulhu"),
-    VAMPIRE("Vampire: The Masquerade");
+    MORK_BORG("Mork Borg");
 
     private final String displayName;
 

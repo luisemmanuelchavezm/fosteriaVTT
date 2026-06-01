@@ -12,6 +12,12 @@ import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarItemMochilaRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.BajarNivelPersonajeRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.CrearNpcRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.CrearPersonajeDndRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.ActualizarSuministrosMBRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.AgregarRasgoCustomMBRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.CrearPersonajeMorkBorgRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.ActualizarHPMBRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.EscoriaEspecialidadRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.MejorarPersonajeMBRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PagedResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PersonajeDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PersonajeResumenResponse;
@@ -102,6 +108,15 @@ public class PersonajeController {
         return personajeService.crearPersonajeDnd(payload, portrait, authentication.getName());
     }
 
+    @PostMapping(path = "/mork-borg", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public PersonajeResumenResponse crearPersonajeMorkBorg(
+            @RequestPart("payload") CrearPersonajeMorkBorgRequest payload,
+            @RequestPart("portrait") MultipartFile portrait,
+            Authentication authentication
+    ) {
+        return personajeService.crearPersonajeMorkBorg(payload, portrait, authentication.getName());
+    }
+
     // ─────────────────────────────────────────────
     // Uso y recursos
     // ─────────────────────────────────────────────
@@ -124,6 +139,60 @@ public class PersonajeController {
             Authentication authentication
     ) {
         personajeService.actualizarRecursos(id, request, authentication.getName());
+    }
+
+    @PatchMapping("/{id}/hp-mb")
+    public void actualizarHPMB(
+            @PathVariable Long id,
+            @RequestBody ActualizarHPMBRequest request,
+            Authentication authentication
+    ) {
+        personajeService.actualizarHPMB(id, request, authentication.getName());
+    }
+
+    @PostMapping("/{id}/rasgo-clase-mb")
+    public PersonajeDetalleResponse agregarRasgoClaseMB(
+            @PathVariable Long id,
+            @RequestBody AgregarHabilidadPersonajeRequest request,
+            Authentication authentication
+    ) {
+        return personajeService.agregarRasgoClaseMB(id, request.habilidadId(), authentication.getName());
+    }
+
+    @PostMapping("/{id}/rasgo-custom-mb")
+    public PersonajeDetalleResponse crearRasgoCustomMB(
+            @PathVariable Long id,
+            @RequestBody AgregarRasgoCustomMBRequest request,
+            Authentication authentication
+    ) {
+        return personajeService.crearRasgoCustomMB(id, request, authentication.getName());
+    }
+
+    @PatchMapping("/{id}/escoria-especialidad")
+    public PersonajeDetalleResponse intercambiarEscoriaEspecialidad(
+            @PathVariable Long id,
+            @RequestBody EscoriaEspecialidadRequest request,
+            Authentication authentication
+    ) {
+        return personajeService.intercambiarEscoriaEspecialidad(id, request, authentication.getName());
+    }
+
+    @PatchMapping("/{id}/mejorar-mb")
+    public PersonajeDetalleResponse mejorarPersonajeMB(
+            @PathVariable Long id,
+            @RequestBody MejorarPersonajeMBRequest request,
+            Authentication authentication
+    ) {
+        return personajeService.mejorarPersonajeMB(id, request, authentication.getName());
+    }
+
+    @PatchMapping("/{id}/suministros-mb")
+    public void actualizarSuministrosMB(
+            @PathVariable Long id,
+            @RequestBody ActualizarSuministrosMBRequest request,
+            Authentication authentication
+    ) {
+        personajeService.actualizarSuministrosMB(id, request, authentication.getName());
     }
 
     // ─────────────────────────────────────────────
@@ -306,6 +375,36 @@ public class PersonajeController {
         }
         String nombreOverride = (body != null) ? body.get("nombre") : null;
         return marketplaceService.instanciarPersonaje(id, authentication.getName(), nombreOverride);
+    }
+
+    @PatchMapping("/{id}/mb-enemy-traits")
+    public void guardarMBEnemyTraits(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body,
+            Authentication authentication
+    ) {
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
+        }
+        String tagsToAdd = body != null ? body.get("tagsToAdd") : null;
+        if (tagsToAdd != null && !tagsToAdd.isBlank()) {
+            npcService.appendTagsToEnemy(id, tagsToAdd.trim(), authentication.getName());
+        }
+    }
+
+    @PatchMapping("/{id}/mb-enemy-moral")
+    public void actualizarMBEnemyMoral(
+            @PathVariable Long id,
+            @RequestBody Map<String, Integer> body,
+            Authentication authentication
+    ) {
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
+        }
+        Integer moralActual = body != null ? body.get("moralActual") : null;
+        if (moralActual != null) {
+            npcService.actualizarMoralMBEnemy(id, moralActual, authentication.getName());
+        }
     }
 
     // ─────────────────────────────────────────────

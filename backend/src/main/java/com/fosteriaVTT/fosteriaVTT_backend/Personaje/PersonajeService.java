@@ -17,6 +17,13 @@ import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterLevelU
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterStatsUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCombatUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndWeaponProficiencies;
+import com.fosteriaVTT.fosteriaVTT_backend.Personaje.mbUtils.MorkBorgCharacterCreationUtils;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.ActualizarSuministrosMBRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.AgregarRasgoCustomMBRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.ActualizarHPMBRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.EscoriaEspecialidadRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.MejorarPersonajeMBRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.CrearPersonajeMorkBorgRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.Posicion.Posicion;
 import com.fosteriaVTT.fosteriaVTT_backend.Posicion.PosicionRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.WebSocketPosicionEventDTO;
@@ -63,6 +70,7 @@ public class PersonajeService {
 	private final DndCharacterStatsUtils dndCharacterStatsUtils;
 	private final DndCharacterCreationUtils dndCharacterCreationUtils;
 	private final DndCharacterLevelUtils dndCharacterLevelUtils;
+	private final MorkBorgCharacterCreationUtils morkBorgCharacterCreationUtils;
 	private final PosicionRepository posicionRepository;
 	private final ChatRepository chatRepository;
 	private final SimpMessagingTemplate messagingTemplate;
@@ -78,6 +86,7 @@ public class PersonajeService {
 			DndCharacterStatsUtils dndCharacterStatsUtils,
 			DndCharacterCreationUtils dndCharacterCreationUtils,
 			DndCharacterLevelUtils dndCharacterLevelUtils,
+			MorkBorgCharacterCreationUtils morkBorgCharacterCreationUtils,
 			PosicionRepository posicionRepository,
 			ChatRepository chatRepository,
 			SimpMessagingTemplate messagingTemplate
@@ -92,6 +101,7 @@ public class PersonajeService {
 		this.dndCharacterStatsUtils = dndCharacterStatsUtils;
 		this.dndCharacterCreationUtils = dndCharacterCreationUtils;
 		this.dndCharacterLevelUtils = dndCharacterLevelUtils;
+		this.morkBorgCharacterCreationUtils = morkBorgCharacterCreationUtils;
 		this.posicionRepository = posicionRepository;
 		this.chatRepository = chatRepository;
 		this.messagingTemplate = messagingTemplate;
@@ -161,6 +171,16 @@ public class PersonajeService {
 		return dndCharacterCreationUtils.crearPersonajeDnd(request, subirRetrato(retrato), username);
 	}
 
+	@Transactional
+	public PersonajeResumenResponse crearPersonajeMorkBorg(
+			CrearPersonajeMorkBorgRequest request,
+			MultipartFile portrait,
+			String username
+	) {
+		MultipartFile retrato = validarRetrato(portrait);
+		return morkBorgCharacterCreationUtils.crearPersonajeMorkBorg(request, subirRetrato(retrato), username);
+	}
+
 	// ─────────────────────────────────────────────
 	// Actualización de uso y recursos
 	// ─────────────────────────────────────────────
@@ -193,6 +213,51 @@ public class PersonajeService {
 		);
 		mochilaService.actualizarDineroPersonaje(personaje, request.dinero());
 		emitirActualizacionPersonaje(personajeId);
+	}
+
+	@Transactional
+	public void actualizarSuministrosMB(Long personajeId, ActualizarSuministrosMBRequest request, String username) {
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+		estadisticaService.actualizarSuministrosMB(personaje, request);
+	}
+
+	@Transactional
+	public void actualizarHPMB(Long personajeId, ActualizarHPMBRequest request, String username) {
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+		estadisticaService.actualizarHPMB(personaje, request);
+	}
+
+	@Transactional
+	public PersonajeDetalleResponse agregarRasgoClaseMB(Long personajeId, Long habilidadId, String username) {
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+		dndCharacterAbilityManagementUtils.agregarRasgoClaseMB(personaje, habilidadId);
+		emitirActualizacionPersonaje(personajeId);
+		return obtenerDetallePersonaje(personajeId, username);
+	}
+
+	@Transactional
+	public PersonajeDetalleResponse crearRasgoCustomMB(Long personajeId, AgregarRasgoCustomMBRequest request, String username) {
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+		dndCharacterAbilityManagementUtils.crearRasgoCustomMB(personaje, request.nombre(), request.descripcion());
+		emitirActualizacionPersonaje(personajeId);
+		return obtenerDetallePersonaje(personajeId, username);
+	}
+
+	@Transactional
+	public PersonajeDetalleResponse intercambiarEscoriaEspecialidad(Long personajeId, EscoriaEspecialidadRequest request, String username) {
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+		dndCharacterAbilityManagementUtils.intercambiarEscoriaEspecialidad(personaje, request.habilidadesAEliminar(), request.nuevosIdxs());
+		emitirActualizacionPersonaje(personajeId);
+		return obtenerDetallePersonaje(personajeId, username);
+	}
+
+	@Transactional
+	public PersonajeDetalleResponse mejorarPersonajeMB(Long personajeId, MejorarPersonajeMBRequest request, String username) {
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+		estadisticaService.mejorarPersonajeMB(personaje, request);
+		emitirActualizacionPersonaje(personajeId);
+		Map<String, Integer> estadisticas = estadisticaService.obtenerValoresPorPersonajeId(personajeId);
+		return buildDetallePersonaje(personaje, estadisticas, tipoFromTags(personaje.getTags()), personajeId);
 	}
 
 	// ─────────────────────────────────────────────
@@ -520,7 +585,8 @@ public class PersonajeService {
 				personaje.getUsado(),
 				tipo,
 				TagUtils.extractTagValue(personaje.getTags(), "vd"),
-				personaje.getUsuario() != null ? personaje.getUsuario().getUsername() : null
+				personaje.getUsuario() != null ? personaje.getUsuario().getUsername() : null,
+				personaje.getTags()
 		);
 	}
 
@@ -565,7 +631,8 @@ public class PersonajeService {
 				personaje.getUsado(),
 				tipo,
 				null,
-				personaje.getUsuario() != null ? personaje.getUsuario().getUsername() : null
+				personaje.getUsuario() != null ? personaje.getUsuario().getUsername() : null,
+				personaje.getTags()
 		);
 	}
 

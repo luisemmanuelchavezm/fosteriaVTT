@@ -1,7 +1,9 @@
 import DndCharacterSheetScreen from "../../personaje/dndcharactersheet/DndCharacterSheetScreen";
+import MorkBorgCharacterSheetScreen from "../../personaje/morkborgcharactersheet/MorkBorgCharacterSheetScreen";
 
 interface CharacterSheetModalProps {
   characterId: number;
+  sistemaDeJuego?: string;
   username: string;
   avatarUrl: string;
   onLogout: () => void;
@@ -13,6 +15,7 @@ interface CharacterSheetModalProps {
 /** Modal que muestra la hoja de personaje completa encima del tablero. */
 export default function CharacterSheetModal({
   characterId,
+  sistemaDeJuego,
   username,
   avatarUrl,
   onLogout,
@@ -20,6 +23,8 @@ export default function CharacterSheetModal({
   onGoCampaigns,
   onClose,
 }: CharacterSheetModalProps) {
+  const isMB = sistemaDeJuego === "Mork Borg";
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm"
@@ -38,16 +43,29 @@ export default function CharacterSheetModal({
         </button>
 
         <div className="h-full overflow-auto">
-          <DndCharacterSheetScreen
-            username={username}
-            avatarUrl={avatarUrl}
-            characterId={String(characterId)}
-            onLogout={onLogout}
-            onGoHome={onGoHome}
-            onGoCampaigns={onGoCampaigns}
-            onGoCharacters={onClose}
-            modalMode
-          />
+          {isMB ? (
+            <MorkBorgCharacterSheetScreen
+              username={username}
+              avatarUrl={avatarUrl}
+              characterId={String(characterId)}
+              onLogout={onLogout}
+              onGoHome={onGoHome}
+              onGoCampaigns={onGoCampaigns}
+              onGoCharacters={onClose}
+              modalMode
+            />
+          ) : (
+            <DndCharacterSheetScreen
+              username={username}
+              avatarUrl={avatarUrl}
+              characterId={String(characterId)}
+              onLogout={onLogout}
+              onGoHome={onGoHome}
+              onGoCampaigns={onGoCampaigns}
+              onGoCharacters={onClose}
+              modalMode
+            />
+          )}
         </div>
       </div>
     </div>

@@ -60,17 +60,17 @@ export default function CampaignSystemSelectorModal({
 
           <button
             type="button"
-            onClick={() => onSelect("Call Of Cthulhu")}
-            className="group rounded-[24px] border border-white/10 bg-white/5 p-4 text-left transition hover:border-white/25 hover:bg-white/10"
+            onClick={() => onSelect("Mork Borg")}
+            className="group rounded-[24px] border border-red-900/40 bg-red-900/10 p-4 text-left transition hover:border-red-900/70 hover:bg-red-900/15"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-base font-bold text-stone-200">
-              COC
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-900/20 text-base font-bold text-red-200">
+              MB
             </div>
             <h4 className="mt-3 text-base font-semibold text-white md:text-lg">
-              Call of Cthulhu
+              Mork Borg
             </h4>
             <p className="mt-2 text-sm text-stone-300">
-              Crea una campaña de Call of Cthulhu.
+              Crea una campaña de Mork Borg.
             </p>
           </button>
         </div>
