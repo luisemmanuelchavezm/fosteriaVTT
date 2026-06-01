@@ -579,16 +579,16 @@ export interface MbWeapon {
 }
 
 export const MB_WEAPONS: MbWeapon[] = [
-  { idx: 1, nombre: "Fémur", formula: "d4+fuerza" },
-  { idx: 2, nombre: "Bastón", formula: "d4+fuerza" },
-  { idx: 3, nombre: "Espada corta", formula: "d4+fuerza" },
-  { idx: 4, nombre: "Cuchillo", formula: "d4+fuerza" },
-  { idx: 5, nombre: "Martillo de guerra", formula: "d6+fuerza" },
-  { idx: 6, nombre: "Espada", formula: "d6+fuerza" },
-  { idx: 7, nombre: "Arco", formula: "d6+presencia" },
-  { idx: 8, nombre: "Mayal", formula: "d8+fuerza" },
-  { idx: 9, nombre: "Ballesta", formula: "d8+presencia" },
-  { idx: 10, nombre: "Zweihänder", formula: "d10+fuerza" },
+  { idx: 1, nombre: "Fémur", formula: "1d4+fuerza" },
+  { idx: 2, nombre: "Bastón", formula: "1d4+fuerza" },
+  { idx: 3, nombre: "Espada corta", formula: "1d4+fuerza" },
+  { idx: 4, nombre: "Cuchillo", formula: "1d4+fuerza" },
+  { idx: 5, nombre: "Martillo de guerra", formula: "1d6+fuerza" },
+  { idx: 6, nombre: "Espada", formula: "1d6+fuerza" },
+  { idx: 7, nombre: "Arco", formula: "1d6+presencia" },
+  { idx: 8, nombre: "Mayal", formula: "1d8+fuerza" },
+  { idx: 9, nombre: "Ballesta", formula: "1d8+presencia" },
+  { idx: 10, nombre: "Zweihänder", formula: "1d10+fuerza" },
 ];
 
 // ── Tabla de armaduras ────────────────────────────────────────────────────────
@@ -600,17 +600,17 @@ export interface MbArmor {
 }
 
 export const MB_ARMORS: MbArmor[] = [
-  { nivel: 1, nombre: "Armadura ligera", formula: "d2" },
+  { nivel: 1, nombre: "Armadura ligera", formula: "1d2" },
   {
     nivel: 2,
     nombre: "Armadura media",
-    formula: "d4",
+    formula: "1d4",
     descripcion: "CD+2 en pruebas de Agilidad, incluida la defensa.",
   },
   {
     nivel: 3,
     nombre: "Armadura pesada",
-    formula: "d6",
+    formula: "1d6",
     descripcion: "CD+4 en la prueba de Agilidad, la defensa es CD+2.",
   },
   {

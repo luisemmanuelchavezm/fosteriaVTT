@@ -1,0 +1,443 @@
+{
+  "categorias": [
+    {
+      "id": "eventos",
+      "titulo": "Eventos de mundo",
+      "color": "verde",
+      "seccionIds": ["clima", "miserias", "basiliscos"]
+    },
+    {
+      "id": "botin",
+      "titulo": "Trampas y botín",
+      "seccionIds": ["tesoros", "trampas", "saqueo"]
+    },
+    {
+      "id": "combate",
+      "titulo": "Combate",
+      "color": "rojo",
+      "seccionIds": ["reaccion-moral", "presagios", "catastrofes", "violencia", "servicios"]
+    }
+  ],
+  "secciones": [
+    {
+      "id": "clima",
+      "titulo": "Clima",
+      "dado": "1d12",
+      "entradas": [
+        "Gris sin vida",
+        "Lluvia martilleante",
+        "Viento penetrante",
+        "Tormenta ensordecedora",
+        "Negro como la noche",
+        "Silencio absoluto",
+        "Chaparrón",
+        "Niebla espesa como puré",
+        "Escarcha crepitante",
+        "Llovizna irritante",
+        "Trueno rugiente",
+        "Frío como el mármol"
+      ]
+    },
+    {
+      "id": "miserias",
+      "titulo": "Miserias",
+      "dado": "2d6",
+      "descripcion": "El DM lanza un dado cada amanecer. Un resultado de 1 activa una Miseria. El dado utilizado es determinado por el DJ y el grupo.\nEl DJ tira entonces un d66 para determinar qué Miseria ocurre. La misma Miseria no caerá sobre el mundo dos veces.\nLa séptima Miseria siempre será la 7:7, y el mundo finalmente muere. El séptimo sello se rompe por séptima y última vez.",
+      "entradas": [],
+      "grupos": [
+        {
+          "titulo": "SALMO I",
+          "etiquetas": ["1:1", "1:2", "1:3", "1:4", "1:5", "1:6"],
+          "entradas": [
+            "La ciudad se hará vacía. Aquellos que descansan en el vacío, no serán vistos.",
+            "Y la tierra temblará y se desgarrará. Y de las grietas se levantará una niebla venenosa, y en diez días cubrirá el mundo.",
+            "Aquellos que construyen con fuerza, piedra a piedra, así caerán, piedra a piedra.",
+            "Y las profundidades del inframundo surgirán espectros voladores y bestias que se arrastran. A su paso, el gusano engordará, el buitre se fatigará.",
+            "La duda será coronada. Los leales volverán sus espadas contra los que les dieron plata.",
+            "Y la tos de sangre se esparcirá como fuego por los yermos de la sequía."
+          ]
+        },
+        {
+          "titulo": "SALMO II",
+          "etiquetas": ["2:1", "2:2", "2:3", "2:4", "2:5", "2:6"],
+          "entradas": [
+            "Como al principio, así al final, toda clase de moscas y avispas llenarán el aire.",
+            "Y la tierra empalidecerá de gusanos.",
+            "Y de las Lanzas: una helada. Nacerá en Bergen Chrypt y lo cubrirá todo.",
+            "Y en diez días y uno, los escritos de los hechiceros palidecerán como el aire.",
+            "Y el vidrio se convertirá en cuarzo.",
+            "Y ELLA verá a ÉL hacerse más fuerte. Y ELLA se revelará y todos serán sacrificados."
+          ]
+        },
+        {
+          "titulo": "SALMO III",
+          "etiquetas": ["3:1", "3:2", "3:3", "3:4", "3:5", "3:6"],
+          "entradas": [
+            "En Graven-Tosk la tierra se calentará y los que descansan serán obligados a caminar.",
+            "En el corazón de Sarkash, la niebla y el crepúsculo respirarán bajo los árboles que despiertan. Lo que fue talado por el hombre, ahora lo talará a su vez.",
+            "Y vendrá hambre entre vosotros. Cavaréis raíces y arrancaréis a los niños del pecho. Los débiles se aprovecharán de los débiles.",
+            "Los grandes se empobrecerán y los pobres se empobrecerán aún más.",
+            "Entonces vendrá la lluvia interminable y el día se hará noche con su llegada.",
+            "El hermano matará al hermano y la hermana envenenará a la hermana."
+          ]
+        },
+        {
+          "titulo": "SALMO IV",
+          "etiquetas": ["4:1", "4:2", "4:3", "4:4", "4:5", "4:6"],
+          "entradas": [
+            "Durante cinco días y cinco noches, la carne de la madre será el manto de los demonios.",
+            "Y durante cinco días y cinco noches llorarán los padres.",
+            "Mirad hacia el oeste. Vendrá el fuego, y una horda, y los Reinos arderán.",
+            "Arkh el Mentiroso hará nudos en el corazón de los hombres, rompiendo los lazos más fuertes.",
+            "He aquí ahora el Mar Infinito, donde Leviatán hará que las olas sean como montañas.",
+            "Y Leviatán vendrá entre vosotros. Niños nacidos en el invierno y destinados a caer antes de la nieve, a ambos tomará."
+          ]
+        },
+        {
+          "titulo": "SALMO V",
+          "etiquetas": ["5:1", "5:2", "5:3", "5:4", "5:5", "5:6"],
+          "entradas": [
+            "El lago y el arroyo se ennegrecerán, y las aguas se convertirán en alquitrán.",
+            "Los árboles se secarán, se marchitarán y morirán.",
+            "Y los pájaros caerán muertos del cielo.",
+            "En una noche pasarán todos los que aún no hayan cumplido siete años y siete días. Nacidos y no nacidos. Y el amanecer les dará vida como devoradores de hombres.",
+            "El cielo llorará fuego y una gran piedra caerá en picado como una ciudad caída del cielo. Su regalo es la Muerte y la locura es su heraldo.",
+            "Y el último rey y la última reina se convertirán en polvo. Sus miserables cortes serán devoradas por lobos."
+          ]
+        },
+        {
+          "titulo": "SALMO VI",
+          "etiquetas": ["6:1", "6:2", "6:3", "6:4", "6:5", "6:6"],
+          "entradas": [
+            "Sabrás que ha llegado el último día. El sol se pondrá y nunca saldrá.",
+            "Y el día será como la noche y la noche como el día. No dormirás ni despertarás.",
+            "Anthelia tendrá su voluntad y se beberá todos los colores del mundo.",
+            "Los que andan sobre dos piernas no tendrán nombre, como las bestias del campo.",
+            "La tierra se llenará de venas, haciendo brotar serpientes negras del interior.",
+            "Y los sin nombre entrarán en la tierra, atravesando el Velo cuando lo rompa Daejmon, el subordinado izquierdo de Nechrubel."
+          ]
+        },
+        {
+          "titulo": "SALMO VII — EL ÚLTIMO",
+          "etiquetas": ["7:7"],
+          "entradas": [
+            "¡Todos alaban a Yetsabu-Nech, la pesadilla del inframundo, el disco negro que se alza ante el sol! ¡Todos alaban a Verhu, radiante de alegría! ¡Todos alaban el fuego que lo quema todo! Y las tinieblas se tragarán las tinieblas."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "basiliscos",
+      "titulo": "Los basiliscos exigen",
+      "dado": "1d20",
+      "entradas": [
+        "Una espada que haya matado exactamente una docena de veces.",
+        "El anillo de bodas de un viudo.",
+        "La astilla de la tumba de un pecador.",
+        "Ojos que hayan visto los Campos Resplandecientes.",
+        "La cabra primogénita del año.",
+        "Pan del Día de la Cerveza.",
+        "La cutícula de un inocente ejecutado.",
+        "Las válvulas del corazón de un troll.",
+        "Una daga en la que los condenados grabaron el nombre de sus víctimas.",
+        "Rara anti-obsidiana de las criptas de Urilian.",
+        "El brebaje prohibido del ermitaño de Terion.",
+        "Un gusano orgh del hielo de Kergüs.",
+        "Un cuerpo mutilado por quienes lo amaron en vida.",
+        "Una sátira alegre escrita con sangre.",
+        "La hiel del criptobuitre.",
+        "Musgo sobre el que haya dormido un moribundo.",
+        "Un niño nacido con el tercer ojo.",
+        "Un cuerpo ahogado en el lago Onda.",
+        "El molar trasero del Glotón.",
+        "Gemas de bolsillos desbordados."
+      ]
+    },
+    {
+      "id": "tesoros",
+      "titulo": "Tesoros ocultos",
+      "dado": "1d10",
+      "entradas": [
+        "Anillo gris ceniza de un dedo de ancho. Todo lo que pasa a través de él desaparece.",
+        "La música quejumbrosa de esta pequeña y vil flauta anima a un gólem de carne del tamaño de un feto en un cadáver cercano. PV 5 Moral -, Sin armadura. Mordisco d4, inmune a los poderes.",
+        "Una nota explica: probar un bocado de esta cuchara del hambre significa la muerte por lenta inanición.",
+        "La imagen de un ser en este espejo malévolamente preciso muestra solo la vergonzosa verdad de su alma.",
+        "Phurba vampírica. Esta daga te cura a medida que daña a tu objetivo (d3), pero ten cuidado: después de robar un total de 6 PV, haz una prueba de Presencia CD14 o te volverás adicto, y deberás hacer una prueba de Presencia CD12 diariamente. Si fallas, deberás apuñalar a alguien con el cuchillo antes del próximo amanecer o se reducirá a cenizas y se deshará al salir el sol.",
+        "Una perla negra. Si se deja caer en la oscuridad, rueda hacia la salida más cercana al día.",
+        "Esta antorcha encendida te vuelve inmortal durante una hora. Sostenla y vive. Puedes perder extremidades y tener PV negativo, pero no morirás a menos que dejes caer la antorcha o esta se apague.",
+        "La jaula de plata para pájaros mata todo lo que se coloca tras sus barrotes, lentamente, durante una larga noche. Lo que muere se reanima con el doble de fuerza como un no muerto incontrolable y furioso.",
+        "La Corona Negra del Rey Tullido. Portarla exprime tu cuerpo a medida que te das cuenta de que tú y todas las criaturas en un radio de 100 yardas ganáis +10 en vuestras tiradas, pero tu PV máximo se reduce a la mitad. Las tiradas modificadas para superar 20 cuentan como críticos. La desgastada corona solo se puede quitar bajo la pálida luz de la luna llena.",
+        "Cualquiera que lleve esta antigua venda en los ojos se vuelve invisible para aquellos que respiran, aunque los muertos vivientes los atacan obsesivamente y los cadáveres cercanos se despiertan con una ira profana y quejumbrosa."
+      ]
+    },
+    {
+      "id": "trampas",
+      "titulo": "Trampas y diabluras",
+      "dado": "1d12",
+      "entradas": [
+        "Un cadáver bien vestido, trampa explosiva",
+        "Los agujeros de la pared disparan flechas venenosas",
+        "Campanas y canicas por el suelo",
+        "Cesta llena de escorpiones a punto de caer",
+        "Anzuelos colgando a la altura de los ojos",
+        "Cofre marcado con runas explosivas",
+        "Cerradura trampa con vial de gas venenoso",
+        "La extracción de joyas provoca el derrumbe del techo",
+        "Suelo inclinado, aceite traslúcido, pozo",
+        "Jaulas de serpientes caen de las losas del techo",
+        "Urnas malignas que liberan fantasmas fríos",
+        "Monedas cubiertas de mugre y veneno"
+      ]
+    },
+    {
+      "id": "catastrofes",
+      "titulo": "Catástrofes arcanas",
+      "dado": "1d20",
+      "descripcion": "Cuando se realice una pifia (1) al usar un pergamino, este obtendrá una catástrofe arcana. Los efectos en cursiva son cosas de las que es posible que el lanzador no se dé cuenta de inmediato.\n\nUn lanzador que obtenga el mismo resultado dos veces explota en un fuego negro aullante en el que se ven los rostros de los muertos. 1d6 de daño en cada asalto. El agua solo alimenta este efecto.",
+      "etiquetas": ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"],
+      "entradas": [
+        "Uno a uno se te caen los dientes. Unas uñas largas y quebradizas las reemplazan en las encías.\n*Tu sonrisa es horrible y te cuesta comer.",
+        "Te sientes bien. Estás bien.\n*Pústulas por una ETS mágica. Aquellos que tengan intimidad contigo morirán de la peste en d4 días y luego se levantarán como zombis llorosos lastimeros que te rastrean en tus sueños antes de encontrarte en la realidad.",
+        "Tu esqueleto está poseído por una fuerza sobrenatural y hará cualquier cosa para matarte y escapar. Prefiere ahogarse o perforarse para que los huesos no se dañen. Prueba de Fuerza CD10 en situaciones estresantes o recibes d4 de daño.\n*Cuando mueres, te conviertes en un zombi.",
+        "La ilusión de la esfera celeste se levanta, ahora ves lo que habita más allá. Y eso te ve a ti. Mirar un cielo nocturno despejado te vuelve loco de miedo.",
+        "A tu alrededor cae una interminable nieve de ceniza negra que solo tú y los locos podéis percibir.\n*El agua te enferma a partir de este día. Solo la ceniza, el hollín o los restos quemados pueden saciar tu sed.",
+        "La tierra se descompone a tu alrededor como carne húmeda. Te hundes 3 pies y no puedes salir sin ayuda. Aferrándose a ti, gritando y mordiendo hay d4 niños translúcidos, como cangrejos de río con tu cara.\nPV 3 — Moral — — Sin armadura — Mordisco/pinza d4",
+        "Tu piel se hace jirones como el papel, tu carne se derrite como la cera y tus intestinos se hinchan como globos, estallando y cayendo hasta que todo lo que queda es un esqueleto que camina y habla.",
+        "Una boca rechinante de dientes separados se abre en tu cuello. Escupe tus secretos y pensamientos internos.\n*Solo se puede silenciar para dormir con sangre.",
+        "El cielo se deforma y las estrellas giran como ruedas. Lanzado un día hacia el futuro, llegas vomitando el Tiempo como bilis de plata que se evapora.\n*Se cumple una Miseria.",
+        "La luz misma te desprecia. Si miras una vela, lámpara o antorcha, esta se apaga.",
+        "???\n*En d4 días, un capullo maligno brota del suelo y enseguida estalla y engendra tu clon exacto. Es poco inteligente y comienza a propagar la maldad y el sufrimiento. Esto sucede cada dos días hasta que la tierra se limpie con agua bendita o fuego.",
+        "Tus ojos arden con una agonía insoportable, sangrando abundantemente antes de desprenderse y caer de sus sangrientas cuencas. Continúas viendo a través de ellos dondequiera que estén.",
+        "Tú y una criatura cercana aleatoria os desmayáis.\n*Cuando despertáis, vuestras almas se han intercambiado. Bienvenidos a vuestra nueva carne.",
+        "Cinco brazos esqueléticos y retorcidos salen de tu espalda. Las manos son maliciosas, violentas y terriblemente crueles.",
+        "Tu piel palidece y luego comienza a emitir una luz verdosa enfermiza.\n*Los seres vivos que tienes cerca de ti enferman lentamente. Se debilitan, sus huesos se vuelven quebradizos, se les caen los dientes y el cabello.",
+        "El Poder funciona, pero el destino o una fuerza demoníaca pervierte sus efectos en tu desventaja.",
+        "El pergamino se desmorona en zarcillos de fino polvo negro que llegan hasta tu nariz y la boca. Supera una prueba de Resistencia CD14 o pierde d10 PV.",
+        "El Poder te atraviesa como un cuchillo, alimentándose de tu ánima. Estás permanentemente demacrado y cansado, insaciablemente hambriento.\n*Cuando descansas, recuperas solo la mitad de los PV obtenidos.",
+        "Caes a través de Refva en la dimensión esotérica del Cubo-Violeta, un lugar de oscuridad mítica. Las paredes son lisas, tornasoladas y frías. Arriba, un infierno sin fin. Para salir, tira d4:\n*1. Mata a Kulvan el enigmático (goblin fuerte) que tiene tres perlas incoloras.\n*2. Envenena a un amigo cercano con un hongo de la seda desmenuzado (Resistencia CD16 o −d6 PV y alucinaciones). Solo se encuentran dentro del cubo.\n*3. Extiende la mano a través del fuego hasta la llave dorada de arriba. d4 dedos se queman hasta convertirse en cenizas.\n*4. El cubo es perfecto y está vacío. Solo puedes esperar en un enloquecedor silencio atemporal hasta que llegue otro tonto.",
+        "Quizás sea lo mejor. ÉL emerge de las sombras. Al menos tu sufrimiento es breve, casi instantáneo, ya que el basilisco de dos cabezas te devora."
+      ]
+    },
+    {
+      "id": "presagios",
+      "titulo": "Presagios",
+      "dado": "",
+      "entradas": [],
+      "descripcion": "Si juegas sin clases, cada personaje comienza con d2 Presagios. Cuando se agoten, tira el dado designado por la clase (d2 si juegas sin clases) y recupera esa cantidad de Presagios después de descansar al menos seis horas.",
+      "columnas": [
+        {
+          "titulo": "UTILIZA LOS PRESAGIOS PARA",
+          "lista": [
+            "Infligir el daño máximo con un solo ataque",
+            "Repetir una tirada de dados (tuya o de otra persona)",
+            "Reducir el daño recibido un d6",
+            "Neutralizar un Crítico o Pifia",
+            "Reducir la CD de una prueba en -4"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "servicios",
+      "titulo": "Servicios",
+      "dado": "",
+      "entradas": [],
+      "layout": "primera-izq-resto-der",
+      "tablas": [
+        {
+          "titulo": "Equipo",
+          "encabezados": ["Nombre", "Precio", "Descripción"],
+          "anchos": ["2", "1", "3"],
+          "filas": [
+            ["Mochila", "6", "Para 7 artículos de tamaño normal"],
+            ["Trampa para osos", "20", "Presencia CD 14 para detectar, daño 8"],
+            ["Manta", "4", ""],
+            ["Abrojos", "7", "daño d4 + infección en 1 de 6"],
+            ["Tiza", "1", ""],
+            ["Tabaco de mascar", "1", ""],
+            ["Palanca", "8", ""],
+            ["Crucifijo, plata", "60", ""],
+            ["Crucifijo, madera", "8", ""],
+            ["Alimentos deshidratados", "1", "1 día"],
+            ["Perfume exquisito", "25", ""],
+            ["Yesquero", "4", ""],
+            ["Gancho", "12", ""],
+            ["Martillo", "8", ""],
+            ["Cadena pesada", "10", "15 pies"],
+            ["Clavos de hierro", "5", "10 clavos"],
+            ["Escalera", "7", ""],
+            ["Aceite de linterna", "5", "Presencia + 6 horas"],
+            ["Manteca de cerdo", "5", "Puede funcionar como 5 comidas"],
+            ["Gran gancho de hierro", "9", ""],
+            ["Ganzúas", "5", ""],
+            ["Tira de magnesio", "4", ""],
+            ["Esposas", "10", ""],
+            ["Colchón", "3", ""],
+            ["Cuchillo de carnicero", "15", ""],
+            ["Caja de medicinas", "15", "Detiene la hemorragia/infección y +d6 PV. Presencia, +4 usos"],
+            ["Lima metálica", "10", ""],
+            ["Bozal", "6", ""],
+            ["Lazo corredizo", "5", ""],
+            ["Lámpara de aceite", "10", ""],
+            ["Veneno (negro)", "20", "Resistencia CD14 o d6 daño + ceguera durante una hora. 3 dosis"],
+            ["Veneno (rojo)", "20", "Resistencia CD12 o d10 de daño. 3 dosis"],
+            ["Cadáver conservado", "66+d6", ""],
+            ["Cuerda", "4", "30 pies"],
+            ["Cofre pequeño", "25", ""],
+            ["Tienda", "12", ""],
+            ["Caja de herramientas", "20", "tenazas, 10 clavos, martillo, sierra pequeña"],
+            ["Antorcha", "2", ""],
+            ["Saco", "3", "Tiene capacidad para 10 artículos de tamaño normal"],
+            ["Sal", "4", ""],
+            ["Tijeras", "9", ""],
+            ["Pergamino", "~50", "vale aproximadamente 50 para el comprador adecuado"],
+            ["Aguja afilada", "3", ""],
+            ["Odre de agua", "4", "4 días de agua"]
+          ]
+        },
+        {
+          "titulo": "Armas",
+          "encabezados": ["Nombre", "Daño", "Precio"],
+          "anchos": ["3", "1", "1"],
+          "filas": [
+            ["Hacha de batalla", "d8", "35"],
+            ["Arco", "d6", "25"],
+            ["Garrote", "d6", "10"],
+            ["Ballesta", "d8", "40"],
+            ["Mayal", "d8", "35"],
+            ["Fémur sin valor", "d4", "—"],
+            ["Hacha de mano", "d6", "15"],
+            ["Cuchillo", "d4", "10"],
+            ["Maza", "d6", "25"],
+            ["Arco corto", "d4", "13"],
+            ["Espada corta", "d4", "20"],
+            ["Honda", "d4", "8"],
+            ["Bastón", "d4", "5"],
+            ["Espada", "d6", "30"],
+            ["Martillo de guerra", "d6", "30"],
+            ["Látigo", "d2", "5"],
+            ["Espada 2 manos", "d10", "60"],
+            ["20 flechas", "—", "3"],
+            ["10 virotes", "—", "10"]
+          ]
+        },
+        {
+          "titulo": "Servicios y reparación",
+          "encabezados": ["Nombre", "Precio"],
+          "anchos": ["3", "1"],
+          "filas": [
+            ["Noche en pensión", "?"],
+            ["Bebida", "?"],
+            ["Comida normal", "?"],
+            ["Soborno, guardia", "30-60"],
+            ["Soborno, chusma", "5-15"],
+            ["Reparar armadura Nivel 1→2 *", "25"],
+            ["Reparar armadura Nivel 2→3 *", "40"],
+            ["* No se puede reparar a nivel superior al original.", ""]
+          ]
+        },
+        {
+          "titulo": "Ganado",
+          "encabezados": ["Nombre", "Precio"],
+          "anchos": ["3", "1"],
+          "filas": [
+            ["Perro (entrenado)", "25"],
+            ["Perro (salvaje)", "10"],
+            ["Caballo", "80"],
+            ["Mula", "10"],
+            ["Rata (domesticada)", "8"]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "violencia",
+      "titulo": "Violencia",
+      "dado": "",
+      "entradas": [],
+      "columnas": [
+        {
+          "titulo": "INICIATIVA",
+          "bloques": [
+            {
+              "titulo": "INICIATIVA",
+              "descripcion": "Tira d6\n1-3  los enemigos van primero\n4-6  los PJs van primero\n\nAgilidad+d6 para iniciativa individual o para determinar quién va primero dentro del grupo."
+            },
+            {
+              "titulo": "PUNTOS DE VIDA",
+              "descripcion": "Si quedas a 0 de PV → incapacitado\nSi tienes PV negativo → muerto\n\nIncapacitado (d4):",
+              "lista": [
+                "1. Caes inconsciente durante d4 asaltos, despiertas con d4 PV.",
+                "2. Tira un d6: 1-5 = Miembro roto o amputado. 6 = Ojo perdido. No puedes actuar durante d4 asaltos y luego te activas con d4 PV.",
+                "3. Hemorragia: muerte en d2 horas a menos que se trate. Todas las pruebas son CD16 la primera hora y CD18 la última hora.",
+                "4. Muerto."
+              ]
+            }
+          ]
+        },
+        {
+          "titulo": "ATAQUES",
+          "descripcion": "Los jugadores tiran para sus ataques como sus defensas. Las criaturas y los enemigos no tiran dados en combate.\n\nCUERPO A CUERPO\nPrueba de FUERZA CD12\n\nA DISTANCIA\nPrueba de PRESENCIA CD12\n\nDEFENSA\nPrueba de AGILIDAD CD12\n\nSi fallas, el enemigo te golpea. Los enemigos atacan una vez por asalto a menos que se indique lo contrario."
+        }
+      ],
+      "nota": "**Crítico (20 natural)\nAtaque: Daño doble, la armadura/protección también se reduce un nivel.\nDefensa: El PJ gana un ataque gratuito.\n\n**Pifia (1 natural)\nAtaque: El arma se rompe o se pierde.\nDefensa: El PJ recibe el doble de daño y la armadura se reduce un nivel.\n\nCuando la armadura se daña, las penalizaciones a las pruebas de Fuerza y Agilidad no se modifican.\nUna armadura reducida por debajo del primer nivel se destruye y no se puede reparar."
+    },
+    {
+      "id": "reaccion-moral",
+      "titulo": "Reacción y Moral",
+      "dado": "2d6",
+      "entradas": [],
+      "columnas": [
+        {
+          "titulo": "REACCIÓN (2D6)",
+          "descripcion": "Al encontrarse con criaturas cuya reacción es incierta.",
+          "lista": [
+            "2-3 MATAR!",
+            "4-6 ENOJADO",
+            "7-8 INDIFERENTE",
+            "9-10 CASI AMISTOSO",
+            "11-12 SERVICIAL"
+          ]
+        },
+        {
+          "titulo": "MORAL",
+          "descripcion": "La mayoría de los enemigos no lucharán hasta la última gota de sangre. Tira por moral si el líder muere, la mitad del grupo es eliminado, a un solo enemigo le queda solo ⅓ de sus PV.\n\nSi sacas más que el valor de Moral de la criatura con 2d6, esta está desmoralizada. Tira d6 para ver si el enemigo (1-3) huye o (4-6) se rinde."
+        }
+      ]
+    },
+    {
+      "id": "saqueo",
+      "titulo": "Saqueo de cadáveres",
+      "dado": "2d6",
+      "etiquetas": ["11-16", "21", "22", "23", "24", "25", "26", "31", "32", "33", "34", "35", "36", "41", "42", "43", "44", "45", "46", "51", "52", "53", "54", "55", "56", "61-66"],
+      "entradas": [
+        "Los restos de algo sin valor se deshacen en tus manos.",
+        "Bote lleno de un ungüento extremadamente potente para la picazón.",
+        "Collar de dientes humanos.",
+        "Bolsa de polillas agresivas y venenosas. Prueba de Resistencia CD6 o morirás.",
+        "Bolsillo lleno de vidrios rotos. El PJ recibe d2 de daño.",
+        "Manifiesto loco. Si se lee, prueba de Presencia CD12 o perderá 1 Presencia permanentemente por confusión.",
+        "Llave de puerta cerrada cercana. Robada.",
+        "Mapa de la casa de una familia débil pero rica.",
+        "Una cantidad desmesurada de arañas.",
+        "Cilindro de metal con pólvora y mecha. Tira un d6. 1-2: pierdes una mano. 3-6: 3d10 de daño dondequiera que caiga.",
+        "Rostro de cazador de brujas conocido y querido/despreciado. Desollado.",
+        "Nota con los nombres de los PJ. Uno está tachado.",
+        "Duendecillo torturado con alas y ojos arrancados.",
+        "Mapa de un lugar que no puede existir.",
+        "Botella sin marcar con un líquido que cambia entre rojo y verde.",
+        "Resguardo. Un potentado local le debe al poseedor una cantidad considerable.",
+        "Máscara mortuoria de uno de los PJ.",
+        "El 'Agua de Vida' cura d8. Prueba de Resistencia CD10 o se queda ciego. Muy alcohólica.",
+        "Había algo muy malo en este. Manos cubiertas de algo tibio, marrón y ácido. Recibes d2+1 de daño y hueles fatal durante d4 días.",
+        "Daga negra de Kergüs. 2d4 de daño.",
+        "Botella de veneno etiquetada. Prueba Resistencia CD12 o se reduce una característica aleatoria en d4. La característica se puede aumentar cuando tu personaje sea mejorado.",
+        "Cuero cabelludo con pelo largo y negro.",
+        "Bola dorada con una costura invisible, se abre por torsión.",
+        "Nudilleras ensangrentados.",
+        "Dos dados trucados.",
+        "El resultado en plata."
+      ]
+    }
+  ]
+}

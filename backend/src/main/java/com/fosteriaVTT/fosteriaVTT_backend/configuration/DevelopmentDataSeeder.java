@@ -97,6 +97,7 @@ public class DevelopmentDataSeeder {
     ) {
         return args -> CompletableFuture.runAsync(() -> {
             seedDndContentPackages(objectMapper, resourceLoader, contenidoSistemaJsonService);
+            seedMorkBorgContentPackages(objectMapper, resourceLoader, contenidoSistemaJsonService);
         });
     }
 
@@ -2280,6 +2281,33 @@ public class DevelopmentDataSeeder {
         }
     }
 
+    private void seedMorkBorgContentPackages(
+            ObjectMapper objectMapper,
+            ResourceLoader resourceLoader,
+            ContenidoSistemaJsonService contenidoSistemaJsonService
+    ) {
+        ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver(resourceLoader.getClassLoader());
+
+        try {
+            Resource[] resources = resolver.getResources("classpath*:dnd-content/morkborg/**/*.json");
+            Arrays.sort(resources, Comparator.comparing(resource -> relativeDndContentPath(resource, "dnd-content/morkborg/")));
+
+            for (Resource resource : resources) {
+                String relativePath = relativeDndContentPath(resource, "dnd-content/morkborg/");
+                String packageName = packageNameFromDndContentPath(relativePath);
+                JsonNode contentNode = cargarNodoJson(objectMapper, resource);
+
+                contenidoSistemaJsonService.guardarPaquete(
+                        SistemaDeJuego.MORK_BORG,
+                        packageName,
+                        serializarNodo(objectMapper, contentNode)
+                );
+            }
+        } catch (Exception exception) {
+            throw new IllegalStateException("No se pudo sembrar el contenido Mork Borg granular desde dnd-content", exception);
+        }
+    }
+
     private String relativeDndContentPath(Resource resource, String basePath) {
         try {
             String normalizedPath = resource.getURL().toString().replace('\\', '/');
@@ -2439,7 +2467,7 @@ public class DevelopmentDataSeeder {
         return Objeto.builder()
             .indice(indice == null || indice.isBlank() ? "VISIBILIDAD;oficial" : indice + ",VISIBILIDAD;oficial")
                 .nombre(nombre)
-                .formula(formula)
+                .formula(fixMBFormula(formula))
                 .descripcion(descripcion != null ? descripcion : "")
                 .tipoObjeto(tipoObjeto)
                 .build();

@@ -1,7 +1,9 @@
 package com.fosteriaVTT.fosteriaVTT_backend.Personaje;
 
+import com.fosteriaVTT.fosteriaVTT_backend.ContenidoSistemaJson.ContenidoSistemaJsonService;
 import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.HabilidadRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Objeto.ObjetoRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.MBAyudaDmCatalogoResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.MBRasgoClaseResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +22,14 @@ public class MorkBorgCatalogoController {
 
     private final HabilidadRepository habilidadRepository;
     private final ObjetoRepository objetoRepository;
+    private final ContenidoSistemaJsonService contenidoSistemaJsonService;
 
     public MorkBorgCatalogoController(HabilidadRepository habilidadRepository,
-                                       ObjetoRepository objetoRepository) {
+                                       ObjetoRepository objetoRepository,
+                                       ContenidoSistemaJsonService contenidoSistemaJsonService) {
         this.habilidadRepository = habilidadRepository;
         this.objetoRepository = objetoRepository;
+        this.contenidoSistemaJsonService = contenidoSistemaJsonService;
     }
 
     @GetMapping("/rasgos-clase")
@@ -62,5 +67,10 @@ public class MorkBorgCatalogoController {
         }
 
         return result;
+    }
+
+    @GetMapping("/ayuda-dm")
+    public MBAyudaDmCatalogoResponse getAyudaDm() {
+        return contenidoSistemaJsonService.obtenerAyudaDmMorkBorg();
     }
 }

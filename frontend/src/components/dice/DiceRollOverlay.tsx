@@ -8,6 +8,7 @@ interface DiceRollOverlayProps {
   isRolling: boolean;
   summary: DiceRollSummary | null;
   onDismiss?: () => void;
+  hideTotals?: boolean;
 }
 
 function formatModifier(modifier: number) {
@@ -19,6 +20,7 @@ export default function DiceRollOverlay({
   diceBoxError,
   isRolling,
   summary,
+  hideTotals = false,
 }: DiceRollOverlayProps) {
   return createPortal(
     <>
@@ -81,12 +83,14 @@ export default function DiceRollOverlay({
               ) : null}
             </div>
 
-            <p className="mt-5 text-center text-lg font-semibold text-stone-200">
-              {summary.totalLabel ?? "Total"}:{" "}
-              <span className="text-2xl font-bold text-amber-200">
-                {summary.total}
-              </span>
-            </p>
+            {!hideTotals ? (
+              <p className="mt-5 text-center text-lg font-semibold text-stone-200">
+                {summary.totalLabel ?? "Total"}:{" "}
+                <span className="text-2xl font-bold text-amber-200">
+                  {summary.total}
+                </span>
+              </p>
+            ) : null}
           </div>
         </div>
       ) : null}

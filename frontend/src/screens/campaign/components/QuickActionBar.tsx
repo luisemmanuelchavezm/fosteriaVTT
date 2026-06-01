@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SPELL_LEVELS } from "../../personaje/dndcharactersheet/data";
 import {
   imgAtaque,
@@ -46,6 +46,7 @@ import LootPanel from "./quickactions/LootPanel";
 import SpellsPanel from "./quickactions/SpellsPanel";
 import ResourcesPanel from "./quickactions/ResourcesPanel";
 import AdvantageResultOverlay from "./quickactions/AdvantageResultOverlay";
+import { CHARACTER_REMOTE_UPDATED_EVENT } from "../types";
 
 interface CampaignPositionResponse {
   id: number;
@@ -262,6 +263,66 @@ export default function QuickActionBar({
   const diceRoller = useDiceRoller();
   const onRollResultRef = useRef(onRollResult);
 
+  const loadCharacterDetail = useCallback(
+    async (
+      characterId: number,
+      signal: AbortSignal,
+      options?: { keepCurrentDetail?: boolean },
+    ) => {
+      const token = localStorage.getItem("jwtToken");
+      if (!token) {
+        if (!options?.keepCurrentDetail && !signal.aborted) {
+          setDetail(null);
+          setIsLoadingDetail(false);
+        }
+        return;
+      }
+
+      if (!options?.keepCurrentDetail && !signal.aborted) {
+        setIsLoadingDetail(true);
+      }
+
+      try {
+        const response = await fetchDndCharacterDetail(
+          token,
+          characterId,
+          signal,
+        );
+        if (signal.aborted) return;
+
+        const loadedSpellSlots = Object.fromEntries(
+          SPELL_LEVELS.map((level) => [
+            level,
+            response.estadisticas[`Hechizos nivel ${level} gastados`] ??
+              response.estadisticas[`Hechizos nivel ${level}`] ??
+              0,
+          ]),
+        ) as Record<number, number>;
+        const loadedExtraResources = Object.fromEntries(
+          extractExtraResources(response.estadisticas).map((entry) => [
+            entry.index,
+            entry.current,
+          ]),
+        ) as Record<number, number>;
+
+        setDetail(response);
+        setResourceSpellSlots(loadedSpellSlots);
+        setResourceExtraResources(loadedExtraResources);
+        setResourceMoney(getCharacterMoney(response));
+        setPortraitFailed(false);
+      } catch {
+        if (!signal.aborted && !options?.keepCurrentDetail) {
+          setDetail(null);
+        }
+      } finally {
+        if (!signal.aborted && !options?.keepCurrentDetail) {
+          setIsLoadingDetail(false);
+        }
+      }
+    },
+    [],
+  );
+
   useEffect(() => {
     onRollResultRef.current = onRollResult;
   }, [onRollResult]);
@@ -319,47 +380,44 @@ export default function QuickActionBar({
       advantageTimeoutRef.current = null;
     }
     if (!selectedPosition) return;
-    const token = localStorage.getItem("jwtToken");
-    if (!token) return;
 
     const abortController = new AbortController();
-    setIsLoadingDetail(true);
-    void fetchDndCharacterDetail(
-      token,
+    void loadCharacterDetail(
       selectedPosition.personajeId,
       abortController.signal,
-    )
-      .then((response) => {
-        if (abortController.signal.aborted) return;
-        const loadedSpellSlots = Object.fromEntries(
-          SPELL_LEVELS.map((level) => [
-            level,
-            response.estadisticas[`Hechizos nivel ${level} gastados`] ??
-              response.estadisticas[`Hechizos nivel ${level}`] ??
-              0,
-          ]),
-        ) as Record<number, number>;
-        const loadedExtraResources = Object.fromEntries(
-          extractExtraResources(response.estadisticas).map((e) => [
-            e.index,
-            e.current,
-          ]),
-        ) as Record<number, number>;
-        setDetail(response);
-        setResourceSpellSlots(loadedSpellSlots);
-        setResourceExtraResources(loadedExtraResources);
-        setResourceMoney(getCharacterMoney(response));
-      })
-      .catch(() => {
-        if (!abortController.signal.aborted) setDetail(null);
-      })
-      .finally(() => {
-        if (!abortController.signal.aborted) setIsLoadingDetail(false);
-      });
+    );
+
     return () => {
       abortController.abort();
     };
-  }, [selectedPosition]);
+  }, [loadCharacterDetail, selectedPosition]);
+
+  useEffect(() => {
+    if (!selectedPosition) return;
+
+    const handleRemoteCharacterUpdated = (event: Event) => {
+      const customEvent = event as CustomEvent<{ characterId?: number }>;
+      const characterId = customEvent.detail?.characterId;
+      if (characterId !== selectedPosition.personajeId) return;
+
+      const abortController = new AbortController();
+      void loadCharacterDetail(characterId, abortController.signal, {
+        keepCurrentDetail: true,
+      });
+    };
+
+    window.addEventListener(
+      CHARACTER_REMOTE_UPDATED_EVENT,
+      handleRemoteCharacterUpdated as EventListener,
+    );
+
+    return () => {
+      window.removeEventListener(
+        CHARACTER_REMOTE_UPDATED_EVENT,
+        handleRemoteCharacterUpdated as EventListener,
+      );
+    };
+  }, [loadCharacterDetail, selectedPosition]);
 
   useEffect(() => {
     if (!selectedPosition) return;
@@ -515,11 +573,13 @@ export default function QuickActionBar({
           label: "Daño crítico",
           image: imgDanoVentaja,
           onClick: () => {
-            if (critExpr)
+            if (damageExpr) {
+              pendingMBCritRef.current = true;
               diceRoller.rollExpression(
                 `Daño crítico · ${selectedWeapon.name}`,
-                critExpr,
+                damageExpr,
               );
+            }
           },
         },
       ];

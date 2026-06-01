@@ -111,7 +111,8 @@ public class ObjetoService {
 						objeto.getNombre(),
 						objeto.getFormula(),
 						objeto.getDescripcion(),
-						objeto.getTipoObjeto().name()
+						objeto.getTipoObjeto().name(),
+						objeto.getIndice()
 				))
 				.toList();
 	}

@@ -23,6 +23,8 @@ import { useCampaignPencilTool } from "./hooks/useCampaignPencilTool";
 import CharacterTokenPanel from "./components/CharacterTokenPanel";
 import PestañaSwitcherPanel from "./components/PestañaSwitcherPanel";
 import IniciativaBar from "./components/IniciativaBar";
+import DiceRollOverlay from "../../components/dice/DiceRollOverlay";
+import { useDiceRoller } from "../../components/dice/useDiceRoller";
 import Baul from "./components/Baul";
 import { PosicionFicha } from "./components/PosicionFicha";
 import QuickActionBar from "./components/QuickActionBar";
@@ -30,7 +32,7 @@ import CampaignSidebar from "./components/CampaignSidebar";
 import CharacterSheetModal from "./components/CharacterSheetModal";
 import MBEnemyTraitsModal from "./components/MBEnemyTraitsModal";
 import type { MBEnemyTraitsResult } from "./components/MBEnemyTraitsModal";
-import { saveMBEnemyTraits } from "../personaje/utils/dndApi";
+import { saveMBEnemyTraits } from "../personaje/utils/mbApi";
 import TokenContextMenu from "./components/TokenContextMenu";
 import VisionArcModal from "./components/VisionArcModal";
 import {
@@ -58,6 +60,16 @@ import {
   drawVisionShape,
   isTokenVisibleToPlayer,
 } from "./utils/fogGeometry";
+
+interface CampaignListItem {
+  id: number;
+  sistemaDeJuego: string;
+}
+
+interface CampaignListPageResponse {
+  items: CampaignListItem[];
+  hasMore: boolean;
+}
 
 export default function CampaignPestañaScreen({
   campaignId,
@@ -107,12 +119,17 @@ export default function CampaignPestañaScreen({
     activa: false,
     entradas: [],
   });
+  const [mbDadoIniciativa, setMbDadoIniciativa] = useState<number | null>(null);
+  const [mbSummaryVisible, setMbSummaryVisible] = useState(false);
+  const mbIniciativaDiceRoller = useDiceRoller();
+  const pendingMBIniciativaRollRef = useRef(false);
   const [isFogDropdownOpen, setIsFogDropdownOpen] = useState(false);
   const [isTabSwitcherOpen, setIsTabSwitcherOpen] = useState(false);
   const [isRulerSelectorOpen, setIsRulerSelectorOpen] = useState(false);
   const [isPencilSelectorOpen, setIsPencilSelectorOpen] = useState(false);
   const stageRef = useRef<Konva.Stage>(null);
   const [chatMessages, setChatMessages] = useState<CampaignChatMessage[]>([]);
+  const [campaignSystem, setCampaignSystem] = useState<string | null>(null);
 
   // ── Niebla de guerra ──────────────────────────────────────────────────────
   const fog = useFogOfWarInteraction({
@@ -396,6 +413,52 @@ export default function CampaignPestañaScreen({
   useEffect(() => {
     void loadPositions().catch(() => setPositions([]));
   }, [loadPositions]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      setCampaignSystem(null);
+      return;
+    }
+
+    const abortController = new AbortController();
+
+    const loadCampaignSystem = async () => {
+      let page = 0;
+      let hasMore = true;
+
+      while (hasMore && page < 25 && !abortController.signal.aborted) {
+        const response = await fetch(
+          buildApiUrl(`/api/campanas?page=${page}&size=25`),
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            signal: abortController.signal,
+          },
+        );
+        if (!response.ok) break;
+
+        const payload = (await response.json()) as CampaignListPageResponse;
+        const match = payload.items.find(
+          (campaign) => campaign.id === campaignIdNumber,
+        );
+        if (match) {
+          setCampaignSystem(match.sistemaDeJuego);
+          return;
+        }
+
+        hasMore = payload.hasMore;
+        page += 1;
+      }
+
+      if (!abortController.signal.aborted) {
+        setCampaignSystem(null);
+      }
+    };
+
+    void loadCampaignSystem();
+
+    return () => abortController.abort();
+  }, [campaignIdNumber]);
 
   // ── Cambio de pestaña ─────────────────────────────────────────────────────
   const switchPestaña = useCallback(
@@ -822,400 +885,541 @@ export default function CampaignPestañaScreen({
     [positions, fog],
   );
 
+  const isMorkBorgCampaign = campaignSystem === "Mork Borg";
+
+  const { rollExpression: mbRollExpression } = mbIniciativaDiceRoller;
+
+  useEffect(() => {
+    if (
+      !pendingMBIniciativaRollRef.current ||
+      mbIniciativaDiceRoller.isRolling ||
+      !mbIniciativaDiceRoller.summary
+    )
+      return;
+    pendingMBIniciativaRollRef.current = false;
+    const raw =
+      mbIniciativaDiceRoller.summary.diceValues[0] ??
+      mbIniciativaDiceRoller.summary.total;
+    setMbDadoIniciativa(Math.max(1, Math.min(6, raw)));
+    setMbSummaryVisible(true);
+    const timer = setTimeout(() => setMbSummaryVisible(false), 2500);
+    return () => clearTimeout(timer);
+  }, [mbIniciativaDiceRoller.isRolling, mbIniciativaDiceRoller.summary]);
+
+  const handleActivarIniciativa = useCallback(
+    (activa: boolean) => {
+      activarIniciativa(activa);
+      if (activa && isMorkBorgCampaign) {
+        setMbDadoIniciativa(null);
+        setMbSummaryVisible(false);
+        pendingMBIniciativaRollRef.current = true;
+        mbRollExpression("Iniciativa", "1d6");
+      } else if (!activa) {
+        setMbDadoIniciativa(null);
+        setMbSummaryVisible(false);
+      }
+    },
+    [activarIniciativa, isMorkBorgCampaign, mbRollExpression],
+  );
+
+  const handleMBTirarIniciativa = useCallback(
+    async (
+      personajeId: number,
+      nombre: string,
+      retrato: string | undefined,
+    ) => {
+      const token = localStorage.getItem("jwtToken");
+      let modAgilidad = 0;
+      if (token) {
+        try {
+          const res = await fetch(
+            buildApiUrl(`/api/personajes/${personajeId}`),
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          );
+          if (res.ok) {
+            const detail = (await res.json()) as {
+              estadisticas?: Record<string, number>;
+            };
+            modAgilidad = detail.estadisticas?.["MB_ModAgilidad"] ?? 0;
+          }
+        } catch {
+          // usar bonificacion 0
+        }
+      }
+      const tirada = Math.floor(Math.random() * 6) + 1;
+      tirarIniciativa(personajeId, nombre, retrato, tirada, modAgilidad);
+    },
+    [tirarIniciativa],
+  );
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div
-      className="relative h-screen w-full overflow-hidden bg-stone-400"
-      onContextMenu={(e) => e.preventDefault()}
-      onDragOver={handleDragOver}
-      onDrop={(event) => {
-        void handleCharacterDrop(event).catch((error: unknown) => {
-          console.error(error);
-        });
-      }}
-    >
-      <CampaignRulerShapeSelector
-        visible={selectedTool === "ruler" && isRulerSelectorOpen}
-        selectedShape={rulerTool.selectedShape}
-        onSelectShape={rulerTool.setSelectedShape}
+    <>
+      <DiceRollOverlay
+        diceBoxHostId={mbIniciativaDiceRoller.diceBoxHostId}
+        diceBoxError={mbIniciativaDiceRoller.diceBoxError}
+        isRolling={mbIniciativaDiceRoller.isRolling}
+        summary={mbSummaryVisible ? mbIniciativaDiceRoller.summary : null}
       />
-      <CampaignPencilShapeSelector
-        visible={selectedTool === "pencil" && isPencilSelectorOpen}
-        selectedShape={pencilTool.selectedShape}
-        onSelectShape={pencilTool.setSelectedShape}
-      />
-      <CampaignPencilOptionsModal
-        visible={selectedTool === "pencil"}
-        color={pencilTool.strokeColor}
-        onColorChange={pencilTool.setStrokeColor}
-        fillEnabled={pencilTool.fillEnabled}
-        onFillToggle={pencilTool.setFillEnabled}
-      />
-
-      {iniciativaEstado.activa && (
-        <IniciativaBar
-          isDM={isDM}
-          entradas={
-            isDM
-              ? iniciativaEstado.entradas
-              : iniciativaEstado.entradas.filter((entrada) => {
-                  const pos = positions.find(
-                    (p) => p.personajeId === entrada.personajeId,
-                  );
-                  return !pos || (pos.tipo ?? "personaje") !== "enemigo";
-                })
-          }
-          onReordenar={reordenarIniciativa}
-          onTokenClick={handleIniciativaTokenClick}
-          onTokenRightClick={handleIniciativaTokenRightClick}
-        />
-      )}
-
-      {isTabSwitcherOpen && (
-        <PestañaSwitcherPanel
-          campaignId={campaignId}
-          currentPestañaId={pestaña?.id ?? null}
-          isDM={isDM}
-          username={username}
-          onSelect={(id) => {
-            void switchPestaña(id);
-          }}
-          onClose={() => setIsTabSwitcherOpen(false)}
-          onForzarTodos={(pestañaId) => {
-            forzarCambioPestana(pestañaId, null);
-          }}
-          onForzarJugadores={(pestañaId, jugadores) => {
-            forzarCambioPestana(pestañaId, jugadores);
-          }}
-        />
-      )}
-
-      <CharacterTokenPanel
-        positions={positions}
-        isDM={isDM}
-        chatMessages={chatMessages}
-        onSendMessage={sendChatMessage}
-        onOpenCharacterSheet={(characterId, sistemaDeJuego) => {
-          setModalCharacterId(characterId);
-          setModalCharacterSystem(sistemaDeJuego);
-          setSelectedPositionId(null);
+      <div
+        className="relative h-screen w-full overflow-hidden bg-stone-400"
+        onContextMenu={(e) => e.preventDefault()}
+        onDragOver={handleDragOver}
+        onDrop={(event) => {
+          void handleCharacterDrop(event).catch((error: unknown) => {
+            console.error(error);
+          });
         }}
-        onInteract={() => setSelectedPositionId(null)}
-        iniciativaActiva={iniciativaEstado.activa}
-        personajesConIniciativa={
-          new Set(iniciativaEstado.entradas.map((e) => e.personajeId))
-        }
-        onTirarIniciativa={(personajeId, nombre, retrato, bonificacion) => {
-          const tirada = Math.floor(Math.random() * 20) + 1;
-          tirarIniciativa(personajeId, nombre, retrato, tirada, bonificacion);
-        }}
-        isTabSwitcherOpen={isTabSwitcherOpen}
-        onTabSwitcherToggle={() => setIsTabSwitcherOpen(true)}
-        onBack={onBack}
-        onExit={onGoHome}
-        onTokenSelect={handleTokenFocus}
-        onTokenRightClick={handleTokenRightClickFromUI}
-      />
-
-      <QuickActionBar
-        selectedPosition={
-          selectedPositionId != null
-            ? (positions.find((p) => p.id === selectedPositionId) ?? null)
-            : null
-        }
-        onClose={() => setSelectedPositionId(null)}
-        onRollResult={(text) => {
-          void sendChatMessage(text);
-        }}
-      />
-
-      {/* Modal de rasgos aleatorios MB */}
-      {pendingMBDrop && (
-        <MBEnemyTraitsModal
-          nombreEnemigo={pendingMBDrop.payload.nombre}
-          biografia={pendingMBDrop.biografia}
-          onConfirm={(result) => void handleMBTraitsConfirm(result)}
-          onCancel={() => setPendingMBDrop(null)}
+      >
+        <CampaignRulerShapeSelector
+          visible={selectedTool === "ruler" && isRulerSelectorOpen}
+          selectedShape={rulerTool.selectedShape}
+          onSelectShape={rulerTool.setSelectedShape}
         />
-      )}
-
-      {/* Modal de hoja de personaje */}
-      {modalCharacterId !== null && (
-        <CharacterSheetModal
-          characterId={modalCharacterId}
-          sistemaDeJuego={modalCharacterSystem}
-          username={username}
-          avatarUrl={avatarUrl}
-          onLogout={onLogout}
-          onGoHome={onGoHome}
-          onGoCampaigns={onGoCampaigns}
-          onClose={() => {
-            setModalCharacterId(null);
-            setModalCharacterSystem(undefined);
-          }}
+        <CampaignPencilShapeSelector
+          visible={selectedTool === "pencil" && isPencilSelectorOpen}
+          selectedShape={pencilTool.selectedShape}
+          onSelectShape={pencilTool.setSelectedShape}
         />
-      )}
-
-      {/* Baúl o barra lateral */}
-      {selectedTool === "chest" ? (
-        <Baul
-          campaignId={campaignId}
-          isDM={isDM}
-          onClose={() => handleToolSelection("move")}
-          onMapSelect={handleMapSelect}
-          onCharacterClick={(id, sistemaDeJuego) => {
-            setModalCharacterId(id);
-            setModalCharacterSystem(sistemaDeJuego || undefined);
-          }}
+        <CampaignPencilOptionsModal
+          visible={selectedTool === "pencil"}
+          color={pencilTool.strokeColor}
+          onColorChange={pencilTool.setStrokeColor}
+          fillEnabled={pencilTool.fillEnabled}
+          onFillToggle={pencilTool.setFillEnabled}
         />
-      ) : !isTabSwitcherOpen ? (
-        <CampaignSidebar
-          isDM={isDM}
-          settingsMode={settingsMode}
-          onSettingsModeChange={setSettingsMode}
-          gridConfigForm={gridConfigForm}
-          onGridConfigFormChange={setGridConfigForm}
-          isSavingGridConfig={isSavingGridConfig}
-          settingsDropdownRef={settingsDropdownRef}
-          onSaveGridConfig={() => void handleSaveGridConfig()}
-          onAutoGrid={handleAutoGrid}
-          mapLayerImage={mapLayerImage}
-          inviteRef={inviteRef}
-          isInviteOpen={isInviteOpen}
-          onInviteOpenChange={setIsInviteOpen}
-          inviteCopied={inviteCopied}
-          inviteLink={inviteLink}
-          onCopyInvite={handleCopyInvite}
-          selectedTool={selectedTool}
-          onToolSelect={handleToolSelection}
-          selectedLayer={selectedLayer}
-          onLayerSelect={setSelectedLayer}
-          nieblaEstado={fog.nieblaEstado}
-          onNieblaChange={(patch) => {
-            const next = { ...fog.nieblaEstado, ...patch };
-            fog.setNieblaEstado(next);
-            configurarNiebla(patch);
-          }}
-          isFogDropdownOpen={isFogDropdownOpen}
-          onFogDropdownOpenChange={setIsFogDropdownOpen}
-          iniciativaEstado={iniciativaEstado}
-          onActivarIniciativa={activarIniciativa}
-        />
-      ) : null}
 
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center text-sm text-white">
-          Cargando pestaña...
-        </div>
-      )}
-
-      {!isLoading && loadError && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <p className="rounded-lg border border-red-300/40 bg-red-900/50 px-3.5 py-2 text-sm text-red-300">
-            {loadError}
-          </p>
-        </div>
-      )}
-
-      {/* Stage de Konva */}
-      {!isLoading && !loadError && (
-        <Stage
-          ref={stageRef}
-          width={stageSize.width}
-          height={stageSize.height}
-          draggable={
-            selectedTool !== "pencil" &&
-            selectedTool !== "ruler" &&
-            fog.visionArcTarget === null
-          }
-          onWheel={handleWheel}
-          onMouseDown={handleStageMouseDown}
-          onClick={(e: Konva.KonvaEventObject<MouseEvent>) => {
-            if (
-              e.evt.button === 0 &&
-              selectedTool !== "pencil" &&
-              selectedTool !== "ruler"
-            ) {
-              setSelectedTool("move");
+        {iniciativaEstado.activa && (
+          <IniciativaBar
+            isDM={isDM}
+            entradas={
+              isDM
+                ? iniciativaEstado.entradas
+                : iniciativaEstado.entradas.filter((entrada) => {
+                    const pos = positions.find(
+                      (p) => p.personajeId === entrada.personajeId,
+                    );
+                    return !pos || (pos.tipo ?? "personaje") !== "enemigo";
+                  })
             }
+            onReordenar={reordenarIniciativa}
+            onTokenClick={handleIniciativaTokenClick}
+            onTokenRightClick={handleIniciativaTokenRightClick}
+            isMorkBorg={isMorkBorgCampaign}
+            mbDadoIniciativa={mbDadoIniciativa}
+            posicionesMB={isMorkBorgCampaign ? positions : []}
+            onMBTirarIniciativa={(personajeId, nombre, retrato) => {
+              void handleMBTirarIniciativa(personajeId, nombre, retrato);
+            }}
+          />
+        )}
+
+        {isTabSwitcherOpen && (
+          <PestañaSwitcherPanel
+            campaignId={campaignId}
+            currentPestañaId={pestaña?.id ?? null}
+            isDM={isDM}
+            username={username}
+            onSelect={(id) => {
+              void switchPestaña(id);
+            }}
+            onClose={() => setIsTabSwitcherOpen(false)}
+            onForzarTodos={(pestañaId) => {
+              forzarCambioPestana(pestañaId, null);
+            }}
+            onForzarJugadores={(pestañaId, jugadores) => {
+              forzarCambioPestana(pestañaId, jugadores);
+            }}
+          />
+        )}
+
+        <CharacterTokenPanel
+          positions={positions}
+          isDM={isDM}
+          chatMessages={chatMessages}
+          onSendMessage={sendChatMessage}
+          onOpenCharacterSheet={(characterId, sistemaDeJuego) => {
+            setModalCharacterId(characterId);
+            setModalCharacterSystem(sistemaDeJuego);
+            setSelectedPositionId(null);
           }}
-          onMouseMove={() => {
-            rulerTool.handleMouseMove();
-            pencilTool.handleMouseMove();
+          onInteract={() => setSelectedPositionId(null)}
+          iniciativaActiva={iniciativaEstado.activa}
+          personajesConIniciativa={
+            new Set(iniciativaEstado.entradas.map((e) => e.personajeId))
+          }
+          onTirarIniciativa={(personajeId, nombre, retrato, bonificacion) => {
+            const tirada = Math.floor(Math.random() * 20) + 1;
+            tirarIniciativa(personajeId, nombre, retrato, tirada, bonificacion);
           }}
-          onMouseUp={() => {
-            rulerTool.handleMouseUp();
-            pencilTool.handleMouseUp();
+          isTabSwitcherOpen={isTabSwitcherOpen}
+          onTabSwitcherToggle={() => setIsTabSwitcherOpen(true)}
+          onBack={onBack}
+          onExit={onGoHome}
+          isMorkBorgCampaign={isMorkBorgCampaign}
+          onTokenSelect={handleTokenFocus}
+          onTokenRightClick={handleTokenRightClickFromUI}
+        />
+
+        <QuickActionBar
+          selectedPosition={
+            selectedPositionId != null
+              ? (positions.find((p) => p.id === selectedPositionId) ?? null)
+              : null
+          }
+          onClose={() => setSelectedPositionId(null)}
+          onRollResult={(text) => {
+            void sendChatMessage(text);
           }}
-          onMouseLeave={() => {
-            rulerTool.handleMouseUp();
-            pencilTool.handleMouseUp();
-          }}
-          style={{
-            cursor:
-              selectedTool === "ruler"
-                ? "crosshair"
-                : selectedTool === "pencil"
-                  ? pencilTool.selectedShape === "eraser"
-                    ? "cell"
-                    : "crosshair"
-                  : selectedTool === "move"
-                    ? "grab"
-                    : "default",
-          }}
-        >
-          <Layer>
-            <Rect
-              x={grid.rectX}
-              y={grid.rectY}
-              width={grid.rectW}
-              height={grid.rectH}
-              fill="white"
-              shadowColor="black"
-              shadowBlur={30}
-              shadowOpacity={0.4}
-            />
-            {mapLayerImage && (
-              <KonvaImage
+        />
+
+        {/* Modal de rasgos aleatorios MB */}
+        {pendingMBDrop && (
+          <MBEnemyTraitsModal
+            nombreEnemigo={pendingMBDrop.payload.nombre}
+            biografia={pendingMBDrop.biografia}
+            onConfirm={(result) => void handleMBTraitsConfirm(result)}
+            onCancel={() => setPendingMBDrop(null)}
+          />
+        )}
+
+        {/* Modal de hoja de personaje */}
+        {modalCharacterId !== null && (
+          <CharacterSheetModal
+            characterId={modalCharacterId}
+            sistemaDeJuego={modalCharacterSystem}
+            username={username}
+            avatarUrl={avatarUrl}
+            onLogout={onLogout}
+            onGoHome={onGoHome}
+            onGoCampaigns={onGoCampaigns}
+            onClose={() => {
+              setModalCharacterId(null);
+              setModalCharacterSystem(undefined);
+            }}
+          />
+        )}
+
+        {/* Baúl o barra lateral */}
+        {selectedTool === "chest" ? (
+          <Baul
+            campaignId={campaignId}
+            isDM={isDM}
+            onClose={() => handleToolSelection("move")}
+            onMapSelect={handleMapSelect}
+            onCharacterClick={(id, sistemaDeJuego) => {
+              setModalCharacterId(id);
+              setModalCharacterSystem(sistemaDeJuego || undefined);
+            }}
+          />
+        ) : !isTabSwitcherOpen ? (
+          <CampaignSidebar
+            isDM={isDM}
+            settingsMode={settingsMode}
+            onSettingsModeChange={setSettingsMode}
+            gridConfigForm={gridConfigForm}
+            onGridConfigFormChange={setGridConfigForm}
+            isSavingGridConfig={isSavingGridConfig}
+            settingsDropdownRef={settingsDropdownRef}
+            onSaveGridConfig={() => void handleSaveGridConfig()}
+            onAutoGrid={handleAutoGrid}
+            mapLayerImage={mapLayerImage}
+            inviteRef={inviteRef}
+            isInviteOpen={isInviteOpen}
+            onInviteOpenChange={setIsInviteOpen}
+            inviteCopied={inviteCopied}
+            inviteLink={inviteLink}
+            onCopyInvite={handleCopyInvite}
+            selectedTool={selectedTool}
+            onToolSelect={handleToolSelection}
+            selectedLayer={selectedLayer}
+            onLayerSelect={setSelectedLayer}
+            nieblaEstado={fog.nieblaEstado}
+            onNieblaChange={(patch) => {
+              const next = { ...fog.nieblaEstado, ...patch };
+              fog.setNieblaEstado(next);
+              configurarNiebla(patch);
+            }}
+            isFogDropdownOpen={isFogDropdownOpen}
+            onFogDropdownOpenChange={setIsFogDropdownOpen}
+            iniciativaEstado={iniciativaEstado}
+            onActivarIniciativa={handleActivarIniciativa}
+          />
+        ) : null}
+
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center text-sm text-white">
+            Cargando pestaña...
+          </div>
+        )}
+
+        {!isLoading && loadError && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <p className="rounded-lg border border-red-300/40 bg-red-900/50 px-3.5 py-2 text-sm text-red-300">
+              {loadError}
+            </p>
+          </div>
+        )}
+
+        {/* Stage de Konva */}
+        {!isLoading && !loadError && (
+          <Stage
+            ref={stageRef}
+            width={stageSize.width}
+            height={stageSize.height}
+            draggable={
+              selectedTool !== "pencil" &&
+              selectedTool !== "ruler" &&
+              fog.visionArcTarget === null
+            }
+            onWheel={handleWheel}
+            onMouseDown={handleStageMouseDown}
+            onClick={(e: Konva.KonvaEventObject<MouseEvent>) => {
+              if (
+                e.evt.button === 0 &&
+                selectedTool !== "pencil" &&
+                selectedTool !== "ruler"
+              ) {
+                setSelectedTool("move");
+              }
+            }}
+            onMouseMove={() => {
+              rulerTool.handleMouseMove();
+              pencilTool.handleMouseMove();
+            }}
+            onMouseUp={() => {
+              rulerTool.handleMouseUp();
+              pencilTool.handleMouseUp();
+            }}
+            onMouseLeave={() => {
+              rulerTool.handleMouseUp();
+              pencilTool.handleMouseUp();
+            }}
+            style={{
+              cursor:
+                selectedTool === "ruler"
+                  ? "crosshair"
+                  : selectedTool === "pencil"
+                    ? pencilTool.selectedShape === "eraser"
+                      ? "cell"
+                      : "crosshair"
+                    : selectedTool === "move"
+                      ? "grab"
+                      : "default",
+            }}
+          >
+            <Layer>
+              <Rect
                 x={grid.rectX}
                 y={grid.rectY}
                 width={grid.rectW}
                 height={grid.rectH}
-                image={mapLayerImage}
+                fill="white"
                 shadowColor="black"
                 shadowBlur={30}
                 shadowOpacity={0.4}
               />
-            )}
-            {grid.vLines.map((x) => (
-              <Line
-                key={`v-${x}`}
-                points={[
-                  x + grid.rectX,
-                  grid.rectY,
-                  x + grid.rectX,
-                  grid.rectY + grid.rectH,
-                ]}
-                stroke="#d4d4d4"
-                strokeWidth={1}
-              />
-            ))}
-            {grid.hLines.map((y) => (
-              <Line
-                key={`h-${y}`}
-                points={[
-                  grid.rectX,
-                  y + grid.rectY,
-                  grid.rectX + grid.rectW,
-                  y + grid.rectY,
-                ]}
-                stroke="#d4d4d4"
-                strokeWidth={1}
-              />
-            ))}
+              {mapLayerImage && (
+                <KonvaImage
+                  x={grid.rectX}
+                  y={grid.rectY}
+                  width={grid.rectW}
+                  height={grid.rectH}
+                  image={mapLayerImage}
+                  shadowColor="black"
+                  shadowBlur={30}
+                  shadowOpacity={0.4}
+                />
+              )}
+              {grid.vLines.map((x) => (
+                <Line
+                  key={`v-${x}`}
+                  points={[
+                    x + grid.rectX,
+                    grid.rectY,
+                    x + grid.rectX,
+                    grid.rectY + grid.rectH,
+                  ]}
+                  stroke="#d4d4d4"
+                  strokeWidth={1}
+                />
+              ))}
+              {grid.hLines.map((y) => (
+                <Line
+                  key={`h-${y}`}
+                  points={[
+                    grid.rectX,
+                    y + grid.rectY,
+                    grid.rectX + grid.rectW,
+                    y + grid.rectY,
+                  ]}
+                  stroke="#d4d4d4"
+                  strokeWidth={1}
+                />
+              ))}
 
-            {positions
-              .filter((p) => {
-                if (p.pestanaId !== pestaña?.id) return false;
-                return isDM || p.capa !== "dm";
-              })
-              .map((position) => {
-                if (fog.nieblaEstado.activa && !isDM) {
-                  const isBeingDragged =
-                    fog.draggingTokenRef.current?.posicionId === position.id;
-                  if (
-                    !isBeingDragged &&
-                    !isTokenVisibleToPlayer(
-                      position,
-                      fog.nieblaEstado.visionConfigs,
-                      positions,
-                      fog.draggingTokenRef.current,
-                    )
-                  ) {
-                    return null;
+              {positions
+                .filter((p) => {
+                  if (p.pestanaId !== pestaña?.id) return false;
+                  return isDM || p.capa !== "dm";
+                })
+                .map((position) => {
+                  if (fog.nieblaEstado.activa && !isDM) {
+                    const isBeingDragged =
+                      fog.draggingTokenRef.current?.posicionId === position.id;
+                    if (
+                      !isBeingDragged &&
+                      !isTokenVisibleToPlayer(
+                        position,
+                        fog.nieblaEstado.visionConfigs,
+                        positions,
+                        fog.draggingTokenRef.current,
+                      )
+                    ) {
+                      return null;
+                    }
                   }
-                }
 
-                const isEnemigo = (position.tipo ?? "personaje") === "enemigo";
-                const isInteractable =
-                  position.capa === "dm"
-                    ? isDM
-                    : position.capa === "mapa"
-                      ? isDM && selectedLayer === "mapa"
-                      : true;
+                  const isEnemigo =
+                    (position.tipo ?? "personaje") === "enemigo";
+                  const isInteractable =
+                    position.capa === "dm"
+                      ? isDM
+                      : position.capa === "mapa"
+                        ? isDM && selectedLayer === "mapa"
+                        : true;
 
-                const tokenLargo = Math.max(1, position.largo ?? 1);
-                const tokenAncho = Math.max(1, position.ancho ?? 1);
-                const clampedX = Math.max(
-                  0,
-                  Math.min(position.posicionX, grid.cols - tokenLargo),
-                );
-                const clampedY = Math.max(
-                  0,
-                  Math.min(position.posicionY, grid.rows - tokenAncho),
-                );
-                const displayPos =
-                  clampedX !== position.posicionX ||
-                  clampedY !== position.posicionY
-                    ? { ...position, posicionX: clampedX, posicionY: clampedY }
-                    : position;
+                  const tokenLargo = Math.max(1, position.largo ?? 1);
+                  const tokenAncho = Math.max(1, position.ancho ?? 1);
+                  const clampedX = Math.max(
+                    0,
+                    Math.min(position.posicionX, grid.cols - tokenLargo),
+                  );
+                  const clampedY = Math.max(
+                    0,
+                    Math.min(position.posicionY, grid.rows - tokenAncho),
+                  );
+                  const displayPos =
+                    clampedX !== position.posicionX ||
+                    clampedY !== position.posicionY
+                      ? {
+                          ...position,
+                          posicionX: clampedX,
+                          posicionY: clampedY,
+                        }
+                      : position;
 
-                return (
-                  <PosicionFicha
-                    key={position.id}
-                    position={displayPos}
-                    grid={grid}
-                    isInteractable={isInteractable}
-                    isSelected={selectedPositionId === position.id}
-                    onDragStart={() => {
-                      fog.localPathRef.current = [];
-                      fog.lastDragCellRef.current = {
-                        x: Math.round(displayPos.posicionX * 2) / 2,
-                        y: Math.round(displayPos.posicionY * 2) / 2,
-                        posicionId: position.id,
-                      };
-                      fog.draggingTokenRef.current = {
-                        posicionId: position.id,
-                        posicionX: displayPos.posicionX,
-                        posicionY: displayPos.posicionY,
-                      };
-                    }}
-                    onDragMove={(id, gx, gy) => {
-                      fog.draggingTokenRef.current = {
-                        posicionId: id,
-                        posicionX: gx,
-                        posicionY: gy,
-                      };
-                      fog.fogLayerRef.current?.batchDraw();
+                  return (
+                    <PosicionFicha
+                      key={position.id}
+                      position={displayPos}
+                      grid={grid}
+                      isInteractable={isInteractable}
+                      isSelected={selectedPositionId === position.id}
+                      onDragStart={() => {
+                        fog.localPathRef.current = [];
+                        fog.lastDragCellRef.current = {
+                          x: Math.round(displayPos.posicionX * 2) / 2,
+                          y: Math.round(displayPos.posicionY * 2) / 2,
+                          posicionId: position.id,
+                        };
+                        fog.draggingTokenRef.current = {
+                          posicionId: position.id,
+                          posicionX: displayPos.posicionX,
+                          posicionY: displayPos.posicionY,
+                        };
+                      }}
+                      onDragMove={(id, gx, gy) => {
+                        fog.draggingTokenRef.current = {
+                          posicionId: id,
+                          posicionX: gx,
+                          posicionY: gy,
+                        };
+                        fog.fogLayerRef.current?.batchDraw();
 
-                      if (fog.nieblaEstado.zonasExploradas) {
-                        const vc = fog.nieblaEstado.visionConfigs.find(
-                          (v) => v.posicionId === id,
+                        if (fog.nieblaEstado.zonasExploradas) {
+                          const vc = fog.nieblaEstado.visionConfigs.find(
+                            (v) => v.posicionId === id,
+                          );
+                          if (vc?.revelaArea) {
+                            const hx = Math.round(gx * 2) / 2;
+                            const hy = Math.round(gy * 2) / 2;
+                            const last = fog.lastDragCellRef.current;
+                            if (last && (last.x !== hx || last.y !== hy)) {
+                              const areaId = `${id}-${Math.round(hx * 2)}-${Math.round(hy * 2)}`;
+                              const alreadySeen =
+                                fog.confirmedAreaIdsRef.current.has(areaId) ||
+                                fog.pendingAreasRef.current.some(
+                                  (a) => a.id === areaId,
+                                ) ||
+                                fog.localPathRef.current.some(
+                                  (a) => a.id === areaId,
+                                );
+                              if (!alreadySeen) {
+                                const tokenSize = Math.max(
+                                  1,
+                                  position.largo ?? 1,
+                                  position.ancho ?? 1,
+                                );
+                                fog.localPathRef.current = [
+                                  ...fog.localPathRef.current,
+                                  {
+                                    id: areaId,
+                                    posicionX: hx,
+                                    posicionY: hy,
+                                    arcType: vc.arcType,
+                                    radius: vc.radius,
+                                    apertura: vc.apertura,
+                                    rotation: vc.rotation,
+                                    angle: vc.angle,
+                                    length: vc.length,
+                                    width: vc.width,
+                                    height: vc.height,
+                                    tokenSize,
+                                  },
+                                ];
+                              }
+                              fog.lastDragCellRef.current = {
+                                x: hx,
+                                y: hy,
+                                posicionId: id,
+                              };
+                            }
+                          }
+                        }
+                      }}
+                      onDragEnd={(x, y) => {
+                        fog.draggingTokenRef.current = null;
+                        setPositions((prev) =>
+                          prev.map((p) =>
+                            p.id === position.id
+                              ? { ...p, posicionX: x, posicionY: y }
+                              : p,
+                          ),
                         );
-                        if (vc?.revelaArea) {
-                          const hx = Math.round(gx * 2) / 2;
-                          const hy = Math.round(gy * 2) / 2;
-                          const last = fog.lastDragCellRef.current;
-                          if (last && (last.x !== hx || last.y !== hy)) {
-                            const areaId = `${id}-${Math.round(hx * 2)}-${Math.round(hy * 2)}`;
-                            const alreadySeen =
-                              fog.confirmedAreaIdsRef.current.has(areaId) ||
-                              fog.pendingAreasRef.current.some(
-                                (a) => a.id === areaId,
-                              ) ||
-                              fog.localPathRef.current.some(
-                                (a) => a.id === areaId,
-                              );
-                            if (!alreadySeen) {
-                              const tokenSize = Math.max(
-                                1,
-                                position.largo ?? 1,
-                                position.ancho ?? 1,
-                              );
+                        if (fog.nieblaEstado.zonasExploradas) {
+                          const vc = fog.nieblaEstado.visionConfigs.find(
+                            (v) => v.posicionId === position.id,
+                          );
+                          if (vc?.revelaArea) {
+                            const hx = Math.round(x * 2) / 2;
+                            const hy = Math.round(y * 2) / 2;
+                            const finalId = `${position.id}-${Math.round(hx * 2)}-${Math.round(hy * 2)}`;
+                            if (
+                              !fog.confirmedAreaIdsRef.current.has(finalId) &&
+                              !fog.pendingAreasRef.current.some(
+                                (a) => a.id === finalId,
+                              ) &&
+                              !fog.localPathRef.current.some(
+                                (a) => a.id === finalId,
+                              )
+                            ) {
                               fog.localPathRef.current = [
                                 ...fog.localPathRef.current,
                                 {
-                                  id: areaId,
+                                  id: finalId,
                                   posicionX: hx,
                                   posicionY: hy,
                                   arcType: vc.arcType,
@@ -1226,192 +1430,178 @@ export default function CampaignPestañaScreen({
                                   length: vc.length,
                                   width: vc.width,
                                   height: vc.height,
-                                  tokenSize,
+                                  tokenSize: Math.max(
+                                    1,
+                                    position.largo ?? 1,
+                                    position.ancho ?? 1,
+                                  ),
                                 },
                               ];
                             }
-                            fog.lastDragCellRef.current = {
-                              x: hx,
-                              y: hy,
-                              posicionId: id,
-                            };
                           }
                         }
-                      }
-                    }}
-                    onDragEnd={(x, y) => {
-                      fog.draggingTokenRef.current = null;
-                      setPositions((prev) =>
-                        prev.map((p) =>
-                          p.id === position.id
-                            ? { ...p, posicionX: x, posicionY: y }
-                            : p,
-                        ),
-                      );
-                      if (fog.nieblaEstado.zonasExploradas) {
-                        const vc = fog.nieblaEstado.visionConfigs.find(
-                          (v) => v.posicionId === position.id,
-                        );
-                        if (vc?.revelaArea) {
-                          const hx = Math.round(x * 2) / 2;
-                          const hy = Math.round(y * 2) / 2;
-                          const finalId = `${position.id}-${Math.round(hx * 2)}-${Math.round(hy * 2)}`;
-                          if (
-                            !fog.confirmedAreaIdsRef.current.has(finalId) &&
-                            !fog.pendingAreasRef.current.some(
-                              (a) => a.id === finalId,
-                            ) &&
-                            !fog.localPathRef.current.some(
-                              (a) => a.id === finalId,
-                            )
-                          ) {
-                            fog.localPathRef.current = [
-                              ...fog.localPathRef.current,
-                              {
-                                id: finalId,
-                                posicionX: hx,
-                                posicionY: hy,
-                                arcType: vc.arcType,
-                                radius: vc.radius,
-                                apertura: vc.apertura,
-                                rotation: vc.rotation,
-                                angle: vc.angle,
-                                length: vc.length,
-                                width: vc.width,
-                                height: vc.height,
-                                tokenSize: Math.max(
-                                  1,
-                                  position.largo ?? 1,
-                                  position.ancho ?? 1,
-                                ),
-                              },
-                            ];
-                          }
-                        }
-                      }
-                      const MAX_CHUNK = 80;
-                      const batchToSend = fog.localPathRef.current;
-                      fog.pendingAreasRef.current = [
-                        ...fog.pendingAreasRef.current,
-                        ...batchToSend,
-                      ];
-                      fog.localPathRef.current = [];
-                      fog.lastDragCellRef.current = null;
+                        const MAX_CHUNK = 80;
+                        const batchToSend = fog.localPathRef.current;
+                        fog.pendingAreasRef.current = [
+                          ...fog.pendingAreasRef.current,
+                          ...batchToSend,
+                        ];
+                        fog.localPathRef.current = [];
+                        fog.lastDragCellRef.current = null;
 
-                      const newAreas = batchToSend.filter(
-                        (a) => !fog.confirmedAreaIdsRef.current.has(a.id),
-                      );
-                      if (newAreas.length > 0) {
-                        if (newAreas.length <= MAX_CHUNK) {
-                          agregarAreasExploradasBatch(newAreas);
-                        } else {
-                          for (
-                            let ci = 0;
-                            ci < newAreas.length;
-                            ci += MAX_CHUNK
-                          ) {
-                            const chunk = newAreas.slice(ci, ci + MAX_CHUNK);
-                            const delay = Math.floor(ci / MAX_CHUNK) * 200;
-                            if (delay === 0) {
-                              agregarAreasExploradasBatch(chunk);
-                            } else {
-                              setTimeout(
-                                () => agregarAreasExploradasBatch(chunk),
-                                delay,
-                              );
+                        const newAreas = batchToSend.filter(
+                          (a) => !fog.confirmedAreaIdsRef.current.has(a.id),
+                        );
+                        if (newAreas.length > 0) {
+                          if (newAreas.length <= MAX_CHUNK) {
+                            agregarAreasExploradasBatch(newAreas);
+                          } else {
+                            for (
+                              let ci = 0;
+                              ci < newAreas.length;
+                              ci += MAX_CHUNK
+                            ) {
+                              const chunk = newAreas.slice(ci, ci + MAX_CHUNK);
+                              const delay = Math.floor(ci / MAX_CHUNK) * 200;
+                              if (delay === 0) {
+                                agregarAreasExploradasBatch(chunk);
+                              } else {
+                                setTimeout(
+                                  () => agregarAreasExploradasBatch(chunk),
+                                  delay,
+                                );
+                              }
                             }
                           }
                         }
+                        moverPosicionPorWebSocket(position.id, x, y);
+                      }}
+                      isResizingMode={resizingPositionId === position.id}
+                      onTokenClick={
+                        !isDM && isEnemigo
+                          ? undefined
+                          : (id) => {
+                              setSelectedPositionId((prev) =>
+                                prev === id ? null : id,
+                              );
+                              setResizingPositionId(null);
+                            }
                       }
-                      moverPosicionPorWebSocket(position.id, x, y);
-                    }}
-                    isResizingMode={resizingPositionId === position.id}
-                    onTokenClick={
-                      !isDM && isEnemigo
-                        ? undefined
-                        : (id) => {
-                            setSelectedPositionId((prev) =>
-                              prev === id ? null : id,
+                      onRightMouseDown={
+                        !isDM && isEnemigo
+                          ? undefined
+                          : (id, tcx, tcy, sx, sy) => {
+                              fog.rotationDragRef.current = {
+                                posicionId: id,
+                                tokenCenterClientX: tcx,
+                                tokenCenterClientY: tcy,
+                                startClientX: sx,
+                                startClientY: sy,
+                                hasMoved: false,
+                              };
+                            }
+                      }
+                      onResizeEnd={(posicionId, newSize) => {
+                        void handleCambiarTamano(posicionId, newSize, newSize);
+                        setResizingPositionId(null);
+                      }}
+                    />
+                  );
+                })}
+            </Layer>
+
+            {/* Capa de niebla de guerra */}
+            {fog.nieblaEstado.activa && (
+              <Layer ref={fog.fogLayerRef} listening={false}>
+                <Shape
+                  perfectDrawEnabled={false}
+                  sceneFunc={(konvaCtx) => {
+                    const ctx = (
+                      konvaCtx as unknown as {
+                        _context: CanvasRenderingContext2D;
+                      }
+                    )._context;
+                    ctx.save();
+                    const isDmView = isDM && !fog.nieblaEstado.vistaJugador;
+                    ctx.globalCompositeOperation = "source-over";
+                    ctx.fillStyle = isDmView
+                      ? "rgba(0,0,0,0.75)"
+                      : "rgba(0,0,0,1)";
+                    ctx.fillRect(
+                      grid.rectX,
+                      grid.rectY,
+                      grid.rectW,
+                      grid.rectH,
+                    );
+                    ctx.globalCompositeOperation = "destination-out";
+
+                    if (fog.nieblaEstado.zonasExploradas) {
+                      const serverAreas = fog.nieblaEstado.exploredAreas ?? [];
+                      const localAreas = [
+                        ...fog.localPathRef.current,
+                        ...fog.pendingAreasRef.current,
+                      ];
+
+                      if (serverAreas.length > 0) {
+                        const transform = ctx.getTransform();
+                        const cacheKey = [
+                          serverAreas.length,
+                          serverAreas.at(-1)?.id ?? "",
+                          ctx.canvas.width,
+                          ctx.canvas.height,
+                          transform.a.toFixed(4),
+                          transform.e.toFixed(1),
+                          transform.f.toFixed(1),
+                          grid.rectX.toFixed(1),
+                          grid.rectY.toFixed(1),
+                          grid.cols,
+                          grid.rows,
+                        ].join("|");
+
+                        if (fog.exploredBitmapRef.current?.key !== cacheKey) {
+                          const off = document.createElement("canvas");
+                          off.width = ctx.canvas.width;
+                          off.height = ctx.canvas.height;
+                          const offCtx = off.getContext("2d")!;
+                          offCtx.setTransform(transform);
+                          offCtx.beginPath();
+                          for (const area of serverAreas) {
+                            addVisionShapeToPath(
+                              offCtx,
+                              area.arcType,
+                              area,
+                              area.posicionX,
+                              area.posicionY,
+                              grid,
+                              grid.cellPx,
+                              (area.tokenSize ?? 1) / 2,
                             );
-                            setResizingPositionId(null);
                           }
-                    }
-                    onRightMouseDown={
-                      !isDM && isEnemigo
-                        ? undefined
-                        : (id, tcx, tcy, sx, sy) => {
-                            fog.rotationDragRef.current = {
-                              posicionId: id,
-                              tokenCenterClientX: tcx,
-                              tokenCenterClientY: tcy,
-                              startClientX: sx,
-                              startClientY: sy,
-                              hasMoved: false,
-                            };
-                          }
-                    }
-                    onResizeEnd={(posicionId, newSize) => {
-                      void handleCambiarTamano(posicionId, newSize, newSize);
-                      setResizingPositionId(null);
-                    }}
-                  />
-                );
-              })}
-          </Layer>
+                          offCtx.fillStyle = "#000";
+                          offCtx.fill();
+                          fog.exploredBitmapRef.current = {
+                            canvas: off,
+                            key: cacheKey,
+                          };
+                        }
 
-          {/* Capa de niebla de guerra */}
-          {fog.nieblaEstado.activa && (
-            <Layer ref={fog.fogLayerRef} listening={false}>
-              <Shape
-                perfectDrawEnabled={false}
-                sceneFunc={(konvaCtx) => {
-                  const ctx = (
-                    konvaCtx as unknown as {
-                      _context: CanvasRenderingContext2D;
-                    }
-                  )._context;
-                  ctx.save();
-                  const isDmView = isDM && !fog.nieblaEstado.vistaJugador;
-                  ctx.globalCompositeOperation = "source-over";
-                  ctx.fillStyle = isDmView
-                    ? "rgba(0,0,0,0.75)"
-                    : "rgba(0,0,0,1)";
-                  ctx.fillRect(grid.rectX, grid.rectY, grid.rectW, grid.rectH);
-                  ctx.globalCompositeOperation = "destination-out";
+                        const savedTransform = ctx.getTransform();
+                        ctx.setTransform(1, 0, 0, 1, 0, 0);
+                        ctx.globalAlpha = 0.25;
+                        ctx.drawImage(
+                          fog.exploredBitmapRef.current.canvas,
+                          0,
+                          0,
+                        );
+                        ctx.setTransform(savedTransform);
+                        ctx.globalAlpha = 1;
+                      }
 
-                  if (fog.nieblaEstado.zonasExploradas) {
-                    const serverAreas = fog.nieblaEstado.exploredAreas ?? [];
-                    const localAreas = [
-                      ...fog.localPathRef.current,
-                      ...fog.pendingAreasRef.current,
-                    ];
-
-                    if (serverAreas.length > 0) {
-                      const transform = ctx.getTransform();
-                      const cacheKey = [
-                        serverAreas.length,
-                        serverAreas.at(-1)?.id ?? "",
-                        ctx.canvas.width,
-                        ctx.canvas.height,
-                        transform.a.toFixed(4),
-                        transform.e.toFixed(1),
-                        transform.f.toFixed(1),
-                        grid.rectX.toFixed(1),
-                        grid.rectY.toFixed(1),
-                        grid.cols,
-                        grid.rows,
-                      ].join("|");
-
-                      if (fog.exploredBitmapRef.current?.key !== cacheKey) {
-                        const off = document.createElement("canvas");
-                        off.width = ctx.canvas.width;
-                        off.height = ctx.canvas.height;
-                        const offCtx = off.getContext("2d")!;
-                        offCtx.setTransform(transform);
-                        offCtx.beginPath();
-                        for (const area of serverAreas) {
+                      if (localAreas.length > 0) {
+                        ctx.beginPath();
+                        for (const area of localAreas) {
                           addVisionShapeToPath(
-                            offCtx,
+                            ctx,
                             area.arcType,
                             area,
                             area.posicionX,
@@ -1421,203 +1611,176 @@ export default function CampaignPestañaScreen({
                             (area.tokenSize ?? 1) / 2,
                           );
                         }
-                        offCtx.fillStyle = "#000";
-                        offCtx.fill();
-                        fog.exploredBitmapRef.current = {
-                          canvas: off,
-                          key: cacheKey,
-                        };
+                        ctx.globalAlpha = 0.25;
+                        ctx.fillStyle = "#000";
+                        ctx.fill();
+                        ctx.globalAlpha = 1;
                       }
-
-                      const savedTransform = ctx.getTransform();
-                      ctx.setTransform(1, 0, 0, 1, 0, 0);
-                      ctx.globalAlpha = 0.25;
-                      ctx.drawImage(fog.exploredBitmapRef.current.canvas, 0, 0);
-                      ctx.setTransform(savedTransform);
-                      ctx.globalAlpha = 1;
                     }
 
-                    if (localAreas.length > 0) {
+                    ctx.fillStyle = "rgba(0,0,0,1)";
+                    for (const vc of fog.nieblaEstado.visionConfigs) {
+                      if (!vc.revelaArea) continue;
+                      const live =
+                        fog.draggingTokenRef.current?.posicionId ===
+                        vc.posicionId
+                          ? fog.draggingTokenRef.current
+                          : null;
+                      const posX =
+                        live?.posicionX ??
+                        positions.find((p) => p.id === vc.posicionId)
+                          ?.posicionX ??
+                        null;
+                      const posY =
+                        live?.posicionY ??
+                        positions.find((p) => p.id === vc.posicionId)
+                          ?.posicionY ??
+                        null;
+                      if (posX === null || posY === null) continue;
+                      const tokenPos = positions.find(
+                        (p) => p.id === vc.posicionId,
+                      );
+                      const tokenSize = Math.max(
+                        1,
+                        tokenPos?.largo ?? 1,
+                        tokenPos?.ancho ?? 1,
+                      );
+                      const halfSize = tokenSize / 2;
+                      const tcx = grid.rectX + (posX + halfSize) * grid.cellPx;
+                      const tcy = grid.rectY + (posY + halfSize) * grid.cellPxY;
                       ctx.beginPath();
-                      for (const area of localAreas) {
-                        addVisionShapeToPath(
-                          ctx,
-                          area.arcType,
-                          area,
-                          area.posicionX,
-                          area.posicionY,
-                          grid,
-                          grid.cellPx,
-                          (area.tokenSize ?? 1) / 2,
-                        );
-                      }
-                      ctx.globalAlpha = 0.25;
-                      ctx.fillStyle = "#000";
+                      ctx.arc(
+                        tcx,
+                        tcy,
+                        halfSize *
+                          Math.min(grid.cellPx, grid.cellPxY) *
+                          Math.SQRT2 +
+                          2,
+                        0,
+                        Math.PI * 2,
+                      );
                       ctx.fill();
-                      ctx.globalAlpha = 1;
+                      drawVisionShape(
+                        ctx,
+                        vc.arcType,
+                        vc,
+                        posX,
+                        posY,
+                        grid,
+                        grid.cellPx,
+                        halfSize,
+                      );
                     }
-                  }
+                    ctx.restore();
+                  }}
+                />
+              </Layer>
+            )}
 
-                  ctx.fillStyle = "rgba(0,0,0,1)";
-                  for (const vc of fog.nieblaEstado.visionConfigs) {
-                    if (!vc.revelaArea) continue;
-                    const live =
-                      fog.draggingTokenRef.current?.posicionId === vc.posicionId
-                        ? fog.draggingTokenRef.current
-                        : null;
-                    const posX =
-                      live?.posicionX ??
-                      positions.find((p) => p.id === vc.posicionId)
-                        ?.posicionX ??
-                      null;
-                    const posY =
-                      live?.posicionY ??
-                      positions.find((p) => p.id === vc.posicionId)
-                        ?.posicionY ??
-                      null;
-                    if (posX === null || posY === null) continue;
-                    const tokenPos = positions.find(
-                      (p) => p.id === vc.posicionId,
-                    );
-                    const tokenSize = Math.max(
-                      1,
-                      tokenPos?.largo ?? 1,
-                      tokenPos?.ancho ?? 1,
-                    );
-                    const halfSize = tokenSize / 2;
-                    const tcx = grid.rectX + (posX + halfSize) * grid.cellPx;
-                    const tcy = grid.rectY + (posY + halfSize) * grid.cellPxY;
-                    ctx.beginPath();
-                    ctx.arc(
-                      tcx,
-                      tcy,
-                      halfSize *
-                        Math.min(grid.cellPx, grid.cellPxY) *
-                        Math.SQRT2 +
-                        2,
-                      0,
-                      Math.PI * 2,
-                    );
-                    ctx.fill();
-                    drawVisionShape(
-                      ctx,
-                      vc.arcType,
-                      vc,
-                      posX,
-                      posY,
-                      grid,
-                      grid.cellPx,
-                      halfSize,
-                    );
-                  }
-                  ctx.restore();
-                }}
+            {/* Capa de herramientas: regla + lápiz */}
+            <Layer listening={false}>
+              <CampaignRulerOverlay
+                visible={selectedTool === "ruler"}
+                selectedShape={rulerTool.selectedShape}
+                measurement={rulerTool.measurement}
+                overlay={rulerTool.overlay}
+              />
+              <CampaignPencilOverlay
+                drawings={drawingsSocket.drawings}
+                selectedLayer={selectedLayer}
+                previewDrawing={pencilTool.previewDrawing}
               />
             </Layer>
-          )}
+          </Stage>
+        )}
 
-          {/* Capa de herramientas: regla + lápiz */}
-          <Layer listening={false}>
-            <CampaignRulerOverlay
-              visible={selectedTool === "ruler"}
-              selectedShape={rulerTool.selectedShape}
-              measurement={rulerTool.measurement}
-              overlay={rulerTool.overlay}
-            />
-            <CampaignPencilOverlay
-              drawings={drawingsSocket.drawings}
-              selectedLayer={selectedLayer}
-              previewDrawing={pencilTool.previewDrawing}
-            />
-          </Layer>
-        </Stage>
-      )}
+        {/* Menú contextual de token */}
+        {fog.contextMenu && (
+          <TokenContextMenu
+            posicionId={fog.contextMenu.posicionId}
+            x={fog.contextMenu.x}
+            y={fog.contextMenu.y}
+            fogActiva={fog.nieblaEstado.activa}
+            isDM={isDM}
+            currentCapa={
+              (positions.find((p) => p.id === fog.contextMenu!.posicionId)
+                ?.capa ?? "fichas") as "fichas" | "mapa" | "dm"
+            }
+            visionConfig={
+              fog.nieblaEstado.visionConfigs.find(
+                (vc) => vc.posicionId === fog.contextMenu!.posicionId,
+              ) ?? null
+            }
+            onStartResize={(posicionId) => {
+              setResizingPositionId(posicionId);
+              setSelectedPositionId(posicionId);
+            }}
+            onCambiarCapa={(posicionId, capa) =>
+              cambiarCapaToken(posicionId, capa)
+            }
+            onToggleRevela={(posicionId, revela) => {
+              const existing = fog.nieblaEstado.visionConfigs.find(
+                (vc) => vc.posicionId === posicionId,
+              );
+              const updated: VisionConfig = existing
+                ? { ...existing, revelaArea: revela }
+                : {
+                    posicionId,
+                    revelaArea: revela,
+                    arcType: "semicircle",
+                    radius: 6,
+                    apertura: 360,
+                    rotation: 0,
+                    angle: 45,
+                    length: 8,
+                    width: 4,
+                    height: 6,
+                  };
+              configurarVisionToken(updated);
+            }}
+            onOpenVisionArc={(posicionId) => fog.setVisionArcTarget(posicionId)}
+            onEliminar={(posicionId) => {
+              eliminarPosicionPorWebSocket(posicionId);
+              fog.setContextMenu(null);
+            }}
+            onClose={() => fog.setContextMenu(null)}
+          />
+        )}
 
-      {/* Menú contextual de token */}
-      {fog.contextMenu && (
-        <TokenContextMenu
-          posicionId={fog.contextMenu.posicionId}
-          x={fog.contextMenu.x}
-          y={fog.contextMenu.y}
-          fogActiva={fog.nieblaEstado.activa}
-          isDM={isDM}
-          currentCapa={
-            (positions.find((p) => p.id === fog.contextMenu!.posicionId)
-              ?.capa ?? "fichas") as "fichas" | "mapa" | "dm"
-          }
-          visionConfig={
-            fog.nieblaEstado.visionConfigs.find(
-              (vc) => vc.posicionId === fog.contextMenu!.posicionId,
-            ) ?? null
-          }
-          onStartResize={(posicionId) => {
-            setResizingPositionId(posicionId);
-            setSelectedPositionId(posicionId);
-          }}
-          onCambiarCapa={(posicionId, capa) =>
-            cambiarCapaToken(posicionId, capa)
-          }
-          onToggleRevela={(posicionId, revela) => {
-            const existing = fog.nieblaEstado.visionConfigs.find(
-              (vc) => vc.posicionId === posicionId,
+        {/* Modal de arco de visión */}
+        {fog.visionArcTarget !== null &&
+          (() => {
+            const existingVc = fog.nieblaEstado.visionConfigs.find(
+              (vc) => vc.posicionId === fog.visionArcTarget,
             );
-            const updated: VisionConfig = existing
-              ? { ...existing, revelaArea: revela }
-              : {
-                  posicionId,
-                  revelaArea: revela,
-                  arcType: "semicircle",
-                  radius: 6,
-                  apertura: 360,
-                  rotation: 0,
-                  angle: 45,
-                  length: 8,
-                  width: 4,
-                  height: 6,
-                };
-            configurarVisionToken(updated);
-          }}
-          onOpenVisionArc={(posicionId) => fog.setVisionArcTarget(posicionId)}
-          onEliminar={(posicionId) => {
-            eliminarPosicionPorWebSocket(posicionId);
-            fog.setContextMenu(null);
-          }}
-          onClose={() => fog.setContextMenu(null)}
-        />
-      )}
-
-      {/* Modal de arco de visión */}
-      {fog.visionArcTarget !== null &&
-        (() => {
-          const existingVc = fog.nieblaEstado.visionConfigs.find(
-            (vc) => vc.posicionId === fog.visionArcTarget,
-          );
-          const initialVc: VisionConfig = existingVc ?? {
-            posicionId: fog.visionArcTarget,
-            revelaArea: true,
-            arcType: "semicircle",
-            radius: 6,
-            apertura: 360,
-            rotation: 0,
-            angle: 45,
-            length: 8,
-            width: 4,
-            height: 6,
-          };
-          return (
-            <VisionArcModal
-              posicionId={fog.visionArcTarget}
-              initial={initialVc}
-              rotation={
-                fog.rotationDragRef.current?.posicionId === fog.visionArcTarget
-                  ? fog.liveRotationRef.current
-                  : (existingVc?.rotation ?? 0)
-              }
-              onSave={(config) => configurarVisionToken(config)}
-              onClose={() => fog.setVisionArcTarget(null)}
-            />
-          );
-        })()}
-    </div>
+            const initialVc: VisionConfig = existingVc ?? {
+              posicionId: fog.visionArcTarget,
+              revelaArea: true,
+              arcType: "semicircle",
+              radius: 6,
+              apertura: 360,
+              rotation: 0,
+              angle: 45,
+              length: 8,
+              width: 4,
+              height: 6,
+            };
+            return (
+              <VisionArcModal
+                posicionId={fog.visionArcTarget}
+                initial={initialVc}
+                rotation={
+                  fog.rotationDragRef.current?.posicionId ===
+                  fog.visionArcTarget
+                    ? fog.liveRotationRef.current
+                    : (existingVc?.rotation ?? 0)
+                }
+                onSave={(config) => configurarVisionToken(config)}
+                onClose={() => fog.setVisionArcTarget(null)}
+              />
+            );
+          })()}
+      </div>
+    </>
   );
 }

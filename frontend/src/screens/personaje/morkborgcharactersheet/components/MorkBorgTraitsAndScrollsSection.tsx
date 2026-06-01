@@ -89,6 +89,11 @@ function hasKeyword(
   return keywords.some((kw) => tags.includes(kw));
 }
 
+function hasMbTag(tags: string | null | undefined): boolean {
+  if (!tags) return false;
+  return tags.split(",").some((tag) => tag.trim() === "MORK_BORG");
+}
+
 interface Props {
   character: DndCharacterDetailResponse;
   isOwner?: boolean;
@@ -224,16 +229,14 @@ export default function MorkBorgTraitsAndScrollsSection({
   const [decoccionModalOpen, setDecoccionModalOpen] = useState(false);
 
   const handleRollCatastrofe = useCallback(() => {
-    const available = MB_CATASTROFES.map((c) => c.idx).filter(
-      (idx) => !catastrofasIdx.includes(idx),
-    );
-    if (available.length === 0 || rolling) return;
+    if (catastrofasIdx.length >= 20 || rolling) return;
 
     setRolling(true);
     setLastRoll(null);
 
     setTimeout(() => {
-      const picked = available[Math.floor(Math.random() * available.length)];
+      const allIdxs = MB_CATASTROFES.map((c) => c.idx);
+      const picked = allIdxs[Math.floor(Math.random() * allIdxs.length)];
       const next = [...catastrofasIdx, picked];
       setCatastrofasIdx(next);
       localStorage.setItem(storageKey, JSON.stringify(next));
@@ -242,8 +245,25 @@ export default function MorkBorgTraitsAndScrollsSection({
     }, 350);
   }, [catastrofasIdx, rolling, storageKey]);
 
-  const handleReveal = (idx: number) =>
-    setRevealed((prev) => new Set([...prev, idx]));
+  const handleReveal = (arrayIndex: number) =>
+    setRevealed((prev) => new Set([...prev, arrayIndex]));
+
+  const handleRemoveCatastrofe = useCallback(
+    (arrayIndex: number) => {
+      const next = catastrofasIdx.filter((_, i) => i !== arrayIndex);
+      setCatastrofasIdx(next);
+      localStorage.setItem(storageKey, JSON.stringify(next));
+      setRevealed((prev) => {
+        const adjusted = new Set<number>();
+        prev.forEach((revIdx) => {
+          if (revIdx < arrayIndex) adjusted.add(revIdx);
+          else if (revIdx > arrayIndex) adjusted.add(revIdx - 1);
+        });
+        return adjusted;
+      });
+    },
+    [catastrofasIdx, storageKey],
+  );
 
   const allUsed = catastrofasIdx.length >= 20;
 
@@ -268,8 +288,9 @@ export default function MorkBorgTraitsAndScrollsSection({
   const classAbilities = character.habilidades.filter((h) =>
     hasKeyword(h.tags, CLASS_ABILITY_KEYWORDS),
   );
-  const classItems = character.mochila.filter((item) =>
-    hasKeyword(item.tags, CLASS_OBJECT_KEYWORDS),
+  const classItems = character.mochila.filter(
+    (item) =>
+      hasMbTag(item.tags) && hasKeyword(item.tags, CLASS_OBJECT_KEYWORDS),
   );
 
   return (
@@ -368,13 +389,13 @@ export default function MorkBorgTraitsAndScrollsSection({
               </p>
             ) : (
               <div className="mt-3 space-y-2">
-                {catastrofasIdx.map((idx) => {
+                {catastrofasIdx.map((idx, arrayIndex) => {
                   const cat = MB_CATASTROFES.find((c) => c.idx === idx);
                   if (!cat) return null;
-                  const isRevealed = revealed.has(idx);
+                  const isRevealed = revealed.has(arrayIndex);
                   return (
                     <div
-                      key={idx}
+                      key={arrayIndex}
                       className="rounded-[14px] border border-rose-800/30 bg-rose-950/20 px-4 py-3"
                     >
                       <div className="flex items-start gap-3">
@@ -391,15 +412,25 @@ export default function MorkBorgTraitsAndScrollsSection({
                             </p>
                           ) : null}
                         </div>
-                        {cat.oculto && !isRevealed ? (
+                        <div className="flex shrink-0 items-start gap-2 self-start">
+                          {cat.oculto && !isRevealed ? (
+                            <button
+                              type="button"
+                              onClick={() => handleReveal(arrayIndex)}
+                              className="rounded-full border border-rose-500/30 bg-rose-950/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-rose-300 transition hover:bg-rose-900/50"
+                            >
+                              Efecto oculto
+                            </button>
+                          ) : null}
                           <button
                             type="button"
-                            onClick={() => handleReveal(idx)}
-                            className="shrink-0 self-start rounded-full border border-rose-500/30 bg-rose-950/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-rose-300 transition hover:bg-rose-900/50"
+                            onClick={() => handleRemoveCatastrofe(arrayIndex)}
+                            className="flex h-7 w-7 items-center justify-center rounded-full border border-rose-600/40 bg-rose-950/50 text-rose-400 transition hover:bg-rose-800/60 hover:text-rose-200"
+                            aria-label="Eliminar catástrofe"
                           >
-                            Efecto oculto
+                            <Trash2 size={13} />
                           </button>
-                        ) : null}
+                        </div>
                       </div>
                     </div>
                   );

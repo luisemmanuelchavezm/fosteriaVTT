@@ -179,6 +179,7 @@ public class NpcService {
 		}
 		dndAbilityUtils.agregarHabilidadSiNoExiste(personaje, habilidad);
 		personajeRepository.save(personaje);
+		emitirActualizacionPersonaje(personajeId);
 	}
 
 	@Transactional
@@ -232,6 +233,7 @@ public class NpcService {
 		String current = personaje.getTags() != null ? personaje.getTags() : "";
 		personaje.setTags(current.isBlank() ? tagsToAdd : current + "," + tagsToAdd);
 		personajeRepository.save(personaje);
+		emitirActualizacionPersonaje(personajeId);
 	}
 
 	@Transactional

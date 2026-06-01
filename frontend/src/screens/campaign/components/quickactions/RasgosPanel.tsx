@@ -15,6 +15,10 @@ interface BiografiaJson {
   rasgosAleatorios?: RandomTable[];
 }
 
+function isEspecialTable(table: RandomTable): boolean {
+  return table.tagKey.toLowerCase().includes("especial");
+}
+
 function hasTag(tags: string | null | undefined, key: string): boolean {
   return !!tags && tags.includes(key);
 }
@@ -58,15 +62,16 @@ export default function RasgosPanel({
   const hasRandomTraits = hasTag(charTags, "MBRasgosAleatorios");
 
   const bioJson = detail ? parseBiografia(detail.biografia) : null;
-  const resolvedTraits = bioJson?.rasgosAleatorios
-    ? resolveRandomTraits(bioJson.rasgosAleatorios, charTags)
+  const rasgoTables = bioJson?.rasgosAleatorios?.filter(
+    (table) => !isEspecialTable(table),
+  );
+  const resolvedTraits = rasgoTables
+    ? resolveRandomTraits(rasgoTables, charTags)
     : null;
-  // All traits except the last (which is Especialidad)
-  const resolvedRasgos = resolvedTraits?.slice(0, -1).filter(Boolean) ?? [];
+  const resolvedRasgos = resolvedTraits?.filter(Boolean) ?? [];
 
-  const templateRasgoText = bioJson?.rasgosAleatorios
-    ? bioJson.rasgosAleatorios
-        .slice(0, -1)
+  const templateRasgoText = rasgoTables?.length
+    ? rasgoTables
         .map((t) => `${t.nombre}: ${t.opciones.join(" / ")}`)
         .join("\n")
     : null;

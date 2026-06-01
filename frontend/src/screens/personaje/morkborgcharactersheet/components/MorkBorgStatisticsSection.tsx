@@ -9,6 +9,11 @@ function typeOrder(tipoObjeto: string): number {
   return 2;
 }
 
+function hasMbTag(tags: string | null | undefined): boolean {
+  if (!tags) return false;
+  return tags.split(",").some((tag) => tag.trim() === "MORK_BORG");
+}
+
 function formatMod(mod: number): string {
   return mod >= 0 ? `+${mod}` : `${mod}`;
 }
@@ -69,7 +74,7 @@ export default function MorkBorgStatisticsSection({
   const carryableItems: CharacterInventoryItemResponse[] = [
     ...character.mochila,
   ]
-    .filter((item) => item.tipoObjeto !== "DINERO")
+    .filter((item) => item.tipoObjeto !== "DINERO" && hasMbTag(item.tags))
     .sort((a, b) => typeOrder(a.tipoObjeto) - typeOrder(b.tipoObjeto));
   // Items que no cuentan para carga (dinero, si existiera) los ordenamos aparte
   const sortedItems: CharacterInventoryItemResponse[] = carryableItems;

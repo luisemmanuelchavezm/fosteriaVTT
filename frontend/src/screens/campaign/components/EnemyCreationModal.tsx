@@ -6,6 +6,7 @@ import EnemyStatsSection from "./enemy/EnemyStatsSection";
 import WeaponSection from "./enemy/WeaponSection";
 import SkillsAndSavesSection from "./enemy/SkillsAndSavesSection";
 import ActionsSection from "./enemy/ActionsSection";
+import MorkBorgEnemyCreationModal from "./MorkBorgEnemyCreationModal";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -18,7 +19,7 @@ interface EnemyCreationModalProps {
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
 
-export default function EnemyCreationModal({
+function DndEnemyCreationModal({
   isOpen,
   sistemaDeJuego,
   onClose,
@@ -119,6 +120,7 @@ export default function EnemyCreationModal({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
+              data-field-error={fieldErrors.portrait ? "true" : undefined}
               className="flex h-32 w-32 flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed border-white/25 bg-white/5 transition hover:border-amber-300/50 hover:bg-white/10"
             >
               {portraitPreview ? (
@@ -144,6 +146,11 @@ export default function EnemyCreationModal({
               >
                 Eliminar
               </button>
+            )}
+            {fieldErrors.portrait && (
+              <p data-field-error className="mt-2 text-xs text-red-400">
+                {fieldErrors.portrait}
+              </p>
             )}
           </div>
 
@@ -404,4 +411,12 @@ export default function EnemyCreationModal({
       </div>
     </div>
   );
+}
+
+export default function EnemyCreationModal(props: EnemyCreationModalProps) {
+  if (props.sistemaDeJuego === "Mork Borg") {
+    return <MorkBorgEnemyCreationModal {...props} />;
+  }
+
+  return <DndEnemyCreationModal {...props} />;
 }

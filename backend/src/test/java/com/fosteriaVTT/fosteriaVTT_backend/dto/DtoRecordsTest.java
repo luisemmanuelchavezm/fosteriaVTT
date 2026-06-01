@@ -226,11 +226,12 @@ class DtoRecordsTest {
 
     @Test
     void objetoCatalogoResponseAlmacenaValores() {
-        var r = new ObjetoCatalogoResponse(42L, "Espada larga", "1d8+STR", "Una espada básica", "arma");
+        var r = new ObjetoCatalogoResponse(42L, "Espada larga", "1d8+STR", "Una espada básica", "arma", "DND,ArmaMarcial");
         assertEquals(42L, r.id());
         assertEquals("Espada larga", r.nombre());
         assertEquals("1d8+STR", r.formula());
         assertEquals("Una espada básica", r.descripcion());
         assertEquals("arma", r.tipoObjeto());
+        assertEquals("DND,ArmaMarcial", r.tags());
     }
 }

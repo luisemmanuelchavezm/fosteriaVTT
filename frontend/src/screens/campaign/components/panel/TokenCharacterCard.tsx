@@ -26,6 +26,12 @@ const MB_MAIN_STATS = [
   { key: "MB_ModResistencia", short: "Res", display: "Resistencia" },
 ] as const;
 
+function getMbInventoryTypeOrder(tipoObjeto: string): number {
+  if (tipoObjeto === "ARMA") return 0;
+  if (tipoObjeto === "ARMADURA") return 1;
+  return 2;
+}
+
 interface TokenCharacterCardProps {
   token: CampaignPositionResponse;
   detail: DndCharacterDetailResponse | undefined;
@@ -175,7 +181,13 @@ export default function TokenCharacterCard({
   const mbCarga = isMB && !isMBEnemy ? (stats["MB_Carga"] ?? 0) : 0;
   const mbItems =
     isMB && !isMBEnemy
-      ? (detail?.mochila ?? []).filter((item) => item.tipoObjeto !== "DINERO")
+      ? [...(detail?.mochila ?? [])]
+          .filter((item) => item.tipoObjeto !== "DINERO")
+          .sort(
+            (a, b) =>
+              getMbInventoryTypeOrder(a.tipoObjeto) -
+              getMbInventoryTypeOrder(b.tipoObjeto),
+          )
       : [];
   const mbMaxSlots = mbCarga * 2;
   const mbIsOverloaded = mbItems.length > mbCarga;

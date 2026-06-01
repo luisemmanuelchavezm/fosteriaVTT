@@ -4,7 +4,7 @@ import { useDiceRoller } from "../../../../components/dice/useDiceRoller";
 import DiceRollOverlay from "../../../../components/dice/DiceRollOverlay";
 import type { DiceRollSummary } from "../../../../components/dice/useDiceRoller";
 import type { DndCharacterDetailResponse } from "../../utils/dndApi";
-import { saveMBEnemyVida, saveMBEnemyMoral } from "../../utils/dndApi";
+import { saveMBEnemyVida, saveMBEnemyMoral } from "../../utils/mbApi";
 
 // ── Tag helpers ──────────────────────────────────────────────────────────────
 
@@ -82,6 +82,10 @@ interface RandomWeaponTable {
 interface BiografiaJson {
   rasgosAleatorios?: RandomTable[];
   armaAleatoria?: RandomWeaponTable;
+}
+
+function isEspecialTable(table: RandomTable): boolean {
+  return table.tagKey.toLowerCase().includes("especial");
 }
 
 function parseBiografia(bio: string | null | undefined): BiografiaJson | null {
@@ -306,8 +310,8 @@ export default function MorkBorgEnemySheetContent({
   const stats = character.estadisticas;
   const vidaActual = Math.max(0, stats["Vida actual"] ?? 0);
   const vidaMaxima = Math.max(
-    1,
-    stats["Vida maxima"] ?? stats["Puntos de vida"] ?? 1,
+    0,
+    stats["Vida maxima"] ?? stats["Puntos de vida"] ?? 0,
   );
   const moralActual = stats["Moral actual"] ?? null;
   const moralMaxima = stats["Moral maxima"] ?? null;
@@ -475,6 +479,12 @@ export default function MorkBorgEnemySheetContent({
   const especial = getEspecial(character);
   const loot = getLoot(character);
   const bioJson = parseBiografia(character.biografia);
+  const rasgoTables = bioJson?.rasgosAleatorios?.filter(
+    (table) => !isEspecialTable(table),
+  );
+  const especialTables = bioJson?.rasgosAleatorios?.filter((table) =>
+    isEspecialTable(table),
+  );
 
   // Random weapon (Berserker)
   const randomWeapon = bioJson?.armaAleatoria
@@ -482,20 +492,21 @@ export default function MorkBorgEnemySheetContent({
     : null;
 
   // Random traits (Pálido, Merodeador)
-  const resolvedTraits = bioJson?.rasgosAleatorios
-    ? resolveRandomTraits(bioJson.rasgosAleatorios, tags)
+  const resolvedTraits = rasgoTables
+    ? resolveRandomTraits(rasgoTables, tags)
+    : null;
+  const resolvedEspecialidades = especialTables
+    ? resolveRandomTraits(especialTables, tags)
     : null;
 
   // Instance: show resolved; Template: show tables as text
-  const resolvedRasgos = resolvedTraits?.slice(0, -1).filter(Boolean) ?? [];
-  const resolvedEspecialidad = resolvedTraits
-    ? resolvedTraits[resolvedTraits.length - 1]
-    : null;
+  const resolvedRasgos = resolvedTraits?.filter(Boolean) ?? [];
+  const resolvedEspecialidad =
+    resolvedEspecialidades?.find((entry) => entry !== null) ?? null;
 
   // Template text for random trait tables (shown in baúl/marketplace)
-  const templateRasgoText = bioJson?.rasgosAleatorios
-    ? bioJson.rasgosAleatorios
-        .slice(0, -1)
+  const templateRasgoText = rasgoTables?.length
+    ? rasgoTables
         .map(
           (t) =>
             `${t.nombre} (${t.dados}):\n${t.opciones.map((o, i) => `${i + 1}. ${o}`).join("\n")}`,
@@ -503,12 +514,11 @@ export default function MorkBorgEnemySheetContent({
         .join("\n\n")
     : null;
 
-  const templateEspecialidadText = bioJson?.rasgosAleatorios
+  const templateEspecialidadText = especialTables?.length
     ? (() => {
-        const last =
-          bioJson.rasgosAleatorios[bioJson.rasgosAleatorios.length - 1];
-        return last
-          ? `${last.nombre} (${last.dados}):\n${last.opciones.map((o, i) => `${i + 1}. ${o}`).join("\n")}`
+        const first = especialTables[0];
+        return first
+          ? `${first.nombre} (${first.dados}):\n${first.opciones.map((o, i) => `${i + 1}. ${o}`).join("\n")}`
           : null;
       })()
     : null;
@@ -577,7 +587,7 @@ export default function MorkBorgEnemySheetContent({
             current={currentMoral}
             max={moralMaxima ?? 0}
             disabled={noMoral || moralEspecial}
-            disabledLabel={moralEspecial ? "Especial" : "-/-"}
+            disabledLabel={moralEspecial ? "Especial" : "-"}
             readOnly={!isInstance}
             healLabel="Aumentar"
             damageLabel="Disminuir"

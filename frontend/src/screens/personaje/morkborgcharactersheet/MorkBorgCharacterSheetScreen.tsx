@@ -15,17 +15,19 @@ import type {
 import {
   addDndCharacterInventoryItem,
   deleteDndCharacterInventoryItem,
+  deleteDndCharacter,
+  eliminarHabilidadPersonaje,
+  updateCharacterPortrait,
+} from "../utils/dndApi";
+import {
   updateMBSupplies,
   mejorarPersonajeMB,
   intercambiarEscoriaEspecialidad,
   getMBRasgosClase,
   agregarRasgoClaseMB,
   crearRasgoCustomMB,
-  deleteDndCharacter,
   saveCurrentHpMB,
-  eliminarHabilidadPersonaje,
-  updateCharacterPortrait,
-} from "../utils/dndApi";
+} from "../utils/mbApi";
 import MorkBorgImprovementModal from "./components/MorkBorgImprovementModal";
 import MorkBorgClassTraitsCatalogModal from "./components/MorkBorgClassTraitsCatalogModal";
 import MorkBorgScrollCatalogModal from "./components/MorkBorgScrollCatalogModal";

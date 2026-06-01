@@ -219,12 +219,14 @@ public class PersonajeService {
 	public void actualizarSuministrosMB(Long personajeId, ActualizarSuministrosMBRequest request, String username) {
 		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
 		estadisticaService.actualizarSuministrosMB(personaje, request);
+		emitirActualizacionPersonaje(personajeId);
 	}
 
 	@Transactional
 	public void actualizarHPMB(Long personajeId, ActualizarHPMBRequest request, String username) {
 		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
 		estadisticaService.actualizarHPMB(personaje, request);
+		emitirActualizacionPersonaje(personajeId);
 	}
 
 	@Transactional

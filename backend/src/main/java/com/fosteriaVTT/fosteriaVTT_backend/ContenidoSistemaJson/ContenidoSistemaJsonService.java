@@ -13,6 +13,7 @@ import com.fosteriaVTT.fosteriaVTT_backend.dto.RazaDndResumenResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.SubrazaDndDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.TrasfondoDndDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.TrasfondoDndResumenResponse;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.MBAyudaDmCatalogoResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,7 @@ public class ContenidoSistemaJsonService {
     public static final String DND_PACKAGE_CLASS_SUMMARIES = "clases:resumenes";
     public static final String DND_PACKAGE_BACKGROUND_SUMMARIES = "trasfondos:resumenes";
     public static final String DND_PACKAGE_RACE_SUMMARIES = "razas:resumenes";
+    public static final String MB_PACKAGE_DM_HELP_CATALOG = "ayuda-dm:catalogo";
 
     private final ContenidoSistemaJsonRepository contenidoSistemaJsonRepository;
     private final ObjectMapper objectMapper;
@@ -78,6 +80,14 @@ public class ContenidoSistemaJsonService {
     public List<String> obtenerCatalogoRazaDnd(String catalogoId) {
         return obtenerPaqueteTipadoOpcional(SistemaDeJuego.DND, paqueteCatalogoRaza(catalogoId), new TypeReference<List<String>>() {})
                 .orElse(List.of());
+    }
+
+    public MBAyudaDmCatalogoResponse obtenerAyudaDmMorkBorg() {
+        return obtenerPaqueteTipadoOpcional(
+                SistemaDeJuego.MORK_BORG,
+                MB_PACKAGE_DM_HELP_CATALOG,
+                new TypeReference<MBAyudaDmCatalogoResponse>() {}
+        ).orElse(new MBAyudaDmCatalogoResponse(List.of(), List.of()));
     }
 
     public String obtenerPaqueteRaw(SistemaDeJuego sistema, String paquete) {

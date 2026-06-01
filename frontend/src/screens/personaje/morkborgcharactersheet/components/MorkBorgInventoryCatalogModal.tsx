@@ -4,6 +4,7 @@ import {
   type AddDndCharacterInventoryItemRequest,
   type ObjectCatalogResponse,
 } from "../../utils/dndApi";
+import { MB_WEAPONS } from "../../createmorkborg/utils/morkBorgUtils";
 
 const MB_ABILITY_OPTIONS = [
   { value: "@mb_fuerza", label: "Fuerza" },
@@ -40,6 +41,65 @@ interface MorkBorgInventoryCatalogModalProps {
   onAddItem: (payload: AddDndCharacterInventoryItemRequest) => Promise<void>;
 }
 
+interface MbCatalogItem extends ObjectCatalogResponse {
+  fallback?: boolean;
+}
+
+function hasMbTag(tags: string | null | undefined) {
+  if (!tags) return false;
+  return tags.split(",").some((tag) => tag.trim() === "MORK_BORG");
+}
+
+function isVisibleMbCatalogItem(
+  item: ObjectCatalogResponse,
+  typeFilter: string,
+) {
+  if (!hasMbTag(item.tags)) return false;
+  if (typeFilter === "OTROS") {
+    return item.tipoObjeto !== "ARMA" && item.tipoObjeto !== "ARMADURA";
+  }
+  return true;
+}
+
+function buildMbCustomIndice(customType: CustomObjectType) {
+  if (customType === "ARMA") return "MORK_BORG,Arma,MorkBorgCustom";
+  if (customType === "ARMADURA") return "MORK_BORG,Armadura,MorkBorgCustom";
+  return "MORK_BORG,Miscelaneo,MorkBorgCustom";
+}
+
+function normalizeCatalogName(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function buildMbWeaponFallbackItems(
+  existingItems: ObjectCatalogResponse[],
+  search: string,
+): MbCatalogItem[] {
+  const normalizedSearch = normalizeCatalogName(search);
+  const existingNames = new Set(
+    existingItems.map((item) => normalizeCatalogName(item.nombre)),
+  );
+
+  return MB_WEAPONS.filter((weapon) => {
+    const normalizedName = normalizeCatalogName(weapon.nombre);
+    const matchesSearch =
+      !normalizedSearch || normalizedName.includes(normalizedSearch);
+    return matchesSearch && !existingNames.has(normalizedName);
+  }).map((weapon) => ({
+    id: -weapon.idx,
+    nombre: weapon.nombre,
+    formula: weapon.formula,
+    descripcion: "Arma base de Mork Borg.",
+    tipoObjeto: "ARMA",
+    tags: `MORK_BORG,Arma,ArmaIdx;${weapon.idx}`,
+    fallback: true,
+  }));
+}
+
 export default function MorkBorgInventoryCatalogModal({
   token,
   isOpen,
@@ -48,7 +108,7 @@ export default function MorkBorgInventoryCatalogModal({
 }: MorkBorgInventoryCatalogModalProps) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
-  const [items, setItems] = useState<ObjectCatalogResponse[]>([]);
+  const [items, setItems] = useState<MbCatalogItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCustomMode, setIsCustomMode] = useState(false);
@@ -79,7 +139,21 @@ export default function MorkBorgInventoryCatalogModal({
         },
         abortController.signal,
       )
-        .then(setItems)
+        .then((catalogItems) => {
+          const filteredItems = catalogItems.filter((item) =>
+            hasMbTag(item.tags),
+          );
+          const shouldAddWeaponFallbacks =
+            typeFilter === "" || typeFilter === "ARMA";
+          setItems(
+            shouldAddWeaponFallbacks
+              ? [
+                  ...filteredItems,
+                  ...buildMbWeaponFallbackItems(filteredItems, search),
+                ]
+              : filteredItems,
+          );
+        })
         .catch((fetchError) => {
           if ((fetchError as Error).name === "AbortError") return;
           setError(
@@ -152,11 +226,22 @@ export default function MorkBorgInventoryCatalogModal({
     onClose();
   };
 
-  const handleAddExisting = async (itemId: number) => {
+  const handleAddExisting = async (item: MbCatalogItem) => {
     try {
       setIsSubmitting(true);
       setSubmitError(null);
-      await onAddItem({ objetoId: itemId, cantidad: 1 });
+      await onAddItem(
+        item.fallback
+          ? {
+              nombre: item.nombre,
+              descripcion: item.descripcion,
+              formula: item.formula,
+              tipoObjeto: item.tipoObjeto,
+              indice: item.tags,
+              cantidad: 1,
+            }
+          : { objetoId: item.id, cantidad: 1 },
+      );
       closeModal();
     } catch (err) {
       setSubmitError(
@@ -208,7 +293,7 @@ export default function MorkBorgInventoryCatalogModal({
         descripcion: customDescription.trim() || null,
         formula: builtFormula,
         tipoObjeto: customType === "OTROS" ? "MISCELANEO" : customType,
-        indice: null,
+        indice: buildMbCustomIndice(customType),
         cantidad: 1,
       });
       closeModal();
@@ -246,7 +331,6 @@ export default function MorkBorgInventoryCatalogModal({
           </button>
         </div>
 
-        {/* Tabs */}
         <div className="border-b border-stone-300/10 px-6 py-4">
           <div className="flex flex-wrap gap-2">
             <button
@@ -306,24 +390,15 @@ export default function MorkBorgInventoryCatalogModal({
                 ) : null}
 
                 {!isLoading &&
-                items.filter((item) =>
-                  typeFilter !== "OTROS"
-                    ? true
-                    : item.tipoObjeto !== "ARMA" &&
-                      item.tipoObjeto !== "ARMADURA",
-                ).length === 0 ? (
+                items.filter((item) => isVisibleMbCatalogItem(item, typeFilter))
+                  .length === 0 ? (
                   <div className="rounded-[16px] border border-dashed border-white/10 bg-black/20 px-4 py-5 text-sm text-stone-400">
                     No hay objetos que coincidan con el filtro actual.
                   </div>
                 ) : null}
 
                 {items
-                  .filter((item) =>
-                    typeFilter !== "OTROS"
-                      ? true
-                      : item.tipoObjeto !== "ARMA" &&
-                        item.tipoObjeto !== "ARMADURA",
-                  )
+                  .filter((item) => isVisibleMbCatalogItem(item, typeFilter))
                   .map((item) => (
                     <article
                       key={item.id}
@@ -349,7 +424,7 @@ export default function MorkBorgInventoryCatalogModal({
                         <button
                           type="button"
                           disabled={isSubmitting}
-                          onClick={() => void handleAddExisting(item.id)}
+                          onClick={() => void handleAddExisting(item)}
                           className="rounded-full border border-rose-300/30 bg-rose-300/10 px-4 py-2 text-sm font-semibold text-rose-100 disabled:opacity-50"
                         >
                           Añadir

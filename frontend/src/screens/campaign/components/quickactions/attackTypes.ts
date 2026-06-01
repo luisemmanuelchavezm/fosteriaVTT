@@ -11,6 +11,11 @@ const MB_STAT_FORMULA_MAP: { name: string; modKey: string }[] = [
   { name: "resistencia", modKey: "MB_ModResistencia" },
 ];
 
+function normalizeMbDamageExpression(expression: string | null): string | null {
+  if (!expression) return null;
+  return expression.replace(/(^|[+(-])d(\d+)/gi, "$11d$2");
+}
+
 export function getMBWeaponOptions(
   detail: DndCharacterDetailResponse | null,
 ): WeaponOption[] {
@@ -40,7 +45,7 @@ export function getMBWeaponOptions(
         id: item.id,
         name: item.nombre,
         attackBonus: mod,
-        damageExpression: damageExpr,
+        damageExpression: normalizeMbDamageExpression(damageExpr),
       };
     });
 }
@@ -84,7 +89,7 @@ export function getMBEnemyWeaponOptions(
           id: -1,
           name: weapon.nombre,
           attackBonus: null,
-          damageExpression: weapon.formula,
+          damageExpression: normalizeMbDamageExpression(weapon.formula),
         });
       }
     } catch {
@@ -103,7 +108,7 @@ export function getMBEnemyWeaponOptions(
         id: h.id,
         name: h.nombre,
         attackBonus: null,
-        damageExpression: h.formula,
+        damageExpression: normalizeMbDamageExpression(h.formula),
       });
     }
   }

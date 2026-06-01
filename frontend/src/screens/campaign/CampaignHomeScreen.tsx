@@ -96,7 +96,7 @@ export default function CampaignHomeScreen({
         <button
           type="button"
           onClick={onExit}
-          className="flex h-10 items-center justify-center rounded-full border border-white/25 bg-black/50 px-4 text-sm font-bold text-white transition hover:border-red-500/40 hover:bg-red-950/60 hover:text-red-300"
+          className="flex h-12 items-center justify-center rounded-full border border-white/30 bg-black/60 px-5 text-base font-black text-white shadow-[0_10px_24px_rgba(0,0,0,0.35)] transition hover:border-red-500/50 hover:bg-red-950/65 hover:text-red-300"
         >
           Salir
         </button>
