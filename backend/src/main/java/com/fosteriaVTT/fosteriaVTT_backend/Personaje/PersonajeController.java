@@ -46,15 +46,18 @@ import org.springframework.web.multipart.MultipartFile;
 public class PersonajeController {
 
     private final PersonajeService personajeService;
+    private final PersonajeMBService personajeMBService;
     private final NpcService npcService;
     private final PersonajeMarketplaceService marketplaceService;
 
     public PersonajeController(
             PersonajeService personajeService,
+            PersonajeMBService personajeMBService,
             NpcService npcService,
             PersonajeMarketplaceService marketplaceService
     ) {
         this.personajeService = personajeService;
+        this.personajeMBService = personajeMBService;
         this.npcService = npcService;
         this.marketplaceService = marketplaceService;
     }
@@ -147,7 +150,7 @@ public class PersonajeController {
             @RequestBody ActualizarHPMBRequest request,
             Authentication authentication
     ) {
-        personajeService.actualizarHPMB(id, request, authentication.getName());
+        personajeMBService.actualizarHPMB(id, request, authentication.getName());
     }
 
     @PostMapping("/{id}/rasgo-clase-mb")
@@ -156,7 +159,7 @@ public class PersonajeController {
             @RequestBody AgregarHabilidadPersonajeRequest request,
             Authentication authentication
     ) {
-        return personajeService.agregarRasgoClaseMB(id, request.habilidadId(), authentication.getName());
+        return personajeMBService.agregarRasgoClaseMB(id, request.habilidadId(), authentication.getName());
     }
 
     @PostMapping("/{id}/rasgo-custom-mb")
@@ -165,7 +168,7 @@ public class PersonajeController {
             @RequestBody AgregarRasgoCustomMBRequest request,
             Authentication authentication
     ) {
-        return personajeService.crearRasgoCustomMB(id, request, authentication.getName());
+        return personajeMBService.crearRasgoCustomMB(id, request, authentication.getName());
     }
 
     @PatchMapping("/{id}/escoria-especialidad")
@@ -174,7 +177,7 @@ public class PersonajeController {
             @RequestBody EscoriaEspecialidadRequest request,
             Authentication authentication
     ) {
-        return personajeService.intercambiarEscoriaEspecialidad(id, request, authentication.getName());
+        return personajeMBService.intercambiarEscoriaEspecialidad(id, request, authentication.getName());
     }
 
     @PatchMapping("/{id}/mejorar-mb")
@@ -183,7 +186,7 @@ public class PersonajeController {
             @RequestBody MejorarPersonajeMBRequest request,
             Authentication authentication
     ) {
-        return personajeService.mejorarPersonajeMB(id, request, authentication.getName());
+        return personajeMBService.mejorarPersonajeMB(id, request, authentication.getName());
     }
 
     @PatchMapping("/{id}/suministros-mb")
@@ -192,7 +195,7 @@ public class PersonajeController {
             @RequestBody ActualizarSuministrosMBRequest request,
             Authentication authentication
     ) {
-        personajeService.actualizarSuministrosMB(id, request, authentication.getName());
+        personajeMBService.actualizarSuministrosMB(id, request, authentication.getName());
     }
 
     // ─────────────────────────────────────────────

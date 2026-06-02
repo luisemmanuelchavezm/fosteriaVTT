@@ -1,272 +1,42 @@
-import { useEffect, useRef, useState } from "react";
 import DiceRollOverlay from "../../../../components/dice/DiceRollOverlay";
-import { useDiceRoller } from "../../../../components/dice/useDiceRoller";
 import {
   MB_WEAPONS,
-  MB_SIN_CLASE_CONTAINER_TABLE,
-  MB_SIN_CLASE_ITEM_TABLE_1,
-  MB_SIN_CLASE_ITEM_TABLE_2,
-  getMbArmaExpression,
-  getMbArmaduraExpression,
-  getMbComidaExpression,
-  getMbPlataExpression,
-  getMbTableEntry,
-  getMbWeaponByIdx,
   getMbArmorByRoll,
   getMbScrollByIdx,
-  type MbTableEntry,
-  type MbWeapon,
-  type MbArmor,
-  type MorkBorgClass,
 } from "../utils/morkBorgUtils";
-
-// ── IDs de zona ───────────────────────────────────────────────────────────────
-const Z_PLATA = "plata";
-const Z_COMIDA = "comida";
-const Z_ARMA = "arma";
-const Z_ARMADURA = "armadura";
-const Z_CONTENEDOR = "contenedor";
-const Z_ITEM1 = "item1";
-const Z_ITEM2 = "item2";
-const Z_IMPURO_IDX = "impuro-idx";
-const Z_VENENO_CANT = "veneno-cant";
-const Z_SAGRADO_IDX = "sagrado-idx";
-const Z_ELIXIR_CANT = "elixir-cant";
-const Z_MONOS_CANT = "monos-cant";
-const Z_PER_TIPO = "per-tipo";
-const Z_PER_IDX = "per-idx";
-const Z_ESOT_TIPO = "esot-tipo";
-const Z_ESOT_IDX = "esot-idx";
-
-// ── Tablas de referencia para los modales ? ───────────────────────────────────
-const D6_CONTAINER_INFO = [
-  { label: "1–2", description: "Nada" },
-  { label: "3", description: "Mochila para 7 artículos de tamaño normal" },
-  { label: "4", description: "Saco para 10 prendas de tamaño normal" },
-  {
-    label: "5",
-    description: "Cofre pequeño o un artículo de arriba a tu elección",
-  },
-  {
-    label: "6",
-    description: "Burro, no está mal. O uno de los anteriores a tu elección",
-  },
-];
-
-const D12_TABLE1_INFO = [
-  { label: "1", description: "Cuerda de 30 pies" },
-  { label: "2", description: "Presencia + 4 antorchas" },
-  { label: "3", description: "Farol con aceite para Presencia + 6 horas" },
-  { label: "4", description: "Tira de magnesio" },
-  { label: "5", description: "Pergamino impuro al azar" },
-  { label: "6", description: "Aguja afilada" },
-  {
-    label: "7",
-    description:
-      "Botiquín — Presencia + 4 usos (detiene hemorragia/infección, cura d6 PV)",
-  },
-  { label: "8", description: "Lima de metal y ganzúas" },
-  {
-    label: "9",
-    description: "Trampa para osos (Presencia DR14 para detectar, daño d8)",
-  },
-  { label: "10", description: "Bomba — botella sellada, daño d10" },
-  {
-    label: "11",
-    description:
-      "Botella de veneno rojo — d4 dosis (Resistencia CD12 o daño d10)",
-  },
-  { label: "12", description: "Crucifijo de plata" },
-];
-
-const D12_TABLE2_INFO = [
-  {
-    label: "1",
-    description:
-      "Elixir de vida con d4 dosis (cura d6 PV y elimina la infección)",
-  },
-  { label: "2", description: "Pergamino sagrado al azar" },
-  {
-    label: "3",
-    description:
-      "Perro pequeño pero feroz (d6+2 PV, mordisco d4, solo obedece a su dueño)",
-  },
-  {
-    label: "4",
-    description:
-      "d4 monos que te ignoran pero te quieren (d4+2 PV, puñetazo/mordisco d4)",
-  },
-  { label: "5", description: "Perfume exquisito por valor de 25s" },
-  {
-    label: "6",
-    description:
-      "Caja de herramientas — 10 clavos, tenazas, martillo, sierra pequeña y taladro",
-  },
-  { label: "7", description: "Cadena pesada de 15 pies" },
-  { label: "8", description: "Gancho de escalada" },
-  {
-    label: "9",
-    description: "Escudo (-1 PV de daño o se rompe para ignorar un ataque)",
-  },
-  { label: "10", description: "Palanca (d4 daño)" },
-  {
-    label: "11",
-    description:
-      "Manteca de cerdo (puede funcionar como 5 comidas en caso de necesidad)",
-  },
-  { label: "12", description: "Tienda de campaña" },
-];
-
-// ── Helpers visuales ──────────────────────────────────────────────────────────
-function SubRollButton({
-  label,
-  onClick,
-  disabled,
-}: {
-  label: string;
-  onClick: () => void;
-  disabled: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className="mt-2 flex items-center gap-1 rounded-full border border-stone-600 bg-stone-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
-    >
-      🎲 {label}
-    </button>
-  );
-}
-
-function presenciaQty(modifier: number | null, base: number): string {
-  if (modifier === null) return `? + ${base}`;
-  return String(Math.max(1, modifier + base));
-}
-
-function PresenciaNota({ modifier }: { modifier: number | null }) {
-  if (modifier !== null) return null;
-  return (
-    <p className="mt-1 text-xs italic text-amber-400/80">
-      ↑ Tira Presencia en la fase de Estadísticas
-    </p>
-  );
-}
-
-function ResultChip({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-block rounded-full border border-amber-300/60 bg-stone-800 px-2.5 py-0.5 text-xs font-bold text-amber-200">
-      {children}
-    </span>
-  );
-}
-
-// ── Caja de tabla con modal ? ─────────────────────────────────────────────────
-interface TableInfo {
-  label: string;
-  description: string;
-}
-
-interface TableBoxProps {
-  label: string;
-  dice: string;
-  hasResult: boolean;
-  isRollingThis: boolean;
-  isRollingAny: boolean;
-  onRoll: () => void;
-  children: React.ReactNode;
-  tableInfo?: TableInfo[];
-}
-
-function TableBox({
-  label,
-  dice,
-  hasResult,
-  isRollingThis,
-  isRollingAny,
-  onRoll,
-  children,
-  tableInfo,
-}: TableBoxProps) {
-  const [showModal, setShowModal] = useState(false);
-
-  return (
-    <div
-      className={`relative flex flex-col gap-3 rounded-[22px] border px-4 py-5 transition ${hasResult ? "border-amber-300/60 bg-gradient-to-r from-stone-900/95 to-amber-400/12" : "border-[#4A3520] bg-[#2A1F12]"}`}
-    >
-      {/* Cabecera con ? opcional */}
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <p className="text-sm font-bold uppercase tracking-[0.18em] text-amber-300/80">
-            {label}
-          </p>
-          <p className="text-xs font-semibold text-stone-200">{dice}</p>
-        </div>
-        {tableInfo ? (
-          <button
-            type="button"
-            onClick={() => setShowModal((v) => !v)}
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-stone-600 bg-stone-900 text-xs font-bold text-stone-200 transition hover:bg-stone-800 hover:text-white"
-          >
-            ?
-          </button>
-        ) : null}
-      </div>
-
-      {/* Modal */}
-      {showModal && tableInfo ? (
-        <>
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setShowModal(false)}
-          />
-          <div className="absolute right-0 top-14 z-20 w-72 rounded-2xl border border-stone-300/15 bg-stone-950 p-4 shadow-[0_8px_32px_rgba(0,0,0,0.8)]">
-            <p className="mb-3 text-xs font-bold uppercase tracking-wider text-amber-300/80">
-              {label} · {dice}
-            </p>
-            <div className="flex flex-col gap-1.5">
-              {tableInfo.map((e) => (
-                <div key={e.label} className="flex gap-2 text-xs">
-                  <span className="w-8 shrink-0 font-bold text-white">
-                    {e.label}
-                  </span>
-                  <span className="text-white">{e.description}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
-      ) : null}
-
-      {/* Contenido */}
-      <div className="min-h-[3rem]">
-        {isRollingThis ? (
-          <p className="text-2xl font-bold text-stone-500 animate-pulse">…</p>
-        ) : hasResult ? (
-          <div className="text-white">{children}</div>
-        ) : (
-          <span className="text-3xl font-bold text-stone-600">—</span>
-        )}
-      </div>
-
-      <button
-        type="button"
-        onClick={onRoll}
-        disabled={isRollingAny}
-        className="w-full rounded-full border border-stone-600 bg-stone-900 py-2 text-xs font-bold text-white transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
-      >
-        {isRollingThis
-          ? "Tirando…"
-          : hasResult
-            ? "🎲 Volver a tirar"
-            : "🎲 Tirar"}
-      </button>
-    </div>
-  );
-}
-
-// ── Componente principal ──────────────────────────────────────────────────────
+import type { MorkBorgClass } from "../utils/morkBorgUtils";
 import type { MbEquipmentSnapshot } from "../hooks/useCreateMorkBorgCharacter";
+import {
+  SubRollButton,
+  PresenciaNota,
+  ResultChip,
+  TableBox,
+} from "./MorkBorgEquipmentHelpers";
+import {
+  presenciaQty,
+  D6_CONTAINER_INFO,
+  D12_TABLE1_INFO,
+  D12_TABLE2_INFO,
+} from "./MorkBorgEquipmentConstants";
+import {
+  useMorkBorgEquipmentRolls,
+  Z_PLATA,
+  Z_COMIDA,
+  Z_ARMA,
+  Z_ARMADURA,
+  Z_CONTENEDOR,
+  Z_ITEM1,
+  Z_ITEM2,
+  Z_IMPURO_IDX,
+  Z_VENENO_CANT,
+  Z_SAGRADO_IDX,
+  Z_ELIXIR_CANT,
+  Z_MONOS_CANT,
+  Z_PER_TIPO,
+  Z_PER_IDX,
+  Z_ESOT_TIPO,
+  Z_ESOT_IDX,
+} from "./useMorkBorgEquipmentRolls";
 
 interface MorkBorgEquipmentSectionProps {
   selectedClass: MorkBorgClass | null;
@@ -289,222 +59,54 @@ export default function MorkBorgEquipmentSection({
 }: MorkBorgEquipmentSectionProps) {
   const classId = selectedClass?.id;
 
-  // Condiciones de bloqueo
   const blockedByClass = !selectedClass;
   const blockedByStats = !!selectedClass && !allStatsRolled;
   const disabled = blockedByClass || blockedByStats;
 
-  const { diceBoxHostId, diceBoxError, isRolling, summary, rollExpression } =
-    useDiceRoller();
-  const activeZoneRef = useRef<string | null>(null);
-  const rollingD2ArmaduraRef = useRef(false);
+  const rolls = useMorkBorgEquipmentRolls({
+    selectedClass,
+    disabled,
+    onEquipmentComplete,
+  });
 
-  // ── Estados ────────────────────────────────────────────────────────────────
-  const [activeZone, setActiveZone] = useState<string | null>(null);
-  const [plataValue, setPlataValue] = useState<number | null>(null);
-  const [comidaValue, setComidaValue] = useState<number | null>(null);
-  const [armaResult, setArmaResult] = useState<MbWeapon | null>(null);
-  const [armaduraResult, setArmaduraResult] = useState<MbArmor | null>(null);
-  const [armaduraRolled, setArmaduraRolled] = useState(false);
-  const [contenedor, setContenedor] = useState<MbTableEntry | null>(null);
-  const [contenedorChoice, setContenedorChoice] = useState<string>("");
-  const [item1, setItem1] = useState<MbTableEntry | null>(null);
-  const [impuroIdx, setImpuroIdx] = useState<number | null>(null);
-  const [venenoCant, setVenenoCant] = useState<number | null>(null);
-  const [item2, setItem2] = useState<MbTableEntry | null>(null);
-  const [sagradoIdx, setSagradoIdx] = useState<number | null>(null);
-  const [elixirCant, setElixirCant] = useState<number | null>(null);
-  const [monosCant, setMonosCant] = useState<number | null>(null);
-  const [wantsScroll, setWantsScroll] = useState(false);
-  const [perScrollTipo, setPerScrollTipo] = useState<number | null>(null);
-  const [perScrollIdx, setPerScrollIdx] = useState<number | null>(null);
-  const [showArmaModal, setShowArmaModal] = useState(false);
-  const [showArmModal, setShowArmModal] = useState(false);
-  const [armaduraIsReroll, setArmaduraIsReroll] = useState(false);
-  const [esotScrollTipo, setEsotScrollTipo] = useState<number | null>(null);
-  const [esotScrollIdx, setEsotScrollIdx] = useState<number | null>(null);
-
-  // ── Reset al cambiar de clase ──────────────────────────────────────────────
-  useEffect(() => {
-    setActiveZone(null);
-    setPlataValue(null);
-    setComidaValue(null);
-    setArmaResult(null);
-    setArmaduraResult(null);
-    setArmaduraRolled(false);
-    setContenedor(null);
-    setContenedorChoice("");
-    setItem1(null);
-    setImpuroIdx(null);
-    setVenenoCant(null);
-    setItem2(null);
-    setSagradoIdx(null);
-    setElixirCant(null);
-    setMonosCant(null);
-    setWantsScroll(false);
-    setPerScrollTipo(null);
-    setPerScrollIdx(null);
-    setArmaduraIsReroll(false);
-    setEsotScrollTipo(null);
-    setEsotScrollIdx(null);
-    activeZoneRef.current = null;
-  }, [selectedClass?.id]);
-
-  // ── Notificar completitud del equipo ───────────────────────────────────────
-  useEffect(() => {
-    if (!classId) {
-      onEquipmentComplete?.(false);
-      return;
-    }
-
-    const base =
-      armaResult !== null &&
-      armaduraRolled &&
-      plataValue !== null &&
-      comidaValue !== null;
-
-    const basicEquip = contenedor !== null && item1 !== null && item2 !== null;
-
-    // Pergamino opcional: si está activado debe estar completamente tirado
-    const scrollOk =
-      !wantsScroll || (perScrollTipo !== null && perScrollIdx !== null);
-
-    // Esotérico: necesita el pergamino inicial obligatorio
-    const esotOk = classId !== "ermitano-esoterico" || esotScrollIdx !== null;
-
-    const complete = base && basicEquip && scrollOk && esotOk;
-    if (complete) {
-      onEquipmentComplete?.(true, {
-        plata: plataValue!,
-        comida: comidaValue!,
-        armaIdx: armaResult!.idx,
-        armaduraNivel: armaduraResult?.nivel ?? 0,
-        contenedorResult: contenedor?.result ?? null,
-        item1Result: item1?.result ?? null,
-        item2Result: item2?.result ?? null,
-        wantsScroll,
-        perScrollTipo,
-        perScrollIdx,
-        esotScrollTipo,
-        esotScrollIdx,
-      });
-    } else {
-      onEquipmentComplete?.(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    armaResult,
-    armaduraRolled,
+  const {
+    diceBoxHostId,
+    diceBoxError,
+    isRolling,
+    isZ,
+    roll,
+    plataExpr,
+    comidaExpr,
+    armaExpr,
+    effectiveArmaduraExpr,
     plataValue,
     comidaValue,
+    armaResult,
+    armaduraResult,
+    armaduraRolled,
+    armaduraIsReroll,
     contenedor,
+    contenedorChoice,
+    setContenedorChoice,
     item1,
+    impuroIdx,
+    venenoCant,
     item2,
+    sagradoIdx,
+    elixirCant,
+    monosCant,
     wantsScroll,
+    setWantsScroll,
     perScrollTipo,
     perScrollIdx,
+    esotScrollTipo,
     esotScrollIdx,
-    classId,
-  ]);
-
-  // ── Capturar resultado ─────────────────────────────────────────────────────
-  useEffect(() => {
-    const zone = activeZoneRef.current;
-    if (!summary || isRolling || !zone) return;
-
-    switch (zone) {
-      case Z_PLATA:
-        setPlataValue(summary.total * 10);
-        break;
-      case Z_COMIDA:
-        setComidaValue(summary.total);
-        break;
-      case Z_ARMA:
-        setArmaResult(getMbWeaponByIdx(summary.total));
-        break;
-
-      case Z_ARMADURA: {
-        let roll = summary.total;
-        if (rollingD2ArmaduraRef.current) roll = roll > 2 ? roll - 2 : roll;
-        setArmaduraResult(getMbArmorByRoll(roll));
-        setArmaduraRolled(true);
-        break;
-      }
-
-      case Z_CONTENEDOR:
-        setContenedor(
-          getMbTableEntry(MB_SIN_CLASE_CONTAINER_TABLE, summary.total),
-        );
-        setContenedorChoice("");
-        break;
-      case Z_ITEM1:
-        setItem1(getMbTableEntry(MB_SIN_CLASE_ITEM_TABLE_1, summary.total));
-        setImpuroIdx(null);
-        setVenenoCant(null);
-        break;
-      case Z_ITEM2:
-        setItem2(getMbTableEntry(MB_SIN_CLASE_ITEM_TABLE_2, summary.total));
-        setSagradoIdx(null);
-        setElixirCant(null);
-        setMonosCant(null);
-        break;
-
-      case Z_IMPURO_IDX:
-        setImpuroIdx(summary.total);
-        break;
-      case Z_VENENO_CANT:
-        setVenenoCant(summary.total);
-        break;
-      case Z_SAGRADO_IDX:
-        setSagradoIdx(summary.total);
-        break;
-      case Z_ELIXIR_CANT:
-        setElixirCant(summary.total);
-        break;
-      case Z_MONOS_CANT:
-        setMonosCant(summary.total);
-        break;
-
-      case Z_PER_TIPO: {
-        const raw = summary.total;
-        setPerScrollTipo(raw > 2 ? raw - 2 : raw); // d4 → d2
-        setPerScrollIdx(null);
-        break;
-      }
-      case Z_PER_IDX:
-        setPerScrollIdx(summary.total);
-        break;
-
-      case Z_ESOT_TIPO: {
-        const raw = summary.total;
-        setEsotScrollTipo(raw > 2 ? raw - 2 : raw); // d4 → d2
-        setEsotScrollIdx(null);
-        break;
-      }
-      case Z_ESOT_IDX:
-        setEsotScrollIdx(summary.total);
-        break;
-    }
-
-    activeZoneRef.current = null;
-    setActiveZone(null);
-  }, [summary, isRolling]);
-
-  // ── Helper de tirada ───────────────────────────────────────────────────────
-  function roll(zone: string, expression: string, title: string) {
-    if (isRolling || disabled) return;
-    activeZoneRef.current = zone;
-    setActiveZone(zone);
-    rollExpression(title, expression);
-  }
-
-  const isZ = (z: string) => activeZone === z && isRolling;
-
-  const plataExpr = getMbPlataExpression(classId);
-  const comidaExpr = getMbComidaExpression(classId);
-  const armaExpr = getMbArmaExpression(classId);
-  const armaduraExpr = getMbArmaduraExpression(classId);
-  const effectiveArmaduraExpr = wantsScroll ? "1d2" : armaduraExpr;
+    showArmaModal,
+    setShowArmaModal,
+    showArmModal,
+    setShowArmModal,
+    rollArmadura,
+  } = rolls;
 
   // ── Render: d6 contenedor ─────────────────────────────────────────────────
   function renderContenedor() {
@@ -820,9 +422,6 @@ export default function MorkBorgEquipmentSection({
   }
 
   // ── JSX ────────────────────────────────────────────────────────────────────
-  // Suppress unused state warning — showArmaModal is kept for future use
-  void showArmaModal;
-
   return (
     <>
       <DiceRollOverlay
@@ -959,11 +558,10 @@ export default function MorkBorgEquipmentSection({
               </div>
             </div>
 
-            {/* Der: Arma (ocupa la misma altura que ambas filas) */}
+            {/* Der: Arma */}
             <div
               className={`relative flex flex-col gap-3 rounded-[22px] border px-4 py-5 transition ${armaResult ? "border-amber-300/60 bg-gradient-to-r from-stone-900/95 to-amber-400/12" : "border-[#4A3520] bg-[#2A1F12]"}`}
             >
-              {/* Cabecera: "Arma" + dado inline + ? */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-bold uppercase tracking-[0.18em] text-amber-300/80">
@@ -1014,7 +612,6 @@ export default function MorkBorgEquipmentSection({
                 </>
               ) : null}
 
-              {/* Resultado */}
               <div className="flex flex-1 min-h-[2.5rem] items-center">
                 {isZ(Z_ARMA) ? (
                   <span className="text-2xl font-bold text-stone-500 animate-pulse">
@@ -1063,16 +660,7 @@ export default function MorkBorgEquipmentSection({
                 <input
                   type="checkbox"
                   checked={wantsScroll}
-                  onChange={(e) => {
-                    setWantsScroll(e.target.checked);
-                    setArmaduraResult(null);
-                    setArmaduraRolled(false);
-                    setArmaduraIsReroll(false);
-                    if (!e.target.checked) {
-                      setPerScrollTipo(null);
-                      setPerScrollIdx(null);
-                    }
-                  }}
+                  onChange={(e) => setWantsScroll(e.target.checked)}
                   className="h-3.5 w-3.5 accent-amber-400"
                 />
                 <span className="text-xs font-semibold text-white">
@@ -1218,7 +806,6 @@ export default function MorkBorgEquipmentSection({
                 </>
               ) : null}
 
-              {/* Resultado */}
               <div className="flex flex-1 min-h-[2.5rem] items-center">
                 {isZ(Z_ARMADURA) ? (
                   <span className="text-xl font-bold text-stone-500 animate-pulse">
@@ -1256,16 +843,7 @@ export default function MorkBorgEquipmentSection({
 
               <button
                 type="button"
-                onClick={() => {
-                  if (armaduraRolled) setArmaduraIsReroll(true);
-                  const isD2 = effectiveArmaduraExpr === "1d2";
-                  rollingD2ArmaduraRef.current = isD2;
-                  roll(
-                    Z_ARMADURA,
-                    isD2 ? "1d4" : effectiveArmaduraExpr,
-                    "Tirada de Armadura",
-                  );
-                }}
+                onClick={rollArmadura}
                 disabled={isRolling}
                 className="w-full rounded-full border border-stone-600 bg-stone-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
               >
