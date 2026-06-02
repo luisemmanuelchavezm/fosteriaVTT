@@ -27,6 +27,7 @@ import com.fosteriaVTT.fosteriaVTT_backend.dto.AgregarHabilidadPersonajeRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.AgregarItemMochilaRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.BajarNivelPersonajeRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.CrearPersonajeDndRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.HabilidadResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.MochilaPersonajeResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PagedResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PersonajeDetalleResponse;
@@ -105,6 +106,9 @@ class PersonajeServiceTest {
     @Mock
     private SimpMessagingTemplate messagingTemplate;
 
+    @Mock
+    private PersonajeDetailBuilder personajeDetailBuilder;
+
     @InjectMocks
     private PersonajeService personajeService;
 
@@ -112,15 +116,17 @@ class PersonajeServiceTest {
     void obtieneDetallePersonajeMapeandoRasgosHabilidadesYMochila() {
         Personaje personaje = personajeBase(1L, "Aria");
         personaje.setTags("Raza;Elfo alto,Subraza;Alto");
-        Habilidad habilidad = Habilidad.builder().id(5L).nombre("Misil magico").formula("1d4+1").descripcion("impacta").tags("Hechizo;nivel-1").build();
-        personaje.setHabilidades(List.of(habilidad));
+
+        PersonajeDetalleResponse fakeResponse = new PersonajeDetalleResponse(
+                1L, "Aria", "img", null, "DnD", "Elfo Alto", "Alto", List.of(), "Inteligencia",
+                Map.of("Fuerza", 10),
+                List.of(new HabilidadResponse(5L, "Misil magico", 7, "1d4+1", "impacta", "Hechizo;nivel-1")),
+                List.of(new MochilaPersonajeResponse(3L, null, "Pocion", null, "cura", 2, false, "", "consumible")),
+                null, "personaje", null, "daria", "Raza;Elfo alto,Subraza;Alto");
 
         when(personajeRepository.findById(1L)).thenReturn(Optional.of(personaje));
         when(estadisticaService.obtenerValoresPorPersonajeId(1L)).thenReturn(Map.of("Fuerza", 10));
-        when(dndCharacterStatsUtils.resolverClasesPersonaje(personaje)).thenReturn(List.of());
-        when(dndCharacterStatsUtils.resolverCaracteristicaLanzamientoConjuros(personaje)).thenReturn("Inteligencia");
-        when(dndCombatUtils.resolverBonificacionHabilidad(eq(personaje), eq(habilidad), eq(Map.of("Fuerza", 10)), any(), any())).thenReturn(7);
-        when(mochilaService.obtenerItemsPersonaje(1L)).thenReturn(List.of(new MochilaPersonajeResponse(3L, null, "Pocion", null, "cura", 2, false, "", "consumible")));
+        when(personajeDetailBuilder.buildDetallePersonaje(eq(personaje), any(), any(), eq(1L))).thenReturn(fakeResponse);
 
         PersonajeDetalleResponse detalle = personajeService.obtenerDetallePersonaje(1L, "daria");
 
@@ -257,9 +263,9 @@ class PersonajeServiceTest {
         when(personajeRepository.findById(3L)).thenReturn(Optional.of(personaje));
         when(estadisticaService.obtenerValoresPorPersonajeId(3L)).thenReturn(Map.of("Fuerza", 10, "Destreza", 12));
         when(dndCharacterStatsUtils.resolverNivelTotalPersonaje(personaje)).thenReturn(2);
-        when(dndCharacterStatsUtils.resolverClasesPersonaje(personaje)).thenReturn(List.of());
-        when(dndCharacterStatsUtils.resolverCaracteristicaLanzamientoConjuros(personaje)).thenReturn(null);
-        when(mochilaService.obtenerItemsPersonaje(3L)).thenReturn(List.of());
+        when(personajeDetailBuilder.buildDetallePersonaje(eq(personaje), any(), any(), eq(3L)))
+                .thenReturn(new PersonajeDetalleResponse(3L, "Cora Nova", "img", null, "DnD", null, null,
+                        List.of(), null, Map.of(), List.of(), List.of(), null, "personaje", null, "daria", null));
 
         ActualizarHojaPersonajeRequest request = new ActualizarHojaPersonajeRequest(
                 " Cora Nova ",
@@ -349,8 +355,9 @@ class PersonajeServiceTest {
     private void stubDetalleMinimo(Long personajeId, Personaje personaje) {
         when(personajeRepository.findById(personajeId)).thenReturn(Optional.of(personaje));
         when(estadisticaService.obtenerValoresPorPersonajeId(personajeId)).thenReturn(Map.of("Fuerza", 10));
-        when(dndCharacterStatsUtils.resolverClasesPersonaje(personaje)).thenReturn(List.of());
-        when(dndCharacterStatsUtils.resolverCaracteristicaLanzamientoConjuros(personaje)).thenReturn(null);
-        when(mochilaService.obtenerItemsPersonaje(personajeId)).thenReturn(List.of());
+        when(personajeDetailBuilder.buildDetallePersonaje(eq(personaje), any(), any(), eq(personajeId)))
+                .thenReturn(new PersonajeDetalleResponse(personajeId, personaje.getNombre(), "img", null,
+                        "DnD", null, null, List.of(), null, Map.of(), List.of(), List.of(),
+                        null, "personaje", null, "daria", null));
     }
 }

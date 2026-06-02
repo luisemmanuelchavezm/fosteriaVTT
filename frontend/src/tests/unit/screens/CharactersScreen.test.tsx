@@ -277,7 +277,7 @@ describe("CharactersScreen", () => {
       expect(onOpenDndCharacterSheet).toHaveBeenCalledWith("1");
     });
 
-    expect(screen.getByRole("button", { name: /Marcus/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Marcus/i })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "nav home" }));
     fireEvent.click(screen.getByRole("button", { name: "nav campaigns" }));

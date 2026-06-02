@@ -161,7 +161,10 @@ describe("TokenCharacterCard", () => {
       "Abrir hoja de personaje (click derecho → opciones)",
     );
     fireEvent.click(portraitBtn);
-    expect(onOpenCharacterSheet).toHaveBeenCalledWith(10);
+    expect(onOpenCharacterSheet).toHaveBeenCalledWith(
+      10,
+      "Dungeons and Dragons",
+    );
   });
 
   it("calls onTokenSelect when portrait button is clicked", () => {

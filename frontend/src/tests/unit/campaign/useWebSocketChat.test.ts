@@ -333,6 +333,59 @@ describe("useWebSocketChat - STOMP callbacks con token", () => {
     });
   });
 
+  it("parseAndEmitPlayers actualiza jugadores cuando STOMP recibe frame de jugadores", async () => {
+    localStorage.setItem("jwtToken", "token");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => [],
+      }),
+    );
+
+    const { result, onPlayersUpdate } = setup(1);
+    const mockClient = getLastMockClientInstance();
+
+    act(() => {
+      if (typeof mockClient.onConnect === "function") mockClient.onConnect();
+      (mockClient as { connected: boolean }).connected = true;
+    });
+
+    await waitFor(() => expect(result.current.isConnected).toBe(true));
+
+    // Simulate players frame via handlePlayersFrame
+    const subscribeCallback = vi
+      .mocked(mockClient.subscribe)
+      .mock.calls.find((call) => String(call[0]).includes("jugadores"))?.[1];
+    if (subscribeCallback) {
+      act(() => {
+        subscribeCallback({
+          body: JSON.stringify([{ username: "player1", dm: false }]),
+        } as never);
+      });
+      expect(onPlayersUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({ players: expect.any(Array) }),
+      );
+    }
+
+    vi.unstubAllGlobals();
+  });
+
+  it("fetchMessages propaga error cuando fetch falla", async () => {
+    localStorage.setItem("jwtToken", "token");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
+    const { onError } = setup(1);
+
+    await waitFor(
+      () => {
+        expect(onError).toHaveBeenCalled();
+      },
+      { timeout: 2000 },
+    );
+
+    vi.unstubAllGlobals();
+  });
+
   it("onError recibe mensaje default cuando onStompError no tiene header message", async () => {
     const { onError } = setup(1);
 

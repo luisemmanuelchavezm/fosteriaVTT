@@ -312,6 +312,44 @@ describe("useWebSocketPositions - STOMP callbacks con token", () => {
     });
   });
 
+  it("crearPosicionPorWebSocket llama publish cuando el cliente está conectado", async () => {
+    localStorage.setItem("jwtToken", "token");
+    const { result } = setup(1);
+    const mockClient = getLastMockClientInstance();
+
+    act(() => {
+      if (typeof mockClient.onConnect === "function") mockClient.onConnect();
+      (mockClient as { connected: boolean }).connected = true;
+    });
+
+    await waitFor(() => expect(result.current.isConnected).toBe(true));
+
+    act(() => {
+      result.current.crearPosicionPorWebSocket({ personajeId: 10, x: 5, y: 3 });
+    });
+
+    expect(mockClient.publish).toHaveBeenCalled();
+  });
+
+  it("moverPosicionPorWebSocket llama publish cuando el cliente está conectado", async () => {
+    localStorage.setItem("jwtToken", "token");
+    const { result } = setup(1);
+    const mockClient = getLastMockClientInstance();
+
+    act(() => {
+      if (typeof mockClient.onConnect === "function") mockClient.onConnect();
+      (mockClient as { connected: boolean }).connected = true;
+    });
+
+    await waitFor(() => expect(result.current.isConnected).toBe(true));
+
+    act(() => {
+      result.current.moverPosicionPorWebSocket(1, 10, 20);
+    });
+
+    expect(mockClient.publish).toHaveBeenCalled();
+  });
+
   it("llama a deactivate al desmontar cuando el cliente está conectado", async () => {
     const { unmount } = renderHook(() =>
       useWebSocketPositions({ campaignId: 1 }),

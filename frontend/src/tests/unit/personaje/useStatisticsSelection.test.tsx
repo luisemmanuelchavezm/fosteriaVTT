@@ -104,6 +104,127 @@ describe("creacion de personaje - useStatisticsSelection", () => {
     randomSpy.mockRestore();
   });
 
+  it("handleMethodChange cambia a standard y resetea asignaciones", () => {
+    const { result } = renderHook(() => useStatisticsSelection({}));
+    act(() => result.current.handleMethodChange("standard"));
+    expect(result.current.selectedMethod).toBe("standard");
+    Object.values(result.current.standardAssignments).forEach((v) =>
+      expect(v).toBe(""),
+    );
+  });
+
+  it("handleMethodChange cambia a point-buy y resetea puntuaciones", () => {
+    const { result } = renderHook(() => useStatisticsSelection({}));
+    act(() => result.current.handleMethodChange("point-buy"));
+    expect(result.current.selectedMethod).toBe("point-buy");
+    Object.values(result.current.pointBuyScores).forEach((v) =>
+      expect(v).toBe(8),
+    );
+  });
+
+  it("handleMethodChange cambia a custom y resetea puntuaciones", () => {
+    const { result } = renderHook(() => useStatisticsSelection({}));
+    act(() => result.current.handleMethodChange("custom"));
+    expect(result.current.selectedMethod).toBe("custom");
+  });
+
+  it("handleStandardAssignmentChange actualiza asignación", () => {
+    const { result } = renderHook(() => useStatisticsSelection({}));
+    act(() => result.current.handleMethodChange("standard"));
+    act(() =>
+      result.current.handleStandardAssignmentChange("strength", "15-3-3-3"),
+    );
+    expect(result.current.standardAssignments["strength"]).toBe("15-3-3-3");
+  });
+
+  it("handlePointBuyChange incrementa puntuación dentro del rango", () => {
+    const { result } = renderHook(() => useStatisticsSelection({}));
+    act(() => result.current.handleMethodChange("point-buy"));
+    const initial = result.current.pointBuyScores["strength"];
+    act(() => result.current.handlePointBuyChange("strength", 1));
+    expect(result.current.pointBuyScores["strength"]).toBe(initial + 1);
+  });
+
+  it("handlePointBuyChange no baja de POINT_BUY_MIN (8)", () => {
+    const { result } = renderHook(() => useStatisticsSelection({}));
+    act(() => result.current.handleMethodChange("point-buy"));
+    act(() => result.current.handlePointBuyChange("strength", -1));
+    expect(result.current.pointBuyScores["strength"]).toBe(8);
+  });
+
+  it("handleCustomScoreChange actualiza puntuación personalizada", () => {
+    const { result } = renderHook(() => useStatisticsSelection({}));
+    act(() => result.current.handleMethodChange("custom"));
+    act(() => result.current.handleCustomScoreChange("strength", "16"));
+    expect(result.current.customScores["strength"]).toBe("16");
+  });
+
+  it("handleCustomScoreChange ignora caracteres no numéricos", () => {
+    const { result } = renderHook(() => useStatisticsSelection({}));
+    act(() => result.current.handleMethodChange("custom"));
+    act(() => result.current.handleCustomScoreChange("strength", "abc"));
+    expect(result.current.customScores["strength"]).toBe("");
+  });
+
+  it("renderStatValue retorna '-' cuando no hay valor asignado en standard", () => {
+    const { result } = renderHook(() => useStatisticsSelection({}));
+    act(() => result.current.handleMethodChange("standard"));
+    expect(result.current.renderStatValue("strength")).toBe("-");
+  });
+
+  it("renderStatValue retorna puntuación en point-buy", () => {
+    const { result } = renderHook(() => useStatisticsSelection({}));
+    act(() => result.current.handleMethodChange("point-buy"));
+    const value = result.current.renderStatValue("strength");
+    expect(value).toBe(8);
+  });
+
+  it("renderStatValue incluye bonus racial en point-buy", () => {
+    const { result } = renderHook(() =>
+      useStatisticsSelection({ strength: 2 }),
+    );
+    act(() => result.current.handleMethodChange("point-buy"));
+    expect(result.current.renderStatValue("strength")).toBe("8+2");
+  });
+
+  it("renderStatValue retorna string vacío en custom cuando no hay valor", () => {
+    const { result } = renderHook(() => useStatisticsSelection({}));
+    act(() => result.current.handleMethodChange("custom"));
+    expect(result.current.renderStatValue("strength")).toBe("");
+  });
+
+  it("getStatNumericValue retorna null en dice cuando no hay tirada", () => {
+    const { result } = renderHook(() => useStatisticsSelection({}));
+    expect(result.current.getStatNumericValue("strength")).toBeNull();
+  });
+
+  it("getStatNumericValue retorna null en standard sin asignación", () => {
+    const { result } = renderHook(() => useStatisticsSelection({}));
+    act(() => result.current.handleMethodChange("standard"));
+    expect(result.current.getStatNumericValue("strength")).toBeNull();
+  });
+
+  it("getStatNumericValue retorna puntuación + bonus en point-buy", () => {
+    const { result } = renderHook(() =>
+      useStatisticsSelection({ strength: 2 }),
+    );
+    act(() => result.current.handleMethodChange("point-buy"));
+    expect(result.current.getStatNumericValue("strength")).toBe(10);
+  });
+
+  it("getStatNumericValue retorna null en custom sin valor", () => {
+    const { result } = renderHook(() => useStatisticsSelection({}));
+    act(() => result.current.handleMethodChange("custom"));
+    expect(result.current.getStatNumericValue("strength")).toBeNull();
+  });
+
+  it("getStatNumericValue retorna número en custom con valor", () => {
+    const { result } = renderHook(() => useStatisticsSelection({}));
+    act(() => result.current.handleMethodChange("custom"));
+    act(() => result.current.handleCustomScoreChange("strength", "14"));
+    expect(result.current.getStatNumericValue("strength")).toBe(14);
+  });
+
   it("reintenta tras el error conocido de face -1 y recupera una tirada 3D valida", async () => {
     const { result } = renderHook(() => useStatisticsSelection({}));
     const host = document.createElement("div");

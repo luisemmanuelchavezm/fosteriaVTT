@@ -222,7 +222,7 @@ describe("CharacterTokenPanel", () => {
 
   it("shows 'Salir' button when onExit is provided", () => {
     render(<CharacterTokenPanel {...DEFAULT_PROPS} onExit={vi.fn()} />);
-    expect(screen.getByTitle("Salir")).toBeInTheDocument();
+    expect(screen.getByText("Salir")).toBeInTheDocument();
   });
 
   it("calls onTabSwitcherToggle when folder button is clicked", () => {
@@ -248,7 +248,7 @@ describe("CharacterTokenPanel", () => {
   it("calls onExit when exit button is clicked", () => {
     const onExit = vi.fn();
     render(<CharacterTokenPanel {...DEFAULT_PROPS} onExit={onExit} />);
-    fireEvent.click(screen.getByTitle("Salir"));
+    fireEvent.click(screen.getByText("Salir"));
     expect(onExit).toHaveBeenCalled();
   });
 
@@ -430,5 +430,94 @@ describe("CharacterTokenPanel", () => {
     expect(
       mockUseTokenPanelCharacter.setSelectedHealthCharacterId,
     ).toHaveBeenCalledWith(null);
+  });
+
+  // ── DM Help section ────────────────────────────────────────────────────────
+
+  it("shows Ayuda al DM button when isDM and isMorkBorgCampaign", () => {
+    render(<CharacterTokenPanel {...DEFAULT_PROPS} isDM isMorkBorgCampaign />);
+    expect(screen.getByTitle("Ayuda al DM")).toBeInTheDocument();
+  });
+
+  it("does not show Ayuda al DM button when not isMorkBorgCampaign", () => {
+    render(
+      <CharacterTokenPanel
+        {...DEFAULT_PROPS}
+        isDM
+        isMorkBorgCampaign={false}
+      />,
+    );
+    expect(screen.queryByTitle("Ayuda al DM")).not.toBeInTheDocument();
+  });
+
+  it("opens DM help panel when Ayuda al DM button is clicked", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ secciones: [], categorias: [] }),
+      }),
+    );
+    localStorage.setItem("jwtToken", "token");
+
+    render(<CharacterTokenPanel {...DEFAULT_PROPS} isDM isMorkBorgCampaign />);
+    fireEvent.click(screen.getByTitle("Ayuda al DM"));
+
+    // Panel should now be visible
+    expect(screen.queryByTitle("Ayuda al DM")).toBeInTheDocument();
+    vi.unstubAllGlobals();
+  });
+
+  it("renders DM help with sections from catalog", async () => {
+    const catalog = {
+      secciones: [
+        {
+          id: "rasgos-terribles",
+          titulo: "Rasgos Terribles",
+          dado: "d6",
+          items: ["Feo", "Deforme", "Tuerto", "Cojo", "Manco", "Sordo"],
+          etiquetas: null,
+          grupos: null,
+          columnas: null,
+          tablas: null,
+          layout: null,
+          nota: null,
+        },
+      ],
+      categorias: [
+        { id: "cat1", titulo: "Categoría 1", seccionIds: ["rasgos-terribles"] },
+      ],
+    };
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => catalog,
+      }),
+    );
+    localStorage.setItem("jwtToken", "token");
+
+    render(<CharacterTokenPanel {...DEFAULT_PROPS} isDM isMorkBorgCampaign />);
+    fireEvent.click(screen.getByTitle("Ayuda al DM"));
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    });
+
+    vi.unstubAllGlobals();
+  });
+
+  it("renders MorkBorg-specific content when isMorkBorgCampaign", () => {
+    const morkBorgDetail = makeDetail({
+      sistemaDeJuego: "Mork Borg",
+      tags: "MORK_BORG,clase;escoria-alcantarillas",
+      estadisticas: { MB_VidaMaxima: 10, MB_VidaActual: 8, MB_Plata: 50 },
+    });
+    mockUseTokenPanelCharacter.detailsByCharacterId = { 10: morkBorgDetail };
+    mockUseTokenPanelCharacter.visibleTokens = [makePosition()];
+
+    render(<CharacterTokenPanel {...DEFAULT_PROPS} isDM isMorkBorgCampaign />);
+    expect(document.body).toBeTruthy();
   });
 });

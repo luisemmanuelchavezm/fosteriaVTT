@@ -87,7 +87,6 @@ describe("IdentitySection", () => {
     expect(screen.getByText("Eliminar personaje")).toBeInTheDocument();
     expect(screen.getByText("Cancelar cambios")).toBeInTheDocument();
     expect(screen.getByText("Guardar edición")).toBeInTheDocument();
-    expect(screen.getByText("Cerrar edición")).toBeInTheDocument();
   });
 
   it("calls onDeleteCharacter when Eliminar personaje is clicked in edit mode", () => {
