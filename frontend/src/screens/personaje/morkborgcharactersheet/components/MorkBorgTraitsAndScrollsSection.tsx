@@ -32,8 +32,14 @@ const CLASS_OBJECT_KEYWORDS = [
 ];
 
 function extractTagNumber(tags: string, key: string): number | null {
-  const match = tags.match(new RegExp(`${key};(\\d+)`));
-  return match ? Number.parseInt(match[1], 10) : null;
+  const prefix = `${key};`;
+  const start = tags.indexOf(prefix);
+  if (start === -1) return null;
+  const numStart = start + prefix.length;
+  const end = tags.indexOf(",", numStart);
+  const numStr = end === -1 ? tags.slice(numStart) : tags.slice(numStart, end);
+  const num = Number.parseInt(numStr, 10);
+  return Number.isNaN(num) ? null : num;
 }
 
 function hasKeyword(
@@ -93,7 +99,8 @@ export default function MorkBorgTraitsAndScrollsSection({
 
     setTimeout(() => {
       const allIdxs = MB_CATASTROFES.map((c) => c.idx);
-      const picked = allIdxs[Math.floor(Math.random() * allIdxs.length)];
+      const picked =
+        allIdxs[crypto.getRandomValues(new Uint32Array(1))[0] % allIdxs.length];
       const next = [...catastrofasIdx, picked];
       setCatastrofasIdx(next);
       localStorage.setItem(storageKey, JSON.stringify(next));

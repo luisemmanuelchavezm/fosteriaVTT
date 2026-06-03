@@ -47,6 +47,14 @@ export default function MorkBorgClassSelectionSection({
 
   // Ref que distingue si estamos tirando para seleccionar clase (1d6) o para opción
   const d6ClassRef = useRef(false);
+  const classesRef = useRef(classes);
+  const onClassClickRef = useRef(onClassClick);
+  const onOpcionRolledRef = useRef(onOpcionRolled);
+  useEffect(() => {
+    classesRef.current = classes;
+    onClassClickRef.current = onClassClick;
+    onOpcionRolledRef.current = onOpcionRolled;
+  }, [classes, onClassClick, onOpcionRolled]);
 
   // Índices de opciones iluminadas (puede ser 1 o 2 para Realeza)
   const [rolledIndices, setRolledIndices] = useState<number[]>([]);
@@ -67,8 +75,8 @@ export default function MorkBorgClassSelectionSection({
     if (d6ClassRef.current) {
       d6ClassRef.current = false;
       const classId = D6_CLASS_MAP[summary.total - 1];
-      const found = classes.find((c) => c.id === classId);
-      if (found) onClassClick(found);
+      const found = classesRef.current.find((c) => c.id === classId);
+      if (found) onClassClickRef.current(found);
       return;
     }
 
@@ -79,19 +87,18 @@ export default function MorkBorgClassSelectionSection({
       if (v1 === v2) {
         const max = selectedClass?.opciones?.length ?? 6;
         do {
-          v2 = Math.floor(Math.random() * max) + 1;
+          v2 = (crypto.getRandomValues(new Uint32Array(1))[0] % max) + 1;
         } while (v2 === v1);
       }
       const indices = [v1 - 1, v2 - 1];
       setRolledIndices(indices);
-      onOpcionRolled?.(indices);
+      onOpcionRolledRef.current?.(indices);
     } else {
       const indices = [summary.total - 1];
       setRolledIndices(indices);
-      onOpcionRolled?.(indices);
+      onOpcionRolledRef.current?.(indices);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [summary, isRolling]);
+  }, [summary, isRolling, isRealeza, selectedClass?.opciones?.length]);
 
   const handleRollClass = () => {
     if (isRolling || selectedClass) return;

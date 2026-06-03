@@ -33,7 +33,7 @@ function parseBiografia(bio: string | null | undefined): BiografiaJson | null {
 }
 
 function rollDice(sides: number): number {
-  return Math.floor(Math.random() * sides) + 1;
+  return (crypto.getRandomValues(new Uint32Array(1))[0] % sides) + 1;
 }
 
 function sidesFromDados(dados: string): number {

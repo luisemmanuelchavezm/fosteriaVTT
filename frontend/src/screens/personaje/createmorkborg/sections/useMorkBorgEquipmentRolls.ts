@@ -107,6 +107,10 @@ export function useMorkBorgEquipmentRolls({
 
   const activeZoneRef = useRef<string | null>(null);
   const rollingD2ArmaduraRef = useRef(false);
+  const onEquipmentCompleteRef = useRef(onEquipmentComplete);
+  useEffect(() => {
+    onEquipmentCompleteRef.current = onEquipmentComplete;
+  }, [onEquipmentComplete]);
 
   // ── State ──────────────────────────────────────────────────────────────────
   const [activeZone, setActiveZone] = useState<string | null>(null);
@@ -162,7 +166,7 @@ export function useMorkBorgEquipmentRolls({
   // ── Equipment completeness notification ────────────────────────────────────
   useEffect(() => {
     if (!classId) {
-      onEquipmentComplete?.(false);
+      onEquipmentCompleteRef.current?.(false);
       return;
     }
 
@@ -181,7 +185,7 @@ export function useMorkBorgEquipmentRolls({
 
     const complete = base && basicEquip && scrollOk && esotOk;
     if (complete) {
-      onEquipmentComplete?.(true, {
+      onEquipmentCompleteRef.current?.(true, {
         plata: plataValue!,
         comida: comidaValue!,
         armaIdx: armaResult!.idx,
@@ -196,12 +200,12 @@ export function useMorkBorgEquipmentRolls({
         esotScrollIdx,
       });
     } else {
-      onEquipmentComplete?.(false);
+      onEquipmentCompleteRef.current?.(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     armaResult,
     armaduraRolled,
+    armaduraResult?.nivel,
     plataValue,
     comidaValue,
     contenedor,
@@ -211,6 +215,7 @@ export function useMorkBorgEquipmentRolls({
     perScrollTipo,
     perScrollIdx,
     esotScrollIdx,
+    esotScrollTipo,
     classId,
   ]);
 

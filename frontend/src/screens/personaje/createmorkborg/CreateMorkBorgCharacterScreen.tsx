@@ -57,7 +57,12 @@ const SUN_POOL: Omit<DecorSlot, "kind">[] = [
 ];
 
 function pickRandom<T>(arr: T[], n: number): T[] {
-  return [...arr].sort(() => Math.random() - 0.5).slice(0, n);
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1);
+    [copy[i], copy[j]] = [copy[j]!, copy[i]!];
+  }
+  return copy.slice(0, n);
 }
 
 interface CreateMorkBorgCharacterScreenProps {

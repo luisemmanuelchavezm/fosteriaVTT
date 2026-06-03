@@ -203,6 +203,21 @@ export default function MorkBorgStatsSection({
   const rollingD2PresRef = useRef(false);
   // true cuando la tirada es 4d6 descarta el menor (sin clase)
   const dropLowestRef = useRef(false);
+  const onPresenciaRolledRef = useRef(onPresenciaRolled);
+  const onAllMainStatsRolledRef = useRef(onAllMainStatsRolled);
+  const onAllStatsCompleteRef = useRef(onAllStatsComplete);
+  const onStatsSnapshotRef = useRef(onStatsSnapshot);
+  useEffect(() => {
+    onPresenciaRolledRef.current = onPresenciaRolled;
+    onAllMainStatsRolledRef.current = onAllMainStatsRolled;
+    onAllStatsCompleteRef.current = onAllStatsComplete;
+    onStatsSnapshotRef.current = onStatsSnapshot;
+  }, [
+    onPresenciaRolled,
+    onAllMainStatsRolled,
+    onAllStatsComplete,
+    onStatsSnapshot,
+  ]);
 
   const [statValues, setStatValues] = useState<StatsState>({});
   const [activeStatId, setActiveStatId] = useState<string | null>(null);
@@ -223,8 +238,7 @@ export default function MorkBorgStatsSection({
   // Notificar cuando las 4 stats principales tienen valor
   useEffect(() => {
     const allRolled = MAIN_STATS.every((s) => statValues[s.id] !== undefined);
-    if (allRolled) onAllMainStatsRolled?.();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (allRolled) onAllMainStatsRolledRef.current?.();
   }, [statValues]);
 
   // Notificar cuando TODAS las tiradas (4 main + Vida + Presagios + Carga) están hechas
@@ -236,8 +250,8 @@ export default function MorkBorgStatsSection({
     const allCalc =
       vidaValue !== null && presagiosValue !== null && cargaAuto !== null;
     if (allMain && allCalc) {
-      onAllStatsComplete?.();
-      onStatsSnapshot?.({
+      onAllStatsCompleteRef.current?.();
+      onStatsSnapshotRef.current?.({
         fuerza: statValues["fuerza"]!.total,
         modFuerza: statValues["fuerza"]!.modifier,
         agilidad: statValues["agilidad"]!.total,
@@ -251,7 +265,6 @@ export default function MorkBorgStatsSection({
         carga: cargaAuto,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statValues, vidaValue, presagiosValue]);
 
   // Capturar el resultado y asignarlo
@@ -288,13 +301,12 @@ export default function MorkBorgStatsSection({
         [statId]: { total, modifier },
       }));
       if (statId === "presencia") {
-        onPresenciaRolled?.(modifier);
+        onPresenciaRolledRef.current?.(modifier);
       }
     }
 
     rollingStatIdRef.current = null;
     setActiveStatId(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [summary, isRolling]);
 
   // ── Handlers ───────────────────────────────────────────────────────────────

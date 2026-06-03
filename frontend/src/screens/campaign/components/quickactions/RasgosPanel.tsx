@@ -28,8 +28,14 @@ function extractTagNumber(
   key: string,
 ): number | null {
   if (!tags) return null;
-  const match = tags.match(new RegExp(`${key};(\\d+)`));
-  return match ? Number.parseInt(match[1], 10) : null;
+  const prefix = `${key};`;
+  const start = tags.indexOf(prefix);
+  if (start === -1) return null;
+  const numStart = start + prefix.length;
+  const end = tags.indexOf(",", numStart);
+  const numStr = end === -1 ? tags.slice(numStart) : tags.slice(numStart, end);
+  const num = Number.parseInt(numStr, 10);
+  return Number.isNaN(num) ? null : num;
 }
 
 function parseBiografia(bio: string | null | undefined): BiografiaJson | null {

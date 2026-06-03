@@ -171,6 +171,10 @@ export default function MorkBorgRasgosSection({
     useDiceRoller();
 
   const activeZoneRef = useRef<string | null>(null);
+  const onAllRasgosCompleteRef = useRef(onAllRasgosComplete);
+  useEffect(() => {
+    onAllRasgosCompleteRef.current = onAllRasgosComplete;
+  }, [onAllRasgosComplete]);
   const [activeZone, setActiveZone] = useState<string | null>(null);
   const [rasgoValues, setRasgoValues] = useState<
     [number | null, number | null]
@@ -186,14 +190,13 @@ export default function MorkBorgRasgosSection({
       cuerpoValue !== null &&
       habitoValue !== null &&
       historiaValue !== null;
-    onAllRasgosComplete?.(complete, {
+    onAllRasgosCompleteRef.current?.(complete, {
       rasgoTerrible1: rasgoValues[0],
       rasgoTerrible2: rasgoValues[1],
       cuerpoRoto: cuerpoValue,
       habito: habitoValue,
       historiaperturbadora: historiaValue,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rasgoValues, cuerpoValue, habitoValue, historiaValue]);
 
   useEffect(() => {
@@ -205,7 +208,7 @@ export default function MorkBorgRasgosSection({
       let b = summary.diceValues[1];
       if (a === b) {
         do {
-          b = Math.floor(Math.random() * 20) + 1;
+          b = (crypto.getRandomValues(new Uint32Array(1))[0] % 20) + 1;
         } while (b === a);
       }
       setRasgoValues([a, b]);
