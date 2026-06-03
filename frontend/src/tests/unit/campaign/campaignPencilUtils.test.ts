@@ -73,7 +73,7 @@ function makeDrawing(
     color: "#fff",
     grosor: 3,
     relleno,
-  } as DrawingItem;
+  } as unknown as DrawingItem;
 }
 
 describe("intersectsDrawing", () => {

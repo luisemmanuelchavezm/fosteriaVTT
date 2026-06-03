@@ -24,7 +24,7 @@ function setup(sistema = "Dungeons and Dragons") {
 function setupPortrait(result: ReturnType<typeof setup>["result"]) {
   result.current.handlePortraitChange({
     target: { files: [new File([""], "test.png", { type: "image/png" })] },
-  } as React.ChangeEvent<HTMLInputElement>);
+  } as unknown as React.ChangeEvent<HTMLInputElement>);
 }
 
 // ── Estado inicial ────────────────────────────────────────────────────────────

@@ -309,7 +309,7 @@ export function useMorkBorgEquipmentRolls({
 
   // ── Derived expressions ────────────────────────────────────────────────────
   const plataExpr = getMbPlataExpression(classId);
-  const comidaExpr = getMbComidaExpression(classId);
+  const comidaExpr = getMbComidaExpression();
   const armaExpr = getMbArmaExpression(classId);
   const armaduraExpr = getMbArmaduraExpression(classId);
   const effectiveArmaduraExpr = wantsScroll ? "1d2" : armaduraExpr;

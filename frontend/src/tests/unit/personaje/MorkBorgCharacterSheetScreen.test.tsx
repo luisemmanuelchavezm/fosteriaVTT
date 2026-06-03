@@ -74,7 +74,7 @@ const mockHookState = {
   character: null as unknown,
   setCharacter: vi.fn(),
   isLoading: false,
-  loadError: null,
+  loadError: null as string | null,
   token: "test-token",
   classId: null,
   isOwner: true,

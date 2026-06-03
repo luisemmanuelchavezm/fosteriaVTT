@@ -9,11 +9,11 @@ vi.stubGlobal("URL", { createObjectURL: vi.fn(() => "blob:fake-url") });
 
 const mockClass: MorkBorgClass = {
   id: "escoria-alcantarillas",
-  name: "Escoria de las Alcantarillas",
-  description: "desc",
-  specialAbilities: [],
-  startingItems: [],
-  defaultItems: [],
+  nombre: "Escoria de las Alcantarillas",
+  insignia: "EA",
+  descripcion: "desc",
+  rasgos: [],
+  opciones: [],
 };
 
 describe("useCreateMorkBorgCharacter", () => {

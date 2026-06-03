@@ -22,6 +22,7 @@ const SAMPLE_ITEM: ObjectCatalogResponse = {
   formula: "1d8+3",
   descripcion: "Una espada larga de acero.",
   tipoObjeto: "ARMA",
+  tags: null,
 };
 
 describe("ExistingInventoryCatalogTab", () => {
@@ -181,6 +182,7 @@ describe("ExistingInventoryCatalogTab", () => {
         formula: null,
         descripcion: null,
         tipoObjeto: "ARMADURA",
+        tags: null,
       },
     ];
     render(<ExistingInventoryCatalogTab {...BASE_PROPS} items={items} />);

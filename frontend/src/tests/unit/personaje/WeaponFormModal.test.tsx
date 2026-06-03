@@ -81,6 +81,7 @@ describe("WeaponFormModal", () => {
         formula: "1d8",
         descripcion: "Arma de filo.",
         tipoObjeto: "ARMA",
+        tags: null,
       },
     ]);
     render(<WeaponFormModal {...ADD_PROPS} />);
@@ -110,6 +111,7 @@ describe("WeaponFormModal", () => {
         formula: "1d6",
         descripcion: "Arma de lanzamiento.",
         tipoObjeto: "ARMA",
+        tags: null,
       },
     ]);
     render(<WeaponFormModal {...ADD_PROPS} onConfirm={onConfirm} />);

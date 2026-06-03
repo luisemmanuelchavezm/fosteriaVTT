@@ -325,7 +325,11 @@ describe("useWebSocketPositions - STOMP callbacks con token", () => {
     await waitFor(() => expect(result.current.isConnected).toBe(true));
 
     act(() => {
-      result.current.crearPosicionPorWebSocket({ personajeId: 10, x: 5, y: 3 });
+      result.current.crearPosicionPorWebSocket({
+        personajeId: 10,
+        x: 5,
+        y: 3,
+      } as never);
     });
 
     expect(mockClient.publish).toHaveBeenCalled();

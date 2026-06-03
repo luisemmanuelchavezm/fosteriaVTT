@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import type { MBRasgoClaseItem } from "../../utils/dndApi";
+import type { MBRasgoClaseItem } from "../../utils/mbApi";
 
 type ScrollFilter = "todos" | "sagrado" | "impuro";
 

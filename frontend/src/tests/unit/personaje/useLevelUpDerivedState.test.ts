@@ -306,9 +306,7 @@ describe("useLevelUpDerivedState", () => {
         selectedClassDetail: classDetailWithSkillChoice,
         classSkillGroups: [
           {
-            id: "class-skill-0",
-            catalogo: "habilidades",
-            cantidad: 2,
+            nivel: 1,
             habilidades: [],
           },
         ],

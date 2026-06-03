@@ -36,11 +36,11 @@ vi.mock("../../../components/dice/useDiceRoller", () => ({
 
 const escoriaClass: MorkBorgClass = {
   id: "escoria-alcantarillas",
-  name: "Escoria de las Alcantarillas",
-  description: "",
-  specialAbilities: [],
-  startingItems: [],
-  defaultItems: [],
+  nombre: "Escoria de las Alcantarillas",
+  insignia: "EA",
+  descripcion: "",
+  rasgos: [],
+  opciones: [],
 };
 
 function setup(

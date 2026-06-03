@@ -153,16 +153,6 @@ function makeDetail(overrides = {}): DndCharacterDetailResponse {
 beforeEach(() => {
   vi.clearAllMocks();
   localStorage.setItem("jwtToken", "test-token");
-  const { fetchDndCharacterDetail } = vi.mocked(
-    vi.importActual("../../../screens/personaje/utils/dndApi") as {
-      fetchDndCharacterDetail: unknown;
-    },
-  ) as { fetchDndCharacterDetail: ReturnType<typeof vi.fn> };
-  void fetchDndCharacterDetail;
-
-  // Default: fetchDndCharacterDetail returns a character
-  const dndApi = vi.mocked({ fetchDndCharacterDetail: vi.fn() });
-  void dndApi;
 });
 
 afterEach(() => {

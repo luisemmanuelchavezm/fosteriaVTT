@@ -77,6 +77,7 @@ export default function CreateMorkBorgCharacterScreen({
   onGoHome,
   onGoCampaigns,
   onGoCharacters,
+  onCharacterCreated,
 }: CreateMorkBorgCharacterScreenProps) {
   const creation = useCreateMorkBorgCharacter();
   const [hasAttemptedCreation, setHasAttemptedCreation] = useState(false);

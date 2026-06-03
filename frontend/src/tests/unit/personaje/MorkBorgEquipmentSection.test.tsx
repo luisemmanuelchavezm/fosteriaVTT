@@ -100,10 +100,10 @@ afterEach(() => cleanup());
 const makeClass = (id = "escoria-alcantarillas") => ({
   id,
   nombre: "Escoria de las Alcantarillas",
+  insignia: "EA",
   descripcion: "Un desgraciado",
-  dadoVida: "d4" as const,
+  rasgos: [],
   opciones: [],
-  pergaminoEsoterico: false,
 });
 
 describe("MorkBorgEquipmentSection", () => {
