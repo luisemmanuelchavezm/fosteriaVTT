@@ -1,6 +1,8 @@
 package com.fosteriaVTT.fosteriaVTT_backend.InformacionDnd;
 
 import com.fosteriaVTT.fosteriaVTT_backend.ContenidoSistemaJson.ContenidoSistemaJsonService;
+import com.fosteriaVTT.fosteriaVTT_backend.InformacionDnd.DndCatalogoResolver;
+import com.fosteriaVTT.fosteriaVTT_backend.InformacionDnd.DndEquipamientoResolver;
 import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.Habilidad;
 import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.HabilidadRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Objeto.Objeto;
@@ -48,6 +50,12 @@ class DndInfoServiceTest {
 
     @Mock
     private ContenidoSistemaJsonService contenidoSistemaJsonService;
+
+    @Mock
+    private DndEquipamientoResolver equipamientoResolver;
+
+    @Mock
+    private DndCatalogoResolver catalogoResolver;
 
     @InjectMocks
     private DndInfoService dndInfoService;
@@ -108,15 +116,21 @@ class DndInfoServiceTest {
                 habilidad("Prestidigitación", "Truco,ClaseInicial;mago"),
                 habilidad("Armadura de mago", "Hechizo;1,ClaseInicial;mago")
         ));
-        when(objetoRepository.findByNombreIgnoreCaseOrderByIdAsc("Bastón")).thenReturn(List.of(objeto(1L, "Bastón", "AMCuerpo")));
-        when(objetoRepository.findByIndiceContainingIgnoreCaseOrderByIdAsc("CatalogoInstrumentosDnd")).thenReturn(List.of(
-                objeto(2L, "Laúd", "CatalogoInstrumentosDnd"),
-                objeto(3L, "Tambor", "CatalogoInstrumentosDnd")
-        ));
-        when(objetoRepository.findAll()).thenReturn(List.of(
-                objeto(2L, "Laúd", "CatalogoInstrumentosDnd"),
-                objeto(3L, "Tambor", "CatalogoInstrumentosDnd")
-        ));
+        when(catalogoResolver.resolverOpcionesInstrumentos()).thenReturn(List.of("Laúd", "Tambor"));
+        when(equipamientoResolver.resolverEquipamiento(claseBase.equipamiento())).thenReturn(
+                new EquipamientoDndResponse(
+                        List.of(new EquipamientoDndOpcionResponse("staff", "Bastón", 1,
+                                new ObjetoInicialResponse(1L, "Bastón", null, null, null, "", 1), null, List.of())),
+                        List.of(new EquipamientoDndGrupoResponse("focus", "Foco arcano",
+                                List.of(new EquipamientoDndOpcionResponse("instrument", "Instrumento", 1, null, "instrumentos",
+                                        List.of(
+                                                new ObjetoInicialResponse(2L, "Laúd", null, null, null, "", 1),
+                                                new ObjetoInicialResponse(3L, "Tambor", null, null, null, "", 1)
+                                        )
+                                ))
+                        ))
+                )
+        );
 
         ClaseDndDetalleResponse response = dndInfoService.obtenerClasePorId("mago").orElseThrow();
 
@@ -135,18 +149,9 @@ class DndInfoServiceTest {
 
     @Test
     void obtieneCatalogoDeCompetenciasOrdenadoYSinDuplicados() {
-        when(habilidadRepository.findByTagsContainingIgnoreCaseOrderByNombreAsc("CatalogoHabilidadDnd")).thenReturn(List.of(
-                habilidad("Historia", "CatalogoHabilidadDnd"),
-                habilidad("Arcano", "CatalogoHabilidadDnd"),
-                habilidad("Historia", "CatalogoHabilidadDnd")
-        ));
-        when(objetoRepository.findByIndiceContainingIgnoreCaseOrderByIdAsc("CatalogoCompetenciasArmasArmadurasDnd")).thenReturn(List.of(
-                objeto(10L, "Espada larga", "CatalogoCompetenciasArmasArmadurasDnd"),
-                objeto(11L, "Arco largo", "CatalogoCompetenciasArmasArmadurasDnd")
-        ));
-        when(objetoRepository.findByIndiceContainingIgnoreCaseOrderByIdAsc("CatalogoCompetenciasHerramientasDnd")).thenReturn(List.of(
-                objeto(12L, "Herramientas de ladrón", "CatalogoCompetenciasHerramientasDnd")
-        ));
+        when(catalogoResolver.resolverCatalogoHabilidades()).thenReturn(List.of("Arcano", "Historia"));
+        when(catalogoResolver.resolverCatalogoArmasArmaduras()).thenReturn(List.of("Arco largo", "Espada larga"));
+        when(catalogoResolver.resolverCatalogoHerramientas()).thenReturn(List.of("Herramientas de ladrón"));
 
         DndCompetencyCatalogResponse response = dndInfoService.obtenerCatalogoCompetencias();
 
@@ -186,7 +191,7 @@ class DndInfoServiceTest {
 
         when(contenidoSistemaJsonService.obtenerTrasfondoDndPorId("sabio")).thenReturn(Optional.of(trasfondoBase));
         when(contenidoSistemaJsonService.obtenerRazaDndPorId("elfo")).thenReturn(Optional.of(razaBase));
-        when(contenidoSistemaJsonService.obtenerCatalogoRazaDnd("idiomas")).thenReturn(List.of("Dracónico", "Élfico"));
+        when(catalogoResolver.resolverCatalogoTexto("idiomas")).thenReturn(List.of("Dracónico", "Élfico"));
         when(contenidoSistemaJsonService.obtenerSubrazasRazaDnd("elfo")).thenReturn(List.of(
                 new SubrazaDndDetalleResponse(
                         "alto-elfo",

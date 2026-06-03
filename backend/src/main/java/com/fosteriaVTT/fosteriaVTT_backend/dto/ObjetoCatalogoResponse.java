@@ -5,6 +5,7 @@ public record ObjetoCatalogoResponse(
         String nombre,
         String formula,
         String descripcion,
-        String tipoObjeto
+        String tipoObjeto,
+        String tags
 ) {
 }

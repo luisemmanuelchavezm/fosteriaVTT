@@ -209,9 +209,10 @@ describe("InventoryTab", () => {
   it("renders equipment item names when provided", () => {
     const item = {
       id: 10,
+      objetoId: null,
       nombre: "Escudo",
       cantidad: 1,
-      equipado: true,
+      equipado: true as const,
       tags: "armor",
       tipoObjeto: "armor",
       formula: null,

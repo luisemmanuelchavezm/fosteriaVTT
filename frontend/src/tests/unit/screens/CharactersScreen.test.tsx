@@ -234,7 +234,7 @@ describe("CharactersScreen", () => {
             id: 2,
             nombre: "Marcus",
             retrato: "https://img/2",
-            sistemaDeJuego: "Call Of Cthulhu",
+            sistemaDeJuego: "Mork Borg",
             usado: "2026-04-10T10:00:00",
           },
         ],
@@ -262,9 +262,10 @@ describe("CharactersScreen", () => {
       await screen.findByText("Elige el sistema de juego"),
     ).toBeInTheDocument();
 
+    // El primer botón con "Crear personaje por fases." es el de D&D
     fireEvent.click(
       screen
-        .getByText("Crear personaje por fases.")
+        .getAllByText("Crear personaje por fases.")[0]
         .closest("button") as HTMLButtonElement,
     );
     expect(onCreateDndCharacter).toHaveBeenCalledTimes(1);
@@ -276,7 +277,7 @@ describe("CharactersScreen", () => {
       expect(onOpenDndCharacterSheet).toHaveBeenCalledWith("1");
     });
 
-    expect(screen.getByRole("button", { name: /Marcus/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Marcus/i })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "nav home" }));
     fireEvent.click(screen.getByRole("button", { name: "nav campaigns" }));

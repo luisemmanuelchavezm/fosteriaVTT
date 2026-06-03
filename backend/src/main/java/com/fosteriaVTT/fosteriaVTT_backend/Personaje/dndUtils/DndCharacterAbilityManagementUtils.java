@@ -45,6 +45,44 @@ public class DndCharacterAbilityManagementUtils {
 		}
 	}
 
+	public void agregarRasgoClaseMB(Personaje personaje, Long habilidadId) {
+		Habilidad habilidad = habilidadRepository.findById(habilidadId)
+				.orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "No se encontró el rasgo de clase"));
+		if (agregarHabilidadAPersonaje(personaje, habilidad)) {
+			personajeRepository.save(personaje);
+		}
+	}
+
+	public void crearRasgoCustomMB(Personaje personaje, String nombre, String descripcion) {
+		Habilidad habilidad = Habilidad.builder()
+				.nombre(nombre)
+				.descripcion(descripcion)
+				.tags("MORK_BORG,MorkBorgCustom")
+				.build();
+		habilidadRepository.save(habilidad);
+		agregarHabilidadAPersonaje(personaje, habilidad);
+		personajeRepository.save(personaje);
+	}
+
+	public void intercambiarEscoriaEspecialidad(Personaje personaje, List<Long> habilidadesAEliminar, List<Integer> nuevosIdxs) {
+		// Quitar las especialidades anteriores
+		if (habilidadesAEliminar != null) {
+			for (Long id : habilidadesAEliminar) {
+				personaje.getHabilidades().removeIf(h -> h.getId().equals(id));
+			}
+		}
+		// Añadir las nuevas
+		if (nuevosIdxs != null) {
+			for (Integer idx : nuevosIdxs) {
+				String tagBusqueda = "EscEspecialidadIdx;" + idx;
+				habilidadRepository.findByTagsContainingIgnoreCaseOrderByNombreAsc(tagBusqueda)
+						.stream().findFirst()
+						.ifPresent(h -> agregarHabilidadAPersonaje(personaje, h));
+			}
+		}
+		personajeRepository.save(personaje);
+	}
+
 	public void eliminarHabilidadManual(Personaje personaje, Long habilidadId) {
 		boolean eliminada = personaje.getHabilidades().removeIf(item -> item.getId().equals(habilidadId));
 		if (!eliminada) {

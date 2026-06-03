@@ -12,6 +12,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fosteriaVTT.fosteriaVTT_backend.common.SistemaDeJuego;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.MBAyudaDmCatalogoResponse;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.MBAyudaDmSeccionResponse;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -215,6 +217,39 @@ class ContenidoSistemaJsonServiceTest {
         assertTrue(contenidoSistemaJsonService.obtenerCatalogoRazaDnd("elfo-catalogo").isEmpty());
     }
 
+    @Test
+    void obtenerAyudaDmMorkBorg_retornaCatalogoVacioCuandoNoHayDatos() {
+        when(contenidoSistemaJsonRepository.findBySistemaAndPaquete(SistemaDeJuego.MORK_BORG, ContenidoSistemaJsonService.MB_PACKAGE_DM_HELP_CATALOG))
+                .thenReturn(Optional.empty());
+
+        MBAyudaDmCatalogoResponse resultado = contenidoSistemaJsonService.obtenerAyudaDmMorkBorg();
+
+        assertTrue(resultado.secciones().isEmpty());
+        assertTrue(resultado.categorias().isEmpty());
+    }
+
+    @Test
+    void obtenerAyudaDmMorkBorg_deserializaContenidoTipado() throws Exception {
+        ContenidoSistemaJson contenidoMb = ContenidoSistemaJson.builder()
+                .sistema(SistemaDeJuego.MORK_BORG)
+                .paquete(ContenidoSistemaJsonService.MB_PACKAGE_DM_HELP_CATALOG)
+                .jsonB("{\"secciones\":[]}")
+                .build();
+        MBAyudaDmCatalogoResponse esperado = new MBAyudaDmCatalogoResponse(
+                List.of(),
+                List.of(new MBAyudaDmSeccionResponse("clima", "Clima", "1d12", List.of("Gris sin vida"), null, null, null, null, null, null, null))
+        );
+
+        when(contenidoSistemaJsonRepository.findBySistemaAndPaquete(SistemaDeJuego.MORK_BORG, ContenidoSistemaJsonService.MB_PACKAGE_DM_HELP_CATALOG))
+                .thenReturn(Optional.of(contenidoMb));
+        when(objectMapper.readValue(eq(contenidoMb.getJsonB()), anyTypeReference()))
+                .thenReturn(esperado);
+
+        MBAyudaDmCatalogoResponse resultado = contenidoSistemaJsonService.obtenerAyudaDmMorkBorg();
+
+        assertEquals(esperado, resultado);
+    }
+
     // ── Nombres de paquetes estáticos no cubiertos antes ─────────────────────
 
     @Test
@@ -225,5 +260,6 @@ class ContenidoSistemaJsonServiceTest {
         assertEquals("razas:detalle:elfo", ContenidoSistemaJsonService.paqueteDetalleRaza("elfo"));
         assertEquals("razas:subrazas:elfo", ContenidoSistemaJsonService.paqueteSubrazasRaza("elfo"));
         assertEquals("razas:catalogo:elfo", ContenidoSistemaJsonService.paqueteCatalogoRaza("elfo"));
+                assertEquals("ayuda-dm:catalogo", ContenidoSistemaJsonService.MB_PACKAGE_DM_HELP_CATALOG);
     }
 }

@@ -3,9 +3,7 @@ package com.fosteriaVTT.fosteriaVTT_backend.Personaje;
 import com.fosteriaVTT.fosteriaVTT_backend.Chat.ChatRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Cloudinary.CloudinaryService;
 import com.fosteriaVTT.fosteriaVTT_backend.Estadistica.EstadisticaService;
-import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.Habilidad;
 import com.fosteriaVTT.fosteriaVTT_backend.Mochila.MochilaService;
-import com.fosteriaVTT.fosteriaVTT_backend.Objeto.Objeto;
 import com.fosteriaVTT.fosteriaVTT_backend.common.dnd.DndCharacterRules;
 import com.fosteriaVTT.fosteriaVTT_backend.common.SistemaDeJuego;
 import com.fosteriaVTT.fosteriaVTT_backend.common.TagUtils;
@@ -16,7 +14,8 @@ import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterNormal
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterLevelUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCharacterStatsUtils;
 import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndCombatUtils;
-import com.fosteriaVTT.fosteriaVTT_backend.Personaje.dndUtils.DndWeaponProficiencies;
+import com.fosteriaVTT.fosteriaVTT_backend.Personaje.mbUtils.MorkBorgCharacterCreationUtils;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.CrearPersonajeMorkBorgRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.Posicion.Posicion;
 import com.fosteriaVTT.fosteriaVTT_backend.Posicion.PosicionRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.WebSocketPosicionEventDTO;
@@ -28,7 +27,6 @@ import com.fosteriaVTT.fosteriaVTT_backend.dto.AgregarItemMochilaRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarItemMochilaRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.BajarNivelPersonajeRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.CrearPersonajeDndRequest;
-import com.fosteriaVTT.fosteriaVTT_backend.dto.HabilidadResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PagedResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PersonajeDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PersonajeResumenResponse;
@@ -63,9 +61,11 @@ public class PersonajeService {
 	private final DndCharacterStatsUtils dndCharacterStatsUtils;
 	private final DndCharacterCreationUtils dndCharacterCreationUtils;
 	private final DndCharacterLevelUtils dndCharacterLevelUtils;
+	private final MorkBorgCharacterCreationUtils morkBorgCharacterCreationUtils;
 	private final PosicionRepository posicionRepository;
 	private final ChatRepository chatRepository;
 	private final SimpMessagingTemplate messagingTemplate;
+	private final PersonajeDetailBuilder personajeDetailBuilder;
 
 	public PersonajeService(
 			PersonajeRepository personajeRepository,
@@ -78,9 +78,11 @@ public class PersonajeService {
 			DndCharacterStatsUtils dndCharacterStatsUtils,
 			DndCharacterCreationUtils dndCharacterCreationUtils,
 			DndCharacterLevelUtils dndCharacterLevelUtils,
+			MorkBorgCharacterCreationUtils morkBorgCharacterCreationUtils,
 			PosicionRepository posicionRepository,
 			ChatRepository chatRepository,
-			SimpMessagingTemplate messagingTemplate
+			SimpMessagingTemplate messagingTemplate,
+			PersonajeDetailBuilder personajeDetailBuilder
 	) {
 		this.personajeRepository = personajeRepository;
 		this.estadisticaService = estadisticaService;
@@ -92,9 +94,11 @@ public class PersonajeService {
 		this.dndCharacterStatsUtils = dndCharacterStatsUtils;
 		this.dndCharacterCreationUtils = dndCharacterCreationUtils;
 		this.dndCharacterLevelUtils = dndCharacterLevelUtils;
+		this.morkBorgCharacterCreationUtils = morkBorgCharacterCreationUtils;
 		this.posicionRepository = posicionRepository;
 		this.chatRepository = chatRepository;
 		this.messagingTemplate = messagingTemplate;
+		this.personajeDetailBuilder = personajeDetailBuilder;
 	}
 
 	// ─────────────────────────────────────────────
@@ -109,10 +113,10 @@ public class PersonajeService {
 		String tipo = tipoFromTags(personaje.getTags());
 
 		if (esEnemigo(personaje)) {
-			return buildDetalleEnemigo(personaje, estadisticas, tipo, personajeId);
+			return personajeDetailBuilder.buildDetalleEnemigo(personaje, estadisticas, tipo, personajeId);
 		}
 
-		return buildDetallePersonaje(personaje, estadisticas, tipo, personajeId);
+		return personajeDetailBuilder.buildDetallePersonaje(personaje, estadisticas, tipo, personajeId);
 	}
 
 	@Transactional(readOnly = true)
@@ -159,6 +163,16 @@ public class PersonajeService {
 	) {
 		MultipartFile retrato = validarRetrato(portrait);
 		return dndCharacterCreationUtils.crearPersonajeDnd(request, subirRetrato(retrato), username);
+	}
+
+	@Transactional
+	public PersonajeResumenResponse crearPersonajeMorkBorg(
+			CrearPersonajeMorkBorgRequest request,
+			MultipartFile portrait,
+			String username
+	) {
+		MultipartFile retrato = validarRetrato(portrait);
+		return morkBorgCharacterCreationUtils.crearPersonajeMorkBorg(request, subirRetrato(retrato), username);
 	}
 
 	// ─────────────────────────────────────────────
@@ -390,7 +404,6 @@ public class PersonajeService {
 	public void eliminarPersonaje(Long personajeId, String username) {
 		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
 
-		// Si es una copia pública (publicar), quitamos el tag "publicado" del original
 		String fuenteIdStr = TagUtils.extractTagValue(personaje.getTags(), "fuenteId");
 		if (personaje.isEsPublico() && fuenteIdStr != null) {
 			try {
@@ -436,10 +449,6 @@ public class PersonajeService {
 	// Seeder / migraciones
 	// ─────────────────────────────────────────────
 
-	/**
-	 * Seeder migration helper: ensures weapon-attack habilidades exist for every
-	 * ARMA-type item in the personaje's mochila. Safe to call multiple times.
-	 */
 	@Transactional
 	public void sincronizarAtaquesArmaPorId(Long personajeId) {
 		personajeRepository.findById(personajeId).ifPresent(personaje -> {
@@ -450,10 +459,9 @@ public class PersonajeService {
 	}
 
 	// ─────────────────────────────────────────────
-	// Package-private helpers (usados por NpcService y PersonajeMarketplaceService)
+	// Package-private helpers (usados por NpcService, PersonajeMarketplaceService y PersonajeMBService)
 	// ─────────────────────────────────────────────
 
-	/** Construye el resumen de un personaje para las respuestas de listado y creación. */
 	PersonajeResumenResponse toResumen(Personaje p) {
 		return new PersonajeResumenResponse(
 				p.getId(),
@@ -468,139 +476,34 @@ public class PersonajeService {
 		);
 	}
 
-	/** {@code true} si el personaje ya fue publicado en el marketplace (no se puede volver a publicar). */
 	boolean estaPublicado(String tags) {
 		return tags != null && tags.toLowerCase().contains("publicado");
+	}
+
+	Personaje obtenerPersonajeUsuario(Long personajeId, String username) {
+		return personajeRepository.findByIdAndUsuarioUsername(personajeId, username)
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Personaje no encontrado"));
+	}
+
+	void emitirActualizacionPersonaje(Long personajeId) {
+		posicionRepository.findByPersonajeId(personajeId)
+				.map(Posicion::getCapa)
+				.filter(Objects::nonNull)
+				.map(capa -> capa.getPestaña())
+				.filter(Objects::nonNull)
+				.map(pestana -> pestana.getCampaña())
+				.filter(Objects::nonNull)
+				.map(campania -> campania.getId())
+				.filter(Objects::nonNull)
+				.ifPresent(campaniaId -> messagingTemplate.convertAndSend(
+						"/topic/campanas/" + campaniaId + "/personajes",
+						Map.of("accion", "UPDATED", "personajeId", personajeId)
+				));
 	}
 
 	// ─────────────────────────────────────────────
 	// Helpers privados
 	// ─────────────────────────────────────────────
-
-	private PersonajeDetalleResponse buildDetalleEnemigo(
-			Personaje personaje,
-			Map<String, Integer> estadisticas,
-			String tipo,
-			Long personajeId
-	) {
-		Map<Long, com.fosteriaVTT.fosteriaVTT_backend.Mochila.Mochila> mochilaByObjetoId =
-				mochilaService.obtenerMochilaPersonaje(personajeId).stream()
-						.filter(item -> item.getObjeto() != null && item.getObjeto().getId() != null)
-						.collect(java.util.stream.Collectors.toMap(
-								item -> item.getObjeto().getId(),
-								item -> item,
-								(a, b) -> a
-						));
-
-		return new PersonajeDetalleResponse(
-				personaje.getId(),
-				personaje.getNombre(),
-				personaje.getRetrato(),
-				personaje.getBiografia(),
-				personaje.getSistemaDeJuego().getDisplayName(),
-				null,
-				null,
-				List.of(),
-				null,
-				estadisticas,
-				personaje.getHabilidades().stream()
-						.map(h -> {
-							Integer bonif = resolverBonificacionHabilidadEnemigo(h, mochilaByObjetoId);
-							return new HabilidadResponse(
-									h.getId(),
-									h.getNombre(),
-									bonif,
-									h.getFormula(),
-									h.getDescripcion(),
-									h.getTags()
-							);
-						})
-						.toList(),
-				mochilaService.obtenerItemsPersonaje(personajeId),
-				personaje.getUsado(),
-				tipo,
-				TagUtils.extractTagValue(personaje.getTags(), "vd"),
-				personaje.getUsuario() != null ? personaje.getUsuario().getUsername() : null
-		);
-	}
-
-	private PersonajeDetalleResponse buildDetallePersonaje(
-			Personaje personaje,
-			Map<String, Integer> estadisticas,
-			String tipo,
-			Long personajeId
-	) {
-		List<Habilidad> habilidades = personaje.getHabilidades();
-		DndWeaponProficiencies weaponProficiencies = dndCombatUtils.resolverCompetenciasArma(personaje);
-		Map<Long, Objeto> weaponObjectsById = dndCombatUtils.resolverObjetosArmaPorHabilidades(habilidades);
-
-		return new PersonajeDetalleResponse(
-				personaje.getId(),
-				personaje.getNombre(),
-				personaje.getRetrato(),
-				personaje.getBiografia(),
-				personaje.getSistemaDeJuego().getDisplayName(),
-				TagUtils.extractTagValue(personaje.getTags(), "Raza"),
-				TagUtils.extractTagValue(personaje.getTags(), "Subraza"),
-				dndCharacterStatsUtils.resolverClasesPersonaje(personaje),
-				dndCharacterStatsUtils.resolverCaracteristicaLanzamientoConjuros(personaje),
-				estadisticas,
-				habilidades.stream()
-						.map(habilidad -> new HabilidadResponse(
-								habilidad.getId(),
-								habilidad.getNombre(),
-								dndCombatUtils.resolverBonificacionHabilidad(
-										personaje,
-										habilidad,
-										estadisticas,
-										weaponProficiencies,
-										weaponObjectsById
-								),
-								habilidad.getFormula(),
-								habilidad.getDescripcion(),
-								habilidad.getTags()
-						))
-						.toList(),
-				mochilaService.obtenerItemsPersonaje(personajeId),
-				personaje.getUsado(),
-				tipo,
-				null,
-				personaje.getUsuario() != null ? personaje.getUsuario().getUsername() : null
-		);
-	}
-
-	/**
-	 * Resuelve el bono de ataque de una habilidad de enemigo:
-	 * primero busca el tag {@code BONO;X}, luego cae a {@code BONO_ATAQUE} del objeto catálogo.
-	 */
-	private Integer resolverBonificacionHabilidadEnemigo(
-			Habilidad h,
-			Map<Long, com.fosteriaVTT.fosteriaVTT_backend.Mochila.Mochila> mochilaByObjetoId
-	) {
-		// BONO;X tag always takes priority (user-set bonus)
-		if (h.getTags() != null) {
-			for (String rawTag : h.getTags().split(",")) {
-				String tag = rawTag.trim();
-				if (tag.length() > 5 && tag.substring(0, 5).equalsIgnoreCase("BONO;")) {
-					try {
-						return Integer.parseInt(tag.substring(5).trim());
-					} catch (NumberFormatException ignored) { }
-					break;
-				}
-			}
-		}
-
-		// Fall back: look up attack bonus from the Objeto's indice (catalog weapons in mochila)
-		Long objetoId = dndCombatUtils.extraerIdObjetoArma(h.getTags());
-		if (objetoId != null) {
-			com.fosteriaVTT.fosteriaVTT_backend.Mochila.Mochila item = mochilaByObjetoId.get(objetoId);
-			if (item != null && item.getObjeto() != null) {
-				return dndCombatUtils.extraerBonoAtaqueDesdeIndice(item.getObjeto().getIndice());
-			}
-		}
-
-		return 0;
-	}
 
 	private boolean esInstancia(String tags) {
 		return tags != null && tags.toLowerCase().contains("instancia");
@@ -621,22 +524,6 @@ public class PersonajeService {
 		return "personaje";
 	}
 
-	private void emitirActualizacionPersonaje(Long personajeId) {
-		posicionRepository.findByPersonajeId(personajeId)
-				.map(Posicion::getCapa)
-				.filter(Objects::nonNull)
-				.map(capa -> capa.getPestaña())
-				.filter(Objects::nonNull)
-				.map(pestana -> pestana.getCampaña())
-				.filter(Objects::nonNull)
-				.map(campania -> campania.getId())
-				.filter(Objects::nonNull)
-				.ifPresent(campaniaId -> messagingTemplate.convertAndSend(
-						"/topic/campanas/" + campaniaId + "/personajes",
-						Map.of("accion", "UPDATED", "personajeId", personajeId)
-				));
-	}
-
 	private MultipartFile validarRetrato(MultipartFile portrait) {
 		if (portrait == null || portrait.isEmpty()) {
 			throw new ResponseStatusException(BAD_REQUEST, "Debes subir un retrato para el personaje");
@@ -650,10 +537,5 @@ public class PersonajeService {
 		} catch (IOException exception) {
 			throw new ResponseStatusException(INTERNAL_SERVER_ERROR, "No se pudo subir el retrato del personaje");
 		}
-	}
-
-	Personaje obtenerPersonajeUsuario(Long personajeId, String username) {
-		return personajeRepository.findByIdAndUsuarioUsername(personajeId, username)
-				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Personaje no encontrado"));
 	}
 }

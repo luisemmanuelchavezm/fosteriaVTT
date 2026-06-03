@@ -223,6 +223,7 @@ export interface CharacterAbilityResponse {
 
 export interface CharacterInventoryItemResponse {
   id: number;
+  objetoId: number | null;
   nombre: string;
   cantidad: number;
   equipado: boolean;
@@ -238,6 +239,7 @@ export interface ObjectCatalogResponse {
   formula: string | null;
   descripcion: string | null;
   tipoObjeto: string;
+  tags: string | null;
 }
 
 export interface DndCharacterDetailResponse {
@@ -257,6 +259,7 @@ export interface DndCharacterDetailResponse {
   tipo?: string;
   vd?: string | null;
   propietario?: string;
+  tags?: string | null;
 }
 
 export interface UpdateDndCharacterResourcesRequest {
@@ -367,6 +370,38 @@ export async function updateDndCharacterResources(
   if (!response.ok) {
     throw new Error("No se pudieron guardar los recursos del personaje");
   }
+}
+
+export async function eliminarHabilidadPersonaje(
+  token: string,
+  characterId: number | string,
+  habilidadId: number,
+): Promise<DndCharacterDetailResponse> {
+  const response = await fetch(
+    buildApiUrl(`/api/personajes/${characterId}/habilidades/${habilidadId}`),
+    { method: "DELETE", headers: { Authorization: `Bearer ${token}` } },
+  );
+  if (!response.ok) throw new Error("No se pudo eliminar la habilidad");
+  return response.json() as Promise<DndCharacterDetailResponse>;
+}
+
+export async function updateCharacterPortrait(
+  token: string,
+  characterId: number | string,
+  file: File,
+): Promise<DndCharacterDetailResponse> {
+  const formData = new FormData();
+  formData.append("portrait", file);
+  const response = await fetch(
+    buildApiUrl(`/api/personajes/${characterId}/retrato`),
+    {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    },
+  );
+  if (!response.ok) throw new Error("No se pudo actualizar el retrato");
+  return response.json() as Promise<DndCharacterDetailResponse>;
 }
 
 export async function updateDndCharacterExperience(
@@ -785,7 +820,13 @@ export async function crearNpc(
 export async function addHabilidadNpc(
   token: string,
   characterId: number,
-  payload: { nombre: string; descripcion?: string | null; tags: string },
+  payload: {
+    nombre: string;
+    descripcion?: string | null;
+    tags: string;
+    formula?: string | null;
+    bonificacion?: number | null;
+  },
 ) {
   const response = await fetch(
     buildApiUrl(`/api/personajes/${characterId}/habilidades/npc`),

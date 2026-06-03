@@ -113,6 +113,7 @@ describe("InventoryCatalogModal", () => {
         formula: "1d8",
         descripcion: "Arma de filo.",
         tipoObjeto: "ARMA",
+        tags: null,
       },
     ]);
     render(<InventoryCatalogModal {...DEFAULT_PROPS} />);
@@ -158,6 +159,7 @@ describe("InventoryCatalogModal", () => {
         formula: null,
         descripcion: null,
         tipoObjeto: "CONSUMIBLE",
+        tags: null,
       },
     ]);
     render(<InventoryCatalogModal {...DEFAULT_PROPS} onAddItem={onAddItem} />);
@@ -180,6 +182,7 @@ describe("InventoryCatalogModal", () => {
         formula: null,
         descripcion: null,
         tipoObjeto: "MISCELANEO",
+        tags: null,
       },
     ]);
     render(
@@ -208,6 +211,7 @@ describe("InventoryCatalogModal", () => {
         formula: "1d4",
         descripcion: null,
         tipoObjeto: "ARMA",
+        tags: null,
       },
     ]);
     render(<InventoryCatalogModal {...DEFAULT_PROPS} onAddItem={onAddItem} />);

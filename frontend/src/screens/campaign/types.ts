@@ -60,6 +60,7 @@ export interface CharacterDropPayload {
   retrato?: string;
   tipo?: string;
   source?: string;
+  sistemaDeJuego?: string;
 }
 
 export const CHARACTER_DRAG_MIME = "application/x-fosteria-character";

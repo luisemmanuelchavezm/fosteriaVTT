@@ -68,6 +68,7 @@ export function useEnemyForm(
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<{
     nombre?: string;
+    portrait?: string;
     pasivas?: Partial<Record<number, string>>;
     acciones?: Partial<Record<number, string>>;
   }>({});
@@ -78,6 +79,7 @@ export function useEnemyForm(
     const file = event.target.files?.[0];
     if (!file) return;
     setPortrait(file);
+    setFieldErrors((prev) => ({ ...prev, portrait: undefined }));
     const reader = new FileReader();
     reader.onload = (e) => setPortraitPreview(e.target?.result as string);
     reader.readAsDataURL(file);
@@ -86,6 +88,10 @@ export function useEnemyForm(
   const clearPortrait = () => {
     setPortrait(null);
     setPortraitPreview(null);
+    setFieldErrors((prev) => ({
+      ...prev,
+      portrait: "La imagen es requerida",
+    }));
   };
 
   // ─── Ability scores ────────────────────────────────────────────────────────
@@ -267,6 +273,7 @@ export function useEnemyForm(
 
     const newFieldErrors: typeof fieldErrors = {};
     if (!nombre.trim()) newFieldErrors.nombre = "El nombre es requerido";
+    if (!portrait) newFieldErrors.portrait = "La imagen es requerida";
 
     const pasivaErrors: Partial<Record<number, string>> = {};
     pasivas.forEach((p, i) => {

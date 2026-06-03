@@ -122,13 +122,13 @@ export default function IdentitySection({
           >
             Descanso largo
           </button>
-          {isOwner ? (
+          {isOwner && !isEditMode ? (
             <button
               type="button"
               onClick={onToggleEditMode}
               className="rounded-full border border-amber-300/30 bg-amber-300/10 px-5 py-3 text-sm font-semibold text-amber-100 transition hover:bg-amber-300/15"
             >
-              {isEditMode ? "Cerrar edición" : "Editar"}
+              Editar
             </button>
           ) : null}
           {isOwner && isEditMode ? (

@@ -21,7 +21,9 @@ public final class DndActualizacionRecursosUtils {
 			Map<Integer, Integer> currentSpellSlots,
 			Map<Integer, Integer> currentExtraResources
 	) {
-		List<String> statNames = new ArrayList<>(List.of(VIDA_MAXIMA, VIDA_ACTUAL, VIDA_TEMPORAL));
+		// "Vida maxima" is the MB-enemy equivalent of "Puntos de vida" — include it
+		// so the HP save endpoint works for both DnD characters and MB enemies.
+		List<String> statNames = new ArrayList<>(List.of(VIDA_MAXIMA, VIDA_ACTUAL, VIDA_TEMPORAL, "Vida maxima"));
 		agregarNombresRanuras(statNames, currentSpellSlots);
 		agregarNombresRecursosExtra(statNames, currentExtraResources);
 		return statNames;
@@ -113,7 +115,10 @@ public final class DndActualizacionRecursosUtils {
 			return;
 		}
 
+		// DnD uses "Puntos de vida"; MB enemies use "Vida maxima" — accept either.
 		Estadistica maxHpStat = statsByName.get(VIDA_MAXIMA);
+		if (maxHpStat == null) maxHpStat = statsByName.get("Vida maxima");
+
 		Estadistica currentHpStat = statsByName.get(VIDA_ACTUAL);
 		if (currentHp < 0 || maxHpStat == null || currentHp > maxHpStat.getValor()) {
 			throw new ResponseStatusException(BAD_REQUEST, "La vida actual no es válida");

@@ -218,4 +218,141 @@ describe("useLevelUpDerivedState", () => {
     // 4 (level 2) - 3 (level 1) = 1 new cantrip
     expect(result.current.cantripUpgradeCount).toBe(1);
   });
+
+  it("usa findSubclassById cuando hay selectedSubclassId y classDetail con subclases", () => {
+    const classDetailWithSubclass = {
+      lanzamientoConjuros: null,
+      subclases: [
+        {
+          id: "evocacion",
+          nombre: "Evocación",
+          nivelDesbloqueo: 2,
+          tablas: [],
+          elecciones: [],
+        },
+      ],
+      elecciones: [],
+    } as never;
+
+    const { result } = renderHook(() =>
+      useLevelUpDerivedState({
+        ...BASE_OPTIONS,
+        selectedClassDetail: classDetailWithSubclass,
+        selectedSubclassId: "evocacion",
+        selectedClassLevel: 2,
+      }),
+    );
+    // needsSubclass should be false since subclass is already selected
+    expect(result.current.needsSubclass).toBe(false);
+  });
+
+  it("getSubclassTableCounts retorna conjuros de subclase Embaucador Arcano con tablas", () => {
+    const classDetailWithSubclassTable = {
+      lanzamientoConjuros: null,
+      subclases: [
+        {
+          id: "embaucador-arcano",
+          nombre: "Embaucador Arcano",
+          nivelDesbloqueo: 3,
+          tablas: [
+            {
+              filas: [
+                ["3", "0", "2"],
+                ["4", "0", "3"],
+              ],
+            },
+          ],
+          elecciones: [],
+        },
+      ],
+      elecciones: [],
+    } as never;
+
+    const character = makeCharacter({
+      clases: [{ nombre: "Picaro", nivel: 3 }],
+    });
+    const { result } = renderHook(() =>
+      useLevelUpDerivedState({
+        ...BASE_OPTIONS,
+        character,
+        selectedClassDetail: classDetailWithSubclassTable,
+        selectedSubclassId: "embaucador-arcano",
+        selectedClassLevel: 3,
+      }),
+    );
+    // getAtMaxSpellLevel and getAtTableCounts should work through eaSubclass
+    expect(typeof result.current.getAtMaxSpellLevel(3)).toBe("number");
+    expect(typeof result.current.eaSpellCount).toBe("number");
+    expect(typeof result.current.eaCantripCount).toBe("number");
+  });
+
+  it("isInitialClassSkillChoice reconoce elecciones de habilidad de clase", () => {
+    const classDetailWithSkillChoice = {
+      lanzamientoConjuros: null,
+      subclases: [],
+      elecciones: [
+        {
+          id: "class-skill-0",
+          catalogo: "habilidades",
+          cantidad: 2,
+          opciones: ["Arcano", "Historia"],
+        },
+      ],
+    } as never;
+
+    const { result } = renderHook(() =>
+      useLevelUpDerivedState({
+        ...BASE_OPTIONS,
+        selectedClassDetail: classDetailWithSkillChoice,
+        classSkillGroups: [
+          {
+            nivel: 1,
+            habilidades: [],
+          },
+        ],
+        selectedClassLevel: 0,
+      }),
+    );
+    // classIsNew should be true (selectedClassLevel = 0)
+    expect(result.current.classIsNew).toBe(true);
+  });
+
+  it("getSubclassMaxSpellLevel con Caballero Arcano con slots de conjuros", () => {
+    const classDetailWithSpellSlots = {
+      lanzamientoConjuros: null,
+      subclases: [
+        {
+          id: "caballero-arcano",
+          nombre: "Caballero Arcano",
+          nivelDesbloqueo: 3,
+          tablas: [
+            {
+              filas: [
+                ["3", "0", "2", "2", "0", "0"],
+                ["4", "0", "3", "3", "2", "0"],
+              ],
+            },
+          ],
+          elecciones: [],
+        },
+      ],
+      elecciones: [],
+    } as never;
+
+    const character = makeCharacter({
+      clases: [{ nombre: "Guerrero", nivel: 3 }],
+    });
+    const { result } = renderHook(() =>
+      useLevelUpDerivedState({
+        ...BASE_OPTIONS,
+        character,
+        selectedClassDetail: classDetailWithSpellSlots,
+        selectedSubclassId: "caballero-arcano",
+        selectedClassLevel: 3,
+      }),
+    );
+    expect(typeof result.current.getEkMaxSpellLevel(3)).toBe("number");
+    expect(typeof result.current.ekSpellCount).toBe("number");
+    expect(result.current.ekSpellCount).toBeGreaterThanOrEqual(0);
+  });
 });

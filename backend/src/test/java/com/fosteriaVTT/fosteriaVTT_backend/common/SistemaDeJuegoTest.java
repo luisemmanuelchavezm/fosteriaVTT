@@ -11,8 +11,8 @@ class SistemaDeJuegoTest {
     void reconoceElValorPorNombreYDisplayName() {
         assertEquals(SistemaDeJuego.DND, SistemaDeJuego.fromValue("DND").orElseThrow());
         assertEquals(
-                SistemaDeJuego.VAMPIRE,
-                SistemaDeJuego.fromValue("Vampire: The Masquerade").orElseThrow()
+                SistemaDeJuego.MORK_BORG,
+                SistemaDeJuego.fromValue("Mork Borg").orElseThrow()
         );
     }
 

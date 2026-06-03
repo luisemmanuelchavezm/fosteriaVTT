@@ -131,6 +131,7 @@ export interface BaulData {
       retrato?: string;
       tipo?: string;
       source?: string;
+      sistemaDeJuego?: string;
     },
   ) => void;
 }
@@ -734,6 +735,9 @@ export function useBaulData(campaignId: string): BaulData {
   // ── Filtros client-side del marketplace ───────────────────────
   const filteredMarketplaceCharacters = useMemo(() => {
     let result = marketplaceCharacters;
+    if (chestCampaignSystem) {
+      result = result.filter((c) => c.sistemaDeJuego === chestCampaignSystem);
+    }
     if (mpCharTypeFilter) {
       result = result.filter((c) => c.tipo.toLowerCase() === mpCharTypeFilter);
     }
@@ -744,7 +748,12 @@ export function useBaulData(campaignId: string): BaulData {
       );
     }
     return result;
-  }, [marketplaceCharacters, mpCharTypeFilter, mpCharUserFilter]);
+  }, [
+    marketplaceCharacters,
+    chestCampaignSystem,
+    mpCharTypeFilter,
+    mpCharUserFilter,
+  ]);
 
   const filteredMarketplaceMaps = useMemo(() => {
     if (!mpMapUserFilter.trim()) return marketplaceMaps;
@@ -764,6 +773,7 @@ export function useBaulData(campaignId: string): BaulData {
         retrato?: string;
         tipo?: string;
         source?: string;
+        sistemaDeJuego?: string;
       },
     ) => {
       event.dataTransfer.effectAllowed = "move";
@@ -775,6 +785,7 @@ export function useBaulData(campaignId: string): BaulData {
           retrato: character.retrato,
           tipo: character.tipo,
           source: character.source,
+          sistemaDeJuego: character.sistemaDeJuego,
         }),
       );
       event.dataTransfer.setData("text/plain", character.nombre);

@@ -75,7 +75,7 @@ describe("CampaignHomeScreen", () => {
 
   it("renders exit button", () => {
     render(<CampaignHomeScreen {...DEFAULT_PROPS} />);
-    expect(screen.getByLabelText("Salir de la campaña")).toBeInTheDocument();
+    expect(screen.getByText("Salir")).toBeInTheDocument();
   });
 
   it("renders invite button", () => {
@@ -105,7 +105,7 @@ describe("CampaignHomeScreen", () => {
   it("calls onExit when exit button is clicked", () => {
     const onExit = vi.fn();
     render(<CampaignHomeScreen {...DEFAULT_PROPS} onExit={onExit} />);
-    fireEvent.click(screen.getByLabelText("Salir de la campaña"));
+    fireEvent.click(screen.getByText("Salir"));
     expect(onExit).toHaveBeenCalled();
   });
 

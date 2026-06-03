@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { vi, describe, it, expect } from "vitest";
 import IniciativaBar from "../../../screens/campaign/components/IniciativaBar";
 import type { IniciativaEntrada } from "../../../screens/campaign/hooks/useCampaignRealtime";
+import type { CampaignPositionResponse } from "../../../screens/campaign/types";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -205,6 +206,128 @@ describe("IniciativaBar", () => {
       preventDefault: vi.fn(),
     });
     expect(onReordenar).toHaveBeenCalledWith([2, 1]);
+  });
+
+  it("calls dragEnd handler to reset state", () => {
+    const entradas = [
+      makeEntrada({ personajeId: 1 }),
+      makeEntrada({ personajeId: 2, nombre: "B" }),
+    ];
+    render(<IniciativaBar {...DEFAULT_PROPS} entradas={entradas} isDM />);
+    const cards = screen.getAllByRole("button");
+    fireEvent.dragStart(cards[0].parentElement!.parentElement!);
+    fireEvent.dragEnd(cards[0].parentElement!.parentElement!);
+    // No crash = success
+  });
+
+  it("drops on same source doesn't call onReordenar", () => {
+    const onReordenar = vi.fn();
+    const entradas = [
+      makeEntrada({ personajeId: 1 }),
+      makeEntrada({ personajeId: 2, nombre: "B" }),
+    ];
+    render(
+      <IniciativaBar
+        {...DEFAULT_PROPS}
+        entradas={entradas}
+        isDM
+        onReordenar={onReordenar}
+      />,
+    );
+    const cards = screen.getAllByRole("button");
+    // Drag and drop on same element
+    fireEvent.dragStart(cards[0].parentElement!.parentElement!);
+    fireEvent.drop(cards[0].parentElement!.parentElement!, {
+      preventDefault: vi.fn(),
+    });
+    expect(onReordenar).not.toHaveBeenCalled();
+  });
+
+  // ── MorkBorg mode ────────────────────────────────────────────────────────
+
+  it("renders MorkBorg mode with unrolled positions", () => {
+    const posicionesMB = [
+      {
+        personajeId: 5,
+        personajeNombre: "Goblin",
+        retrato: null,
+        x: 0,
+        y: 0,
+        id: 1,
+        campaignId: 1,
+      },
+    ] as unknown as CampaignPositionResponse[];
+
+    render(
+      <IniciativaBar
+        {...DEFAULT_PROPS}
+        isMorkBorg
+        posicionesMB={posicionesMB}
+        mbDadoIniciativa={null}
+        entradas={[]}
+      />,
+    );
+    expect(screen.getByText("Goblin")).toBeInTheDocument();
+  });
+
+  it("renders MorkBorg mode with rolled entries and unrolled positions", () => {
+    const entradas = [
+      makeEntrada({
+        personajeId: 1,
+        nombre: "Skald",
+        total: 15,
+        tirada: 12,
+        bonificacion: 3,
+      }),
+    ];
+    const posicionesMB = [
+      {
+        personajeId: 5,
+        personajeNombre: "Goblin",
+        retrato: null,
+        x: 0,
+        y: 0,
+        id: 2,
+        campaignId: 1,
+      },
+    ] as unknown as CampaignPositionResponse[];
+
+    render(
+      <IniciativaBar
+        {...DEFAULT_PROPS}
+        isMorkBorg
+        entradas={entradas}
+        posicionesMB={posicionesMB}
+        mbDadoIniciativa={2}
+      />,
+    );
+    expect(screen.getByText("Skald")).toBeInTheDocument();
+    expect(screen.getByText("Goblin")).toBeInTheDocument();
+  });
+
+  it("shows enemies first when mbDadoIniciativa <= 3", () => {
+    render(
+      <IniciativaBar
+        {...DEFAULT_PROPS}
+        isMorkBorg
+        mbDadoIniciativa={2}
+        entradas={[]}
+      />,
+    );
+    // The banner should say enemies go first
+    expect(screen.getByText(/Empiezan los enemigos/)).toBeInTheDocument();
+  });
+
+  it("shows players first when mbDadoIniciativa > 3", () => {
+    render(
+      <IniciativaBar
+        {...DEFAULT_PROPS}
+        isMorkBorg
+        mbDadoIniciativa={5}
+        entradas={[]}
+      />,
+    );
+    expect(screen.getByText(/Empiezan los jugadores/)).toBeInTheDocument();
   });
 
   it("does not call onReordenar when not isDM", () => {

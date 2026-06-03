@@ -25,6 +25,9 @@ import imgHabilidadTratoConAnimales from "../../../assets/habilidades DND/habili
 import imgJuegoDeManos from "../../../assets/habilidades DND/juego de manos.jpeg";
 import imgRecursos from "../../../assets/habilidades DND/Recursos.jpeg";
 import imgSalvacion from "../../../assets/habilidades DND/tirada de salvacion.jpeg";
+import imgSalvacionDestreza from "../../../assets/habilidades DND/salvacion destreza.jpeg";
+import imgSalvacionFuerza from "../../../assets/habilidades DND/salvacion fuerza.jpeg";
+import imgSalvacionConstitucion from "../../../assets/habilidades DND/salvacion constitucion.jpeg";
 import imgHechizos from "../../../assets/habilidades DND/hechizos.jpeg";
 
 export const SKILL_IMAGE_MAP: Record<string, string> = {
@@ -62,7 +65,12 @@ export {
   imgDanoNeutral,
   imgDanoVentaja,
   imgHabilidad,
+  imgHabilidadAcrobacias,
+  imgHabilidadPercepcion,
   imgRecursos,
   imgSalvacion,
+  imgSalvacionDestreza,
+  imgSalvacionFuerza,
+  imgSalvacionConstitucion,
   imgHechizos,
 };

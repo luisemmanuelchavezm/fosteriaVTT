@@ -169,8 +169,8 @@ describe("CreateCampaignScreen", () => {
   it("updates system when select changes", () => {
     render(<CreateCampaignScreen {...DEFAULT_PROPS} />);
     const select = screen.getByRole("combobox") as HTMLSelectElement;
-    fireEvent.change(select, { target: { value: "Call Of Cthulhu" } });
-    expect(select.value).toBe("Call Of Cthulhu");
+    fireEvent.change(select, { target: { value: "Mork Borg" } });
+    expect(select.value).toBe("Mork Borg");
   });
 
   // ── Validation ─────────────────────────────────────────────────────────────
@@ -373,10 +373,10 @@ describe("CreateCampaignScreen", () => {
     render(
       <CreateCampaignScreen
         {...DEFAULT_PROPS}
-        initialSystem={"Call Of Cthulhu" as const}
+        initialSystem={"Mork Borg" as const}
       />,
     );
     const select = screen.getByRole("combobox") as HTMLSelectElement;
-    expect(select.value).toBe("Call Of Cthulhu");
+    expect(select.value).toBe("Mork Borg");
   });
 });

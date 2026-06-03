@@ -161,6 +161,7 @@ const baseCharacter: DndCharacterDetailResponse = {
   mochila: [
     {
       id: 11,
+      objetoId: null,
       nombre: "Piezas de oro",
       cantidad: 23,
       equipado: false,
@@ -171,6 +172,7 @@ const baseCharacter: DndCharacterDetailResponse = {
     },
     {
       id: 12,
+      objetoId: null,
       nombre: "Piezas de cobre",
       cantidad: 4,
       equipado: false,
@@ -181,6 +183,7 @@ const baseCharacter: DndCharacterDetailResponse = {
     },
     {
       id: 13,
+      objetoId: null,
       nombre: "Estoque",
       cantidad: 1,
       equipado: true,
@@ -191,6 +194,7 @@ const baseCharacter: DndCharacterDetailResponse = {
     },
     {
       id: 14,
+      objetoId: null,
       nombre: "Hacha de mano",
       cantidad: 1,
       equipado: true,
@@ -479,6 +483,7 @@ describe("hoja de personaje - utilidades", () => {
         ...baseCharacter.mochila,
         {
           id: 99,
+          objetoId: null,
           nombre: "Bj",
           cantidad: 1,
           equipado: true,

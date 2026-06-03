@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import React from "react";
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { useEnemyForm } from "../../../screens/campaign/hooks/useEnemyForm";
@@ -18,6 +19,12 @@ function setup(sistema = "Dungeons and Dragons") {
     useEnemyForm(sistema, onCreated, onClose),
   );
   return { result, onCreated, onClose };
+}
+
+function setupPortrait(result: ReturnType<typeof setup>["result"]) {
+  result.current.handlePortraitChange({
+    target: { files: [new File([""], "test.png", { type: "image/png" })] },
+  } as unknown as React.ChangeEvent<HTMLInputElement>);
 }
 
 // ── Estado inicial ────────────────────────────────────────────────────────────
@@ -601,6 +608,7 @@ describe("useEnemyForm - handleSubmit éxito", () => {
     const { result, onCreated } = setup();
     act(() => {
       result.current.setNombre("Dragon");
+      setupPortrait(result);
     });
     await act(async () => {
       await result.current.handleSubmit();
@@ -614,6 +622,7 @@ describe("useEnemyForm - handleSubmit éxito", () => {
     const { result, onClose } = setup();
     act(() => {
       result.current.setNombre("Dragon");
+      setupPortrait(result);
     });
     await act(async () => {
       await result.current.handleSubmit();
@@ -625,6 +634,7 @@ describe("useEnemyForm - handleSubmit éxito", () => {
     const { result } = setup();
     act(() => {
       result.current.setNombre("Dragon");
+      setupPortrait(result);
     });
     await act(async () => {
       await result.current.handleSubmit();
@@ -637,6 +647,7 @@ describe("useEnemyForm - handleSubmit éxito", () => {
     act(() => {
       result.current.setNombre("Dragon");
       result.current.setVd("5");
+      setupPortrait(result);
     });
     await act(async () => {
       await result.current.handleSubmit();
@@ -654,6 +665,7 @@ describe("useEnemyForm - handleSubmit éxito", () => {
     act(() => {
       result.current.setNombre("Dragon");
       result.current.addPasiva();
+      setupPortrait(result);
     });
     act(() => {
       result.current.updatePasiva(0, "nombre", "Resistencia mágica");
@@ -678,6 +690,7 @@ describe("useEnemyForm - handleSubmit éxito", () => {
     act(() => {
       result.current.setNombre("Dragon");
       result.current.addAccion();
+      setupPortrait(result);
     });
     act(() => {
       result.current.updateAccion(0, "nombre", "Mordisco");
@@ -702,6 +715,7 @@ describe("useEnemyForm - handleSubmit éxito", () => {
     act(() => {
       result.current.setNombre("Dragon");
       result.current.setIdiomas("Dracónico, Común");
+      setupPortrait(result);
     });
     await act(async () => {
       await result.current.handleSubmit();
@@ -733,6 +747,7 @@ describe("useEnemyForm - handleSubmit éxito", () => {
           },
         },
       ]);
+      setupPortrait(result);
     });
     await act(async () => {
       await result.current.handleSubmit();
@@ -746,13 +761,24 @@ describe("useEnemyForm - handleSubmit éxito", () => {
 });
 
 it("incluye skill overrides en las estadísticas enviadas", async () => {
-  const { crearNpc } = await import("../../../screens/personaje/utils/dndApi");
+  localStorage.setItem("jwtToken", "test-token");
+  const { crearNpc, addHabilidadNpc, addDndCharacterInventoryItem } =
+    await import("../../../screens/personaje/utils/dndApi");
+  vi.mocked(crearNpc).mockResolvedValue({
+    id: 99,
+    nombre: "Dragon",
+    sistemaDeJuego: "Dungeons and Dragons",
+    tipo: "enemigo",
+  } as never);
+  vi.mocked(addHabilidadNpc).mockResolvedValue(undefined as never);
+  vi.mocked(addDndCharacterInventoryItem).mockResolvedValue(undefined as never);
   vi.mocked(crearNpc).mockClear();
 
   const { result } = setup();
   act(() => {
     result.current.setNombre("Dragon");
     result.current.addSkill();
+    setupPortrait(result);
   });
   act(() => {
     result.current.updateSkill(0, "bonus", 4);
@@ -769,13 +795,24 @@ it("incluye skill overrides en las estadísticas enviadas", async () => {
 });
 
 it("incluye save overrides en las estadísticas enviadas", async () => {
-  const { crearNpc } = await import("../../../screens/personaje/utils/dndApi");
+  localStorage.setItem("jwtToken", "test-token");
+  const { crearNpc, addHabilidadNpc, addDndCharacterInventoryItem } =
+    await import("../../../screens/personaje/utils/dndApi");
+  vi.mocked(crearNpc).mockResolvedValue({
+    id: 99,
+    nombre: "Dragon",
+    sistemaDeJuego: "Dungeons and Dragons",
+    tipo: "enemigo",
+  } as never);
+  vi.mocked(addHabilidadNpc).mockResolvedValue(undefined as never);
+  vi.mocked(addDndCharacterInventoryItem).mockResolvedValue(undefined as never);
   vi.mocked(crearNpc).mockClear();
 
   const { result } = setup();
   act(() => {
     result.current.setNombre("Dragon");
     result.current.addSave();
+    setupPortrait(result);
   });
   act(() => {
     result.current.updateSave(0, "bonus", 7);
@@ -804,6 +841,7 @@ describe("useEnemyForm - handleSubmit error API", () => {
     const { result } = setup();
     act(() => {
       result.current.setNombre("Dragon");
+      setupPortrait(result);
     });
     await act(async () => {
       await result.current.handleSubmit();

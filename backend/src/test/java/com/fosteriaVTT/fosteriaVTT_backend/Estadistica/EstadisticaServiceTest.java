@@ -166,6 +166,7 @@ class EstadisticaServiceTest {
 						"Puntos de vida",
 						"Vida actual",
 						"Vida temporal",
+						"Vida maxima",
 						"Hechizos nivel 1",
 						"Hechizos nivel 1 gastados",
 						"Recurso custom dnd actual 1",

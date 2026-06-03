@@ -323,7 +323,7 @@ export function useDiceRoller() {
     const instance = new DiceBox({
       container: `#${diceBoxHostIdRef.current}`,
       assetPath: "/assets/dice-box/",
-      offscreen: false,
+      offscreen: true,
       scale: 3.8,
       throwForce: 4.2,
       spinForce: 5.6,
@@ -348,6 +348,7 @@ export function useDiceRoller() {
       canvas.style.height = "100%";
       canvas.style.position = "absolute";
       canvas.style.inset = "0";
+      canvas.style.pointerEvents = "none";
     }
 
     instance.show?.();

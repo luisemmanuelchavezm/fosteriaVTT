@@ -1,4 +1,4 @@
-import { Link2, LogOut, Map } from "lucide-react";
+import { Link2, Map } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import CampaignChatPanel from "./components/CampaignChatPanel";
 import CampaignPlayersPanel from "./components/CampaignPlayersPanel";
@@ -96,10 +96,9 @@ export default function CampaignHomeScreen({
         <button
           type="button"
           onClick={onExit}
-          aria-label="Salir de la campaña"
-          className="flex h-12 w-12 items-center justify-center rounded-full border border-white/25 bg-black/50 text-white transition hover:border-red-500/40 hover:bg-red-950/60 hover:text-red-300"
+          className="flex h-12 items-center justify-center rounded-full border border-white/30 bg-black/60 px-5 text-base font-black text-white shadow-[0_10px_24px_rgba(0,0,0,0.35)] transition hover:border-red-500/50 hover:bg-red-950/65 hover:text-red-300"
         >
-          <LogOut className="h-5 w-5" />
+          Salir
         </button>
 
         {/* Invite button */}

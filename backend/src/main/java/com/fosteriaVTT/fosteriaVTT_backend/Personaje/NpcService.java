@@ -179,6 +179,7 @@ public class NpcService {
 		}
 		dndAbilityUtils.agregarHabilidadSiNoExiste(personaje, habilidad);
 		personajeRepository.save(personaje);
+		emitirActualizacionPersonaje(personajeId);
 	}
 
 	@Transactional
@@ -220,6 +221,29 @@ public class NpcService {
 
 		emitirActualizacionPersonaje(personajeId);
 		return personajeService.obtenerDetallePersonaje(personajeId, username);
+	}
+
+	// ─────────────────────────────────────────────
+	// MB Enemy — traits & moral
+	// ─────────────────────────────────────────────
+
+	@Transactional
+	public void appendTagsToEnemy(Long personajeId, String tagsToAdd, String username) {
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+		String current = personaje.getTags() != null ? personaje.getTags() : "";
+		personaje.setTags(current.isBlank() ? tagsToAdd : current + "," + tagsToAdd);
+		personajeRepository.save(personaje);
+		emitirActualizacionPersonaje(personajeId);
+	}
+
+	@Transactional
+	public void actualizarMoralMBEnemy(Long personajeId, int moralActual, String username) {
+		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
+		var stats = estadisticaService.obtenerValoresPorPersonajeId(personajeId);
+		int maxMoral = stats.getOrDefault("Moral maxima", moralActual);
+		int clamped = Math.max(0, Math.min(maxMoral, moralActual));
+		estadisticaService.upsertStat(personaje, "Moral actual", clamped);
+		emitirActualizacionPersonaje(personajeId);
 	}
 
 	// ─────────────────────────────────────────────

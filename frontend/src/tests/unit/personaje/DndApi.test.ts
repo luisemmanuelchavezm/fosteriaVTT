@@ -19,6 +19,7 @@ import {
   fetchObjectCatalog,
   fetchSpellCatalog,
   fetchSpellDetailByName,
+  fetchAbilityCatalog,
   levelDownDndCharacter,
   levelUpDndCharacter,
   markCharacterAsUsed,
@@ -261,6 +262,45 @@ describe("personaje dndApi", () => {
     ).rejects.toThrow("No se pudo añadir el hechizo al personaje");
     await expect(deleteDndCharacterAbility("token", 9, 7)).rejects.toThrow(
       "No se pudo eliminar la habilidad del personaje",
+    );
+  });
+
+  it("propaga errores de fetchClassSubclassSkills y fetchSpellDetailByName", async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock
+      .mockResolvedValueOnce(errorResponse(500))
+      .mockResolvedValueOnce(errorResponse(500));
+
+    await expect(
+      fetchClassSubclassSkills("token", "mago", "evocacion"),
+    ).rejects.toThrow("No se pudieron cargar las habilidades de la subclase");
+    await expect(
+      fetchSpellDetailByName("token", "Bola de fuego"),
+    ).rejects.toThrow("No se pudo cargar la información del conjuro o truco");
+  });
+
+  it("fetchAbilityCatalog carga catálogo con y sin filtros", async () => {
+    const fetchMock = vi.mocked(fetch);
+    const catalog = [{ id: 1, nombre: "Arcano", tags: "CatalogoHabilidadDnd" }];
+    fetchMock
+      .mockResolvedValueOnce(okJson(catalog))
+      .mockResolvedValueOnce(okJson(catalog))
+      .mockResolvedValueOnce(okJson(catalog))
+      .mockResolvedValueOnce(errorResponse(500));
+
+    await expect(fetchAbilityCatalog("token", {})).resolves.toEqual(catalog);
+    await expect(
+      fetchAbilityCatalog("token", { clase: "mago" }),
+    ).resolves.toEqual(catalog);
+    await expect(
+      fetchAbilityCatalog("token", {
+        clase: "mago",
+        subclase: "ev",
+        etiqueta: "truco",
+      }),
+    ).resolves.toEqual(catalog);
+    await expect(fetchAbilityCatalog("token", {})).rejects.toThrow(
+      "No se pudo cargar el catálogo de habilidades",
     );
   });
 

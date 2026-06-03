@@ -534,3 +534,63 @@ describe("useTokenPanelCharacter - adjustHealth", () => {
     expect(result.current.healthSaveError).toBeTruthy();
   });
 });
+
+// ── Dice roller summary effect ────────────────────────────────────────────────
+
+describe("useTokenPanelCharacter - dice roller summary", () => {
+  beforeEach(() => {
+    localStorage.setItem("jwtToken", "token");
+  });
+
+  it("llama onSendMessage cuando summary cambia", async () => {
+    const { useDiceRoller } =
+      await import("../../../components/dice/useDiceRoller");
+    const onSendMessage = vi.fn().mockResolvedValue(undefined);
+    const fakeSummary = {
+      id: 42,
+      title: "Tirada de Fuerza",
+      expression: "1d20+2",
+      diceValues: [15],
+      modifier: 2,
+      total: 17,
+    };
+
+    vi.mocked(useDiceRoller).mockReturnValue({
+      summary: fakeSummary,
+      roll: vi.fn(),
+      clearSummary: vi.fn(),
+      diceBoxHostId: "host",
+      diceBoxError: null,
+      isRolling: false,
+      rollD20Check: vi.fn(),
+      rollExpression: vi.fn(),
+      rollDicePool: vi.fn(),
+      rollExpressionsSequence: vi.fn(),
+      dismissSummary: vi.fn(),
+      rollTwoD20ForAdvantage: vi.fn(),
+      formatModifier: vi.fn(),
+    } as never);
+
+    renderHook(() => useTokenPanelCharacter([], onSendMessage, false));
+
+    await act(async () => {});
+    expect(onSendMessage).toHaveBeenCalled();
+
+    // Reset mock
+    vi.mocked(useDiceRoller).mockReturnValue({
+      summary: null,
+      roll: vi.fn(),
+      clearSummary: vi.fn(),
+      diceBoxHostId: "host",
+      diceBoxError: null,
+      isRolling: false,
+      rollD20Check: vi.fn(),
+      rollExpression: vi.fn(),
+      rollDicePool: vi.fn(),
+      rollExpressionsSequence: vi.fn(),
+      dismissSummary: vi.fn(),
+      rollTwoD20ForAdvantage: vi.fn(),
+      formatModifier: vi.fn(),
+    } as never);
+  });
+});

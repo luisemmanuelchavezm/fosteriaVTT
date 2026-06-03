@@ -49,7 +49,7 @@ class CampañaControllerTest {
     void obtieneLasUltimasCampañasDelUsuarioAutenticado() {
         List<CampañaResumenResponse> campañas = List.of(
             new CampañaResumenResponse(1L, "Crónicas de la Bruma", "https://img.test/1", "Dungeons and Dragons", "dmuno", ULTIMO_ACCESO),
-            new CampañaResumenResponse(2L, "La llamada", "https://img.test/2", "Call Of Cthulhu", "dmdos", ULTIMO_ACCESO.minusDays(1))
+            new CampañaResumenResponse(2L, "La llamada", "https://img.test/2", "Mork Borg", "dmdos", ULTIMO_ACCESO.minusDays(1))
         );
         TestingAuthenticationToken authentication =
                 new TestingAuthenticationToken("daria", null);
@@ -78,7 +78,7 @@ class CampañaControllerTest {
     void endpointDevuelveLasUltimasCampañas() throws Exception {
         List<CampañaResumenResponse> campañas = List.of(
                 new CampañaResumenResponse(1L, "Crónicas de la Bruma", "https://img.test/1", "Dungeons and Dragons", "dmuno", ULTIMO_ACCESO),
-                new CampañaResumenResponse(2L, "La llamada", "https://img.test/2", "Call Of Cthulhu", "dmdos", ULTIMO_ACCESO.minusDays(1))
+                new CampañaResumenResponse(2L, "La llamada", "https://img.test/2", "Mork Borg", "dmdos", ULTIMO_ACCESO.minusDays(1))
         );
         TestingAuthenticationToken authentication =
             new TestingAuthenticationToken("daria", null);
@@ -90,7 +90,7 @@ class CampañaControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].nombre").value("Crónicas de la Bruma"))
-                .andExpect(jsonPath("$[1].sistemaDeJuego").value("Call Of Cthulhu"))
+                .andExpect(jsonPath("$[1].sistemaDeJuego").value("Mork Borg"))
                 .andExpect(jsonPath("$[0].dmUsername").value("dmuno"));
     }
 
@@ -98,7 +98,7 @@ class CampañaControllerTest {
     void obtieneLasCampañasOrdenadasPorUltimoAccesoDelUsuarioAutenticado() {
         List<CampañaResumenResponse> campañas = List.of(
                 new CampañaResumenResponse(1L, "Crónicas de la Bruma", "https://img.test/1", "Dungeons and Dragons", "dmuno", ULTIMO_ACCESO),
-                new CampañaResumenResponse(2L, "La llamada", "https://img.test/2", "Call Of Cthulhu", "dmdos", ULTIMO_ACCESO.minusDays(1))
+                new CampañaResumenResponse(2L, "La llamada", "https://img.test/2", "Mork Borg", "dmdos", ULTIMO_ACCESO.minusDays(1))
         );
         PagedResponse<CampañaResumenResponse> pagedResponse = new PagedResponse<>(campañas, true);
         TestingAuthenticationToken authentication =
@@ -129,7 +129,7 @@ class CampañaControllerTest {
     void endpointDevuelveLasCampañasOrdenadasPorUltimoAcceso() throws Exception {
         List<CampañaResumenResponse> campañas = List.of(
                 new CampañaResumenResponse(1L, "Crónicas de la Bruma", "https://img.test/1", "Dungeons and Dragons", "dmuno", ULTIMO_ACCESO),
-                new CampañaResumenResponse(2L, "La llamada", "https://img.test/2", "Call Of Cthulhu", "dmdos", ULTIMO_ACCESO.minusDays(1))
+                new CampañaResumenResponse(2L, "La llamada", "https://img.test/2", "Mork Borg", "dmdos", ULTIMO_ACCESO.minusDays(1))
         );
         PagedResponse<CampañaResumenResponse> pagedResponse = new PagedResponse<>(campañas, true);
         TestingAuthenticationToken authentication =
@@ -150,7 +150,7 @@ class CampañaControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items[0].nombre").value("Crónicas de la Bruma"))
                 .andExpect(jsonPath("$.items[0].ultimaVezAccedido").exists())
-                .andExpect(jsonPath("$.items[1].sistemaDeJuego").value("Call Of Cthulhu"))
+                .andExpect(jsonPath("$.items[1].sistemaDeJuego").value("Mork Borg"))
                 .andExpect(jsonPath("$.hasMore").value(true));
 
         verify(campañaService).obtenerCampañasOrdenadasPorUltimoAcceso(

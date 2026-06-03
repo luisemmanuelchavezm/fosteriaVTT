@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -43,6 +44,10 @@ public interface PersonajeRepository extends JpaRepository<Personaje, Long> {
 			@Param("incluirTodos") boolean incluirTodos,
 			Pageable pageable
 	);
+
+	@Modifying
+	@Query(value = "DELETE FROM personaje_habilidad WHERE personaje_id = :personajeId", nativeQuery = true)
+	void deleteHabilidadesByPersonajeId(@Param("personajeId") Long personajeId);
 
 	@Query("""
 			select p from Personaje p

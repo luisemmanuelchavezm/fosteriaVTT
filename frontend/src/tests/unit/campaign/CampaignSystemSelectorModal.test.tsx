@@ -26,10 +26,10 @@ describe("CampaignSystemSelectorModal", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders D&D and Call of Cthulhu options", () => {
+  it("renders D&D and Mork Borg options", () => {
     render(<CampaignSystemSelectorModal {...DEFAULT_PROPS} />);
     expect(screen.getByText("Dungeons and Dragons")).toBeInTheDocument();
-    expect(screen.getByText("Call of Cthulhu")).toBeInTheDocument();
+    expect(screen.getByText("Mork Borg")).toBeInTheDocument();
   });
 
   it("renders D&D description", () => {
@@ -37,10 +37,10 @@ describe("CampaignSystemSelectorModal", () => {
     expect(screen.getByText("Crea una campaña de D&D.")).toBeInTheDocument();
   });
 
-  it("renders COC description", () => {
+  it("renders Mork Borg description", () => {
     render(<CampaignSystemSelectorModal {...DEFAULT_PROPS} />);
     expect(
-      screen.getByText("Crea una campaña de Call of Cthulhu."),
+      screen.getByText("Crea una campaña de Mork Borg."),
     ).toBeInTheDocument();
   });
 
@@ -62,13 +62,13 @@ describe("CampaignSystemSelectorModal", () => {
     expect(onSelect).toHaveBeenCalledWith("Dungeons and Dragons");
   });
 
-  it("calls onSelect with 'Call Of Cthulhu' when COC button is clicked", () => {
+  it("calls onSelect with 'Mork Borg' when Mork Borg button is clicked", () => {
     const onSelect = vi.fn();
     render(
       <CampaignSystemSelectorModal {...DEFAULT_PROPS} onSelect={onSelect} />,
     );
-    fireEvent.click(screen.getByText("Call of Cthulhu"));
-    expect(onSelect).toHaveBeenCalledWith("Call Of Cthulhu");
+    fireEvent.click(screen.getByText("Mork Borg"));
+    expect(onSelect).toHaveBeenCalledWith("Mork Borg");
   });
 
   it("renders the D&D abbreviation badge", () => {
@@ -76,8 +76,8 @@ describe("CampaignSystemSelectorModal", () => {
     expect(screen.getByText("D&D")).toBeInTheDocument();
   });
 
-  it("renders the COC abbreviation badge", () => {
+  it("renders the MB abbreviation badge", () => {
     render(<CampaignSystemSelectorModal {...DEFAULT_PROPS} />);
-    expect(screen.getByText("COC")).toBeInTheDocument();
+    expect(screen.getByText("MB")).toBeInTheDocument();
   });
 });

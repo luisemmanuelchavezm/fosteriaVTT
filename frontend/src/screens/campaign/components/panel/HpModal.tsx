@@ -11,6 +11,7 @@ interface HpModalProps {
   healthSaveError: string | null;
   onClose: () => void;
   onAdjust: (mode: "heal" | "damage" | "tempGain" | "tempLose") => void;
+  isMB?: boolean;
 }
 
 export default function HpModal({
@@ -23,6 +24,7 @@ export default function HpModal({
   healthSaveError,
   onClose,
   onAdjust,
+  isMB = false,
 }: HpModalProps) {
   const currentHp = Math.max(0, character.estadisticas["Vida actual"] ?? 0);
   const tempHp = Math.max(0, character.estadisticas["Vida temporal"] ?? 0);
@@ -55,7 +57,9 @@ export default function HpModal({
           </button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-[150px_150px_minmax(0,1fr)]">
+        <div
+          className={`grid gap-4 ${isMB ? "md:grid-cols-[150px_minmax(0,1fr)]" : "md:grid-cols-[150px_150px_minmax(0,1fr)]"}`}
+        >
           {/* Current HP column */}
           <div className="grid grid-rows-[48px_48px_48px] gap-2">
             <button
@@ -111,65 +115,67 @@ export default function HpModal({
             </button>
           </div>
 
-          {/* Temp HP column */}
-          <div className="grid grid-rows-[48px_48px_48px] gap-2">
-            <button
-              type="button"
-              onClick={() => onAdjust("tempGain")}
-              className="rounded-[16px] border border-sky-300/35 bg-sky-400/10 px-3 text-sm font-semibold text-sky-100 transition hover:bg-sky-400/15"
-            >
-              Temp +
-            </button>
+          {/* Temp HP column — hidden for Mork Borg */}
+          {!isMB && (
+            <div className="grid grid-rows-[48px_48px_48px] gap-2">
+              <button
+                type="button"
+                onClick={() => onAdjust("tempGain")}
+                className="rounded-[16px] border border-sky-300/35 bg-sky-400/10 px-3 text-sm font-semibold text-sky-100 transition hover:bg-sky-400/15"
+              >
+                Temp +
+              </button>
 
-            <div className="rounded-[16px] border border-white/10 bg-black/25 px-2 py-1.5">
-              <div className="grid grid-cols-[28px_minmax(0,1fr)_28px] items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setTempHpDelta(
-                      String(
-                        Math.max(
-                          0,
-                          (Number.parseInt(tempHpDelta, 10) || 0) - 1,
+              <div className="rounded-[16px] border border-white/10 bg-black/25 px-2 py-1.5">
+                <div className="grid grid-cols-[28px_minmax(0,1fr)_28px] items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setTempHpDelta(
+                        String(
+                          Math.max(
+                            0,
+                            (Number.parseInt(tempHpDelta, 10) || 0) - 1,
+                          ),
                         ),
-                      ),
-                    )
-                  }
-                  className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 text-xs text-white"
-                >
-                  -
-                </button>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={tempHpDelta}
-                  onChange={(e) =>
-                    setTempHpDelta(e.target.value.replace(/\D+/g, "") || "0")
-                  }
-                  className="h-full w-full bg-transparent text-center text-lg font-semibold text-white outline-none"
-                />
-                <button
-                  type="button"
-                  onClick={() =>
-                    setTempHpDelta(
-                      String((Number.parseInt(tempHpDelta, 10) || 0) + 1),
-                    )
-                  }
-                  className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 text-xs text-white"
-                >
-                  +
-                </button>
+                      )
+                    }
+                    className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 text-xs text-white"
+                  >
+                    -
+                  </button>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={tempHpDelta}
+                    onChange={(e) =>
+                      setTempHpDelta(e.target.value.replace(/\D+/g, "") || "0")
+                    }
+                    className="h-full w-full bg-transparent text-center text-lg font-semibold text-white outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setTempHpDelta(
+                        String((Number.parseInt(tempHpDelta, 10) || 0) + 1),
+                      )
+                    }
+                    className="flex h-7 w-7 items-center justify-center rounded-full border border-white/10 text-xs text-white"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <button
-              type="button"
-              onClick={() => onAdjust("tempLose")}
-              className="rounded-[16px] border border-cyan-300/35 bg-cyan-400/10 px-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/15"
-            >
-              Temp -
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={() => onAdjust("tempLose")}
+                className="rounded-[16px] border border-cyan-300/35 bg-cyan-400/10 px-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/15"
+              >
+                Temp -
+              </button>
+            </div>
+          )}
 
           {/* HP display */}
           <div className="flex min-h-[180px] flex-col items-center justify-center px-3 text-center">
@@ -187,9 +193,11 @@ export default function HpModal({
             <p className="mt-3 text-sm font-semibold uppercase tracking-[0.22em] text-stone-400">
               Puntos de vida
             </p>
-            <p className="mt-3 text-base font-semibold text-sky-100/90">
-              Temporal: {tempHp}
-            </p>
+            {!isMB && (
+              <p className="mt-3 text-base font-semibold text-sky-100/90">
+                Temporal: {tempHp}
+              </p>
+            )}
             {isSavingHealth ? (
               <p className="mt-3 text-xs text-white/60">Guardando...</p>
             ) : null}

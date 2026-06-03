@@ -39,11 +39,7 @@ interface CampaignPageResponse {
 }
 
 const INITIAL_VISIBLE_CAMPAIGNS = 15;
-const GAME_SYSTEMS = [
-  "Dungeons and Dragons",
-  "Call Of Cthulhu",
-  "Vampire: The Masquerade",
-];
+const GAME_SYSTEMS = ["Dungeons and Dragons", "Mork Borg"];
 
 function formatLastPlayed(lastPlayedAt: string) {
   const parsedDate = new Date(lastPlayedAt);

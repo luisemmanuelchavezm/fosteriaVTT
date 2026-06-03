@@ -7,7 +7,7 @@ import {
 describe("campaignSystem", () => {
   it("contiene los dos sistemas de juego soportados", () => {
     expect(CAMPAIGN_CREATION_SYSTEMS).toContain("Dungeons and Dragons");
-    expect(CAMPAIGN_CREATION_SYSTEMS).toContain("Call Of Cthulhu");
+    expect(CAMPAIGN_CREATION_SYSTEMS).toContain("Mork Borg");
   });
 
   it("tiene exactamente 2 sistemas", () => {
@@ -16,9 +16,9 @@ describe("campaignSystem", () => {
 
   it("el tipo CampaignCreationSystem acepta los valores correctos", () => {
     const dnd: CampaignCreationSystem = "Dungeons and Dragons";
-    const coc: CampaignCreationSystem = "Call Of Cthulhu";
+    const mb: CampaignCreationSystem = "Mork Borg";
     expect(dnd).toBe("Dungeons and Dragons");
-    expect(coc).toBe("Call Of Cthulhu");
+    expect(mb).toBe("Mork Borg");
   });
 
   it("el array es de sólo lectura (readonly tuple)", () => {
@@ -29,6 +29,6 @@ describe("campaignSystem", () => {
 
   it("los sistemas están en el orden esperado", () => {
     expect(CAMPAIGN_CREATION_SYSTEMS[0]).toBe("Dungeons and Dragons");
-    expect(CAMPAIGN_CREATION_SYSTEMS[1]).toBe("Call Of Cthulhu");
+    expect(CAMPAIGN_CREATION_SYSTEMS[1]).toBe("Mork Borg");
   });
 });

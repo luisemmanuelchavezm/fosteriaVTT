@@ -51,7 +51,7 @@ public class MarketplaceController {
                             p.getId(),
                             p.getNombre(),
                             p.getRetrato(),
-                            p.getSistemaDeJuego() != null ? p.getSistemaDeJuego().name() : "",
+                            p.getSistemaDeJuego() != null ? p.getSistemaDeJuego().getDisplayName() : "",
                             extractTipo(p.getTags()),
                             p.getUsuario() != null ? p.getUsuario().getUsername() : "Desconocido",
                             yaTienesCopia
