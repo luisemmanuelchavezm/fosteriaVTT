@@ -279,16 +279,26 @@ export default function WeaponFormModal({
             <div className="space-y-4">
               {/* Nombre */}
               <div>
-                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
-                  Nombre del arma
-                </label>
+                <div className="mb-1 flex items-baseline justify-between">
+                  <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
+                    Nombre del arma
+                  </label>
+                  {nombre.length > 70 && (
+                    <span
+                      className={`text-[9px] ${nombre.length >= 100 ? "text-red-400" : "text-amber-400"}`}
+                    >
+                      {nombre.length}/100
+                    </span>
+                  )}
+                </div>
                 <input
                   type="text"
                   value={nombre}
                   onChange={(e) => {
-                    setNombre(e.target.value);
+                    setNombre(e.target.value.slice(0, 100));
                     setCustomError(null);
                   }}
+                  maxLength={100}
                   placeholder="Ej. Espada del Caos"
                   className={`w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-amber-400/60 ${customError ? "border-red-400/70" : "border-white/20"}`}
                 />
@@ -464,12 +474,23 @@ export default function WeaponFormModal({
 
               {/* Descripción */}
               <div>
-                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
-                  Descripción <span className="text-white/35">(opcional)</span>
-                </label>
+                <div className="mb-1 flex items-baseline justify-between">
+                  <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
+                    Descripción{" "}
+                    <span className="text-white/35">(opcional)</span>
+                  </label>
+                  {descripcion.length > 180 && (
+                    <span
+                      className={`text-[9px] ${descripcion.length >= 250 ? "text-red-400" : "text-amber-400"}`}
+                    >
+                      {descripcion.length}/250
+                    </span>
+                  )}
+                </div>
                 <textarea
                   value={descripcion}
-                  onChange={(e) => setDescripcion(e.target.value)}
+                  onChange={(e) => setDescripcion(e.target.value.slice(0, 250))}
+                  maxLength={250}
                   rows={3}
                   placeholder="Descripción del arma..."
                   className="w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-amber-400/60"

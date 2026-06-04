@@ -35,20 +35,12 @@ public class Pestaña extends NamedEntity {
     @Builder.Default
     private Integer distanciaCasilla = 5;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private String nieblaDeGuerra = "true";
-
     @Column(columnDefinition = "TEXT")
-    private String nieblaEstadoJson;
+    private String nieblaDeGuerra;
 
     @Column(nullable = false)
     @Builder.Default
     private String sistemaMetrico = "ft";
-
-    @Column(length = 500, nullable = false)
-    @Builder.Default
-    private String imagenBaseUrl = "https://res.cloudinary.com/doxqtmi46/image/upload/v1778449741/imagen_base_pesta%C3%B1a_xgtcmo.jpg";
 
     @Column(nullable = false)
     @Builder.Default
@@ -65,8 +57,6 @@ public class Pestaña extends NamedEntity {
                 .nCuadriculasY(20)
                 .distanciaCasilla(5)
                 .sistemaMetrico("ft")
-                .nieblaDeGuerra("true")
-                .imagenBaseUrl("https://res.cloudinary.com/doxqtmi46/image/upload/v1778449741/imagen_base_pesta%C3%B1a_xgtcmo.jpg")
                 .ultimaVezUsada(LocalDateTime.now())
                 .campaña(campaña)
                 .build();

@@ -1,8 +1,14 @@
 package com.fosteriaVTT.fosteriaVTT_backend.Campaña;
 
+import com.fosteriaVTT.fosteriaVTT_backend.Capa.CapaRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Chat.ChatRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Cloudinary.CloudinaryService;
+import com.fosteriaVTT.fosteriaVTT_backend.Dibujo.DibujoRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Jugador.Jugador;
 import com.fosteriaVTT.fosteriaVTT_backend.Jugador.JugadorRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Pestaña.PestañaRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Posicion.PosicionRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Punto.PuntoRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Usuario.UserRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Usuario.Usuario;
 import com.fosteriaVTT.fosteriaVTT_backend.common.SistemaDeJuego;
@@ -31,17 +37,35 @@ public class CampañaService {
 	private final UserRepository userRepository;
 	private final CampañaRepository campañaRepository;
 	private final CloudinaryService cloudinaryService;
+	private final PestañaRepository pestañaRepository;
+	private final CapaRepository capaRepository;
+	private final PosicionRepository posicionRepository;
+	private final DibujoRepository dibujoRepository;
+	private final PuntoRepository puntoRepository;
+	private final ChatRepository chatRepository;
 
 	public CampañaService(
 			JugadorRepository jugadorRepository,
 			UserRepository userRepository,
 			CampañaRepository campañaRepository,
-			CloudinaryService cloudinaryService
+			CloudinaryService cloudinaryService,
+			PestañaRepository pestañaRepository,
+			CapaRepository capaRepository,
+			PosicionRepository posicionRepository,
+			DibujoRepository dibujoRepository,
+			PuntoRepository puntoRepository,
+			ChatRepository chatRepository
 	) {
 		this.jugadorRepository = jugadorRepository;
 		this.userRepository = userRepository;
 		this.campañaRepository = campañaRepository;
 		this.cloudinaryService = cloudinaryService;
+		this.pestañaRepository = pestañaRepository;
+		this.capaRepository = capaRepository;
+		this.posicionRepository = posicionRepository;
+		this.dibujoRepository = dibujoRepository;
+		this.puntoRepository = puntoRepository;
+		this.chatRepository = chatRepository;
 	}
 
 	@Transactional
@@ -189,6 +213,33 @@ public class CampañaService {
 				.toList(),
 				resultPage.hasNext()
 		);
+	}
+
+	@Transactional
+	public void eliminarCampañasPorDm(Long dmId) {
+		campañaRepository.findByDmId(dmId).forEach(c -> eliminarCampañaAdmin(c.getId()));
+	}
+
+	@Transactional
+	public void eliminarCampañaAdmin(Long campañaId) {
+		campañaRepository.findById(campañaId).ifPresent(campaña -> {
+			List<com.fosteriaVTT.fosteriaVTT_backend.Pestaña.Pestaña> pestañas =
+					pestañaRepository.findByCampañaIdOrderByUltimaVezUsadaDesc(campañaId);
+			for (com.fosteriaVTT.fosteriaVTT_backend.Pestaña.Pestaña pestaña : pestañas) {
+				Long pestañaId = pestaña.getId();
+				List<com.fosteriaVTT.fosteriaVTT_backend.Dibujo.Dibujo> dibujos =
+						dibujoRepository.findByCapaPestañaIdOrderByIdAsc(pestañaId);
+				List<Long> dibujoIds = dibujos.stream().map(d -> d.getId()).toList();
+				if (!dibujoIds.isEmpty()) puntoRepository.deleteByDibujoIdIn(dibujoIds);
+				dibujoRepository.deleteAll(dibujos);
+				posicionRepository.deleteAll(posicionRepository.findByCapaPestañaIdOrderByIdAsc(pestañaId));
+				capaRepository.deleteAll(capaRepository.findByPestañaIdOrderByNivelDeCapaAsc(pestañaId));
+				pestañaRepository.delete(pestaña);
+			}
+			chatRepository.deleteAll(chatRepository.findMensajesNormalesPorCampania(campañaId));
+			jugadorRepository.deleteAll(jugadorRepository.findByCampañaIdOrderByUsuarioUsernameAsc(campañaId));
+			campañaRepository.delete(campaña);
+		});
 	}
 
 	private String normalizarFiltro(String valor) {

@@ -200,14 +200,14 @@ public class NieblaWebSocketController {
 
         return pestañaRepository.findById(pestanaId)
                 .map(p -> {
-                    String json = p.getNieblaEstadoJson();
+                    String json = p.getNieblaDeGuerra();
                     if (json != null && !json.isBlank()) {
                         try {
                             NieblaEstado saved = objectMapper.readValue(json, NieblaEstado.class);
                             estadoPorPestana.put(pestanaId, saved);
                             return saved;
                         } catch (Exception e) {
-                            log.warn("No se pudo deserializar nieblaEstadoJson para pestaña {}: {}", pestanaId, e.getMessage());
+                            log.warn("No se pudo deserializar nieblaDeGuerra para pestaña {}: {}", pestanaId, e.getMessage());
                         }
                     }
                     NieblaEstado vacío = new NieblaEstado(pestanaId, false, false, false, List.of(), List.of());
@@ -221,7 +221,7 @@ public class NieblaWebSocketController {
     private void persistirEstado(Long pestanaId, NieblaEstado estado) {
         pestañaRepository.findById(pestanaId).ifPresent(p -> {
             try {
-                p.setNieblaEstadoJson(objectMapper.writeValueAsString(estado));
+                p.setNieblaDeGuerra(objectMapper.writeValueAsString(estado));
                 pestañaRepository.save(p);
             } catch (Exception e) {
                 log.error("Error persistiendo niebla de pestaña {}: {}", pestanaId, e.getMessage());

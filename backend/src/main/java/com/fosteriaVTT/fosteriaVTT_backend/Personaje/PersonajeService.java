@@ -445,6 +445,19 @@ public class PersonajeService {
 		personajeRepository.delete(personaje);
 	}
 
+	@Transactional
+	public void eliminarPersonajeAdmin(Long personajeId) {
+		personajeRepository.findById(personajeId).ifPresent(personaje -> {
+			chatRepository.desvincularPersonaje(personajeId);
+			posicionRepository.findByPersonajeId(personajeId).ifPresent(posicionRepository::delete);
+			mochilaService.obtenerMochilaPersonaje(personajeId).forEach(item -> mochilaService.eliminarItemPersonaje(personaje, item.getId()));
+			personaje.getHabilidades().clear();
+			personajeRepository.save(personaje);
+			estadisticaService.eliminarEstadisticasPersonaje(personajeId);
+			personajeRepository.delete(personaje);
+		});
+	}
+
 	// ─────────────────────────────────────────────
 	// Seeder / migraciones
 	// ─────────────────────────────────────────────

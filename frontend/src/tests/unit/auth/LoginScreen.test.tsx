@@ -103,6 +103,7 @@ describe("LoginScreen", () => {
           "jwt-token",
           "daria",
           undefined,
+          "USER",
         );
       },
       { timeout: 1500 },

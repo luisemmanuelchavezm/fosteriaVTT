@@ -17,7 +17,10 @@ function renderNpcText(text: string): ReactNode {
         className="ml-4 mt-1 list-outside list-disc space-y-0.5"
       >
         {pendingItems.map((item, i) => (
-          <li key={i} className="text-sm leading-relaxed text-white/70">
+          <li
+            key={i}
+            className="break-words text-sm leading-relaxed text-white/70"
+          >
             {item}
           </li>
         ))}
@@ -36,7 +39,7 @@ function renderNpcText(text: string): ReactNode {
         elements.push(
           <p
             key={`p-${elements.length}`}
-            className="mt-1 text-sm leading-relaxed text-white/70"
+            className="mt-1 break-words text-sm leading-relaxed text-white/70"
           >
             {line}
           </p>,
@@ -171,10 +174,20 @@ export default function NpcRasgosTab({
                 <button
                   type="button"
                   onClick={onAddHabilidad}
-                  disabled={isAddingHabilidad || !newHabilidadNombre.trim()}
+                  disabled={
+                    isAddingHabilidad ||
+                    !newHabilidadNombre.trim() ||
+                    (newHabilidadTipo === "PASIVA" && pasivas.length >= 20) ||
+                    (newHabilidadTipo === "ACCION" && acciones.length >= 20)
+                  }
                   className="flex-1 rounded-lg bg-amber-600/30 py-1.5 text-xs font-semibold text-amber-200 transition hover:bg-amber-600/50 disabled:opacity-40"
                 >
-                  {isAddingHabilidad ? "Agregando…" : "Agregar"}
+                  {isAddingHabilidad
+                    ? "Agregando…"
+                    : (newHabilidadTipo === "PASIVA" && pasivas.length >= 20) ||
+                        (newHabilidadTipo === "ACCION" && acciones.length >= 20)
+                      ? "Límite alcanzado"
+                      : "Agregar"}
                 </button>
               </div>
             </div>
@@ -192,10 +205,12 @@ export default function NpcRasgosTab({
             {pasivas.map((p) => (
               <div
                 key={p.id}
-                className="relative rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+                className="relative min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/5 px-4 py-3"
               >
-                <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-amber-200">{p.nombre}</p>
+                <div className="flex min-w-0 items-start justify-between gap-2">
+                  <p className="min-w-0 break-words font-semibold text-amber-200">
+                    {p.nombre}
+                  </p>
                   {isEditMode && (
                     <button
                       type="button"
@@ -224,10 +239,12 @@ export default function NpcRasgosTab({
             {acciones.map((a) => (
               <div
                 key={a.id}
-                className="relative rounded-xl border border-white/10 bg-white/5 px-4 py-3"
+                className="relative min-w-0 overflow-hidden rounded-xl border border-white/10 bg-white/5 px-4 py-3"
               >
-                <div className="flex items-start justify-between gap-2">
-                  <p className="font-semibold text-amber-200">{a.nombre}</p>
+                <div className="flex min-w-0 items-start justify-between gap-2">
+                  <p className="min-w-0 break-words font-semibold text-amber-200">
+                    {a.nombre}
+                  </p>
                   {isEditMode && (
                     <button
                       type="button"
@@ -303,9 +320,12 @@ export default function NpcRasgosTab({
               <button
                 type="button"
                 onClick={() => onWeaponModalChange({ mode: "add" })}
-                className="w-full rounded-lg border border-amber-400/50 bg-amber-600/15 py-2 text-xs font-bold text-amber-300 transition hover:border-amber-400/80 hover:bg-amber-600/30 hover:text-amber-200"
+                disabled={armas.length >= 15}
+                className="w-full rounded-lg border border-amber-400/50 bg-amber-600/15 py-2 text-xs font-bold text-amber-300 transition hover:border-amber-400/80 hover:bg-amber-600/30 hover:text-amber-200 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                + Agregar arma
+                {armas.length >= 15
+                  ? "Límite de armas alcanzado (15/15)"
+                  : "+ Agregar arma"}
               </button>
             )}
           </div>

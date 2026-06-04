@@ -1,13 +1,9 @@
 package com.fosteriaVTT.fosteriaVTT_backend.InformacionDnd;
 
 import com.fosteriaVTT.fosteriaVTT_backend.ContenidoSistemaJson.ContenidoSistemaJsonService;
-import com.fosteriaVTT.fosteriaVTT_backend.InformacionDnd.DndCatalogoResolver;
-import com.fosteriaVTT.fosteriaVTT_backend.InformacionDnd.DndEquipamientoResolver;
 import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.Habilidad;
 import com.fosteriaVTT.fosteriaVTT_backend.Habilidad.HabilidadRepository;
-import com.fosteriaVTT.fosteriaVTT_backend.Objeto.Objeto;
 import com.fosteriaVTT.fosteriaVTT_backend.Objeto.ObjetoRepository;
-import com.fosteriaVTT.fosteriaVTT_backend.Objeto.TipoObjeto;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndCompetenciasResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ClaseDndLanzamientoConjurosResponse;
@@ -231,15 +227,4 @@ class DndInfoServiceTest {
                 .build();
     }
 
-    private static Objeto objeto(Long id, String nombre, String indice) {
-        return Objeto.builder()
-                .id(id)
-                .nombre(nombre)
-                .descripcion("")
-                .formula(null)
-                .imagen(null)
-                .indice(indice)
-                .tipoObjeto(TipoObjeto.MISCELANEO)
-                .build();
-    }
 }

@@ -1,4 +1,5 @@
 import "@3d-dice/dice-box/dist/style.css";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { DiceRollSummary } from "./useDiceRoller";
 
@@ -20,8 +21,24 @@ export default function DiceRollOverlay({
   diceBoxError,
   isRolling,
   summary,
+  onDismiss,
   hideTotals = false,
 }: DiceRollOverlayProps) {
+  const [showError, setShowError] = useState(false);
+
+  useEffect(() => {
+    if (!diceBoxError) {
+      setShowError(false);
+      return;
+    }
+    setShowError(true);
+    const timer = setTimeout(() => {
+      setShowError(false);
+      onDismiss?.();
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [diceBoxError, onDismiss]);
+
   return createPortal(
     <>
       <div
@@ -42,7 +59,7 @@ export default function DiceRollOverlay({
         </div>
       ) : null}
 
-      {diceBoxError ? (
+      {showError && diceBoxError ? (
         <div className="pointer-events-none fixed inset-x-0 top-6 z-[301] flex justify-center px-4">
           <div className="rounded-full border border-rose-400/35 bg-rose-950/85 px-4 py-2 text-sm font-medium text-rose-100 shadow-[0_12px_35px_rgba(0,0,0,0.35)] backdrop-blur-md">
             {diceBoxError}

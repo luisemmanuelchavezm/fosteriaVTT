@@ -4,6 +4,8 @@ import com.fosteriaVTT.fosteriaVTT_backend.Campaña.Campaña;
 import com.fosteriaVTT.fosteriaVTT_backend.Campaña.CampañaRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Capa.Capa;
 import com.fosteriaVTT.fosteriaVTT_backend.Capa.CapaRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Mapa.Mapa;
+import com.fosteriaVTT.fosteriaVTT_backend.Mapa.MapaRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Dibujo.Dibujo;
 import com.fosteriaVTT.fosteriaVTT_backend.Dibujo.DibujoRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Jugador.JugadorRepository;
@@ -27,6 +29,7 @@ public class PestañaService {
 
 	private final PestañaRepository pestañaRepository;
 	private final CapaRepository capaRepository;
+	private final MapaRepository mapaRepository;
 	private final JugadorRepository jugadorRepository;
 	private final CampañaRepository campañaRepository;
 	private final DibujoRepository dibujoRepository;
@@ -36,6 +39,7 @@ public class PestañaService {
 	public PestañaService(
 			PestañaRepository pestañaRepository,
 			CapaRepository capaRepository,
+			MapaRepository mapaRepository,
 			JugadorRepository jugadorRepository,
 			CampañaRepository campañaRepository,
 			DibujoRepository dibujoRepository,
@@ -44,6 +48,7 @@ public class PestañaService {
 	) {
 		this.pestañaRepository = pestañaRepository;
 		this.capaRepository = capaRepository;
+		this.mapaRepository = mapaRepository;
 		this.jugadorRepository = jugadorRepository;
 		this.campañaRepository = campañaRepository;
 		this.dibujoRepository = dibujoRepository;
@@ -78,8 +83,6 @@ public class PestañaService {
 				pestañaActualizada.getNCuadriculasY(),
 				pestañaActualizada.getDistanciaCasilla(),
 				pestañaActualizada.getSistemaMetrico(),
-				pestañaActualizada.getNieblaDeGuerra(),
-				pestañaActualizada.getImagenBaseUrl(),
 				mapaCapaUrl,
 				pestañaActualizada.getUltimaVezUsada(),
 				dmUsername
@@ -100,7 +103,6 @@ public class PestañaService {
 							p.getId(), p.getNombre(),
 							p.getNCuadriculasX(), p.getNCuadriculasY(),
 							p.getDistanciaCasilla(), p.getSistemaMetrico(),
-							p.getNieblaDeGuerra(), p.getImagenBaseUrl(),
 							mapaCapaUrl, p.getUltimaVezUsada(), null);
 				})
 				.toList();
@@ -130,7 +132,6 @@ public class PestañaService {
 				updated.getId(), updated.getNombre(),
 				updated.getNCuadriculasX(), updated.getNCuadriculasY(),
 				updated.getDistanciaCasilla(), updated.getSistemaMetrico(),
-				updated.getNieblaDeGuerra(), updated.getImagenBaseUrl(),
 				mapaCapaUrl, updated.getUltimaVezUsada(), dmUsername);
 	}
 
@@ -160,7 +161,6 @@ public class PestañaService {
 				updated.getId(), updated.getNombre(),
 				updated.getNCuadriculasX(), updated.getNCuadriculasY(),
 				updated.getDistanciaCasilla(), updated.getSistemaMetrico(),
-				updated.getNieblaDeGuerra(), updated.getImagenBaseUrl(),
 				mapaCapaUrl, updated.getUltimaVezUsada(), dmUsername);
 	}
 
@@ -181,8 +181,6 @@ public class PestañaService {
 				.nCuadriculasY(20)
 				.distanciaCasilla(5)
 				.sistemaMetrico("ft")
-				.nieblaDeGuerra("true")
-				.imagenBaseUrl("https://res.cloudinary.com/doxqtmi46/image/upload/v1778449741/imagen_base_pesta%C3%B1a_xgtcmo.jpg")
 				.ultimaVezUsada(LocalDateTime.now())
 				.campaña(campaña)
 				.build();
@@ -190,13 +188,15 @@ public class PestañaService {
 		Pestaña guardada = pestañaRepository.save(nueva);
 		crearCapasBase(guardada);
 
+		String mapaCapaUrl = capaRepository.findByPestañaIdAndNivelDeCapa(guardada.getId(), NIVEL_CAPA_MAPA)
+				.map(capa -> capa.getMapa() == null ? null : capa.getMapa().getMapa())
+				.orElse(null);
 		String dmUsername = campaña.getDm() == null ? null : campaña.getDm().getUsername();
 		return new PestañaCampañaResponse(
 				guardada.getId(), guardada.getNombre(),
 				guardada.getNCuadriculasX(), guardada.getNCuadriculasY(),
 				guardada.getDistanciaCasilla(), guardada.getSistemaMetrico(),
-				guardada.getNieblaDeGuerra(), guardada.getImagenBaseUrl(),
-				null, guardada.getUltimaVezUsada(), dmUsername);
+				mapaCapaUrl, guardada.getUltimaVezUsada(), dmUsername);
 	}
 
 	@Transactional
@@ -259,29 +259,35 @@ public class PestañaService {
 		}
 
 		if (capas.stream().noneMatch(capa -> Integer.valueOf(1).equals(capa.getNivelDeCapa()))) {
-			crearCapa(pestaña, 1, "capa de fichas");
+			crearCapa(pestaña, 1, "capa de fichas", null);
 		}
 
 		if (capas.stream().noneMatch(capa -> Integer.valueOf(2).equals(capa.getNivelDeCapa()))) {
-			crearCapa(pestaña, 2, "capa de mapa");
+			crearCapa(pestaña, 2, "capa de mapa", mapaBase());
 		}
 
 		if (capas.stream().noneMatch(capa -> Integer.valueOf(3).equals(capa.getNivelDeCapa()))) {
-			crearCapa(pestaña, 3, "capa de DM");
+			crearCapa(pestaña, 3, "capa de DM", null);
 		}
 	}
 
 	private void crearCapasBase(Pestaña pestaña) {
-		crearCapa(pestaña, 1, "capa de fichas");
-		crearCapa(pestaña, 2, "capa de mapa");
-		crearCapa(pestaña, 3, "capa de DM");
+		Mapa base = mapaBase();
+		crearCapa(pestaña, 1, "capa de fichas", null);
+		crearCapa(pestaña, 2, "capa de mapa", base);
+		crearCapa(pestaña, 3, "capa de DM", null);
 	}
 
-	private void crearCapa(Pestaña pestaña, int nivel, String nombre) {
+	private Mapa mapaBase() {
+		return mapaRepository.findByNombreAndUsuarioUsername("mapa_base", "sistema").orElse(null);
+	}
+
+	private void crearCapa(Pestaña pestaña, int nivel, String nombre, Mapa mapa) {
 		Capa capa = Capa.builder()
 				.nombre(nombre)
 				.nivelDeCapa(nivel)
 				.pestaña(pestaña)
+				.mapa(mapa)
 				.build();
 		capaRepository.save(capa);
 	}

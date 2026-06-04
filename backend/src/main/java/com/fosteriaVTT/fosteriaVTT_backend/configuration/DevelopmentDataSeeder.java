@@ -1,4 +1,4 @@
-package com.fosteriaVTT.fosteriaVTT_backend.configuration;
+﻿package com.fosteriaVTT.fosteriaVTT_backend.configuration;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -573,86 +573,103 @@ public class DevelopmentDataSeeder {
     @Order(5)
     CommandLineRunner syncRequestedDndSkillTexts(HabilidadRepository habilidadRepository) {
         return args -> seedSkillCatalogEntries(habilidadRepository, List.of(
-                buildSkill("Acrobacias", null, null, "Pruebas de equilibrio, volteretas y maniobras acrobaticas.", "DND,CatalogoHabilidadDnd;acrobacias"),
-                buildSkill("Arcano", null, null, "Conocimiento de magia, teoria arcana y tradiciones misticas.", "DND,CatalogoHabilidadDnd;arcano"),
-                buildSkill("Atletismo", null, null, "Pruebas de fuerza fisica, salto, escalada y natacion.", "DND,CatalogoHabilidadDnd;atletismo"),
-                buildSkill("Engaño", null, null, "Mentir, fingir y manipular a otros con falsedades.", "DND,CatalogoHabilidadDnd;engano"),
-                buildSkill("Historia", null, null, "Recordar hechos, culturas y personajes del pasado.", "DND,CatalogoHabilidadDnd;historia"),
-                buildSkill("Interpretación", null, null, "Actuar, cantar, tocar instrumentos o entretener a un publico.", "DND,CatalogoHabilidadDnd;interpretacion"),
-                buildSkill("Intimidación", null, null, "Imponer respeto o miedo mediante presencia, amenazas o autoridad.", "DND,CatalogoHabilidadDnd;intimidacion"),
-                buildSkill("Investigación", null, null, "Examinar pistas, deducir patrones y sacar conclusiones.", "DND,CatalogoHabilidadDnd;investigacion"),
-                buildSkill("Juego de manos", null, null, "Trucos de destreza manual, hurtos y manipulacion precisa.", "DND,CatalogoHabilidadDnd;juegodemanos"),
-                buildSkill("Medicina", null, null, "Diagnosticar heridas, estabilizar y tratar afecciones fisicas.", "DND,CatalogoHabilidadDnd;medicina"),
-                buildSkill("Naturaleza", null, null, "Conocimiento de fauna, flora, terreno y fenomenos naturales.", "DND,CatalogoHabilidadDnd;naturaleza"),
-                buildSkill("Percepción", null, null, "Detectar detalles, sonidos, movimientos o peligros cercanos.", "DND,CatalogoHabilidadDnd;percepcion"),
-                buildSkill("Perspicacia", null, null, "Leer emociones, intenciones y mentiras en los demas.", "DND,CatalogoHabilidadDnd;perspicacia"),
-                buildSkill("Persuasión", null, null, "Convencer, negociar o ganarse la buena disposicion de otros.", "DND,CatalogoHabilidadDnd;persuasion"),
-                buildSkill("Religión", null, null, "Conocimiento sobre dioses, cultos, ritos y teologia.", "DND,CatalogoHabilidadDnd;religion"),
-                buildSkill("Sigilo", null, null, "Ocultarse, moverse sin ser visto y evitar llamar la atencion.", "DND,CatalogoHabilidadDnd;sigilo"),
-                buildSkill("Supervivencia", null, null, "Rastrear, orientarse y resistir en entornos hostiles.", "DND,CatalogoHabilidadDnd;supervivencia"),
-                buildSkill("Trato con animales", null, null, "Calmar, dirigir o entender el comportamiento de animales.", "DND,CatalogoHabilidadDnd;tratoconanimales"),
-                buildSkill("Dominio divino", null, null, "Al escoger este dominio en el nivel 1 obtienes conjuros de dominio y otras aptitudes especiales ligadas a esa esfera divina.", "CClerigo;1,Subclase"),
-                buildSkill("Conjuros de dominio: conocimiento", null, "Identificar, Orden imperiosa", "Conjuros de dominio: Identificar, Orden imperiosa. Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Knowledge,Conjuro"),
-                buildSkill("Bendiciones del conocimiento", null, "2 idiomas y competencia/pericia en 2 habilidades", "Aprendes dos idiomas a tu elección. Además, escoges dos de estas habilidades: Arcano, Historia, Naturaleza o Religión. Tu bonificador por competencia se duplica en cualquier prueba hecha con las elegidas.", "CClerigo;1,Knowledge,Habilidades,Idioma"),
-                buildSkill("Competencia adicional", null, "armadura pesada", "También obtienes competencia con armadura pesada.", "CClerigo;1,Vida,ArmaduraPesada"),
-                buildSkill("Conjuros de dominio: vida", null, "Bendición, Curar heridas", "Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Vida,Conjuro"),
-                buildSkill("Discipulo de la vida", null, "+2 + nivel del conjuro a la curación", "Tus conjuros curativos son más efectivos. Siempre que uses un conjuro de nivel 1 o superior para devolver puntos de golpe a una criatura, esta recupera puntos adicionales iguales a 2 + el nivel del conjuro.", "CClerigo;1,Vida,Curacion"),
-                buildSkill("Conjuros de dominio: luz", null, "Manos ardientes, Fuego feérico", "Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Luz,Conjuro"),
-                buildSkill("Truco adicional de luz", null, "truco Luz", "Aprendes el truco Luz si todavía no lo conoces.", "CClerigo;1,Luz,Truco"),
-                buildSkill("Llamarada protectora", null, "Reacción: desventaja a un ataque visible a 30 pies", "Puedes usar tu reacción para imponer desventaja a una tirada de ataque hecha por una criatura que puedas ver dentro de 30 pies, siempre que el atacante también pueda verte. Debes decidirlo antes de saber si el ataque impacta o falla.", "CClerigo;1,Luz,Reaccion,Defensa"),
-                buildSkill("Conjuros de dominio: naturaleza", null, "Hablar con los animales, Enmarañar", "Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Naturaleza,Conjuro"),
-                buildSkill("Acolito de la naturaleza", null, "1 truco de druida y 1 habilidad", "Aprendes un truco de druida a tu elección. Además, obtienes competencia en una de las siguientes habilidades: Trato con animales, Naturaleza o Supervivencia.", "CClerigo;1,Naturaleza,Habilidades"),
-                buildSkill("Competencia adicional de naturaleza", null, "armadura pesada", "También obtienes competencia con armadura pesada.", "CClerigo;1,Naturaleza,ArmaduraPesada"),
-                buildSkill("Conjuros de dominio: tempestad", null, "Nube de niebla, Onda atronadora", "Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Tempestad,Conjuro"),
-                buildSkill("Competencias adicionales de tempestad", null, "armaduras pesadas y armas marciales", "Obtienes competencia con armaduras pesadas y armas marciales.", "CClerigo;1,Tempestad,ArmaduraPesada,ArmaMarcial"),
-                buildSkill("Ira de la tormenta", null, "Reacción: 2d8 rayo o trueno; DES mitad", "Cuando una criatura a 5 pies de ti que puedas ver te impacta con un ataque, puedes usar tu reacción para obligarla a hacer una salvación de Destreza. Sufre 2d8 de daño de rayo o trueno si falla, o la mitad si tiene éxito.", "CClerigo;1,Tempestad,Reaccion,Daño+"),
-                buildSkill("Conjuros de dominio: engaño", null, "Hechizar persona, Disfrazarse", "Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Engano,Conjuro"),
-                buildSkill("Bendicion del embaucador", null, "Acción: ventaja en Sigilo durante 1 hora", "Puedes usar tu acción para tocar a una criatura voluntaria distinta de ti y darle ventaja en las pruebas de Destreza (Sigilo) durante 1 hora o hasta que vuelvas a usar este rasgo.", "CClerigo;1,Engano,Sigilo,Apoyo"),
-                buildSkill("Conjuros de dominio: guerra", null, "Favor divino, Escudo de fe", "Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Guerra,Conjuro"),
-                buildSkill("Competencias adicionales de guerra", null, "armaduras pesadas y armas marciales", "Obtienes competencia con armaduras pesadas y armas marciales.", "CClerigo;1,Guerra,ArmaduraPesada,ArmaMarcial"),
-                buildSkill("Sacerdote guerrero", null, "ataque como acción adicional, usos = mod. SAB", "Cuando usas la acción de Atacar, puedes hacer un ataque con arma como acción adicional un número de veces igual a tu modificador de Sabiduría por descanso largo.", "CClerigo;1,Guerra,Ataque+,AccionExtra"),
-                buildSkill("Preservar la vida", null, "cura total = 5 x nivel de clerigo", "Como acción, presentas tu símbolo sagrado y evocas energía curativa capaz de restaurar un total de puntos de golpe igual a cinco veces tu nivel de clérigo. Esta curación se reparte entre criaturas a 30 pies de ti y no puede dejar a ninguna por encima de la mitad de sus puntos de golpe máximos.", "CClerigo;2,Vida,CanalDivino,Curacion"),
-                buildSkill("Sanador bendito", null, "te curas 2 + nivel del conjuro", "Los conjuros de curación que lanzas sobre otros también te sostienen. Cuando lanzas un conjuro de nivel 1 o superior para devolver puntos de golpe a una criatura distinta de ti, recuperas 2 + el nivel del conjuro.", "CClerigo;6,Vida,Curacion"),
-                buildSkill("Golpe divino", null, "+1d8 radiante al golpear; +2d8 al 14", "Una vez en cada uno de tus turnos, cuando golpeas a una criatura con un ataque con arma, puedes hacer que el ataque inflija 1d8 de daño radiante extra. Cuando alcanzas el nivel 14, el daño extra aumenta a 2d8.", "CClerigo;8,Vida,Daño+,Radiante"),
-                buildSkill("Curacion suprema", null, "maximizas los dados de curación", "Cuando normalmente tirarías uno o más dados para restaurar puntos de golpe con un conjuro, usas en su lugar el valor máximo posible de cada dado.", "CClerigo;17,Vida,Curacion"),
-                buildSkill("Juramento sagrado", null, null, "Cuando alcanzas el nivel 3 haces un juramento que te vincula para siempre en tu búsqueda sagrada. Hasta ese momento has sido una promesa en preparación; ahora escoges el ideal que regirá tu causa. Las opciones disponibles aquí son devoción, antiguos y venganza.", "CPaladin;3,Subclase"),
-                buildSkill("Conjuros de juramento", null, "Protección contra el bien y el mal, Santuario", "Obtienes conjuros de juramento en los niveles indicados de paladín. Estos conjuros siempre están preparados y no cuentan para el número de conjuros que puedes preparar cada día.", "CPaladin;3,Devocion,Conjuro"),
-                buildSkill("Arma sagrada", null, "+CAR a tiradas de ataque durante 1 minuto", "Como acción, puedes imbuir un arma que sostengas con energía positiva usando tu Canalizar Divinidad. Durante 1 minuto sumas tu modificador de Carisma a las tiradas de ataque hechas con esa arma y emite luz brillante en un radio de 20 pies y luz tenue 20 pies más. El efecto termina si quedas inconsciente o si el arma deja de estar en tu mano.", "CPaladin;3,Devocion,CanalDivino,Ataque+"),
-                buildSkill("Expulsar lo impio", null, null, "Como acción, presentas tu símbolo sagrado y pronuncias una plegaria que condena a infernales y no muertos. Cada uno que pueda verte u oírte y falle su salvación de Sabiduría queda expulsado durante 1 minuto o hasta recibir daño.", "CPaladin;3,Devocion,CanalDivino,Control"),
-                buildSkill("Conjuros de juramento", null, "Golpe apresador, Hablar con los animales", "Obtienes conjuros de juramento en los niveles indicados de paladín. Estos conjuros siempre están preparados y no cuentan para el número de conjuros que puedes preparar cada día.", "CPaladin;3,Antiguos,Conjuro"),
-                buildSkill("Ira de la naturaleza", null, "apresa a un objetivo con una salvacion de Fuerza o Destreza", "Puedes usar tu Canalizar Divinidad para invocar fuerzas primigenias que aprisionen a una criatura cercana. El objetivo debe superar una salvación de Fuerza o Destreza o quedar apresado por enredaderas espectrales.", "CPaladin;3,Antiguos,CanalDivino,Control"),
-                buildSkill("Expulsar infieles", null, "expulsa feericos e infernales durante 1 minuto", "Presentas tu símbolo sagrado y pronuncias antiguas palabras de censura contra feéricos e infernales. Cada uno que falle su salvación de Sabiduría queda expulsado durante 1 minuto o hasta recibir daño.", "CPaladin;3,Antiguos,CanalDivino,Control"),
-                buildSkill("Conjuros de juramento", null, "Marca del cazador, Perdicion", "Obtienes conjuros de juramento en los niveles indicados de paladín. Estos conjuros siempre están preparados y no cuentan para el número de conjuros que puedes preparar cada día.", "CPaladin;3,Venganza,Conjuro"),
-                buildSkill("Abjurar enemigo", null, "asusta o ralentiza a un objetivo", "Como acción, presentas tu símbolo sagrado y pronuncias un voto de condena contra una criatura visible a 60 pies. Si falla su salvación de Sabiduría queda asustada y su velocidad se reduce a 0; si tiene éxito, su velocidad queda reducida a la mitad durante 1 minuto o hasta que reciba daño.", "CPaladin;3,Venganza,CanalDivino,Control"),
-                buildSkill("Voto de enemistad", null, "ventaja contra un objetivo durante 1 minuto", "Como acción adicional, puedes pronunciar un voto de enemistad contra una criatura que veas a 10 pies o menos. Durante 1 minuto tienes ventaja en las tiradas de ataque contra ella, o hasta que caiga a 0 puntos de golpe o quede inconsciente.", "CPaladin;3,Venganza,CanalDivino,Ataque+"),
-                buildSkill("Aura de devocion", null, "inmunidad a hechizado en 10 pies; 30 pies al 18", "Tú y las criaturas amistosas a 10 pies de ti no podéis ser hechizados mientras estés consciente. En el nivel 18 el alcance aumenta a 30 pies.", "CPaladin;7,Devocion,Aura,InmunidadHechizado"),
-                buildSkill("Aura de salvaguarda", null, "resistencia al daño de conjuros en 10 pies; 30 pies al 18", "Tú y las criaturas amistosas a 10 pies de ti tenéis resistencia al daño causado por conjuros mientras estés consciente. En el nivel 18 el alcance aumenta a 30 pies.", "CPaladin;7,Antiguos,Aura,Resistencia"),
-                buildSkill("Vengador implacable", null, "te mueves hasta la mitad de tu velocidad tras un ataque de oportunidad", "Cuando impactas a una criatura con un ataque de oportunidad, puedes moverte hasta la mitad de tu velocidad inmediatamente después y como parte de la misma reacción, sin provocar ataques de oportunidad.", "CPaladin;7,Venganza,Reaccion,Movimiento"),
-                buildSkill("Pureza de espiritu", null, null, "Siempre estás bajo los efectos de Protección contra el bien y el mal.", "CPaladin;15,Devocion,Defensa"),
-                buildSkill("Centinela imperecedero", null, "si caes a 0 PG vuelves a 1 PG una vez por descanso largo", "Cuando tus puntos de golpe se reducen a 0 y no mueres de forma instantánea, puedes elegir quedar con 1 punto de golpe. Una vez que usas este rasgo, no puedes volver a hacerlo hasta terminar un descanso largo. Además, no sufres ninguno de los inconvenientes de la vejez y no puedes envejecer mágicamente.", "CPaladin;15,Antiguos,Supervivencia,Longevidad"),
-                buildSkill("Espiritu vengativo", null, "reaccion para atacar al objetivo de tu voto de enemistad", "Cuando una criatura bajo el efecto de tu Voto de enemistad hace un ataque, puedes usar tu reacción para hacer un ataque con arma cuerpo a cuerpo contra esa criatura si está a tu alcance.", "CPaladin;15,Venganza,Reaccion,Ataque+"),
-                buildSkill("Halo sagrado", null, "1 minuto; 10 de daño radiante por turno a enemigos cercanos", "Como acción, puedes irradiar un aura de luz solar. Durante 1 minuto, luz brillante emana de ti en un radio de 30 pies y luz tenue 30 pies más. Siempre que una criatura enemiga empiece su turno en la luz brillante, recibe 10 de daño radiante. Además, durante ese tiempo tienes ventaja en las salvaciones contra conjuros lanzados por infernales o no muertos.", "CPaladin;20,Devocion,Radiante,Aura,Daño+"),
-                buildSkill("Campeon ancestral", null, "1 minuto; regeneracion, accion adicional para ciertos conjuros y aura debilitadora", "Puedes asumir la forma de una fuerza antigua de la naturaleza. Durante 1 minuto recuperas 10 puntos de golpe al inicio de cada turno, puedes lanzar conjuros de paladín de lanzamiento de 1 acción como acción adicional y las criaturas enemigas a 10 pies de ti tienen desventaja en las salvaciones contra tus conjuros y opciones de Canalizar Divinidad.", "CPaladin;20,Antiguos,Curacion,Aura,Conjuro"),
-                buildSkill("Angel vengador", null, "1 hora; alas y aura de amenaza", "Como acción, adoptas la apariencia de un vengador alado. Durante 1 hora obtienes velocidad de vuelo de 60 pies y emites un aura de amenaza de 30 pies. La primera vez que una criatura enemiga entra en esa aura o empieza su turno allí, debe superar una salvación de Sabiduría o quedar asustada durante 1 minuto o hasta recibir daño.", "CPaladin;20,Venganza,Vuelo,Aura,Control"),
-                buildSkill("Jerga de ladrones", null, null, "Durante tu adiestramiento aprendiste la jerga de ladrones, una mezcla secreta de dialecto, jerga y signos ocultos que te permite transmitir mensajes encubiertos dentro de una conversación aparentemente normal o mediante marcas discretas.", "CPicaro;1,Idioma,Codigo"),
-                buildSkill("Accion astuta", null, "Desplazarse, retirarse u ocultarse como accion adicional", "A partir del nivel 2, tu rapidez mental y física te permite usar una acción adicional en cada turno de combate. Solo puede emplearse para Desplazarse, Retirarse u Ocultarse.", "CPicaro;2,AccionExtra,Movimiento,Sigilo"),
-                buildSkill("Arquetipo de picaro", null, null, "En el nivel 3 eliges el arquetipo que da forma a tus métodos. Las opciones disponibles aquí son ladrón, asesino y embaucador arcano.", "CPicaro;3,Subclase"),
-                buildSkill("Manos rapidas", null, null, "Puedes usar la acción adicional otorgada por Acción astuta para hacer una prueba de Juego de manos, usar tus herramientas de ladrón para desarmar una trampa o abrir una cerradura, o realizar la acción de Utilizar un objeto.", "CPicaro;3,Ladron,AccionExtra"),
-                buildSkill("Balconero", null, "trepar no cuesta movimiento extra", "Trepar ya no te cuesta movimiento adicional. Además, cuando haces un salto con carrerilla, la distancia que cubres aumenta una cantidad de pies igual a tu modificador de Destreza.", "CPicaro;3,Ladron,Movimiento"),
-                buildSkill("Competencias adicionales", null, "competencia con utiles para disfrazarse y utiles de envenenador", "Obtienes competencia con el kit de disfraz y el kit de envenenador.", "CPicaro;3,Asesino,Competencia"),
-                buildSkill("Asesinar", null, "ventaja contra criaturas que aun no han actuado; critico automatico contra sorprendidos", "Tienes ventaja en las tiradas de ataque contra cualquier criatura que todavía no haya actuado en este combate. Además, cualquier impacto que consigas contra una criatura sorprendida es un golpe crítico.", "CPicaro;3,Asesino,Ataque+,Critico+"),
-                buildSkill("Lanzamiento de conjuros", null, "INT para conjuros; mano de mago obligatoria", "Has aprendido magia para apoyar tus artimañas. Obtienes capacidad para lanzar conjuros usando Inteligencia como característica de conjuro. Debes conocer Mano de mago y la mayoría de tus conjuros conocidos deben ser de encantamiento o ilusión.", "CPicaro;3,EmbaucadorArcano,Conjuro,Inteligencia"),
-                buildSkill("Destreza con mano de mago", null, "mano invisible; guardar o sacar objetos; abrir cerraduras y desarmar trampas a distancia", "Cuando lanzas Mano de mago puedes hacer la mano invisible y realizar con ella tareas más precisas: guardar o sacar objetos de recipientes llevados por otras criaturas, abrir cerraduras, desarmar trampas a distancia y controlar la mano como acción adicional.", "CPicaro;3,EmbaucadorArcano,Conjuro,AccionExtra"),
-                buildSkill("Sigilo supremo", null, "Ventaja a sigilo si te mueves a media velocidad o menos", "Tienes ventaja en cualquier prueba de Destreza (Sigilo) si no te mueves más de la mitad de tu velocidad durante el mismo turno.", "CPicaro;9,Ladron,Sigilo"),
-                buildSkill("Pericia en infiltrarse", null, "creas identidades falsas", "Puedes crear identidades falsas completas para ti mismo, con documentación, historial, profesión y afiliaciones. Debes dedicar siete días y 25 po para establecer una de estas identidades.", "CPicaro;9,Asesino,Infiltracion,Engaño"),
-                buildSkill("Emboscada magica", null, "desventaja en salvaciones si lanzas oculto", "Si estás escondido de una criatura cuando le lanzas un conjuro, esa criatura tiene desventaja en cualquier tirada de salvación que deba hacer contra el conjuro durante ese turno.", "CPicaro;9,EmbaucadorArcano,Conjuro,Control"),
-                buildSkill("Usar objetos magicos", null, null, "Ignoras todos los requisitos de clase, raza y nivel en el uso de objetos mágicos.", "CPicaro;13,Ladron,ObjetoMagico"),
-                buildSkill("Impostor", null, null, "Puedes imitar con precisión el habla, la escritura y el comportamiento de otra persona después de estudiarla al menos durante tres horas. Tus imitaciones solo pueden descubrirse si un observador sospecha y supera una prueba enfrentada.", "CPicaro;13,Asesino,Engaño,Infiltracion"),
-                buildSkill("Embaucador versatil", null, null, "Como acción adicional en tu turno, puedes designar una criatura a 5 pies de tu Mano de mago. Hasta el final del turno obtienes ventaja en las tiradas de ataque contra esa criatura.", "CPicaro;13,EmbaucadorArcano,Conjuro,Ataque+"),
-                buildSkill("Reflejos de ladron", null, "2 turnos en la primera ronda si no estas sorprendido", "Eres extraordinariamente veloz al empezar un combate. Si no estás sorprendido, puedes actuar dos veces durante la primera ronda: una en tu iniciativa normal y otra en tu iniciativa menos 10.", "CPicaro;17,Ladron,Iniciativa"),
-                buildSkill("Golpe mortal", null, null, "Cuando atacas e impactas a una criatura sorprendida, debe hacer una salvación de Constitución. Si falla, el daño del ataque se duplica contra ella.", "CPicaro;17,Asesino,Daño+,Critico+"),
-                buildSkill("Ladron de conjuros", null, null, "Inmediatamente después de que una criatura te lance un conjuro cuyo objetivo seas tú o que te incluya en su área, puedes usar tu reacción para forzar una salvación con su modificador de conjuro. Si falla, anulas el efecto del conjuro sobre ti y puedes lanzar ese conjuro tú mismo durante las siguientes 8 horas usando tus espacios de conjuro.", "CPicaro;17,EmbaucadorArcano,Conjuro,Reaccion")
+                buildSkill("Acrobacias", null, "Pruebas de equilibrio, volteretas y maniobras acrobaticas.", "DND,CatalogoHabilidadDnd;acrobacias"),
+                buildSkill("Arcano", null, "Conocimiento de magia, teoria arcana y tradiciones misticas.", "DND,CatalogoHabilidadDnd;arcano"),
+                buildSkill("Atletismo", null, "Pruebas de fuerza fisica, salto, escalada y natacion.", "DND,CatalogoHabilidadDnd;atletismo"),
+                buildSkill("Engaño", null, "Mentir, fingir y manipular a otros con falsedades.", "DND,CatalogoHabilidadDnd;engano"),
+                buildSkill("Historia", null, "Recordar hechos, culturas y personajes del pasado.", "DND,CatalogoHabilidadDnd;historia"),
+                buildSkill("Interpretación", null, "Actuar, cantar, tocar instrumentos o entretener a un publico.", "DND,CatalogoHabilidadDnd;interpretacion"),
+                buildSkill("Intimidación", null, "Imponer respeto o miedo mediante presencia, amenazas o autoridad.", "DND,CatalogoHabilidadDnd;intimidacion"),
+                buildSkill("Investigación", null, "Examinar pistas, deducir patrones y sacar conclusiones.", "DND,CatalogoHabilidadDnd;investigacion"),
+                buildSkill("Juego de manos", null, "Trucos de destreza manual, hurtos y manipulacion precisa.", "DND,CatalogoHabilidadDnd;juegodemanos"),
+                buildSkill("Medicina", null, "Diagnosticar heridas, estabilizar y tratar afecciones fisicas.", "DND,CatalogoHabilidadDnd;medicina"),
+                buildSkill("Naturaleza", null, "Conocimiento de fauna, flora, terreno y fenomenos naturales.", "DND,CatalogoHabilidadDnd;naturaleza"),
+                buildSkill("Percepción", null, "Detectar detalles, sonidos, movimientos o peligros cercanos.", "DND,CatalogoHabilidadDnd;percepcion"),
+                buildSkill("Perspicacia", null, "Leer emociones, intenciones y mentiras en los demas.", "DND,CatalogoHabilidadDnd;perspicacia"),
+                buildSkill("Persuasión", null, "Convencer, negociar o ganarse la buena disposicion de otros.", "DND,CatalogoHabilidadDnd;persuasion"),
+                buildSkill("Religión", null, "Conocimiento sobre dioses, cultos, ritos y teologia.", "DND,CatalogoHabilidadDnd;religion"),
+                buildSkill("Sigilo", null, "Ocultarse, moverse sin ser visto y evitar llamar la atencion.", "DND,CatalogoHabilidadDnd;sigilo"),
+                buildSkill("Supervivencia", null, "Rastrear, orientarse y resistir en entornos hostiles.", "DND,CatalogoHabilidadDnd;supervivencia"),
+                buildSkill("Trato con animales", null, "Calmar, dirigir o entender el comportamiento de animales.", "DND,CatalogoHabilidadDnd;tratoconanimales"),
+                buildSkill("Dominio divino", null, "Al escoger este dominio en el nivel 1 obtienes conjuros de dominio y otras aptitudes especiales ligadas a esa esfera divina.", "CClerigo;1,Subclase"),
+                buildSkill("Conjuros de dominio: conocimiento", "Identificar, Orden imperiosa", "Conjuros de dominio: Identificar, Orden imperiosa. Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Knowledge,Conjuro"),
+                buildSkill("Bendiciones del conocimiento", "2 idiomas y competencia/pericia en 2 habilidades", "Aprendes dos idiomas a tu elección. Además, escoges dos de estas habilidades: Arcano, Historia, Naturaleza o Religión. Tu bonificador por competencia se duplica en cualquier prueba hecha con las elegidas.", "CClerigo;1,Knowledge,Habilidades,Idioma"),
+                buildSkill("Competencia adicional", "armadura pesada", "También obtienes competencia con armadura pesada.", "CClerigo;1,Vida,ArmaduraPesada"),
+                buildSkill("Conjuros de dominio: vida", "Bendición, Curar heridas", "Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Vida,Conjuro"),
+                buildSkill("Discipulo de la vida", "+2 + nivel del conjuro a la curación", "Tus conjuros curativos son más efectivos. Siempre que uses un conjuro de nivel 1 o superior para devolver puntos de golpe a una criatura, esta recupera puntos adicionales iguales a 2 + el nivel del conjuro.", "CClerigo;1,Vida,Curacion"),
+                buildSkill("Conjuros de dominio: luz", "Manos ardientes, Fuego feérico", "Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Luz,Conjuro"),
+                buildSkill("Truco adicional de luz", "truco Luz", "Aprendes el truco Luz si todavía no lo conoces.", "CClerigo;1,Luz,Truco"),
+                buildSkill("Llamarada protectora", "Reacción: desventaja a un ataque visible a 30 pies", "Puedes usar tu reacción para imponer desventaja a una tirada de ataque hecha por una criatura que puedas ver dentro de 30 pies, siempre que el atacante también pueda verte. Debes decidirlo antes de saber si el ataque impacta o falla.", "CClerigo;1,Luz,Reaccion,Defensa"),
+                buildSkill("Conjuros de dominio: naturaleza", "Hablar con los animales, Enmarañar", "Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Naturaleza,Conjuro"),
+                buildSkill("Acolito de la naturaleza", "1 truco de druida y 1 habilidad", "Aprendes un truco de druida a tu elección. Además, obtienes competencia en una de las siguientes habilidades: Trato con animales, Naturaleza o Supervivencia.", "CClerigo;1,Naturaleza,Habilidades"),
+                buildSkill("Competencia adicional de naturaleza", "armadura pesada", "También obtienes competencia con armadura pesada.", "CClerigo;1,Naturaleza,ArmaduraPesada"),
+                buildSkill("Conjuros de dominio: tempestad", "Nube de niebla, Onda atronadora", "Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Tempestad,Conjuro"),
+                buildSkill("Competencias adicionales de tempestad", "armaduras pesadas y armas marciales", "Obtienes competencia con armaduras pesadas y armas marciales.", "CClerigo;1,Tempestad,ArmaduraPesada,ArmaMarcial"),
+                buildSkill("Ira de la tormenta", "Reacción: 2d8 rayo o trueno; DES mitad", "Cuando una criatura a 5 pies de ti que puedas ver te impacta con un ataque, puedes usar tu reacción para obligarla a hacer una salvación de Destreza. Sufre 2d8 de daño de rayo o trueno si falla, o la mitad si tiene éxito.", "CClerigo;1,Tempestad,Reaccion,Daño+"),
+                buildSkill("Conjuros de dominio: engaño", "Hechizar persona, Disfrazarse", "Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Engano,Conjuro"),
+                buildSkill("Bendicion del embaucador", "Acción: ventaja en Sigilo durante 1 hora", "Puedes usar tu acción para tocar a una criatura voluntaria distinta de ti y darle ventaja en las pruebas de Destreza (Sigilo) durante 1 hora o hasta que vuelvas a usar este rasgo.", "CClerigo;1,Engano,Sigilo,Apoyo"),
+                buildSkill("Conjuros de dominio: guerra", "Favor divino, Escudo de fe", "Cada dominio tiene una lista de conjuros asociados. Una vez obtienes un conjuro de dominio, siempre lo tienes preparado y no cuenta para el número de conjuros que puedes preparar cada día.", "CClerigo;1,Guerra,Conjuro"),
+                buildSkill("Competencias adicionales de guerra", "armaduras pesadas y armas marciales", "Obtienes competencia con armaduras pesadas y armas marciales.", "CClerigo;1,Guerra,ArmaduraPesada,ArmaMarcial"),
+                buildSkill("Sacerdote guerrero", "ataque como acción adicional, usos = mod. SAB", "Cuando usas la acción de Atacar, puedes hacer un ataque con arma como acción adicional un número de veces igual a tu modificador de Sabiduría por descanso largo.", "CClerigo;1,Guerra,Ataque+,AccionExtra"),
+                buildSkill("Preservar la vida", "cura total = 5 x nivel de clerigo", "Como acción, presentas tu símbolo sagrado y evocas energía curativa capaz de restaurar un total de puntos de golpe igual a cinco veces tu nivel de clérigo. Esta curación se reparte entre criaturas a 30 pies de ti y no puede dejar a ninguna por encima de la mitad de sus puntos de golpe máximos.", "CClerigo;2,Vida,CanalDivino,Curacion"),
+                buildSkill("Sanador bendito", "te curas 2 + nivel del conjuro", "Los conjuros de curación que lanzas sobre otros también te sostienen. Cuando lanzas un conjuro de nivel 1 o superior para devolver puntos de golpe a una criatura distinta de ti, recuperas 2 + el nivel del conjuro.", "CClerigo;6,Vida,Curacion"),
+                buildSkill("Golpe divino", "+1d8 radiante al golpear; +2d8 al 14", "Una vez en cada uno de tus turnos, cuando golpeas a una criatura con un ataque con arma, puedes hacer que el ataque inflija 1d8 de daño radiante extra. Cuando alcanzas el nivel 14, el daño extra aumenta a 2d8.", "CClerigo;8,Vida,Daño+,Radiante"),
+                buildSkill("Curacion suprema", "maximizas los dados de curación", "Cuando normalmente tirarías uno o más dados para restaurar puntos de golpe con un conjuro, usas en su lugar el valor máximo posible de cada dado.", "CClerigo;17,Vida,Curacion"),
+                buildSkill("Juramento sagrado", null, "Cuando alcanzas el nivel 3 haces un juramento que te vincula para siempre en tu búsqueda sagrada. Hasta ese momento has sido una promesa en preparación; ahora escoges el ideal que regirá tu causa. Las opciones disponibles aquí son devoción, antiguos y venganza.", "CPaladin;3,Subclase"),
+                buildSkill("Conjuros de juramento", "Protección contra el bien y el mal, Santuario", "Obtienes conjuros de juramento en los niveles indicados de paladín. Estos conjuros siempre están preparados y no cuentan para el número de conjuros que puedes preparar cada día.", "CPaladin;3,Devocion,Conjuro"),
+                buildSkill("Arma sagrada", "+CAR a tiradas de ataque durante 1 minuto", "Como acción, puedes imbuir un arma que sostengas con energía positiva usando tu Canalizar Divinidad. Durante 1 minuto sumas tu modificador de Carisma a las tiradas de ataque hechas con esa arma y emite luz brillante en un radio de 20 pies y luz tenue 20 pies más. El efecto termina si quedas inconsciente o si el arma deja de estar en tu mano.", "CPaladin;3,Devocion,CanalDivino,Ataque+"),
+                buildSkill("Expulsar lo impio", null, "Como acción, presentas tu símbolo sagrado y pronuncias una plegaria que condena a infernales y no muertos. Cada uno que pueda verte u oírte y falle su salvación de Sabiduría queda expulsado durante 1 minuto o hasta recibir daño.", "CPaladin;3,Devocion,CanalDivino,Control"),
+                buildSkill("Conjuros de juramento", "Golpe apresador, Hablar con los animales", "Obtienes conjuros de juramento en los niveles indicados de paladín. Estos conjuros siempre están preparados y no cuentan para el número de conjuros que puedes preparar cada día.", "CPaladin;3,Antiguos,Conjuro"),
+                buildSkill("Ira de la naturaleza", "apresa a un objetivo con una salvacion de Fuerza o Destreza", "Puedes usar tu Canalizar Divinidad para invocar fuerzas primigenias que aprisionen a una criatura cercana. El objetivo debe superar una salvación de Fuerza o Destreza o quedar apresado por enredaderas espectrales.", "CPaladin;3,Antiguos,CanalDivino,Control"),
+                buildSkill("Expulsar infieles", "expulsa feericos e infernales durante 1 minuto", "Presentas tu símbolo sagrado y pronuncias antiguas palabras de censura contra feéricos e infernales. Cada uno que falle su salvación de Sabiduría queda expulsado durante 1 minuto o hasta recibir daño.", "CPaladin;3,Antiguos,CanalDivino,Control"),
+                buildSkill("Conjuros de juramento", "Marca del cazador, Perdicion", "Obtienes conjuros de juramento en los niveles indicados de paladín. Estos conjuros siempre están preparados y no cuentan para el número de conjuros que puedes preparar cada día.", "CPaladin;3,Venganza,Conjuro"),
+                buildSkill("Abjurar enemigo", "asusta o ralentiza a un objetivo", "Como acción, presentas tu símbolo sagrado y pronuncias un voto de condena contra una criatura visible a 60 pies. Si falla su salvación de Sabiduría queda asustada y su velocidad se reduce a 0; si tiene éxito, su velocidad queda reducida a la mitad durante 1 minuto o hasta que reciba daño.", "CPaladin;3,Venganza,CanalDivino,Control"),
+                buildSkill("Voto de enemistad", "ventaja contra un objetivo durante 1 minuto", "Como acción adicional, puedes pronunciar un voto de enemistad contra una criatura que veas a 10 pies o menos. Durante 1 minuto tienes ventaja en las tiradas de ataque contra ella, o hasta que caiga a 0 puntos de golpe o quede inconsciente.", "CPaladin;3,Venganza,CanalDivino,Ataque+"),
+                buildSkill("Aura de devocion", "inmunidad a hechizado en 10 pies; 30 pies al 18", "Tú y las criaturas amistosas a 10 pies de ti no podéis ser hechizados mientras estés consciente. En el nivel 18 el alcance aumenta a 30 pies.", "CPaladin;7,Devocion,Aura,InmunidadHechizado"),
+                buildSkill("Aura de salvaguarda", "resistencia al daño de conjuros en 10 pies; 30 pies al 18", "Tú y las criaturas amistosas a 10 pies de ti tenéis resistencia al daño causado por conjuros mientras estés consciente. En el nivel 18 el alcance aumenta a 30 pies.", "CPaladin;7,Antiguos,Aura,Resistencia"),
+                buildSkill("Vengador implacable", "te mueves hasta la mitad de tu velocidad tras un ataque de oportunidad", "Cuando impactas a una criatura con un ataque de oportunidad, puedes moverte hasta la mitad de tu velocidad inmediatamente después y como parte de la misma reacción, sin provocar ataques de oportunidad.", "CPaladin;7,Venganza,Reaccion,Movimiento"),
+                buildSkill("Pureza de espiritu", null, "Siempre estás bajo los efectos de Protección contra el bien y el mal.", "CPaladin;15,Devocion,Defensa"),
+                buildSkill("Centinela imperecedero", "si caes a 0 PG vuelves a 1 PG una vez por descanso largo", "Cuando tus puntos de golpe se reducen a 0 y no mueres de forma instantánea, puedes elegir quedar con 1 punto de golpe. Una vez que usas este rasgo, no puedes volver a hacerlo hasta terminar un descanso largo. Además, no sufres ninguno de los inconvenientes de la vejez y no puedes envejecer mágicamente.", "CPaladin;15,Antiguos,Supervivencia,Longevidad"),
+                buildSkill("Espiritu vengativo", "reaccion para atacar al objetivo de tu voto de enemistad", "Cuando una criatura bajo el efecto de tu Voto de enemistad hace un ataque, puedes usar tu reacción para hacer un ataque con arma cuerpo a cuerpo contra esa criatura si está a tu alcance.", "CPaladin;15,Venganza,Reaccion,Ataque+"),
+                buildSkill("Halo sagrado", "1 minuto; 10 de daño radiante por turno a enemigos cercanos", "Como acción, puedes irradiar un aura de luz solar. Durante 1 minuto, luz brillante emana de ti en un radio de 30 pies y luz tenue 30 pies más. Siempre que una criatura enemiga empiece su turno en la luz brillante, recibe 10 de daño radiante. Además, durante ese tiempo tienes ventaja en las salvaciones contra conjuros lanzados por infernales o no muertos.", "CPaladin;20,Devocion,Radiante,Aura,Daño+"),
+                buildSkill("Campeon ancestral", "1 minuto; regeneracion, accion adicional para ciertos conjuros y aura debilitadora", "Puedes asumir la forma de una fuerza antigua de la naturaleza. Durante 1 minuto recuperas 10 puntos de golpe al inicio de cada turno, puedes lanzar conjuros de paladín de lanzamiento de 1 acción como acción adicional y las criaturas enemigas a 10 pies de ti tienen desventaja en las salvaciones contra tus conjuros y opciones de Canalizar Divinidad.", "CPaladin;20,Antiguos,Curacion,Aura,Conjuro"),
+                buildSkill("Angel vengador", "1 hora; alas y aura de amenaza", "Como acción, adoptas la apariencia de un vengador alado. Durante 1 hora obtienes velocidad de vuelo de 60 pies y emites un aura de amenaza de 30 pies. La primera vez que una criatura enemiga entra en esa aura o empieza su turno allí, debe superar una salvación de Sabiduría o quedar asustada durante 1 minuto o hasta recibir daño.", "CPaladin;20,Venganza,Vuelo,Aura,Control"),
+                buildSkill("Jerga de ladrones", null, "Durante tu adiestramiento aprendiste la jerga de ladrones, una mezcla secreta de dialecto, jerga y signos ocultos que te permite transmitir mensajes encubiertos dentro de una conversación aparentemente normal o mediante marcas discretas.", "CPicaro;1,Idioma,Codigo"),
+                buildSkill("Accion astuta", "Desplazarse, retirarse u ocultarse como accion adicional", "A partir del nivel 2, tu rapidez mental y física te permite usar una acción adicional en cada turno de combate. Solo puede emplearse para Desplazarse, Retirarse u Ocultarse.", "CPicaro;2,AccionExtra,Movimiento,Sigilo"),
+                buildSkill("Arquetipo de picaro", null, "En el nivel 3 eliges el arquetipo que da forma a tus métodos. Las opciones disponibles aquí son ladrón, asesino y embaucador arcano.", "CPicaro;3,Subclase"),
+                buildSkill("Manos rapidas", null, "Puedes usar la acción adicional otorgada por Acción astuta para hacer una prueba de Juego de manos, usar tus herramientas de ladrón para desarmar una trampa o abrir una cerradura, o realizar la acción de Utilizar un objeto.", "CPicaro;3,Ladron,AccionExtra"),
+                buildSkill("Balconero", "trepar no cuesta movimiento extra", "Trepar ya no te cuesta movimiento adicional. Además, cuando haces un salto con carrerilla, la distancia que cubres aumenta una cantidad de pies igual a tu modificador de Destreza.", "CPicaro;3,Ladron,Movimiento"),
+                buildSkill("Competencias adicionales", "competencia con utiles para disfrazarse y utiles de envenenador", "Obtienes competencia con el kit de disfraz y el kit de envenenador.", "CPicaro;3,Asesino,Competencia"),
+                buildSkill("Asesinar", "ventaja contra criaturas que aun no han actuado; critico automatico contra sorprendidos", "Tienes ventaja en las tiradas de ataque contra cualquier criatura que todavía no haya actuado en este combate. Además, cualquier impacto que consigas contra una criatura sorprendida es un golpe crítico.", "CPicaro;3,Asesino,Ataque+,Critico+"),
+                buildSkill("Lanzamiento de conjuros", "INT para conjuros; mano de mago obligatoria", "Has aprendido magia para apoyar tus artimañas. Obtienes capacidad para lanzar conjuros usando Inteligencia como característica de conjuro. Debes conocer Mano de mago y la mayoría de tus conjuros conocidos deben ser de encantamiento o ilusión.", "CPicaro;3,EmbaucadorArcano,Conjuro,Inteligencia"),
+                buildSkill("Destreza con mano de mago", "mano invisible; guardar o sacar objetos; abrir cerraduras y desarmar trampas a distancia", "Cuando lanzas Mano de mago puedes hacer la mano invisible y realizar con ella tareas más precisas: guardar o sacar objetos de recipientes llevados por otras criaturas, abrir cerraduras, desarmar trampas a distancia y controlar la mano como acción adicional.", "CPicaro;3,EmbaucadorArcano,Conjuro,AccionExtra"),
+                buildSkill("Sigilo supremo", "Ventaja a sigilo si te mueves a media velocidad o menos", "Tienes ventaja en cualquier prueba de Destreza (Sigilo) si no te mueves más de la mitad de tu velocidad durante el mismo turno.", "CPicaro;9,Ladron,Sigilo"),
+                buildSkill("Pericia en infiltrarse", "creas identidades falsas", "Puedes crear identidades falsas completas para ti mismo, con documentación, historial, profesión y afiliaciones. Debes dedicar siete días y 25 po para establecer una de estas identidades.", "CPicaro;9,Asesino,Infiltracion,Engaño"),
+                buildSkill("Emboscada magica", "desventaja en salvaciones si lanzas oculto", "Si estás escondido de una criatura cuando le lanzas un conjuro, esa criatura tiene desventaja en cualquier tirada de salvación que deba hacer contra el conjuro durante ese turno.", "CPicaro;9,EmbaucadorArcano,Conjuro,Control"),
+                buildSkill("Usar objetos magicos", null, "Ignoras todos los requisitos de clase, raza y nivel en el uso de objetos mágicos.", "CPicaro;13,Ladron,ObjetoMagico"),
+                buildSkill("Impostor", null, "Puedes imitar con precisión el habla, la escritura y el comportamiento de otra persona después de estudiarla al menos durante tres horas. Tus imitaciones solo pueden descubrirse si un observador sospecha y supera una prueba enfrentada.", "CPicaro;13,Asesino,Engaño,Infiltracion"),
+                buildSkill("Embaucador versatil", null, "Como acción adicional en tu turno, puedes designar una criatura a 5 pies de tu Mano de mago. Hasta el final del turno obtienes ventaja en las tiradas de ataque contra esa criatura.", "CPicaro;13,EmbaucadorArcano,Conjuro,Ataque+"),
+                buildSkill("Reflejos de ladron", "2 turnos en la primera ronda si no estas sorprendido", "Eres extraordinariamente veloz al empezar un combate. Si no estás sorprendido, puedes actuar dos veces durante la primera ronda: una en tu iniciativa normal y otra en tu iniciativa menos 10.", "CPicaro;17,Ladron,Iniciativa"),
+                buildSkill("Golpe mortal", null, "Cuando atacas e impactas a una criatura sorprendida, debe hacer una salvación de Constitución. Si falla, el daño del ataque se duplica contra ella.", "CPicaro;17,Asesino,Daño+,Critico+"),
+                buildSkill("Ladron de conjuros", null, "Inmediatamente después de que una criatura te lance un conjuro cuyo objetivo seas tú o que te incluya en su área, puedes usar tu reacción para forzar una salvación con su modificador de conjuro. Si falla, anulas el efecto del conjuro sobre ti y puedes lanzar ese conjuro tú mismo durante las siguientes 8 horas usando tus espacios de conjuro.", "CPicaro;17,EmbaucadorArcano,Conjuro,Reaccion")
             ));
+    }
+
+    // TODO: quitar cuando el admin se cree via .env
+    @Bean
+    @Order(0)
+    CommandLineRunner seedAdminUser(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder
+    ) {
+        return args -> userRepository.findByUsername("Admin").orElseGet(() ->
+            userRepository.save(Usuario.builder()
+                .username("Admin")
+                .email("admin@fosteria.dev")
+                .password(passwordEncoder.encode("123456789"))
+                .role(Rol.ADMIN)
+                .build())
+        );
     }
 
     @Bean
@@ -684,7 +701,6 @@ public class DevelopmentDataSeeder {
                 habilidadRepository.saveAll(List.of(
                     buildSkill(
                         "Furia",
-                        null,
                         "Daño de furia: nivel 1-8 +2; nivel 9-15 +3; nivel 16-20 +4",
                         "puedes imbuirte de un poder primigenio llamado furia, una fuerza que te otorga una resistencia y potencia extraordinarias. puedes entrar en furia como acción adicional si no llevas armadura pesada.\n\n"
                             + "**Usos:** tienes un número limitado de usos, que recuperas al completar un descanso largo.\n\n"
@@ -698,7 +714,6 @@ public class DevelopmentDataSeeder {
                     ),
                     buildSkill(
                         "Defensa sin armadura",
-                        null,
                         "10 + DES + CON",
                         "mientras no lleves armadura:\n\n"
                             + "**CA = 10 + destreza + constitución**\n\n"
@@ -708,340 +723,339 @@ public class DevelopmentDataSeeder {
                     buildSkill(
                         "Ataque temerario",
                         null,
-                        null,
                         "puedes atacar con ferocidad descuidando tu defensa.\n\n"
                             + "* ventaja en ataques cuerpo a cuerpo con fuerza\n"
                             + "* los enemigos tienen ventaja contra ti hasta tu siguiente turno",
 						"CBarbaro;2,Ataque+,Defensa-"
                     ),
-                    buildSkill("Sentir el peligro", null, null, "tienes ventaja en las tiradas de salvación de destreza contra efectos que puedas ver, como trampas y conjuros, siempre que no estés cegado, ensordecido o incapacitado.", "CBarbaro;2,SalvacionDestreza+,Percepcion"),
-                    buildSkill("Senda primordial", null, null, "eliges una senda primordial que moldea tu furia. Puedes seguir la senda del berserker o la senda del guerrero totémico.", "CBarbaro;3,Subclase"),
-                    buildSkill("Frenesí", null, null, "cuando entras en furia puedes hacerlo con frenesí. mientras dure, puedes realizar un ataque con arma cuerpo a cuerpo como acción adicional en cada uno de tus turnos. al terminar la furia, sufres un nivel de agotamiento.", "CBarbaro;3,Berserker,Furia,Agotamiento"),
-                    buildSkill("Buscador espiritual", null, null, "adquieres la capacidad de lanzar comunion con la naturaleza y hablar con los animales como rituales, aunque solo para comunicarte con espiritus totémicos.", "CBarbaro;3,Totemico,Conjuro,Ritual"),
-                    buildSkill("Espiritu totemico", null, null, "eliges un espiritu totemico que te acompaña mientras estas en furia. oso: obtienes resistencia a todo el daño salvo psiquico. aguila: mientras no lleves armadura pesada, otras criaturas tienen desventaja en ataques de oportunidad contra ti. lobo: mientras estas en furia, tus aliados tienen ventaja en ataques cuerpo a cuerpo contra criaturas hostiles a 5 pies de ti.", "CBarbaro;3,Totemico,Defensa,Movimiento"),
-                    buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBarbaro;4,MejoraCaracteristica"),
-                    buildSkill("Ataque adicional", null, "2 ataques por acción de atacar", "puedes atacar dos veces, en lugar de una, cada vez que realices la acción de atacar en tu turno.", "CBarbaro;5,Multiataque"),
-                    buildSkill("Movimiento rápido", null, "+10 pies de velocidad", "tu velocidad aumenta en 10 pies mientras no lleves armadura pesada.", "CBarbaro;5,Velocidad+,Movimiento"),
-                    buildSkill("Furia sin mente", null, null, "no puedes ser hechizado ni asustado mientras estés en furia. si ya lo estabas al entrar en furia, el efecto queda suspendido mientras dure.", "CBarbaro;6,Berserker,InmunidadHechizado,InmunidadAsustado"),
-                    buildSkill("Aspecto de la bestia", null, null, "el animal de tu totem deja su huella fuera de la furia. oso: tu capacidad de carga se duplica y tienes ventaja en pruebas para empujar, arrastrar, levantar o romper objetos. aguila: puedes ver hasta una milla sin dificultad y distingues detalles diminutos a gran distancia. lobo: puedes seguir rastros a gran velocidad y moverte con sigilo normal mientras sigues a otras criaturas.", "CBarbaro;6,Totemico,Exploracion,Movimiento"),
-                    buildSkill("Instinto salvaje", null, null, "tienes ventaja en las tiradas de iniciativa. además, si te sorprenden y no estás incapacitado, puedes actuar con normalidad en tu primer turno si entras en furia antes de hacer cualquier otra cosa.", "CBarbaro;7,Iniciativa+,Sorpresa"),
-                    buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBarbaro;8,MejoraCaracteristica"),
-                    buildSkill("Crítico brutal (1 dado)", null, "+1 dado de daño en crítico", "puedes tirar un dado adicional de daño del arma al determinar el daño extra de un golpe crítico cuerpo a cuerpo.", "CBarbaro;9,Critico+,Daño+"),
-                    buildSkill("Presencia intimidante", null, "CD = 8 + competencia + carisma", "puedes usar tu acción para aterrorizar a una criatura que esté a 30 pies o menos y pueda verte u oírte. debe superar una salvación de sabiduría o quedar asustada hasta el final de tu próximo turno. puedes usar tu acción en turnos siguientes para prolongar el efecto.", "CBarbaro;10,Berserker,Miedo,Control"),
-                    buildSkill("Caminante espiritual", null, null, "puedes lanzar comunion con la naturaleza como ritual para entrar en contacto con tus espiritus totemicos y extraer guia del entorno.", "CBarbaro;10,Totemico,Conjuro,Ritual"),
-                    buildSkill("Rabia implacable", null, "CD 10 + 5 por uso adicional", "si tus puntos de golpe caen a 0 mientras estás en furia y no mueres en el acto, puedes hacer una tirada de salvación de constitución con CD 10. si tienes éxito, te quedas con 1 punto de golpe. la CD aumenta en 5 cada vez que vuelves a usar este rasgo hasta que completes un descanso corto o largo.", "CBarbaro;11,Supervivencia,Constitucion"),
-                    buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBarbaro;12,MejoraCaracteristica"),
-                    buildSkill("Crítico brutal (2 dados)", null, "+2 dados de daño en crítico", "al determinar el daño adicional de un golpe crítico cuerpo a cuerpo, añades dos dados extra de daño del arma en lugar de uno.", "CBarbaro;13,Critico+,Daño+"),
-                    buildSkill("Represalia", null, "Reacción: 1 ataque cuerpo a cuerpo", "cuando una criatura que esté a 5 pies de ti te haga daño, puedes usar tu reacción para realizar un ataque con arma cuerpo a cuerpo contra esa criatura.", "CBarbaro;14,Berserker,Reaccion,Contraataque"),
-                    buildSkill("Sintonia totemica", null, null, "tu vínculo con el espíritu totémico alcanza su punto máximo mientras estas en furia. oso: las criaturas hostiles a 5 pies de ti tienen desventaja al atacar a objetivos distintos de ti o de otro barbaro con este rasgo. aguila: obtienes una velocidad de vuelo igual a tu velocidad al caminar durante tu turno. lobo: cuando impactas con un ataque cuerpo a cuerpo puedes derribar a una criatura grande o menor, dejandola tumbada si falla una salvación de Fuerza.", "CBarbaro;14,Totemico,Control,Daño+"),
-                    buildSkill("Rabia persistente", null, null, "tu furia ya no termina de forma anticipada solo porque no hayas atacado a una criatura hostil o no hayas recibido daño desde tu último turno.", "CBarbaro;15,Furia"),
-                    buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBarbaro;16,MejoraCaracteristica"),
-                    buildSkill("Crítico brutal (3 dados)", null, "+3 dados de daño en crítico", "al determinar el daño adicional de un golpe crítico cuerpo a cuerpo, añades tres dados extra de daño del arma.", "CBarbaro;17,Critico+,Daño+"),
-                    buildSkill("Poder indomable", null, null, "si el total de una prueba de fuerza es menor que tu puntuación de fuerza, puedes usar tu puntuación de fuerza en lugar del resultado del dado.", "CBarbaro;18,Fuerza,Pruebas"),
-                    buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBarbaro;19,MejoraCaracteristica"),
-                    buildSkill("Campeón", null, "FUE +4, CON +4, máximo 24", "tus puntuaciones de fuerza y constitución aumentan en 4. además, el máximo de ambas puntuaciones pasa a ser 24.", "CBarbaro;20,Fuerza+,Constitucion+"),
-                        buildSkill("Conjuro bardico", null, "CAR para conjuros; foco: instrumento", "accedes al lanzamiento de conjuros bardicos, lanzas con carisma y puedes usar un instrumento musical como foco.", "CBardo;1,Conjuro,Carisma"),
-                        buildSkill("Inspiracion bardica (d6)", null, "usos = mod. CAR; dado d6", "como accion adicional inspiras a una criatura a 60 pies o menos para que sume un dado a una prueba, ataque o salvacion dentro de los 10 minutos siguientes.", "CBardo;1,Apoyo,Inspiracion,Carisma"),
-                        buildSkill("Jack of All Trades", null, "+1/2 competencia a pruebas sin competencia", "sumas la mitad de tu bonificador de competencia, redondeando hacia abajo, a cualquier prueba de caracteristica en la que no seas competente.", "CBardo;2,Pruebas,Competencia"),
-                        buildSkill("Cancion de descanso (d6)", null, "curacion extra 1d6", "durante un descanso corto, las criaturas aliadas que te oigan recuperan puntos de golpe extra al gastar dados de golpe.", "CBardo;2,Descanso,Curacion"),
-                        buildSkill("Colegio bardico", null, null, "eliges un colegio bardico. Entre las opciones disponibles están el colegio del saber y el colegio del valor.", "CBardo;3,Subclase"),
-                        buildSkill("Pericia", null, "doblas competencia en 2 habilidades", "eliges dos competencias en habilidades y duplicas tu bonificador de competencia en las pruebas que las usen.", "CBardo;3,Pericia,Habilidades"),
-                        buildSkill("Competencias adicionales", null, "+3 habilidades", "al unirte al colegio del saber obtienes competencia en tres habilidades adicionales a tu eleccion.", "CBardo;3,Lore,Habilidades"),
-                        buildSkill("Palabras hirientes", null, "Reaccion: resta dado de inspiracion", "puedes gastar una inspiracion bardica para reducir la tirada de ataque, dano o prueba de una criatura que te oiga.", "CBardo;3,Lore,Reaccion,Control"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBardo;4,MejoraCaracteristica"),
-                        buildSkill("Inspiracion bardica (d8)", null, "dado d8", "tu dado de inspiracion bardica mejora a d8.", "CBardo;5,Inspiracion,Escalado"),
-                        buildSkill("Fuente de inspiracion", null, "recuperas usos en descanso corto o largo", "recuperas todos los usos de inspiracion bardica al terminar un descanso corto o largo.", "CBardo;5,Inspiracion,Descanso"),
-                        buildSkill("Contracanto", null, "Ventaja contra hechizado y miedo", "puedes iniciar una interpretacion que da ventaja en salvaciones contra estar hechizado o asustado a ti y a tus aliados cercanos que te oigan.", "CBardo;6,Apoyo,Salvacion,Miedo,Hechizado"),
-                        buildSkill("Secretos magicos adicionales", null, "+2 conjuros de cualquier clase", "el colegio del saber te permite aprender dos conjuros de cualquier lista sin que cuenten para tus conjuros bardicos conocidos.", "CBardo;6,Lore,Conjuro"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBardo;8,MejoraCaracteristica"),
-                        buildSkill("Cancion de descanso (d8)", null, "curacion extra 1d8", "la curacion adicional de tu cancion de descanso aumenta a 1d8.", "CBardo;9,Descanso,Curacion"),
-                        buildSkill("Inspiracion bardica (d10)", null, "dado d10", "tu dado de inspiracion bardica mejora a d10.", "CBardo;10,Inspiracion,Escalado"),
-                        buildSkill("Pericia", null, "doblas competencia en 2 habilidades mas", "eliges otras dos competencias en habilidades para duplicar tu bonificador de competencia.", "CBardo;10,Pericia,Habilidades"),
-                        buildSkill("Secretos magicos", null, "+2 conjuros de cualquier clase", "aprendes dos conjuros de cualquier clase que cuenten como conjuros bardicos para ti.", "CBardo;10,Conjuro"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBardo;12,MejoraCaracteristica"),
-                        buildSkill("Cancion de descanso (d10)", null, "curacion extra 1d10", "la curacion adicional de tu cancion de descanso aumenta a 1d10.", "CBardo;13,Descanso,Curacion"),
-                        buildSkill("Secretos magicos", null, "+2 conjuros de cualquier clase", "aprendes otros dos conjuros de cualquier clase que cuentan como bardicos para ti.", "CBardo;14,Conjuro"),
-                        buildSkill("Habilidad sin par", null, "gastas inspiracion para mejorar una prueba", "puedes gastar una inspiracion bardica para sumar su dado a una prueba de caracteristica despues de tirar, antes de conocer el resultado.", "CBardo;14,Lore,Pruebas,Inspiracion"),
-                        buildSkill("Inspiracion bardica (d12)", null, "dado d12", "tu dado de inspiracion bardica mejora a d12.", "CBardo;15,Inspiracion,Escalado"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBardo;16,MejoraCaracteristica"),
-                        buildSkill("Cancion de descanso (d12)", null, "curacion extra 1d12", "la curacion adicional de tu cancion de descanso aumenta a 1d12.", "CBardo;17,Descanso,Curacion"),
-                        buildSkill("Secretos magicos", null, "+2 conjuros de cualquier clase", "aprendes dos conjuros adicionales de cualquier lista.", "CBardo;18,Conjuro"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBardo;19,MejoraCaracteristica"),
-                        buildSkill("Inspiracion superior", null, "recuperas 1 uso al tirar iniciativa si no te quedan", "si inicias combate sin usos de inspiracion bardica, recuperas uno al tirar iniciativa.", "CBardo;20,Inspiracion,Iniciativa"),
-                        buildSkill("Conjuro clerical", null, "SAB para conjuros; foco: simbolo sagrado", "accedes al lanzamiento de conjuros clericales, preparas tus plegarias y usas sabiduria como caracteristica de conjuro.", "CClerigo;1,Conjuro,Sabiduria"),
-                        buildSkill("Dominio divino", null, null, "eliges un dominio divino. Entre las opciones disponibles están conocimiento, vida, luz, naturaleza, tempestad, engaño y guerra.", "CClerigo;1,Subclase"),
-                        buildSkill("Competencia adicional", null, "armadura pesada", "el dominio de la vida te concede competencia con armadura pesada.", "CClerigo;1,Vida,ArmaduraPesada"),
-                        buildSkill("Discipulo de la vida", null, "+2 + nivel del conjuro a la curacion", "cuando lanzas un conjuro de nivel 1 o superior que cure puntos de golpe, la criatura recupera curacion adicional.", "CClerigo;1,Vida,Curacion"),
-                        buildSkill("Canalizar divinidad", null, "1 uso por descanso", "canalizas energia divina para activar efectos de tu clase y de tu dominio.", "CClerigo;2,CanalDivino"),
-                        buildSkill("Expulsar no muertos", null, null, "presentas tu simbolo sagrado para obligar a los no muertos cercanos a huir de ti durante un tiempo.", "CClerigo;2,CanalDivino,NoMuertos,Control"),
-                        buildSkill("Preservar la vida", null, "cura total = 5 x nivel de clerigo", "como canal divino repartes curacion entre criaturas cercanas sin superar la mitad de sus puntos de golpe maximos.", "CClerigo;2,Vida,CanalDivino,Curacion"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CClerigo;4,MejoraCaracteristica"),
-                        buildSkill("Destruir no muertos (CR 1/2)", null, "afecta a no muertos de CR 1/2 o menor", "cuando un no muerto falla contra expulsar no muertos, queda destruido si su desafio es lo bastante bajo.", "CClerigo;5,NoMuertos,CanalDivino,Daño+"),
-                        buildSkill("Canalizar divinidad mejorado", null, "2 usos por descanso", "puedes usar canalizar divinidad dos veces entre descansos.", "CClerigo;6,CanalDivino"),
-                        buildSkill("Sanador bendito", null, "te curas 2 + nivel del conjuro", "cuando curas a otra criatura con un conjuro de nivel 1 o superior, recuperas puntos de golpe.", "CClerigo;6,Vida,Curacion"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CClerigo;8,MejoraCaracteristica"),
-                        buildSkill("Destruir no muertos (CR 1)", null, "afecta a no muertos de CR 1 o menor", "tu expulsar no muertos destruye automaticamente a no muertos mas poderosos.", "CClerigo;8,NoMuertos,CanalDivino,Daño+"),
-                        buildSkill("Golpe divino", null, "+1d8 radiante al golpear; +2d8 al 14", "una vez por turno, al impactar con un arma puedes anadir dano radiante extra.", "CClerigo;8,Vida,Daño+,Radiante"),
-                        buildSkill("Intervencion divina", null, "exito si sacas <= nivel en d100", "puedes implorar la ayuda directa de tu deidad para obtener un milagro apropiado a la situacion.", "CClerigo;10,IntervencionDivina"),
-                        buildSkill("Destruir no muertos (CR 2)", null, "afecta a no muertos de CR 2 o menor", "tu umbral para destruir no muertos vuelve a mejorar.", "CClerigo;11,NoMuertos,CanalDivino,Daño+"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CClerigo;12,MejoraCaracteristica"),
-                        buildSkill("Destruir no muertos (CR 3)", null, "afecta a no muertos de CR 3 o menor", "tu umbral para destruir no muertos vuelve a aumentar.", "CClerigo;14,NoMuertos,CanalDivino,Daño+"),
-                        buildSkill("Destruir no muertos (CR 4)", null, "afecta a no muertos de CR 4 o menor", "tu expulsar no muertos puede aniquilar no muertos todavia mas poderosos.", "CClerigo;17,NoMuertos,CanalDivino,Daño+"),
-                        buildSkill("Curacion suprema", null, "maximizas los dados de curacion", "cuando un conjuro te haria tirar dados para curar, usas el valor maximo de cada dado.", "CClerigo;17,Vida,Curacion"),
-                        buildSkill("Canalizar divinidad superior", null, "3 usos por descanso", "puedes usar canalizar divinidad tres veces entre descansos.", "CClerigo;18,CanalDivino"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CClerigo;19,MejoraCaracteristica"),
-                        buildSkill("Intervencion divina mejorada", null, "exito automatico", "tu deidad responde siempre a tu intervencion divina.", "CClerigo;20,IntervencionDivina"),
-                        buildSkill("Druidico", null, null, "aprendes el lenguaje secreto de los druidas y puedes dejar mensajes ocultos para otros que lo conozcan.", "CDruida;1,Idioma,Druidico"),
-                        buildSkill("Conjuro druida", null, "SAB para conjuros; foco: foco druida", "accedes al lanzamiento de conjuros druida y preparas conjuros usando sabiduria.", "CDruida;1,Conjuro,Sabiduria"),
-                        buildSkill("Forma salvaje", null, "2 usos por descanso corto o largo", "puedes transformarte en bestias vistas anteriormente. la forma disponible mejora con tu nivel.", "CDruida;2,Transformacion,Bestia"),
-                        buildSkill("Circulo druida", null, null, "eliges un círculo druida. Puedes seguir el círculo de la tierra o el círculo de la luna.", "CDruida;2,Subclase"),
-                        buildSkill("Truco adicional", null, "+1 truco druida", "el circulo de la tierra te concede un truco druida extra que no cuenta para tu limite habitual.", "CDruida;2,Tierra,Truco"),
-                        buildSkill("Recuperacion natural", null, "recuperas espacios con nivel total <= la mitad de tu nivel", "durante un descanso corto puedes recuperar parte de tu energia magica en forma de espacios de conjuro.", "CDruida;2,Tierra,Conjuro,Descanso"),
-                        buildSkill("Mejora de forma salvaje", null, "CR 1/2; sin velocidad de vuelo", "tu forma salvaje admite bestias mas poderosas y quita parte de sus restricciones iniciales.", "CDruida;4,Transformacion,Bestia"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CDruida;4,MejoraCaracteristica"),
-                        buildSkill("Paso por la tierra", null, null, "ignoras terreno dificil no magico por plantas y tienes ventaja contra efectos vegetales magicos que dificulten el movimiento.", "CDruida;6,Tierra,Movimiento,Salvacion"),
-                        buildSkill("Mejora de forma salvaje", null, "CR 1; con velocidad de vuelo", "tu forma salvaje ahora puede adoptar bestias aun mas fuertes, incluidas formas con velocidad de vuelo.", "CDruida;8,Transformacion,Bestia"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CDruida;8,MejoraCaracteristica"),
-                        buildSkill("Proteccion de la naturaleza", null, "inmune a veneno y enfermedad; inmune a hechizado y miedo de feericos y elementales", "la magia de la tierra te protege contra enfermedades, venenos y la influencia de ciertos seres sobrenaturales.", "CDruida;10,Tierra,InmunidadVeneno,InmunidadEnfermedad,InmunidadHechizado,InmunidadAsustado"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CDruida;12,MejoraCaracteristica"),
-                        buildSkill("Santuario de la naturaleza", null, "salvacion SAB o cambian de objetivo", "bestias y plantas dudan en atacarte y pueden verse forzadas a fallar o a elegir otro objetivo.", "CDruida;14,Tierra,Defensa,Control"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CDruida;16,MejoraCaracteristica"),
-                        buildSkill("Cuerpo intemporal", null, "envejeces 1 ano por cada 10 anos", "la magia primigenia ralentiza tu envejecimiento fisico.", "CDruida;18,Defensa,Longevidad"),
-                        buildSkill("Conjuros bestiales", null, null, "puedes lanzar muchos de tus conjuros de druida mientras estas en forma salvaje.", "CDruida;18,Conjuro,Transformacion"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CDruida;19,MejoraCaracteristica"),
-                        buildSkill("Archidruida", null, "forma salvaje ilimitada", "puedes usar forma salvaje sin limite y omitir muchos componentes de tus conjuros.", "CDruida;20,Transformacion,Conjuro"),
-                        buildSkill("Estilo de combate", null, null, "eliges un estilo de combate que mejora un aspecto concreto de tu forma de luchar.", "CGuerrero;1,Combate"),
-                        buildSkill("Segundo aliento", null, "Cura 1d10 + nivel de guerrero", "como accion adicional recuperas puntos de golpe gracias a tu reserva de aguante.", "CGuerrero;1,Curacion,Supervivencia"),
-                        buildSkill("Arrebato de accion", null, "1 accion adicional", "en tu turno puedes realizar una accion adicional aparte de tu accion normal y posible accion adicional.", "CGuerrero;2,AccionExtra"),
-                        buildSkill("Arquetipo marcial", null, null, "eliges un arquetipo marcial. Entre las opciones disponibles están campeón, maestro de batalla y caballero arcano.", "CGuerrero;3,Subclase"),
-                        buildSkill("Critico mejorado", null, "critico con 19-20", "tus ataques con arma logran golpe critico con 19 o 20 en el d20.", "CGuerrero;3,Campeon,Critico+"),
-                        buildSkill("Dados de supremacía", null, "4 dados d8; recuperas todo en descanso corto o largo", "aprendes a usar dados de supremacia para potenciar maniobras marciales. comienzas con cuatro dados de d8 y recuperas todos tus usos al terminar un descanso corto o largo.", "CGuerrero;3,MaestroDeBatalla,Combate,Descanso"),
-                        buildSkill("Maniobras", null, "3 maniobras al nivel 3; +2 al 7, 10 y 15", "aprendes maniobras especiales que consumen tus dados de supremacia y mejoran tus ataques, defensa o apoyo tactico.", "CGuerrero;3,MaestroDeBatalla,Combate,Tactica"),
-                        buildSkill("Lanzamiento de conjuros", null, "INT para conjuros", "aprendes magia arcana para complementar tu estilo de combate. lanzas conjuros de mago usando inteligencia como caracteristica de conjuro.", "CGuerrero;3,CaballeroArcano,Conjuro,Inteligencia"),
-                        buildSkill("Vínculo con arma", null, "no te pueden desarmar; invocas el arma como accion adicional", "realizas un ritual con hasta dos armas para vincularte a ellas. mientras esten en tu mismo plano no puedes ser desarmado de ellas voluntariamente y puedes invocar una de las armas vinculadas a tu mano como accion adicional.", "CGuerrero;3,CaballeroArcano,Arma,AccionExtra"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;4,MejoraCaracteristica"),
-                        buildSkill("Ataque extra", null, "2 ataques por accion de atacar", "puedes atacar dos veces cuando realizas la accion de atacar.", "CGuerrero;5,Multiataque"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;6,MejoraCaracteristica"),
-                        buildSkill("Atleta notable", null, "+1/2 competencia a pruebas de FUE, DES y CON sin competencia", "sumas la mitad de tu competencia a ciertas pruebas fisicas y mejoras tus saltos con carrera.", "CGuerrero;7,Campeon,Pruebas,Movimiento"),
-                        buildSkill("Magia de Guerra", null, "accion adicional: un ataque tras lanzar un truco", "cuando usas tu accion para lanzar un truco, puedes realizar un ataque con arma como accion adicional.", "CGuerrero;7,CaballeroArcano,Conjuro,AccionExtra,Ataque+"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;8,MejoraCaracteristica"),
-                        buildSkill("Indomable", null, "repite 1 salvacion fallida por descanso largo", "puedes repetir una tirada de salvacion fallida, pero debes usar el nuevo resultado.", "CGuerrero;9,Salvacion"),
-                        buildSkill("Estilo de combate adicional", null, null, "el campeon aprende un segundo estilo de combate.", "CGuerrero;10,Campeon,Combate"),
-                        buildSkill("Golpe Sobrenatural", null, "los golpes con arma reducen la ventaja en salvaciones contra tus conjuros", "cuando impactas a una criatura con un ataque con arma, esa criatura tiene desventaja en la siguiente tirada de salvacion que haga contra un conjuro que lances antes de que acabe tu siguiente turno.", "CGuerrero;10,CaballeroArcano,Conjuro,Control"),
-                        buildSkill("Ataque extra (2)", null, "3 ataques por accion de atacar", "ahora realizas tres ataques cuando usas la accion de atacar.", "CGuerrero;11,Multiataque"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;12,MejoraCaracteristica"),
-                        buildSkill("Indomable", null, "2 usos por descanso largo", "puedes usar indomable dos veces entre descansos largos.", "CGuerrero;13,Salvacion"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;14,MejoraCaracteristica"),
-                        buildSkill("Critico superior", null, "critico con 18-20", "tus ataques con arma hacen critico con 18, 19 o 20.", "CGuerrero;15,Campeon,Critico+"),
-                        buildSkill("Carga Arcana", null, "teletransporte 30 pies al usar arrebato de accion", "si usas arrebato de accion puedes teletransportarte hasta 30 pies a un espacio que veas antes o despues de tu accion adicional.", "CGuerrero;15,CaballeroArcano,Movimiento,Teleportacion,AccionExtra"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;16,MejoraCaracteristica"),
-                        buildSkill("Arrebato de accion mejorado", null, "2 usos por descanso", "puedes usar arrebato de accion dos veces entre descansos, aunque solo una vez por turno.", "CGuerrero;17,AccionExtra"),
-                        buildSkill("Indomable", null, "3 usos por descanso largo", "puedes usar indomable tres veces entre descansos largos.", "CGuerrero;17,Salvacion"),
-                        buildSkill("Magia de Guerra Mejorada", null, "ataque como accion adicional tras lanzar cualquier conjuro", "cuando usas tu accion para lanzar un conjuro, puedes realizar un ataque con arma como accion adicional.", "CGuerrero;18,CaballeroArcano,Conjuro,AccionExtra,Ataque+"),
-                        buildSkill("Superviviente", null, "recuperas 5 + CON PG por turno si estas a mitad de vida o menos", "si estas herido pero no a 0 puntos de golpe, recuperas vida al inicio de cada turno.", "CGuerrero;18,Campeon,Curacion,Supervivencia"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;19,MejoraCaracteristica"),
-                        buildSkill("Ataque extra (3)", null, "4 ataques por accion de atacar", "alcanzas cuatro ataques por cada accion de atacar.", "CGuerrero;20,Multiataque"),
-                        buildSkill("Arremetida", null, "al impactar, gastas un dado para anadir dano y empujar", "cuando impactas con un ataque con arma puedes gastar un dado de supremacia para infligir dano adicional e intentar empujar al objetivo hacia atras.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
-                        buildSkill("Ataque Amenazador", null, "al impactar, anades dano y puedes asustar", "cuando impactas con un ataque con arma puedes gastar un dado de supremacia para anadir dano e intentar asustar al objetivo.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
-                        buildSkill("Ataque de Barrido", null, "al impactar, anades dano a otro objetivo cercano", "cuando impactas con un ataque cuerpo a cuerpo puedes gastar un dado de supremacia para herir tambien a otra criatura cercana.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
-                        buildSkill("Ataque Preciso", null, "anades el dado a la tirada de ataque", "puedes gastar un dado de supremacia para mejorar una tirada de ataque antes o despues de tirar, pero antes de saber si impacta.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
-                        buildSkill("Ataque Provocador", null, "al impactar, anades dano y marcas al objetivo", "cuando impactas puedes gastar un dado de supremacia para infligir dano adicional y dificultar que el objetivo ataque a tus aliados.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
-                        buildSkill("Ataque y Derribo", null, "al impactar, anades dano y puedes derribar", "cuando impactas con un arma puedes gastar un dado de supremacia para anadir dano e intentar dejar tumbado al objetivo.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
-                        buildSkill("Ataque y Desarme", null, "al impactar, anades dano y puedes desarmar", "cuando impactas puedes gastar un dado de supremacia para anadir dano e intentar que el objetivo suelte un objeto que sostenga.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
-                        buildSkill("Ataque y Distracción", null, "al impactar, anades dano y das ventaja a un aliado", "cuando impactas puedes gastar un dado de supremacia para distraer al objetivo y abrir una oportunidad de ataque para un aliado.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
-                        buildSkill("Ataque y Empujón", null, "al impactar, anades dano y puedes empujar lateralmente", "cuando impactas puedes gastar un dado de supremacia para desplazar al objetivo a otra posicion cercana.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
-                        buildSkill("Ataque y Maniobra", null, "al impactar, anades dano y mueves a un aliado", "cuando impactas puedes gastar un dado de supremacia para que un aliado se mueva usando su reaccion sin provocar ataques de oportunidad del objetivo.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
-                        buildSkill("Contraataque", null, "reaccion tras fallo enemigo", "cuando una criatura falla un ataque cuerpo a cuerpo contra ti puedes usar tu reaccion y gastar un dado de supremacia para hacer un ataque de respuesta con dano adicional.", "DND,Guerrero,MaestroDeBatalla,Maniobra,Reaccion"),
-                        buildSkill("Finta", null, "accion adicional para ganar ventaja y dano", "puedes gastar un dado de supremacia como accion adicional para fintar contra una criatura y obtener ventaja en tu siguiente ataque contra ella este turno, anadiendo dano extra si impactas.", "DND,Guerrero,MaestroDeBatalla,Maniobra,AccionExtra"),
-                        buildSkill("Juego de Pies Evasivo", null, "anades el dado a tu CA al moverte", "cuando te mueves puedes gastar un dado de supremacia para aumentar tu CA hasta que dejes de moverte.", "DND,Guerrero,MaestroDeBatalla,Maniobra,Defensa"),
-                        buildSkill("Orden de Ataque", null, "renuncias a un ataque para que un aliado ataque", "cuando realizas la accion de atacar puedes renunciar a uno de tus ataques y gastar un dado de supremacia para dirigir a un aliado a que ataque usando su reaccion.", "DND,Guerrero,MaestroDeBatalla,Maniobra,Tactica"),
-                        buildSkill("Parada", null, "reaccion para reducir dano", "cuando una criatura te causa dano con un ataque cuerpo a cuerpo puedes usar tu reaccion y gastar un dado de supremacia para reducir ese dano.", "DND,Guerrero,MaestroDeBatalla,Maniobra,Defensa,Reaccion"),
-                        buildSkill("Reagrupar", null, "accion adicional para dar PG temporales", "como accion adicional puedes gastar un dado de supremacia para infundir resistencia a un aliado, otorgandole puntos de golpe temporales.", "DND,Guerrero,MaestroDeBatalla,Maniobra,AccionExtra,Supervivencia"),
-                        buildSkill("Defensa sin armadura", null, "10 + DES + SAB", "mientras no lleves armadura ni escudo, tu CA se calcula con destreza y sabiduria.", "CMonje;1,Defensa"),
-                        buildSkill("Artes marciales", null, "dado marcial inicial 1d4", "puedes usar destreza con tus golpes desarmados y armas de monje, mejorar su dano y realizar un golpe desarmado adicional.", "CMonje;1,Ataque+,Daño+,Destreza"),
-                        buildSkill("Ki", null, "puntos de ki = nivel de monje", "empleas puntos de ki para rafaga de golpes, defensa paciente y paso del viento, y otros rasgos que aprendas.", "CMonje;2,Ki"),
-                        buildSkill("Movimiento sin armadura", null, "+10 pies de velocidad", "tu velocidad aumenta mientras no lleves armadura ni escudo.", "CMonje;2,Velocidad+,Movimiento"),
-                        buildSkill("Tradicion monastica", null, null, "eliges una tradición monástica. Puedes seguir la vía de la mano abierta, la vía de la sombra o la vía de los cuatro elementos.", "CMonje;3,Subclase"),
-                        buildSkill("Desviar proyectiles", null, "reduce dano = 1d10 + DES + nivel", "puedes usar tu reaccion para reducir o incluso atrapar un proyectil que te impacte.", "CMonje;3,Reaccion,Defensa"),
-                        buildSkill("Tecnica de mano abierta", null, null, "tras una rafaga de golpes puedes derribar, empujar o impedir reacciones a tu objetivo.", "CMonje;3,ManoAbierta,Control"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMonje;4,MejoraCaracteristica"),
-                        buildSkill("Caida lenta", null, "reduce dano de caida = 5 x nivel", "puedes usar tu reaccion para reducir mucho el dano por caida.", "CMonje;4,Reaccion,Defensa"),
-                        buildSkill("Ataque extra", null, "2 ataques por accion de atacar", "puedes atacar dos veces cuando realizas la accion de atacar.", "CMonje;5,Multiataque"),
-                        buildSkill("Golpe aturdidor", null, "gastas 1 ki; salvacion de CON o aturdido", "al impactar con un ataque cuerpo a cuerpo puedes intentar aturdir a tu objetivo.", "CMonje;5,Ki,Control,Aturdido"),
-                        buildSkill("Golpes potenciados por ki", null, null, "tus golpes desarmados cuentan como magicos para superar resistencias e inmunidades.", "CMonje;6,Ki,Daño+"),
-                        buildSkill("Plenitud corporal", null, "cura = 3 x nivel de monje", "como accion te curas a ti mismo y recuperas una buena cantidad de puntos de golpe.", "CMonje;6,ManoAbierta,Curacion"),
-                        buildSkill("Evasion", null, null, "cuando una salvacion de destreza te permitiria medio dano, no sufres dano al superar la tirada y solo la mitad al fallarla.", "CMonje;7,Salvacion,Defensa"),
-                        buildSkill("Quietud mental", null, null, "puedes terminar con una accion un efecto que te tenga hechizado o asustado.", "CMonje;7,Control,Hechizado,Asustado"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMonje;8,MejoraCaracteristica"),
-                        buildSkill("Movimiento sin armadura mejorado", null, "puedes correr por paredes y sobre liquidos durante el turno", "tu movilidad alcanza un nivel sobrenatural y te permite moverte por superficies imposibles mientras te desplazas.", "CMonje;9,Movimiento,Velocidad+"),
-                        buildSkill("Pureza corporal", null, "inmune a enfermedad y veneno", "tu dominio del ki te vuelve inmune a las enfermedades y al veneno.", "CMonje;10,InmunidadEnfermedad,InmunidadVeneno"),
-                        buildSkill("Tranquilidad", null, "santuario tras descanso largo", "tras meditar, quedas protegido por un efecto similar a santuario hasta tu siguiente descanso largo.", "CMonje;11,ManoAbierta,Defensa"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMonje;12,MejoraCaracteristica"),
-                        buildSkill("Lengua del sol y la luna", null, null, "entiendes todos los idiomas hablados y cualquier criatura que conozca un idioma puede entenderte.", "CMonje;13,Idioma,Comunicacion"),
-                        buildSkill("Alma diamante", null, "competencia en todas las salvaciones", "ganas competencia en todas las tiradas de salvacion y puedes repetir una fallida gastando ki.", "CMonje;14,Salvacion,Ki"),
-                        buildSkill("Cuerpo intemporal", null, null, "no sufres el desgaste de la vejez y dejas de necesitar comida y agua.", "CMonje;15,Defensa,Longevidad"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMonje;16,MejoraCaracteristica"),
-                        buildSkill("Palma vibrante", null, "3 ki; CON o 0 PG, si salva 10d10 necrotico", "dejas vibraciones letales en el cuerpo de una criatura y puedes detonarlas mas adelante.", "CMonje;17,ManoAbierta,Ki,Daño+,Control"),
-                        buildSkill("Cuerpo vacio", null, "4 ki invisible; 8 ki proyeccion astral", "puedes volverte invisible con resistencia a casi todo el dano o proyectarte astralmente.", "CMonje;18,Ki,Defensa,Invisibilidad"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMonje;19,MejoraCaracteristica"),
-                        buildSkill("Ser perfecto", null, "recuperas 4 ki al tirar iniciativa si estabas a 0", "si empiezas un combate sin ki, recuperas parte de tu reserva.", "CMonje;20,Ki,Iniciativa"),
-                        buildSkill("Sentido divino", null, "usos = 1 + mod. CAR", "detectas celestiales, infernales, no muertos y lugares consagrados o profanados cercanos.", "CPaladin;1,Deteccion,Carisma"),
-                        buildSkill("Imposición de manos", null, "reserva de curacion = nivel x 5", "usas una reserva de energia sagrada para curar heridas o neutralizar enfermedades y venenos al tocar.", "CPaladin;1,Curacion,Apoyo"),
-                        buildSkill("Estilo de combate", null, null, "eliges un estilo de combate propio del paladin.", "CPaladin;2,Combate"),
-                        buildSkill("Lanzamiento de conjuros", null, "CAR para conjuros; foco: simbolo sagrado", "preparas conjuros de paladin y usas carisma para lanzarlos.", "CPaladin;2,Conjuro,Carisma"),
-                        buildSkill("Castigo divino", null, "2d8 base; +1d8 por nivel de espacio; +1d8 contra infernales o no muertos", "cuando impactas cuerpo a cuerpo puedes gastar un espacio de conjuro para infligir daño radiante adicional.", "CPaladin;2,Daño+,Radiante"),
-                        buildSkill("Salud divina", null, "inmune a enfermedad", "la energia sagrada te protege por completo contra las enfermedades.", "CPaladin;3,InmunidadEnfermedad"),
-                        buildSkill("Juramento sagrado", null, null, "eliges un juramento sagrado que define el ideal que guiará tus poderes. las opciones actuales son devocion, antiguos y venganza.", "CPaladin;3,Subclase"),
-                        buildSkill("Conjuros de juramento", null, "Protección contra el bien y el mal, Santuario", "el juramento de devocion te concede estos conjuros, que siempre se consideran preparados y no cuentan para tu limite habitual.", "CPaladin;3,Devocion,Conjuro"),
-                        buildSkill("Arma sagrada", null, "+CAR a tiradas de ataque durante 1 minuto", "usas canal divino para imbuir un arma con energia sagrada y volverla mas precisa y luminosa.", "CPaladin;3,Devocion,CanalDivino,Ataque+"),
-                        buildSkill("Expulsar lo impio", null, null, "usas canal divino para condenar a infernales y muertos vivientes, obligandolos a huir de ti.", "CPaladin;3,Devocion,CanalDivino,Control"),
-                        buildSkill("Conjuros de juramento", null, "Golpe apresador, Hablar con los animales", "el juramento de los antiguos te concede estos conjuros, que siempre se consideran preparados y no cuentan para tu limite habitual.", "CPaladin;3,Antiguos,Conjuro"),
-                        buildSkill("Ira de la naturaleza", null, "apresa a un objetivo con una salvacion de Fuerza o Destreza", "puedes usar canalizar divinidad para invocar enredaderas espectrales que apresan a un enemigo cercano.", "CPaladin;3,Antiguos,CanalDivino,Control"),
-                        buildSkill("Expulsar infieles", null, "expulsa feericos e infernales durante 1 minuto", "usas canalizar divinidad para pronunciar palabras ancestrales que hacen huir a feericos e infernales.", "CPaladin;3,Antiguos,CanalDivino,Control"),
-                        buildSkill("Conjuros de juramento", null, "Marca del cazador, Perdicion", "el juramento de venganza te concede estos conjuros, que siempre se consideran preparados y no cuentan para tu limite habitual.", "CPaladin;3,Venganza,Conjuro"),
-                        buildSkill("Abjurar enemigo", null, "asusta o ralentiza a un objetivo", "usas canalizar divinidad para denunciar a una criatura visible, asustandola o frenandola si resiste.", "CPaladin;3,Venganza,CanalDivino,Control"),
-                        buildSkill("Voto de enemistad", null, "ventaja contra un objetivo durante 1 minuto", "como accion adicional puedes emplear canalizar divinidad para obtener ventaja contra un enemigo jurado cercano.", "CPaladin;3,Venganza,CanalDivino,Ataque+"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPaladin;4,MejoraCaracteristica"),
-                        buildSkill("Ataque adicional", null, "2 ataques por accion de atacar", "puedes atacar dos veces cuando realizas la accion de atacar.", "CPaladin;5,Multiataque"),
-                        buildSkill("Conjuros de juramento", null, "Restablecimiento menor, Zona de la verdad", "la devocion amplía su lista de conjuros de juramento siempre preparados.", "CPaladin;5,Devocion,Conjuro"),
-                        buildSkill("Conjuros de juramento", null, "Paso brumoso, Rayo de luna", "los antiguos amplían su lista de conjuros de juramento siempre preparados.", "CPaladin;5,Antiguos,Conjuro"),
-                        buildSkill("Conjuros de juramento", null, "Inmovilizar persona, Paso brumoso", "la venganza amplía su lista de conjuros de juramento siempre preparados.", "CPaladin;5,Venganza,Conjuro"),
-                        buildSkill("Aura de proteccion", null, "+CAR a salvaciones en 10 pies; 30 pies al 18", "tu y tus aliados cercanos sumais tu modificador de carisma a las tiradas de salvacion mientras estes consciente.", "CPaladin;6,Aura,Salvacion,Carisma"),
-                        buildSkill("Aura de devocion", null, "inmunidad a hechizado en 10 pies; 30 pies al 18", "tu y tus aliados cercanos no podeis ser hechizados mientras estes consciente.", "CPaladin;7,Devocion,Aura,InmunidadHechizado"),
-                        buildSkill("Aura de salvaguarda", null, "resistencia al daño de conjuros en 10 pies; 30 pies al 18", "la magia antigua te ha impregnado tanto que tu y tus aliados cercanos teneis resistencia al daño proveniente de conjuros.", "CPaladin;7,Antiguos,Aura,Resistencia"),
-                        buildSkill("Vengador implacable", null, "te mueves hasta la mitad de tu velocidad tras un ataque de oportunidad", "cuando impactas a una criatura con un ataque de oportunidad, puedes moverte hasta la mitad de tu velocidad como parte de la misma reaccion sin provocar ataques de oportunidad.", "CPaladin;7,Venganza,Reaccion,Movimiento"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPaladin;8,MejoraCaracteristica"),
-                        buildSkill("Conjuros de juramento", null, "Disipar magia, Señal de esperanza", "la devocion sigue ampliando su lista de conjuros de juramento siempre preparados.", "CPaladin;9,Devocion,Conjuro"),
-                        buildSkill("Conjuros de juramento", null, "Crecimiento vegetal, Proteccion contra energia", "los antiguos siguen ampliando su lista de conjuros de juramento siempre preparados.", "CPaladin;9,Antiguos,Conjuro"),
-                        buildSkill("Conjuros de juramento", null, "Acelerar, Proteccion contra energia", "la venganza sigue ampliando su lista de conjuros de juramento siempre preparados.", "CPaladin;9,Venganza,Conjuro"),
-                        buildSkill("Aura de coraje", null, "inmunidad a miedo en 10 pies; 30 pies al 18", "tu y tus aliados cercanos no podeis ser asustados mientras estes consciente.", "CPaladin;10,Aura,InmunidadAsustado"),
-                        buildSkill("Castigo divino mejorado", null, "+1d8 radiante en cada golpe cuerpo a cuerpo", "todos tus ataques cuerpo a cuerpo quedan cargados con dano radiante adicional.", "CPaladin;11,Daño+,Radiante"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPaladin;12,MejoraCaracteristica"),
-                        buildSkill("Conjuros de juramento", null, "Guardian de la fe, Libertad de movimiento", "la devocion alcanza el cuarto tramo de conjuros de juramento siempre preparados.", "CPaladin;13,Devocion,Conjuro"),
-                        buildSkill("Conjuros de juramento", null, "Piel petrea, Tormenta de hielo", "los antiguos alcanzan el cuarto tramo de conjuros de juramento siempre preparados.", "CPaladin;13,Antiguos,Conjuro"),
-                        buildSkill("Conjuros de juramento", null, "Destierro, Puerta dimensional", "la venganza alcanza el cuarto tramo de conjuros de juramento siempre preparados.", "CPaladin;13,Venganza,Conjuro"),
-                        buildSkill("Toque purificador", null, "usos = mod. CAR", "puedes tocar a una criatura voluntaria o a ti mismo para terminar un conjuro que la afecte.", "CPaladin;14,Apoyo,Carisma"),
-                        buildSkill("Pureza de espiritu", null, null, "estas siempre bajo los efectos de un conjuro de proteccion contra el bien y el mal.", "CPaladin;15,Devocion,Defensa"),
-                        buildSkill("Centinela imperecedero", null, "si caes a 0 PG vuelves a 1 PG una vez por descanso largo", "si tus puntos de golpe se reducen a 0 sin morir al instante, puedes volver a tener 1 punto de golpe. ademas, no sufres los inconvenientes de la edad y no puedes envejecer por medios magicos.", "CPaladin;15,Antiguos,Supervivencia,Longevidad"),
-                        buildSkill("Espiritu vengativo", null, "reaccion para atacar al objetivo de tu voto de enemistad", "cuando una criatura bajo los efectos de tu voto de enemistad ataque, puedes usar tu reaccion para realizar un ataque con arma cuerpo a cuerpo contra ella si esta a tu alcance.", "CPaladin;15,Venganza,Reaccion,Ataque+"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPaladin;16,MejoraCaracteristica"),
-                        buildSkill("Conjuros de juramento", null, "Comunion, Golpe flamigero", "la devocion completa su lista de conjuros de juramento siempre preparados.", "CPaladin;17,Devocion,Conjuro"),
-                        buildSkill("Conjuros de juramento", null, "Comunion con la naturaleza, Paso arboreo", "los antiguos completan su lista de conjuros de juramento siempre preparados.", "CPaladin;17,Antiguos,Conjuro"),
-                        buildSkill("Conjuros de juramento", null, "Escudriñar, Inmovilizar monstruo", "la venganza completa su lista de conjuros de juramento siempre preparados.", "CPaladin;17,Venganza,Conjuro"),
-                        buildSkill("Auras mejoradas", null, "radio de 30 pies", "tus auras principales extienden su alcance hasta 30 pies.", "CPaladin;18,Aura"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPaladin;19,MejoraCaracteristica"),
-                        buildSkill("Halo sagrado", null, "1 minuto; 10 de daño radiante por turno a enemigos cercanos", "como accion emanas un aura de luz solar durante 1 minuto. los enemigos que empiecen su turno en tu luz brillante sufren daño radiante y tu tienes ventaja en salvaciones contra conjuros de infernales o muertos vivientes.", "CPaladin;20,Devocion,Radiante,Aura,Daño+"),
-                        buildSkill("Campeon ancestral", null, "1 minuto; regeneracion, accion adicional para ciertos conjuros y aura debilitadora", "asumes la forma de una antigua fuerza de la naturaleza. al comienzo de cada turno recuperas 10 puntos de golpe, puedes lanzar ciertos conjuros de paladin como accion adicional y los enemigos cercanos tienen desventaja en sus salvaciones contra tus conjuros y tu canalizar divinidad.", "CPaladin;20,Antiguos,Curacion,Aura,Conjuro"),
-                        buildSkill("Angel vengador", null, "1 hora; alas y aura de amenaza", "adoptas la forma de un angel vengador, con alas de vuelo y un aura que asusta a los enemigos cercanos.", "CPaladin;20,Venganza,Vuelo,Aura,Control"),
-                        buildSkill("Enemigo predilecto", null, null, "eliges tipos de enemigos sobre los que tienes ventaja para rastrear y recordar informacion. aprendes idiomas asociados y amplias la lista a niveles superiores.", "CExplorador;1,Rastreo,Conocimiento"),
-                        buildSkill("Explorador nato", null, null, "eliges un terreno favorito y obtienes ventajas de viaje, exploracion y supervivencia en ese entorno. amplias terrenos a niveles superiores.", "CExplorador;1,Exploracion,Movimiento"),
-                        buildSkill("Estilo de combate", null, null, "eliges un estilo de combate adaptado a tu forma de cazar y combatir.", "CExplorador;2,Combate"),
-                        buildSkill("Conjuro explorador", null, "SAB para conjuros", "aprendes conjuros de explorador orientados a la caza, el sigilo y la naturaleza.", "CExplorador;2,Conjuro,Sabiduria"),
-                        buildSkill("Arquetipo de explorador", null, null, "eliges un arquetipo de explorador. Entre las opciones disponibles están cazador y maestro de bestias.", "CExplorador;3,Subclase"),
-                        buildSkill("Conciencia primigenia", null, "gastas un espacio para detectar ciertos tipos de criaturas", "puedes sentir si hay aberraciones, celestiales, dragones, elementales, feericos, infernales o no muertos en la region.", "CExplorador;3,Deteccion,Conjuro"),
-                        buildSkill("Presa del cazador", null, null, "eliges una tecnica ofensiva del cazador para desgastar, castigar gigantes o golpear una segunda presa cercana.", "CExplorador;3,Cazador,Combate"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CExplorador;4,MejoraCaracteristica"),
-                        buildSkill("Ataque extra", null, "2 ataques por accion de atacar", "puedes atacar dos veces cuando realizas la accion de atacar.", "CExplorador;5,Multiataque"),
-                        buildSkill("Mejoras de enemigo predilecto y explorador nato", null, null, "anades un nuevo enemigo predilecto, un idioma asociado y un nuevo terreno favorito.", "CExplorador;6,Rastreo,Exploracion"),
-                        buildSkill("Tacticas defensivas", null, null, "eliges una opcion defensiva del cazador para resistir hordas, cadenas de ataques o el miedo.", "CExplorador;7,Cazador,Defensa"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CExplorador;8,MejoraCaracteristica"),
-                        buildSkill("Paso por la tierra", null, null, "ignoras terreno dificil no magico por plantas y tienes ventaja contra plantas magicas que dificulten el movimiento.", "CExplorador;8,Movimiento,Salvacion"),
-                        buildSkill("Mejora de explorador nato", null, null, "anades otro terreno favorito para extender tus ventajas de viaje y exploracion.", "CExplorador;10,Exploracion"),
-                        buildSkill("Esconderse a plena vista", null, "+10 a sigilo mientras permanezcas inmovil y camuflado", "puedes preparar camuflaje natural para ocultarte mejor en entornos apropiados.", "CExplorador;10,Sigilo,Defensa"),
-                        buildSkill("Multiataque", null, null, "eliges entre una andanada a distancia o un ataque giratorio cuerpo a cuerpo contra varios enemigos.", "CExplorador;11,Cazador,Multiataque"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CExplorador;12,MejoraCaracteristica"),
-                        buildSkill("Mejora de enemigo predilecto", null, null, "anades un enemigo predilecto adicional y el idioma asociado.", "CExplorador;14,Rastreo,Conocimiento"),
-                        buildSkill("Desaparecer", null, "esconderse como accion adicional", "puedes usar ocultarte como accion adicional y resulta muy dificil seguirte sin magia.", "CExplorador;14,Sigilo,AccionExtra"),
-                        buildSkill("Defensa superior del cazador", null, null, "eliges una tecnica avanzada de defensa como evasion, desviar ataques o reducir dano.", "CExplorador;15,Cazador,Defensa"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CExplorador;16,MejoraCaracteristica"),
-                        buildSkill("Sentidos ferales", null, null, "puedes combatir mejor contra enemigos invisibles o que no ves directamente.", "CExplorador;18,Percepcion,Combate"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CExplorador;19,MejoraCaracteristica"),
-                        buildSkill("Matanza de enemigos", null, "1 vez por turno anades SAB a ataque o dano contra enemigo predilecto", "te conviertes en un cazador supremo de tus enemigos escogidos.", "CExplorador;20,Daño+,Ataque+,Sabiduria"),
-                        buildSkill("Pericia", null, "doblas competencia en 2 competencias", "eliges dos competencias en habilidades o una habilidad y herramientas de ladron para duplicar tu bonificador de competencia.", "CPicaro;1,Pericia,Habilidades"),
-                        buildSkill("Ataque furtivo", null, "1d6 al nivel 1; progresa hasta 10d6", "una vez por turno infliges dano extra con armas sutiles o a distancia cuando tienes ventaja o un aliado amenaza al objetivo.", "CPicaro;1,Daño+,Sigilo"),
-                        buildSkill("Jerga de ladrones", null, null, "conoces un codigo secreto verbal y simbolico que te permite comunicar mensajes ocultos a otros criminales.", "CPicaro;1,Idioma,Codigo"),
-                        buildSkill("Accion astuta", null, "Desplazarse, retirarse u ocultarse como accion adicional", "tu rapidez te permite moverte y reposicionarte con gran facilidad en combate.", "CPicaro;2,AccionExtra,Movimiento,Sigilo"),
-                        buildSkill("Arquetipo de picaro", null, null, "eliges un arquetipo de picaro. las opciones actuales son ladron, asesino y embaucador arcano.", "CPicaro;3,Subclase"),
-                        buildSkill("Manos rapidas", null, null, "puedes usar la accion adicional de accion astuta para ciertas maniobras de juego de manos, abrir cerraduras, desarmar trampas o utilizar objetos.", "CPicaro;3,Ladron,AccionExtra"),
-                        buildSkill("Balconero", null, "trepar no cuesta movimiento extra", "trepar ya no te cuesta movimiento adicional y, cuando saltas con carrerilla, aumentas tu distancia de salto en tantos pies como tu modificador por destreza.", "CPicaro;3,Ladron,Movimiento"),
-                        buildSkill("Competencias adicionales", null, "competencia con utiles para disfrazarse y utiles de envenenador", "ganas competencia con los utiles para disfrazarse y los utiles de envenenador.", "CPicaro;3,Asesino,Competencia"),
-                        buildSkill("Asesinar", null, "ventaja contra criaturas que aun no han actuado; critico automatico contra sorprendidos", "tienes ventaja en las tiradas de ataque contra cualquier criatura que aun no haya llevado a cabo ningun turno en el combate actual y cualquier impacto contra una criatura sorprendida sera automaticamente un critico.", "CPicaro;3,Asesino,Ataque+,Critico+"),
-                        buildSkill("Lanzamiento de conjuros", null, "INT para conjuros; mano de mago obligatoria", "obtienes la capacidad de lanzar conjuros de mago. aprendes mano de mago y otros conjuros de encantamiento e ilusion propios del embaucador arcano.", "CPicaro;3,EmbaucadorArcano,Conjuro,Inteligencia"),
-                        buildSkill("Destreza con mano de mago", null, "mano invisible; guardar o sacar objetos; abrir cerraduras y desarmar trampas a distancia", "cuando lanzas mano de mago puedes hacer que la mano espectral sea invisible, guardar o sacar objetos de otras criaturas y usar herramientas de ladron a distancia. ademas, puedes utilizar la accion adicional de accion astuta para controlarla.", "CPicaro;3,EmbaucadorArcano,Conjuro,AccionExtra"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPicaro;4,MejoraCaracteristica"),
-                        buildSkill("Esquiva asombrosa", null, "Reaccion: mitad del dano de un ataque", "cuando un atacante visible te golpea puedes usar tu reaccion para reducir a la mitad el dano.", "CPicaro;5,Reaccion,Defensa"),
-                        buildSkill("Pericia", null, "doblas competencia en 2 competencias mas", "eliges dos competencias adicionales para aplicar pericia.", "CPicaro;6,Pericia,Habilidades"),
-                        buildSkill("Evasion", null, null, "cuando una salvacion de destreza te permitiria medio dano, no sufres dano al superarla y solo la mitad al fallarla.", "CPicaro;7,Salvacion,Defensa"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPicaro;8,MejoraCaracteristica"),
-                        buildSkill("Sigilo supremo", null, "Ventaja a sigilo si te mueves a media velocidad o menos", "el ladron se vuelve especialmente dificil de detectar cuando se desplaza con cuidado.", "CPicaro;9,Ladron,Sigilo"),
-                        buildSkill("Pericia en infiltrarse", null, "creas identidades falsas", "puedes crearte identidades falsas completas, con historia, profesion y afiliaciones, para infiltrarte con credibilidad.", "CPicaro;9,Asesino,Infiltracion,Engaño"),
-                        buildSkill("Emboscada magica", null, "desventaja en salvaciones si lanzas oculto", "si estas escondido de una criatura cuando lanzas un conjuro sobre ella, el objetivo tendra desventaja en cualquier tirada de salvacion que deba hacer contra el conjuro este turno.", "CPicaro;9,EmbaucadorArcano,Conjuro,Control"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPicaro;10,MejoraCaracteristica"),
-                        buildSkill("Talentos fiables", null, "un d20 de 9 o menos cuenta como 10", "cuando hagas una prueba de caracteristica que te permita añadir tu bonificador por competencia, puedes considerar cualquier resultado de 9 o menos en el d20 como si fuera un 10.", "CPicaro;11,Pruebas,Pericia"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPicaro;12,MejoraCaracteristica"),
-                        buildSkill("Usar objetos magicos", null, null, "ignoras todas las restricciones de clase, raza y nivel a la hora de emplear objetos magicos.", "CPicaro;13,Ladron,ObjetoMagico"),
-                        buildSkill("Impostor", null, null, "adquieres la capacidad para imitar de forma convincente el habla, la caligrafia y el comportamiento de otra persona tras estudiarla.", "CPicaro;13,Asesino,Engaño,Infiltracion"),
-                        buildSkill("Embaucador versatil", null, null, "como accion adicional puedes usar tu mano de mago para distraer a un objetivo y obtener ventaja en tus ataques contra el hasta el final del turno.", "CPicaro;13,EmbaucadorArcano,Conjuro,Ataque+"),
-                        buildSkill("Sentir sin ver", null, "detectas criaturas ocultas o invisibles a 10 pies", "si eres capaz de oir, eres consciente de la ubicacion de cualquier criatura escondida o invisible a 10 pies o menos de ti.", "CPicaro;14,Percepcion"),
-                        buildSkill("Mente escurridiza", null, "competencia en salvaciones de sabiduria", "ganas mayor fortaleza mental frente a efectos que atacan tu voluntad.", "CPicaro;15,Salvacion,Sabiduria"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPicaro;16,MejoraCaracteristica"),
-                        buildSkill("Reflejos de ladron", null, "2 turnos en la primera ronda si no estas sorprendido", "puedes actuar dos veces al inicio del combate, lo que te permite abrir con gran ventaja.", "CPicaro;17,Ladron,Iniciativa"),
-                        buildSkill("Golpe mortal", null, null, "cuando atacas e impactas a una criatura sorprendida, debe superar una salvacion de constitucion o el daño del ataque contra ella se duplica.", "CPicaro;17,Asesino,Daño+,Critico+"),
-                        buildSkill("Ladron de conjuros", null, null, "inmediatamente despues de que una criatura lance un conjuro que te tenga como objetivo o incluya tu area, puedes usar tu reaccion para anular su efecto sobre ti y robar temporalmente el conocimiento de ese conjuro.", "CPicaro;17,EmbaucadorArcano,Conjuro,Reaccion"),
-                        buildSkill("Elusivo", null, null, "ninguna tirada de ataque hecha contra ti tendra ventaja mientras no estes incapacitado.", "CPicaro;18,Defensa"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPicaro;19,MejoraCaracteristica"),
-                        buildSkill("Golpe de suerte", null, "convierte un fallo en exito", "puedes transformar un ataque fallido en impacto o una prueba fallida en un 20 natural.", "CPicaro;20,Pruebas,Ataque+"),
-                        buildSkill("Conjuro de hechicero", null, "CAR para conjuros; foco: foco arcano", "accedes a la magia innata del hechicero y usas carisma para lanzar tus conjuros.", "CHechicero;1,Conjuro,Carisma"),
-                        buildSkill("Origen sobrenatural", null, null, "eliges el origen de tu poder. Puedes manifestar un linaje dracónico o magia salvaje.", "CHechicero;1,Subclase"),
-                        buildSkill("Ancestro draconico", null, null, "eliges un tipo de dragón ancestral que determina tus afinidades de daño futuras; además aprendes dracónico y destacas al tratar con dragones.", "CHechicero;1,Draconico,Dragon,Idioma"),
-                        buildSkill("Resiliencia draconica", null, "+1 PG por nivel; CA 13 + DES sin armadura", "tu herencia draconica refuerza tu cuerpo con mas aguante y escamas protectoras.", "CHechicero;1,Draconico,Defensa,Constitucion"),
-                        buildSkill("Fuente de magia", null, "puntos de hechiceria = nivel indicado", "obtienes puntos de hechiceria para crear espacios de conjuro o convertir espacios en puntos.", "CHechicero;2,Hechiceria,Conjuro"),
-                        buildSkill("Metamagia", null, "2 opciones al 3; otra al 10 y 17", "aprendes a modificar el alcance, duracion, objetivos o forma de tus conjuros usando puntos de hechiceria.", "CHechicero;3,Metamagia,Conjuro"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CHechicero;4,MejoraCaracteristica"),
-                        buildSkill("Afinidad elemental", null, "+CAR a una tirada de dano del tipo de tu dragon; 1 punto para resistencia", "tus conjuros del tipo asociado a tu linaje son mas intensos y puedes ganar resistencia temporal a ese tipo de dano.", "CHechicero;6,Draconico,Daño+,Resistencia,Carisma"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CHechicero;8,MejoraCaracteristica"),
-                        buildSkill("Metamagia", null, "+1 opcion", "aprendes una opcion adicional de metamagia.", "CHechicero;10,Metamagia,Conjuro"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CHechicero;12,MejoraCaracteristica"),
-                        buildSkill("Alas draconicas", null, "velocidad de vuelo = tu velocidad", "puedes manifestar alas de dragon y obtener velocidad de vuelo mientras no lleves armadura incompatible.", "CHechicero;14,Draconico,Vuelo,Movimiento"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CHechicero;16,MejoraCaracteristica"),
-                        buildSkill("Metamagia", null, "+1 opcion", "aprendes una nueva opcion de metamagia.", "CHechicero;17,Metamagia,Conjuro"),
-                        buildSkill("Presencia draconica", null, "5 puntos de hechiceria; aura de miedo o fascinacion", "puedes irradiar majestuosidad draconica para hechizar o asustar a enemigos hostiles cercanos.", "CHechicero;18,Draconico,Control,Miedo,Hechizado"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CHechicero;19,MejoraCaracteristica"),
-                        buildSkill("Restauracion sobrenatural", null, "recuperas 4 puntos de hechiceria en descanso corto", "cada descanso corto te devuelve parte de tu reserva de hechiceria.", "CHechicero;20,Hechiceria,Descanso"),
-                        buildSkill("Patrono sobrenatural", null, null, "eliges la fuente de tu pacto. Entre las opciones disponibles están el señor feérico, el infernal y el primigenio.", "CBrujo;1,Subclase"),
-                        buildSkill("Magia de pacto", null, "CAR para conjuros; espacios se recuperan en descanso corto", "tu magia usa pocos espacios pero se recargan rapido y todos comparten el mismo nivel.", "CBrujo;1,Conjuro,Carisma,Descanso"),
-                        buildSkill("Bendicion del oscuro", null, "PG temporales = CAR + nivel de brujo", "cuando reduces a un enemigo hostil a 0 puntos de golpe, obtienes puntos de golpe temporales.", "CBrujo;1,Infernal,Supervivencia,Curacion"),
-                        buildSkill("Invocaciones misticas", null, null, "aprendes invocaciones que alteran tus capacidades con efectos permanentes o lanzamientos especiales.", "CBrujo;2,Invocacion"),
-                        buildSkill("Don del pacto", null, null, "eliges entre pacto de la cadena, la hoja o el tomo para definir una parte central de tu estilo.", "CBrujo;3,Pacto"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBrujo;4,MejoraCaracteristica"),
-                        buildSkill("Suerte del oscuro", null, "1d10 a una prueba o salvacion", "puedes invocar a tu patron para sumar un d10 a una prueba de caracteristica o salvacion despues de ver la tirada.", "CBrujo;6,Infernal,Pruebas,Salvacion"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBrujo;8,MejoraCaracteristica"),
-                        buildSkill("Resistencia infernal", null, "eliges 1 tipo de dano por descanso", "al terminar un descanso eliges un tipo de dano al que resistes hasta cambiarlo de nuevo.", "CBrujo;10,Infernal,Resistencia"),
-                        buildSkill("Arcano mistico (6)", null, "1 conjuro de nivel 6 por descanso largo", "aprendes un conjuro de nivel 6 que puedes lanzar una vez por descanso largo sin gastar espacios de magia de pacto.", "CBrujo;11,Conjuro,ArcanoMistico"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBrujo;12,MejoraCaracteristica"),
-                        buildSkill("Arcano mistico (7)", null, "1 conjuro de nivel 7 por descanso largo", "obtienes un conjuro de nivel 7 utilizable una vez por descanso largo.", "CBrujo;13,Conjuro,ArcanoMistico"),
-                        buildSkill("Arrojar al infierno", null, "10d10 psiquico al volver si no es infernal", "cuando golpeas a una criatura puedes desterrarla brevemente a una vision infernal devastadora.", "CBrujo;14,Infernal,Control,Daño+"),
-                        buildSkill("Arcano mistico (8)", null, "1 conjuro de nivel 8 por descanso largo", "obtienes un conjuro de nivel 8 utilizable una vez por descanso largo.", "CBrujo;15,Conjuro,ArcanoMistico"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBrujo;16,MejoraCaracteristica"),
-                        buildSkill("Arcano mistico (9)", null, "1 conjuro de nivel 9 por descanso largo", "obtienes un conjuro de nivel 9 utilizable una vez por descanso largo.", "CBrujo;17,Conjuro,ArcanoMistico"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBrujo;19,MejoraCaracteristica"),
-                        buildSkill("Maestro eldritch", null, "recuperas todos los espacios tras 1 minuto de suplica", "puedes pedir ayuda a tu patron para restaurar todos tus espacios de magia de pacto.", "CBrujo;20,Conjuro,Descanso"),
-                        buildSkill("Conjuro de mago", null, "INT para conjuros; foco: foco arcano", "dominas el lanzamiento de conjuros arcanos mediante estudio y memoria.", "CMago;1,Conjuro,Inteligencia"),
-                        buildSkill("Libro de conjuros", null, "empiezas con 6 conjuros de nivel 1", "tu grimorio contiene los conjuros que conoces y puedes ampliarlo con aprendizaje y copia.", "CMago;1,Conjuro,Grimorio"),
-                        buildSkill("Recuperacion arcana", null, "recuperas espacios con nivel total <= la mitad de tu nivel", "una vez al dia, tras un descanso corto, recuperas parte de tu energia magica.", "CMago;1,Conjuro,Descanso"),
-                        buildSkill("Tradicion arcana", null, null, "eliges una escuela de magia. Entre las opciones disponibles están abjuración, conjuración, adivinación, encantamiento, evocación, ilusión, nigromancia y transmutación.", "CMago;2,Subclase"),
-                        buildSkill("Erudito de evocacion", null, "copiar conjuros de evocacion cuesta la mitad", "reducen a la mitad el tiempo y el oro necesarios para copiar conjuros de evocacion en tu libro.", "CMago;2,Evocacion,Grimorio"),
-                        buildSkill("Esculpir conjuros", null, null, "puedes proteger a criaturas visibles dentro de tus conjuros de evocacion para que eviten el peor efecto.", "CMago;2,Evocacion,Conjuro,Apoyo"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMago;4,MejoraCaracteristica"),
-                        buildSkill("Truco potente", null, null, "tus trucos ofensivos siguen afectando parcialmente a objetivos que superan su salvacion.", "CMago;6,Evocacion,Truco,Daño+"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMago;8,MejoraCaracteristica"),
-                        buildSkill("Evocacion potenciada", null, "+INT a una tirada de dano de evocacion", "anades tu modificador de inteligencia a una tirada de dano de un conjuro de evocacion de mago.", "CMago;10,Evocacion,Daño+,Inteligencia"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMago;12,MejoraCaracteristica"),
-                        buildSkill("Sobrecanalizar", null, "maximizas dano de conjuros de nivel 1-5", "puedes lanzar ciertos conjuros ofensivos de forma sobrecargada para infligir su dano maximo, a costa de desgaste si repites.", "CMago;14,Evocacion,Daño+"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMago;16,MejoraCaracteristica"),
-                        buildSkill("Dominio de conjuros", null, "1 conjuro de nivel 1 y 1 de nivel 2 a voluntad", "eliges conjuros menores que puedes lanzar repetidamente sin gastar espacios, siempre que los tengas preparados.", "CMago;18,Conjuro"),
-                        buildSkill("Mejora de puntuación de característica", null, null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMago;19,MejoraCaracteristica"),
-                        buildSkill("Conjuros distintivos", null, "2 conjuros de nivel 3 con 1 uso gratis por descanso corto o largo", "dominas dos conjuros de nivel 3 que siempre tienes preparados y puedes lanzar con especial facilidad.", "CMago;20,Conjuro")));
+                    buildSkill("Sentir el peligro", null, "tienes ventaja en las tiradas de salvación de destreza contra efectos que puedas ver, como trampas y conjuros, siempre que no estés cegado, ensordecido o incapacitado.", "CBarbaro;2,SalvacionDestreza+,Percepcion"),
+                    buildSkill("Senda primordial", null, "eliges una senda primordial que moldea tu furia. Puedes seguir la senda del berserker o la senda del guerrero totémico.", "CBarbaro;3,Subclase"),
+                    buildSkill("Frenesí", null, "cuando entras en furia puedes hacerlo con frenesí. mientras dure, puedes realizar un ataque con arma cuerpo a cuerpo como acción adicional en cada uno de tus turnos. al terminar la furia, sufres un nivel de agotamiento.", "CBarbaro;3,Berserker,Furia,Agotamiento"),
+                    buildSkill("Buscador espiritual", null, "adquieres la capacidad de lanzar comunion con la naturaleza y hablar con los animales como rituales, aunque solo para comunicarte con espiritus totémicos.", "CBarbaro;3,Totemico,Conjuro,Ritual"),
+                    buildSkill("Espiritu totemico", null, "eliges un espiritu totemico que te acompaña mientras estas en furia. oso: obtienes resistencia a todo el daño salvo psiquico. aguila: mientras no lleves armadura pesada, otras criaturas tienen desventaja en ataques de oportunidad contra ti. lobo: mientras estas en furia, tus aliados tienen ventaja en ataques cuerpo a cuerpo contra criaturas hostiles a 5 pies de ti.", "CBarbaro;3,Totemico,Defensa,Movimiento"),
+                    buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBarbaro;4,MejoraCaracteristica"),
+                    buildSkill("Ataque adicional", "2 ataques por acción de atacar", "puedes atacar dos veces, en lugar de una, cada vez que realices la acción de atacar en tu turno.", "CBarbaro;5,Multiataque"),
+                    buildSkill("Movimiento rápido", "+10 pies de velocidad", "tu velocidad aumenta en 10 pies mientras no lleves armadura pesada.", "CBarbaro;5,Velocidad+,Movimiento"),
+                    buildSkill("Furia sin mente", null, "no puedes ser hechizado ni asustado mientras estés en furia. si ya lo estabas al entrar en furia, el efecto queda suspendido mientras dure.", "CBarbaro;6,Berserker,InmunidadHechizado,InmunidadAsustado"),
+                    buildSkill("Aspecto de la bestia", null, "el animal de tu totem deja su huella fuera de la furia. oso: tu capacidad de carga se duplica y tienes ventaja en pruebas para empujar, arrastrar, levantar o romper objetos. aguila: puedes ver hasta una milla sin dificultad y distingues detalles diminutos a gran distancia. lobo: puedes seguir rastros a gran velocidad y moverte con sigilo normal mientras sigues a otras criaturas.", "CBarbaro;6,Totemico,Exploracion,Movimiento"),
+                    buildSkill("Instinto salvaje", null, "tienes ventaja en las tiradas de iniciativa. además, si te sorprenden y no estás incapacitado, puedes actuar con normalidad en tu primer turno si entras en furia antes de hacer cualquier otra cosa.", "CBarbaro;7,Iniciativa+,Sorpresa"),
+                    buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBarbaro;8,MejoraCaracteristica"),
+                    buildSkill("Crítico brutal (1 dado)", "+1 dado de daño en crítico", "puedes tirar un dado adicional de daño del arma al determinar el daño extra de un golpe crítico cuerpo a cuerpo.", "CBarbaro;9,Critico+,Daño+"),
+                    buildSkill("Presencia intimidante", "CD = 8 + competencia + carisma", "puedes usar tu acción para aterrorizar a una criatura que esté a 30 pies o menos y pueda verte u oírte. debe superar una salvación de sabiduría o quedar asustada hasta el final de tu próximo turno. puedes usar tu acción en turnos siguientes para prolongar el efecto.", "CBarbaro;10,Berserker,Miedo,Control"),
+                    buildSkill("Caminante espiritual", null, "puedes lanzar comunion con la naturaleza como ritual para entrar en contacto con tus espiritus totemicos y extraer guia del entorno.", "CBarbaro;10,Totemico,Conjuro,Ritual"),
+                    buildSkill("Rabia implacable", "CD 10 + 5 por uso adicional", "si tus puntos de golpe caen a 0 mientras estás en furia y no mueres en el acto, puedes hacer una tirada de salvación de constitución con CD 10. si tienes éxito, te quedas con 1 punto de golpe. la CD aumenta en 5 cada vez que vuelves a usar este rasgo hasta que completes un descanso corto o largo.", "CBarbaro;11,Supervivencia,Constitucion"),
+                    buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBarbaro;12,MejoraCaracteristica"),
+                    buildSkill("Crítico brutal (2 dados)", "+2 dados de daño en crítico", "al determinar el daño adicional de un golpe crítico cuerpo a cuerpo, añades dos dados extra de daño del arma en lugar de uno.", "CBarbaro;13,Critico+,Daño+"),
+                    buildSkill("Represalia", "Reacción: 1 ataque cuerpo a cuerpo", "cuando una criatura que esté a 5 pies de ti te haga daño, puedes usar tu reacción para realizar un ataque con arma cuerpo a cuerpo contra esa criatura.", "CBarbaro;14,Berserker,Reaccion,Contraataque"),
+                    buildSkill("Sintonia totemica", null, "tu vínculo con el espíritu totémico alcanza su punto máximo mientras estas en furia. oso: las criaturas hostiles a 5 pies de ti tienen desventaja al atacar a objetivos distintos de ti o de otro barbaro con este rasgo. aguila: obtienes una velocidad de vuelo igual a tu velocidad al caminar durante tu turno. lobo: cuando impactas con un ataque cuerpo a cuerpo puedes derribar a una criatura grande o menor, dejandola tumbada si falla una salvación de Fuerza.", "CBarbaro;14,Totemico,Control,Daño+"),
+                    buildSkill("Rabia persistente", null, "tu furia ya no termina de forma anticipada solo porque no hayas atacado a una criatura hostil o no hayas recibido daño desde tu último turno.", "CBarbaro;15,Furia"),
+                    buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBarbaro;16,MejoraCaracteristica"),
+                    buildSkill("Crítico brutal (3 dados)", "+3 dados de daño en crítico", "al determinar el daño adicional de un golpe crítico cuerpo a cuerpo, añades tres dados extra de daño del arma.", "CBarbaro;17,Critico+,Daño+"),
+                    buildSkill("Poder indomable", null, "si el total de una prueba de fuerza es menor que tu puntuación de fuerza, puedes usar tu puntuación de fuerza en lugar del resultado del dado.", "CBarbaro;18,Fuerza,Pruebas"),
+                    buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBarbaro;19,MejoraCaracteristica"),
+                    buildSkill("Campeón", "FUE +4, CON +4, máximo 24", "tus puntuaciones de fuerza y constitución aumentan en 4. además, el máximo de ambas puntuaciones pasa a ser 24.", "CBarbaro;20,Fuerza+,Constitucion+"),
+                        buildSkill("Conjuro bardico", "CAR para conjuros; foco: instrumento", "accedes al lanzamiento de conjuros bardicos, lanzas con carisma y puedes usar un instrumento musical como foco.", "CBardo;1,Conjuro,Carisma"),
+                        buildSkill("Inspiracion bardica (d6)", "usos = mod. CAR; dado d6", "como accion adicional inspiras a una criatura a 60 pies o menos para que sume un dado a una prueba, ataque o salvacion dentro de los 10 minutos siguientes.", "CBardo;1,Apoyo,Inspiracion,Carisma"),
+                        buildSkill("Jack of All Trades", "+1/2 competencia a pruebas sin competencia", "sumas la mitad de tu bonificador de competencia, redondeando hacia abajo, a cualquier prueba de caracteristica en la que no seas competente.", "CBardo;2,Pruebas,Competencia"),
+                        buildSkill("Cancion de descanso (d6)", "curacion extra 1d6", "durante un descanso corto, las criaturas aliadas que te oigan recuperan puntos de golpe extra al gastar dados de golpe.", "CBardo;2,Descanso,Curacion"),
+                        buildSkill("Colegio bardico", null, "eliges un colegio bardico. Entre las opciones disponibles están el colegio del saber y el colegio del valor.", "CBardo;3,Subclase"),
+                        buildSkill("Pericia", "doblas competencia en 2 habilidades", "eliges dos competencias en habilidades y duplicas tu bonificador de competencia en las pruebas que las usen.", "CBardo;3,Pericia,Habilidades"),
+                        buildSkill("Competencias adicionales", "+3 habilidades", "al unirte al colegio del saber obtienes competencia en tres habilidades adicionales a tu eleccion.", "CBardo;3,Lore,Habilidades"),
+                        buildSkill("Palabras hirientes", "Reaccion: resta dado de inspiracion", "puedes gastar una inspiracion bardica para reducir la tirada de ataque, dano o prueba de una criatura que te oiga.", "CBardo;3,Lore,Reaccion,Control"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBardo;4,MejoraCaracteristica"),
+                        buildSkill("Inspiracion bardica (d8)", "dado d8", "tu dado de inspiracion bardica mejora a d8.", "CBardo;5,Inspiracion,Escalado"),
+                        buildSkill("Fuente de inspiracion", "recuperas usos en descanso corto o largo", "recuperas todos los usos de inspiracion bardica al terminar un descanso corto o largo.", "CBardo;5,Inspiracion,Descanso"),
+                        buildSkill("Contracanto", "Ventaja contra hechizado y miedo", "puedes iniciar una interpretacion que da ventaja en salvaciones contra estar hechizado o asustado a ti y a tus aliados cercanos que te oigan.", "CBardo;6,Apoyo,Salvacion,Miedo,Hechizado"),
+                        buildSkill("Secretos magicos adicionales", "+2 conjuros de cualquier clase", "el colegio del saber te permite aprender dos conjuros de cualquier lista sin que cuenten para tus conjuros bardicos conocidos.", "CBardo;6,Lore,Conjuro"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBardo;8,MejoraCaracteristica"),
+                        buildSkill("Cancion de descanso (d8)", "curacion extra 1d8", "la curacion adicional de tu cancion de descanso aumenta a 1d8.", "CBardo;9,Descanso,Curacion"),
+                        buildSkill("Inspiracion bardica (d10)", "dado d10", "tu dado de inspiracion bardica mejora a d10.", "CBardo;10,Inspiracion,Escalado"),
+                        buildSkill("Pericia", "doblas competencia en 2 habilidades mas", "eliges otras dos competencias en habilidades para duplicar tu bonificador de competencia.", "CBardo;10,Pericia,Habilidades"),
+                        buildSkill("Secretos magicos", "+2 conjuros de cualquier clase", "aprendes dos conjuros de cualquier clase que cuenten como conjuros bardicos para ti.", "CBardo;10,Conjuro"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBardo;12,MejoraCaracteristica"),
+                        buildSkill("Cancion de descanso (d10)", "curacion extra 1d10", "la curacion adicional de tu cancion de descanso aumenta a 1d10.", "CBardo;13,Descanso,Curacion"),
+                        buildSkill("Secretos magicos", "+2 conjuros de cualquier clase", "aprendes otros dos conjuros de cualquier clase que cuentan como bardicos para ti.", "CBardo;14,Conjuro"),
+                        buildSkill("Habilidad sin par", "gastas inspiracion para mejorar una prueba", "puedes gastar una inspiracion bardica para sumar su dado a una prueba de caracteristica despues de tirar, antes de conocer el resultado.", "CBardo;14,Lore,Pruebas,Inspiracion"),
+                        buildSkill("Inspiracion bardica (d12)", "dado d12", "tu dado de inspiracion bardica mejora a d12.", "CBardo;15,Inspiracion,Escalado"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBardo;16,MejoraCaracteristica"),
+                        buildSkill("Cancion de descanso (d12)", "curacion extra 1d12", "la curacion adicional de tu cancion de descanso aumenta a 1d12.", "CBardo;17,Descanso,Curacion"),
+                        buildSkill("Secretos magicos", "+2 conjuros de cualquier clase", "aprendes dos conjuros adicionales de cualquier lista.", "CBardo;18,Conjuro"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBardo;19,MejoraCaracteristica"),
+                        buildSkill("Inspiracion superior", "recuperas 1 uso al tirar iniciativa si no te quedan", "si inicias combate sin usos de inspiracion bardica, recuperas uno al tirar iniciativa.", "CBardo;20,Inspiracion,Iniciativa"),
+                        buildSkill("Conjuro clerical", "SAB para conjuros; foco: simbolo sagrado", "accedes al lanzamiento de conjuros clericales, preparas tus plegarias y usas sabiduria como caracteristica de conjuro.", "CClerigo;1,Conjuro,Sabiduria"),
+                        buildSkill("Dominio divino", null, "eliges un dominio divino. Entre las opciones disponibles están conocimiento, vida, luz, naturaleza, tempestad, engaño y guerra.", "CClerigo;1,Subclase"),
+                        buildSkill("Competencia adicional", "armadura pesada", "el dominio de la vida te concede competencia con armadura pesada.", "CClerigo;1,Vida,ArmaduraPesada"),
+                        buildSkill("Discipulo de la vida", "+2 + nivel del conjuro a la curacion", "cuando lanzas un conjuro de nivel 1 o superior que cure puntos de golpe, la criatura recupera curacion adicional.", "CClerigo;1,Vida,Curacion"),
+                        buildSkill("Canalizar divinidad", "1 uso por descanso", "canalizas energia divina para activar efectos de tu clase y de tu dominio.", "CClerigo;2,CanalDivino"),
+                        buildSkill("Expulsar no muertos", null, "presentas tu simbolo sagrado para obligar a los no muertos cercanos a huir de ti durante un tiempo.", "CClerigo;2,CanalDivino,NoMuertos,Control"),
+                        buildSkill("Preservar la vida", "cura total = 5 x nivel de clerigo", "como canal divino repartes curacion entre criaturas cercanas sin superar la mitad de sus puntos de golpe maximos.", "CClerigo;2,Vida,CanalDivino,Curacion"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CClerigo;4,MejoraCaracteristica"),
+                        buildSkill("Destruir no muertos (CR 1/2)", "afecta a no muertos de CR 1/2 o menor", "cuando un no muerto falla contra expulsar no muertos, queda destruido si su desafio es lo bastante bajo.", "CClerigo;5,NoMuertos,CanalDivino,Daño+"),
+                        buildSkill("Canalizar divinidad mejorado", "2 usos por descanso", "puedes usar canalizar divinidad dos veces entre descansos.", "CClerigo;6,CanalDivino"),
+                        buildSkill("Sanador bendito", "te curas 2 + nivel del conjuro", "cuando curas a otra criatura con un conjuro de nivel 1 o superior, recuperas puntos de golpe.", "CClerigo;6,Vida,Curacion"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CClerigo;8,MejoraCaracteristica"),
+                        buildSkill("Destruir no muertos (CR 1)", "afecta a no muertos de CR 1 o menor", "tu expulsar no muertos destruye automaticamente a no muertos mas poderosos.", "CClerigo;8,NoMuertos,CanalDivino,Daño+"),
+                        buildSkill("Golpe divino", "+1d8 radiante al golpear; +2d8 al 14", "una vez por turno, al impactar con un arma puedes anadir dano radiante extra.", "CClerigo;8,Vida,Daño+,Radiante"),
+                        buildSkill("Intervencion divina", "exito si sacas <= nivel en d100", "puedes implorar la ayuda directa de tu deidad para obtener un milagro apropiado a la situacion.", "CClerigo;10,IntervencionDivina"),
+                        buildSkill("Destruir no muertos (CR 2)", "afecta a no muertos de CR 2 o menor", "tu umbral para destruir no muertos vuelve a mejorar.", "CClerigo;11,NoMuertos,CanalDivino,Daño+"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CClerigo;12,MejoraCaracteristica"),
+                        buildSkill("Destruir no muertos (CR 3)", "afecta a no muertos de CR 3 o menor", "tu umbral para destruir no muertos vuelve a aumentar.", "CClerigo;14,NoMuertos,CanalDivino,Daño+"),
+                        buildSkill("Destruir no muertos (CR 4)", "afecta a no muertos de CR 4 o menor", "tu expulsar no muertos puede aniquilar no muertos todavia mas poderosos.", "CClerigo;17,NoMuertos,CanalDivino,Daño+"),
+                        buildSkill("Curacion suprema", "maximizas los dados de curacion", "cuando un conjuro te haria tirar dados para curar, usas el valor maximo de cada dado.", "CClerigo;17,Vida,Curacion"),
+                        buildSkill("Canalizar divinidad superior", "3 usos por descanso", "puedes usar canalizar divinidad tres veces entre descansos.", "CClerigo;18,CanalDivino"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CClerigo;19,MejoraCaracteristica"),
+                        buildSkill("Intervencion divina mejorada", "exito automatico", "tu deidad responde siempre a tu intervencion divina.", "CClerigo;20,IntervencionDivina"),
+                        buildSkill("Druidico", null, "aprendes el lenguaje secreto de los druidas y puedes dejar mensajes ocultos para otros que lo conozcan.", "CDruida;1,Idioma,Druidico"),
+                        buildSkill("Conjuro druida", "SAB para conjuros; foco: foco druida", "accedes al lanzamiento de conjuros druida y preparas conjuros usando sabiduria.", "CDruida;1,Conjuro,Sabiduria"),
+                        buildSkill("Forma salvaje", "2 usos por descanso corto o largo", "puedes transformarte en bestias vistas anteriormente. la forma disponible mejora con tu nivel.", "CDruida;2,Transformacion,Bestia"),
+                        buildSkill("Circulo druida", null, "eliges un círculo druida. Puedes seguir el círculo de la tierra o el círculo de la luna.", "CDruida;2,Subclase"),
+                        buildSkill("Truco adicional", "+1 truco druida", "el circulo de la tierra te concede un truco druida extra que no cuenta para tu limite habitual.", "CDruida;2,Tierra,Truco"),
+                        buildSkill("Recuperacion natural", "recuperas espacios con nivel total <= la mitad de tu nivel", "durante un descanso corto puedes recuperar parte de tu energia magica en forma de espacios de conjuro.", "CDruida;2,Tierra,Conjuro,Descanso"),
+                        buildSkill("Mejora de forma salvaje", "CR 1/2; sin velocidad de vuelo", "tu forma salvaje admite bestias mas poderosas y quita parte de sus restricciones iniciales.", "CDruida;4,Transformacion,Bestia"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CDruida;4,MejoraCaracteristica"),
+                        buildSkill("Paso por la tierra", null, "ignoras terreno dificil no magico por plantas y tienes ventaja contra efectos vegetales magicos que dificulten el movimiento.", "CDruida;6,Tierra,Movimiento,Salvacion"),
+                        buildSkill("Mejora de forma salvaje", "CR 1; con velocidad de vuelo", "tu forma salvaje ahora puede adoptar bestias aun mas fuertes, incluidas formas con velocidad de vuelo.", "CDruida;8,Transformacion,Bestia"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CDruida;8,MejoraCaracteristica"),
+                        buildSkill("Proteccion de la naturaleza", "inmune a veneno y enfermedad; inmune a hechizado y miedo de feericos y elementales", "la magia de la tierra te protege contra enfermedades, venenos y la influencia de ciertos seres sobrenaturales.", "CDruida;10,Tierra,InmunidadVeneno,InmunidadEnfermedad,InmunidadHechizado,InmunidadAsustado"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CDruida;12,MejoraCaracteristica"),
+                        buildSkill("Santuario de la naturaleza", "salvacion SAB o cambian de objetivo", "bestias y plantas dudan en atacarte y pueden verse forzadas a fallar o a elegir otro objetivo.", "CDruida;14,Tierra,Defensa,Control"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CDruida;16,MejoraCaracteristica"),
+                        buildSkill("Cuerpo intemporal", "envejeces 1 ano por cada 10 anos", "la magia primigenia ralentiza tu envejecimiento fisico.", "CDruida;18,Defensa,Longevidad"),
+                        buildSkill("Conjuros bestiales", null, "puedes lanzar muchos de tus conjuros de druida mientras estas en forma salvaje.", "CDruida;18,Conjuro,Transformacion"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CDruida;19,MejoraCaracteristica"),
+                        buildSkill("Archidruida", "forma salvaje ilimitada", "puedes usar forma salvaje sin limite y omitir muchos componentes de tus conjuros.", "CDruida;20,Transformacion,Conjuro"),
+                        buildSkill("Estilo de combate", null, "eliges un estilo de combate que mejora un aspecto concreto de tu forma de luchar.", "CGuerrero;1,Combate"),
+                        buildSkill("Segundo aliento", "Cura 1d10 + nivel de guerrero", "como accion adicional recuperas puntos de golpe gracias a tu reserva de aguante.", "CGuerrero;1,Curacion,Supervivencia"),
+                        buildSkill("Arrebato de accion", "1 accion adicional", "en tu turno puedes realizar una accion adicional aparte de tu accion normal y posible accion adicional.", "CGuerrero;2,AccionExtra"),
+                        buildSkill("Arquetipo marcial", null, "eliges un arquetipo marcial. Entre las opciones disponibles están campeón, maestro de batalla y caballero arcano.", "CGuerrero;3,Subclase"),
+                        buildSkill("Critico mejorado", "critico con 19-20", "tus ataques con arma logran golpe critico con 19 o 20 en el d20.", "CGuerrero;3,Campeon,Critico+"),
+                        buildSkill("Dados de supremacía", "4 dados d8; recuperas todo en descanso corto o largo", "aprendes a usar dados de supremacia para potenciar maniobras marciales. comienzas con cuatro dados de d8 y recuperas todos tus usos al terminar un descanso corto o largo.", "CGuerrero;3,MaestroDeBatalla,Combate,Descanso"),
+                        buildSkill("Maniobras", "3 maniobras al nivel 3; +2 al 7, 10 y 15", "aprendes maniobras especiales que consumen tus dados de supremacia y mejoran tus ataques, defensa o apoyo tactico.", "CGuerrero;3,MaestroDeBatalla,Combate,Tactica"),
+                        buildSkill("Lanzamiento de conjuros", "INT para conjuros", "aprendes magia arcana para complementar tu estilo de combate. lanzas conjuros de mago usando inteligencia como caracteristica de conjuro.", "CGuerrero;3,CaballeroArcano,Conjuro,Inteligencia"),
+                        buildSkill("Vínculo con arma", "no te pueden desarmar; invocas el arma como accion adicional", "realizas un ritual con hasta dos armas para vincularte a ellas. mientras esten en tu mismo plano no puedes ser desarmado de ellas voluntariamente y puedes invocar una de las armas vinculadas a tu mano como accion adicional.", "CGuerrero;3,CaballeroArcano,Arma,AccionExtra"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;4,MejoraCaracteristica"),
+                        buildSkill("Ataque extra", "2 ataques por accion de atacar", "puedes atacar dos veces cuando realizas la accion de atacar.", "CGuerrero;5,Multiataque"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;6,MejoraCaracteristica"),
+                        buildSkill("Atleta notable", "+1/2 competencia a pruebas de FUE, DES y CON sin competencia", "sumas la mitad de tu competencia a ciertas pruebas fisicas y mejoras tus saltos con carrera.", "CGuerrero;7,Campeon,Pruebas,Movimiento"),
+                        buildSkill("Magia de Guerra", "accion adicional: un ataque tras lanzar un truco", "cuando usas tu accion para lanzar un truco, puedes realizar un ataque con arma como accion adicional.", "CGuerrero;7,CaballeroArcano,Conjuro,AccionExtra,Ataque+"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;8,MejoraCaracteristica"),
+                        buildSkill("Indomable", "repite 1 salvacion fallida por descanso largo", "puedes repetir una tirada de salvacion fallida, pero debes usar el nuevo resultado.", "CGuerrero;9,Salvacion"),
+                        buildSkill("Estilo de combate adicional", null, "el campeon aprende un segundo estilo de combate.", "CGuerrero;10,Campeon,Combate"),
+                        buildSkill("Golpe Sobrenatural", "los golpes con arma reducen la ventaja en salvaciones contra tus conjuros", "cuando impactas a una criatura con un ataque con arma, esa criatura tiene desventaja en la siguiente tirada de salvacion que haga contra un conjuro que lances antes de que acabe tu siguiente turno.", "CGuerrero;10,CaballeroArcano,Conjuro,Control"),
+                        buildSkill("Ataque extra (2)", "3 ataques por accion de atacar", "ahora realizas tres ataques cuando usas la accion de atacar.", "CGuerrero;11,Multiataque"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;12,MejoraCaracteristica"),
+                        buildSkill("Indomable", "2 usos por descanso largo", "puedes usar indomable dos veces entre descansos largos.", "CGuerrero;13,Salvacion"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;14,MejoraCaracteristica"),
+                        buildSkill("Critico superior", "critico con 18-20", "tus ataques con arma hacen critico con 18, 19 o 20.", "CGuerrero;15,Campeon,Critico+"),
+                        buildSkill("Carga Arcana", "teletransporte 30 pies al usar arrebato de accion", "si usas arrebato de accion puedes teletransportarte hasta 30 pies a un espacio que veas antes o despues de tu accion adicional.", "CGuerrero;15,CaballeroArcano,Movimiento,Teleportacion,AccionExtra"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;16,MejoraCaracteristica"),
+                        buildSkill("Arrebato de accion mejorado", "2 usos por descanso", "puedes usar arrebato de accion dos veces entre descansos, aunque solo una vez por turno.", "CGuerrero;17,AccionExtra"),
+                        buildSkill("Indomable", "3 usos por descanso largo", "puedes usar indomable tres veces entre descansos largos.", "CGuerrero;17,Salvacion"),
+                        buildSkill("Magia de Guerra Mejorada", "ataque como accion adicional tras lanzar cualquier conjuro", "cuando usas tu accion para lanzar un conjuro, puedes realizar un ataque con arma como accion adicional.", "CGuerrero;18,CaballeroArcano,Conjuro,AccionExtra,Ataque+"),
+                        buildSkill("Superviviente", "recuperas 5 + CON PG por turno si estas a mitad de vida o menos", "si estas herido pero no a 0 puntos de golpe, recuperas vida al inicio de cada turno.", "CGuerrero;18,Campeon,Curacion,Supervivencia"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CGuerrero;19,MejoraCaracteristica"),
+                        buildSkill("Ataque extra (3)", "4 ataques por accion de atacar", "alcanzas cuatro ataques por cada accion de atacar.", "CGuerrero;20,Multiataque"),
+                        buildSkill("Arremetida", "al impactar, gastas un dado para anadir dano y empujar", "cuando impactas con un ataque con arma puedes gastar un dado de supremacia para infligir dano adicional e intentar empujar al objetivo hacia atras.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque Amenazador", "al impactar, anades dano y puedes asustar", "cuando impactas con un ataque con arma puedes gastar un dado de supremacia para anadir dano e intentar asustar al objetivo.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque de Barrido", "al impactar, anades dano a otro objetivo cercano", "cuando impactas con un ataque cuerpo a cuerpo puedes gastar un dado de supremacia para herir tambien a otra criatura cercana.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque Preciso", "anades el dado a la tirada de ataque", "puedes gastar un dado de supremacia para mejorar una tirada de ataque antes o despues de tirar, pero antes de saber si impacta.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque Provocador", "al impactar, anades dano y marcas al objetivo", "cuando impactas puedes gastar un dado de supremacia para infligir dano adicional y dificultar que el objetivo ataque a tus aliados.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque y Derribo", "al impactar, anades dano y puedes derribar", "cuando impactas con un arma puedes gastar un dado de supremacia para anadir dano e intentar dejar tumbado al objetivo.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque y Desarme", "al impactar, anades dano y puedes desarmar", "cuando impactas puedes gastar un dado de supremacia para anadir dano e intentar que el objetivo suelte un objeto que sostenga.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque y Distracción", "al impactar, anades dano y das ventaja a un aliado", "cuando impactas puedes gastar un dado de supremacia para distraer al objetivo y abrir una oportunidad de ataque para un aliado.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque y Empujón", "al impactar, anades dano y puedes empujar lateralmente", "cuando impactas puedes gastar un dado de supremacia para desplazar al objetivo a otra posicion cercana.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Ataque y Maniobra", "al impactar, anades dano y mueves a un aliado", "cuando impactas puedes gastar un dado de supremacia para que un aliado se mueva usando su reaccion sin provocar ataques de oportunidad del objetivo.", "DND,Guerrero,MaestroDeBatalla,Maniobra"),
+                        buildSkill("Contraataque", "reaccion tras fallo enemigo", "cuando una criatura falla un ataque cuerpo a cuerpo contra ti puedes usar tu reaccion y gastar un dado de supremacia para hacer un ataque de respuesta con dano adicional.", "DND,Guerrero,MaestroDeBatalla,Maniobra,Reaccion"),
+                        buildSkill("Finta", "accion adicional para ganar ventaja y dano", "puedes gastar un dado de supremacia como accion adicional para fintar contra una criatura y obtener ventaja en tu siguiente ataque contra ella este turno, anadiendo dano extra si impactas.", "DND,Guerrero,MaestroDeBatalla,Maniobra,AccionExtra"),
+                        buildSkill("Juego de Pies Evasivo", "anades el dado a tu CA al moverte", "cuando te mueves puedes gastar un dado de supremacia para aumentar tu CA hasta que dejes de moverte.", "DND,Guerrero,MaestroDeBatalla,Maniobra,Defensa"),
+                        buildSkill("Orden de Ataque", "renuncias a un ataque para que un aliado ataque", "cuando realizas la accion de atacar puedes renunciar a uno de tus ataques y gastar un dado de supremacia para dirigir a un aliado a que ataque usando su reaccion.", "DND,Guerrero,MaestroDeBatalla,Maniobra,Tactica"),
+                        buildSkill("Parada", "reaccion para reducir dano", "cuando una criatura te causa dano con un ataque cuerpo a cuerpo puedes usar tu reaccion y gastar un dado de supremacia para reducir ese dano.", "DND,Guerrero,MaestroDeBatalla,Maniobra,Defensa,Reaccion"),
+                        buildSkill("Reagrupar", "accion adicional para dar PG temporales", "como accion adicional puedes gastar un dado de supremacia para infundir resistencia a un aliado, otorgandole puntos de golpe temporales.", "DND,Guerrero,MaestroDeBatalla,Maniobra,AccionExtra,Supervivencia"),
+                        buildSkill("Defensa sin armadura", "10 + DES + SAB", "mientras no lleves armadura ni escudo, tu CA se calcula con destreza y sabiduria.", "CMonje;1,Defensa"),
+                        buildSkill("Artes marciales", "dado marcial inicial 1d4", "puedes usar destreza con tus golpes desarmados y armas de monje, mejorar su dano y realizar un golpe desarmado adicional.", "CMonje;1,Ataque+,Daño+,Destreza"),
+                        buildSkill("Ki", "puntos de ki = nivel de monje", "empleas puntos de ki para rafaga de golpes, defensa paciente y paso del viento, y otros rasgos que aprendas.", "CMonje;2,Ki"),
+                        buildSkill("Movimiento sin armadura", "+10 pies de velocidad", "tu velocidad aumenta mientras no lleves armadura ni escudo.", "CMonje;2,Velocidad+,Movimiento"),
+                        buildSkill("Tradicion monastica", null, "eliges una tradición monástica. Puedes seguir la vía de la mano abierta, la vía de la sombra o la vía de los cuatro elementos.", "CMonje;3,Subclase"),
+                        buildSkill("Desviar proyectiles", "reduce dano = 1d10 + DES + nivel", "puedes usar tu reaccion para reducir o incluso atrapar un proyectil que te impacte.", "CMonje;3,Reaccion,Defensa"),
+                        buildSkill("Tecnica de mano abierta", null, "tras una rafaga de golpes puedes derribar, empujar o impedir reacciones a tu objetivo.", "CMonje;3,ManoAbierta,Control"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMonje;4,MejoraCaracteristica"),
+                        buildSkill("Caida lenta", "reduce dano de caida = 5 x nivel", "puedes usar tu reaccion para reducir mucho el dano por caida.", "CMonje;4,Reaccion,Defensa"),
+                        buildSkill("Ataque extra", "2 ataques por accion de atacar", "puedes atacar dos veces cuando realizas la accion de atacar.", "CMonje;5,Multiataque"),
+                        buildSkill("Golpe aturdidor", "gastas 1 ki; salvacion de CON o aturdido", "al impactar con un ataque cuerpo a cuerpo puedes intentar aturdir a tu objetivo.", "CMonje;5,Ki,Control,Aturdido"),
+                        buildSkill("Golpes potenciados por ki", null, "tus golpes desarmados cuentan como magicos para superar resistencias e inmunidades.", "CMonje;6,Ki,Daño+"),
+                        buildSkill("Plenitud corporal", "cura = 3 x nivel de monje", "como accion te curas a ti mismo y recuperas una buena cantidad de puntos de golpe.", "CMonje;6,ManoAbierta,Curacion"),
+                        buildSkill("Evasion", null, "cuando una salvacion de destreza te permitiria medio dano, no sufres dano al superar la tirada y solo la mitad al fallarla.", "CMonje;7,Salvacion,Defensa"),
+                        buildSkill("Quietud mental", null, "puedes terminar con una accion un efecto que te tenga hechizado o asustado.", "CMonje;7,Control,Hechizado,Asustado"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMonje;8,MejoraCaracteristica"),
+                        buildSkill("Movimiento sin armadura mejorado", "puedes correr por paredes y sobre liquidos durante el turno", "tu movilidad alcanza un nivel sobrenatural y te permite moverte por superficies imposibles mientras te desplazas.", "CMonje;9,Movimiento,Velocidad+"),
+                        buildSkill("Pureza corporal", "inmune a enfermedad y veneno", "tu dominio del ki te vuelve inmune a las enfermedades y al veneno.", "CMonje;10,InmunidadEnfermedad,InmunidadVeneno"),
+                        buildSkill("Tranquilidad", "santuario tras descanso largo", "tras meditar, quedas protegido por un efecto similar a santuario hasta tu siguiente descanso largo.", "CMonje;11,ManoAbierta,Defensa"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMonje;12,MejoraCaracteristica"),
+                        buildSkill("Lengua del sol y la luna", null, "entiendes todos los idiomas hablados y cualquier criatura que conozca un idioma puede entenderte.", "CMonje;13,Idioma,Comunicacion"),
+                        buildSkill("Alma diamante", "competencia en todas las salvaciones", "ganas competencia en todas las tiradas de salvacion y puedes repetir una fallida gastando ki.", "CMonje;14,Salvacion,Ki"),
+                        buildSkill("Cuerpo intemporal", null, "no sufres el desgaste de la vejez y dejas de necesitar comida y agua.", "CMonje;15,Defensa,Longevidad"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMonje;16,MejoraCaracteristica"),
+                        buildSkill("Palma vibrante", "3 ki; CON o 0 PG, si salva 10d10 necrotico", "dejas vibraciones letales en el cuerpo de una criatura y puedes detonarlas mas adelante.", "CMonje;17,ManoAbierta,Ki,Daño+,Control"),
+                        buildSkill("Cuerpo vacio", "4 ki invisible; 8 ki proyeccion astral", "puedes volverte invisible con resistencia a casi todo el dano o proyectarte astralmente.", "CMonje;18,Ki,Defensa,Invisibilidad"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMonje;19,MejoraCaracteristica"),
+                        buildSkill("Ser perfecto", "recuperas 4 ki al tirar iniciativa si estabas a 0", "si empiezas un combate sin ki, recuperas parte de tu reserva.", "CMonje;20,Ki,Iniciativa"),
+                        buildSkill("Sentido divino", "usos = 1 + mod. CAR", "detectas celestiales, infernales, no muertos y lugares consagrados o profanados cercanos.", "CPaladin;1,Deteccion,Carisma"),
+                        buildSkill("Imposición de manos", "reserva de curacion = nivel x 5", "usas una reserva de energia sagrada para curar heridas o neutralizar enfermedades y venenos al tocar.", "CPaladin;1,Curacion,Apoyo"),
+                        buildSkill("Estilo de combate", null, "eliges un estilo de combate propio del paladin.", "CPaladin;2,Combate"),
+                        buildSkill("Lanzamiento de conjuros", "CAR para conjuros; foco: simbolo sagrado", "preparas conjuros de paladin y usas carisma para lanzarlos.", "CPaladin;2,Conjuro,Carisma"),
+                        buildSkill("Castigo divino", "2d8 base; +1d8 por nivel de espacio; +1d8 contra infernales o no muertos", "cuando impactas cuerpo a cuerpo puedes gastar un espacio de conjuro para infligir daño radiante adicional.", "CPaladin;2,Daño+,Radiante"),
+                        buildSkill("Salud divina", "inmune a enfermedad", "la energia sagrada te protege por completo contra las enfermedades.", "CPaladin;3,InmunidadEnfermedad"),
+                        buildSkill("Juramento sagrado", null, "eliges un juramento sagrado que define el ideal que guiará tus poderes. las opciones actuales son devocion, antiguos y venganza.", "CPaladin;3,Subclase"),
+                        buildSkill("Conjuros de juramento", "Protección contra el bien y el mal, Santuario", "el juramento de devocion te concede estos conjuros, que siempre se consideran preparados y no cuentan para tu limite habitual.", "CPaladin;3,Devocion,Conjuro"),
+                        buildSkill("Arma sagrada", "+CAR a tiradas de ataque durante 1 minuto", "usas canal divino para imbuir un arma con energia sagrada y volverla mas precisa y luminosa.", "CPaladin;3,Devocion,CanalDivino,Ataque+"),
+                        buildSkill("Expulsar lo impio", null, "usas canal divino para condenar a infernales y muertos vivientes, obligandolos a huir de ti.", "CPaladin;3,Devocion,CanalDivino,Control"),
+                        buildSkill("Conjuros de juramento", "Golpe apresador, Hablar con los animales", "el juramento de los antiguos te concede estos conjuros, que siempre se consideran preparados y no cuentan para tu limite habitual.", "CPaladin;3,Antiguos,Conjuro"),
+                        buildSkill("Ira de la naturaleza", "apresa a un objetivo con una salvacion de Fuerza o Destreza", "puedes usar canalizar divinidad para invocar enredaderas espectrales que apresan a un enemigo cercano.", "CPaladin;3,Antiguos,CanalDivino,Control"),
+                        buildSkill("Expulsar infieles", "expulsa feericos e infernales durante 1 minuto", "usas canalizar divinidad para pronunciar palabras ancestrales que hacen huir a feericos e infernales.", "CPaladin;3,Antiguos,CanalDivino,Control"),
+                        buildSkill("Conjuros de juramento", "Marca del cazador, Perdicion", "el juramento de venganza te concede estos conjuros, que siempre se consideran preparados y no cuentan para tu limite habitual.", "CPaladin;3,Venganza,Conjuro"),
+                        buildSkill("Abjurar enemigo", "asusta o ralentiza a un objetivo", "usas canalizar divinidad para denunciar a una criatura visible, asustandola o frenandola si resiste.", "CPaladin;3,Venganza,CanalDivino,Control"),
+                        buildSkill("Voto de enemistad", "ventaja contra un objetivo durante 1 minuto", "como accion adicional puedes emplear canalizar divinidad para obtener ventaja contra un enemigo jurado cercano.", "CPaladin;3,Venganza,CanalDivino,Ataque+"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPaladin;4,MejoraCaracteristica"),
+                        buildSkill("Ataque adicional", "2 ataques por accion de atacar", "puedes atacar dos veces cuando realizas la accion de atacar.", "CPaladin;5,Multiataque"),
+                        buildSkill("Conjuros de juramento", "Restablecimiento menor, Zona de la verdad", "la devocion amplía su lista de conjuros de juramento siempre preparados.", "CPaladin;5,Devocion,Conjuro"),
+                        buildSkill("Conjuros de juramento", "Paso brumoso, Rayo de luna", "los antiguos amplían su lista de conjuros de juramento siempre preparados.", "CPaladin;5,Antiguos,Conjuro"),
+                        buildSkill("Conjuros de juramento", "Inmovilizar persona, Paso brumoso", "la venganza amplía su lista de conjuros de juramento siempre preparados.", "CPaladin;5,Venganza,Conjuro"),
+                        buildSkill("Aura de proteccion", "+CAR a salvaciones en 10 pies; 30 pies al 18", "tu y tus aliados cercanos sumais tu modificador de carisma a las tiradas de salvacion mientras estes consciente.", "CPaladin;6,Aura,Salvacion,Carisma"),
+                        buildSkill("Aura de devocion", "inmunidad a hechizado en 10 pies; 30 pies al 18", "tu y tus aliados cercanos no podeis ser hechizados mientras estes consciente.", "CPaladin;7,Devocion,Aura,InmunidadHechizado"),
+                        buildSkill("Aura de salvaguarda", "resistencia al daño de conjuros en 10 pies; 30 pies al 18", "la magia antigua te ha impregnado tanto que tu y tus aliados cercanos teneis resistencia al daño proveniente de conjuros.", "CPaladin;7,Antiguos,Aura,Resistencia"),
+                        buildSkill("Vengador implacable", "te mueves hasta la mitad de tu velocidad tras un ataque de oportunidad", "cuando impactas a una criatura con un ataque de oportunidad, puedes moverte hasta la mitad de tu velocidad como parte de la misma reaccion sin provocar ataques de oportunidad.", "CPaladin;7,Venganza,Reaccion,Movimiento"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPaladin;8,MejoraCaracteristica"),
+                        buildSkill("Conjuros de juramento", "Disipar magia, Señal de esperanza", "la devocion sigue ampliando su lista de conjuros de juramento siempre preparados.", "CPaladin;9,Devocion,Conjuro"),
+                        buildSkill("Conjuros de juramento", "Crecimiento vegetal, Proteccion contra energia", "los antiguos siguen ampliando su lista de conjuros de juramento siempre preparados.", "CPaladin;9,Antiguos,Conjuro"),
+                        buildSkill("Conjuros de juramento", "Acelerar, Proteccion contra energia", "la venganza sigue ampliando su lista de conjuros de juramento siempre preparados.", "CPaladin;9,Venganza,Conjuro"),
+                        buildSkill("Aura de coraje", "inmunidad a miedo en 10 pies; 30 pies al 18", "tu y tus aliados cercanos no podeis ser asustados mientras estes consciente.", "CPaladin;10,Aura,InmunidadAsustado"),
+                        buildSkill("Castigo divino mejorado", "+1d8 radiante en cada golpe cuerpo a cuerpo", "todos tus ataques cuerpo a cuerpo quedan cargados con dano radiante adicional.", "CPaladin;11,Daño+,Radiante"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPaladin;12,MejoraCaracteristica"),
+                        buildSkill("Conjuros de juramento", "Guardian de la fe, Libertad de movimiento", "la devocion alcanza el cuarto tramo de conjuros de juramento siempre preparados.", "CPaladin;13,Devocion,Conjuro"),
+                        buildSkill("Conjuros de juramento", "Piel petrea, Tormenta de hielo", "los antiguos alcanzan el cuarto tramo de conjuros de juramento siempre preparados.", "CPaladin;13,Antiguos,Conjuro"),
+                        buildSkill("Conjuros de juramento", "Destierro, Puerta dimensional", "la venganza alcanza el cuarto tramo de conjuros de juramento siempre preparados.", "CPaladin;13,Venganza,Conjuro"),
+                        buildSkill("Toque purificador", "usos = mod. CAR", "puedes tocar a una criatura voluntaria o a ti mismo para terminar un conjuro que la afecte.", "CPaladin;14,Apoyo,Carisma"),
+                        buildSkill("Pureza de espiritu", null, "estas siempre bajo los efectos de un conjuro de proteccion contra el bien y el mal.", "CPaladin;15,Devocion,Defensa"),
+                        buildSkill("Centinela imperecedero", "si caes a 0 PG vuelves a 1 PG una vez por descanso largo", "si tus puntos de golpe se reducen a 0 sin morir al instante, puedes volver a tener 1 punto de golpe. ademas, no sufres los inconvenientes de la edad y no puedes envejecer por medios magicos.", "CPaladin;15,Antiguos,Supervivencia,Longevidad"),
+                        buildSkill("Espiritu vengativo", "reaccion para atacar al objetivo de tu voto de enemistad", "cuando una criatura bajo los efectos de tu voto de enemistad ataque, puedes usar tu reaccion para realizar un ataque con arma cuerpo a cuerpo contra ella si esta a tu alcance.", "CPaladin;15,Venganza,Reaccion,Ataque+"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPaladin;16,MejoraCaracteristica"),
+                        buildSkill("Conjuros de juramento", "Comunion, Golpe flamigero", "la devocion completa su lista de conjuros de juramento siempre preparados.", "CPaladin;17,Devocion,Conjuro"),
+                        buildSkill("Conjuros de juramento", "Comunion con la naturaleza, Paso arboreo", "los antiguos completan su lista de conjuros de juramento siempre preparados.", "CPaladin;17,Antiguos,Conjuro"),
+                        buildSkill("Conjuros de juramento", "Escudriñar, Inmovilizar monstruo", "la venganza completa su lista de conjuros de juramento siempre preparados.", "CPaladin;17,Venganza,Conjuro"),
+                        buildSkill("Auras mejoradas", "radio de 30 pies", "tus auras principales extienden su alcance hasta 30 pies.", "CPaladin;18,Aura"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPaladin;19,MejoraCaracteristica"),
+                        buildSkill("Halo sagrado", "1 minuto; 10 de daño radiante por turno a enemigos cercanos", "como accion emanas un aura de luz solar durante 1 minuto. los enemigos que empiecen su turno en tu luz brillante sufren daño radiante y tu tienes ventaja en salvaciones contra conjuros de infernales o muertos vivientes.", "CPaladin;20,Devocion,Radiante,Aura,Daño+"),
+                        buildSkill("Campeon ancestral", "1 minuto; regeneracion, accion adicional para ciertos conjuros y aura debilitadora", "asumes la forma de una antigua fuerza de la naturaleza. al comienzo de cada turno recuperas 10 puntos de golpe, puedes lanzar ciertos conjuros de paladin como accion adicional y los enemigos cercanos tienen desventaja en sus salvaciones contra tus conjuros y tu canalizar divinidad.", "CPaladin;20,Antiguos,Curacion,Aura,Conjuro"),
+                        buildSkill("Angel vengador", "1 hora; alas y aura de amenaza", "adoptas la forma de un angel vengador, con alas de vuelo y un aura que asusta a los enemigos cercanos.", "CPaladin;20,Venganza,Vuelo,Aura,Control"),
+                        buildSkill("Enemigo predilecto", null, "eliges tipos de enemigos sobre los que tienes ventaja para rastrear y recordar informacion. aprendes idiomas asociados y amplias la lista a niveles superiores.", "CExplorador;1,Rastreo,Conocimiento"),
+                        buildSkill("Explorador nato", null, "eliges un terreno favorito y obtienes ventajas de viaje, exploracion y supervivencia en ese entorno. amplias terrenos a niveles superiores.", "CExplorador;1,Exploracion,Movimiento"),
+                        buildSkill("Estilo de combate", null, "eliges un estilo de combate adaptado a tu forma de cazar y combatir.", "CExplorador;2,Combate"),
+                        buildSkill("Conjuro explorador", "SAB para conjuros", "aprendes conjuros de explorador orientados a la caza, el sigilo y la naturaleza.", "CExplorador;2,Conjuro,Sabiduria"),
+                        buildSkill("Arquetipo de explorador", null, "eliges un arquetipo de explorador. Entre las opciones disponibles están cazador y maestro de bestias.", "CExplorador;3,Subclase"),
+                        buildSkill("Conciencia primigenia", "gastas un espacio para detectar ciertos tipos de criaturas", "puedes sentir si hay aberraciones, celestiales, dragones, elementales, feericos, infernales o no muertos en la region.", "CExplorador;3,Deteccion,Conjuro"),
+                        buildSkill("Presa del cazador", null, "eliges una tecnica ofensiva del cazador para desgastar, castigar gigantes o golpear una segunda presa cercana.", "CExplorador;3,Cazador,Combate"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CExplorador;4,MejoraCaracteristica"),
+                        buildSkill("Ataque extra", "2 ataques por accion de atacar", "puedes atacar dos veces cuando realizas la accion de atacar.", "CExplorador;5,Multiataque"),
+                        buildSkill("Mejoras de enemigo predilecto y explorador nato", null, "anades un nuevo enemigo predilecto, un idioma asociado y un nuevo terreno favorito.", "CExplorador;6,Rastreo,Exploracion"),
+                        buildSkill("Tacticas defensivas", null, "eliges una opcion defensiva del cazador para resistir hordas, cadenas de ataques o el miedo.", "CExplorador;7,Cazador,Defensa"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CExplorador;8,MejoraCaracteristica"),
+                        buildSkill("Paso por la tierra", null, "ignoras terreno dificil no magico por plantas y tienes ventaja contra plantas magicas que dificulten el movimiento.", "CExplorador;8,Movimiento,Salvacion"),
+                        buildSkill("Mejora de explorador nato", null, "anades otro terreno favorito para extender tus ventajas de viaje y exploracion.", "CExplorador;10,Exploracion"),
+                        buildSkill("Esconderse a plena vista", "+10 a sigilo mientras permanezcas inmovil y camuflado", "puedes preparar camuflaje natural para ocultarte mejor en entornos apropiados.", "CExplorador;10,Sigilo,Defensa"),
+                        buildSkill("Multiataque", null, "eliges entre una andanada a distancia o un ataque giratorio cuerpo a cuerpo contra varios enemigos.", "CExplorador;11,Cazador,Multiataque"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CExplorador;12,MejoraCaracteristica"),
+                        buildSkill("Mejora de enemigo predilecto", null, "anades un enemigo predilecto adicional y el idioma asociado.", "CExplorador;14,Rastreo,Conocimiento"),
+                        buildSkill("Desaparecer", "esconderse como accion adicional", "puedes usar ocultarte como accion adicional y resulta muy dificil seguirte sin magia.", "CExplorador;14,Sigilo,AccionExtra"),
+                        buildSkill("Defensa superior del cazador", null, "eliges una tecnica avanzada de defensa como evasion, desviar ataques o reducir dano.", "CExplorador;15,Cazador,Defensa"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CExplorador;16,MejoraCaracteristica"),
+                        buildSkill("Sentidos ferales", null, "puedes combatir mejor contra enemigos invisibles o que no ves directamente.", "CExplorador;18,Percepcion,Combate"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CExplorador;19,MejoraCaracteristica"),
+                        buildSkill("Matanza de enemigos", "1 vez por turno anades SAB a ataque o dano contra enemigo predilecto", "te conviertes en un cazador supremo de tus enemigos escogidos.", "CExplorador;20,Daño+,Ataque+,Sabiduria"),
+                        buildSkill("Pericia", "doblas competencia en 2 competencias", "eliges dos competencias en habilidades o una habilidad y herramientas de ladron para duplicar tu bonificador de competencia.", "CPicaro;1,Pericia,Habilidades"),
+                        buildSkill("Ataque furtivo", "1d6 al nivel 1; progresa hasta 10d6", "una vez por turno infliges dano extra con armas sutiles o a distancia cuando tienes ventaja o un aliado amenaza al objetivo.", "CPicaro;1,Daño+,Sigilo"),
+                        buildSkill("Jerga de ladrones", null, "conoces un codigo secreto verbal y simbolico que te permite comunicar mensajes ocultos a otros criminales.", "CPicaro;1,Idioma,Codigo"),
+                        buildSkill("Accion astuta", "Desplazarse, retirarse u ocultarse como accion adicional", "tu rapidez te permite moverte y reposicionarte con gran facilidad en combate.", "CPicaro;2,AccionExtra,Movimiento,Sigilo"),
+                        buildSkill("Arquetipo de picaro", null, "eliges un arquetipo de picaro. las opciones actuales son ladron, asesino y embaucador arcano.", "CPicaro;3,Subclase"),
+                        buildSkill("Manos rapidas", null, "puedes usar la accion adicional de accion astuta para ciertas maniobras de juego de manos, abrir cerraduras, desarmar trampas o utilizar objetos.", "CPicaro;3,Ladron,AccionExtra"),
+                        buildSkill("Balconero", "trepar no cuesta movimiento extra", "trepar ya no te cuesta movimiento adicional y, cuando saltas con carrerilla, aumentas tu distancia de salto en tantos pies como tu modificador por destreza.", "CPicaro;3,Ladron,Movimiento"),
+                        buildSkill("Competencias adicionales", "competencia con utiles para disfrazarse y utiles de envenenador", "ganas competencia con los utiles para disfrazarse y los utiles de envenenador.", "CPicaro;3,Asesino,Competencia"),
+                        buildSkill("Asesinar", "ventaja contra criaturas que aun no han actuado; critico automatico contra sorprendidos", "tienes ventaja en las tiradas de ataque contra cualquier criatura que aun no haya llevado a cabo ningun turno en el combate actual y cualquier impacto contra una criatura sorprendida sera automaticamente un critico.", "CPicaro;3,Asesino,Ataque+,Critico+"),
+                        buildSkill("Lanzamiento de conjuros", "INT para conjuros; mano de mago obligatoria", "obtienes la capacidad de lanzar conjuros de mago. aprendes mano de mago y otros conjuros de encantamiento e ilusion propios del embaucador arcano.", "CPicaro;3,EmbaucadorArcano,Conjuro,Inteligencia"),
+                        buildSkill("Destreza con mano de mago", "mano invisible; guardar o sacar objetos; abrir cerraduras y desarmar trampas a distancia", "cuando lanzas mano de mago puedes hacer que la mano espectral sea invisible, guardar o sacar objetos de otras criaturas y usar herramientas de ladron a distancia. ademas, puedes utilizar la accion adicional de accion astuta para controlarla.", "CPicaro;3,EmbaucadorArcano,Conjuro,AccionExtra"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPicaro;4,MejoraCaracteristica"),
+                        buildSkill("Esquiva asombrosa", "Reaccion: mitad del dano de un ataque", "cuando un atacante visible te golpea puedes usar tu reaccion para reducir a la mitad el dano.", "CPicaro;5,Reaccion,Defensa"),
+                        buildSkill("Pericia", "doblas competencia en 2 competencias mas", "eliges dos competencias adicionales para aplicar pericia.", "CPicaro;6,Pericia,Habilidades"),
+                        buildSkill("Evasion", null, "cuando una salvacion de destreza te permitiria medio dano, no sufres dano al superarla y solo la mitad al fallarla.", "CPicaro;7,Salvacion,Defensa"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPicaro;8,MejoraCaracteristica"),
+                        buildSkill("Sigilo supremo", "Ventaja a sigilo si te mueves a media velocidad o menos", "el ladron se vuelve especialmente dificil de detectar cuando se desplaza con cuidado.", "CPicaro;9,Ladron,Sigilo"),
+                        buildSkill("Pericia en infiltrarse", "creas identidades falsas", "puedes crearte identidades falsas completas, con historia, profesion y afiliaciones, para infiltrarte con credibilidad.", "CPicaro;9,Asesino,Infiltracion,Engaño"),
+                        buildSkill("Emboscada magica", "desventaja en salvaciones si lanzas oculto", "si estas escondido de una criatura cuando lanzas un conjuro sobre ella, el objetivo tendra desventaja en cualquier tirada de salvacion que deba hacer contra el conjuro este turno.", "CPicaro;9,EmbaucadorArcano,Conjuro,Control"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPicaro;10,MejoraCaracteristica"),
+                        buildSkill("Talentos fiables", "un d20 de 9 o menos cuenta como 10", "cuando hagas una prueba de caracteristica que te permita añadir tu bonificador por competencia, puedes considerar cualquier resultado de 9 o menos en el d20 como si fuera un 10.", "CPicaro;11,Pruebas,Pericia"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPicaro;12,MejoraCaracteristica"),
+                        buildSkill("Usar objetos magicos", null, "ignoras todas las restricciones de clase, raza y nivel a la hora de emplear objetos magicos.", "CPicaro;13,Ladron,ObjetoMagico"),
+                        buildSkill("Impostor", null, "adquieres la capacidad para imitar de forma convincente el habla, la caligrafia y el comportamiento de otra persona tras estudiarla.", "CPicaro;13,Asesino,Engaño,Infiltracion"),
+                        buildSkill("Embaucador versatil", null, "como accion adicional puedes usar tu mano de mago para distraer a un objetivo y obtener ventaja en tus ataques contra el hasta el final del turno.", "CPicaro;13,EmbaucadorArcano,Conjuro,Ataque+"),
+                        buildSkill("Sentir sin ver", "detectas criaturas ocultas o invisibles a 10 pies", "si eres capaz de oir, eres consciente de la ubicacion de cualquier criatura escondida o invisible a 10 pies o menos de ti.", "CPicaro;14,Percepcion"),
+                        buildSkill("Mente escurridiza", "competencia en salvaciones de sabiduria", "ganas mayor fortaleza mental frente a efectos que atacan tu voluntad.", "CPicaro;15,Salvacion,Sabiduria"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPicaro;16,MejoraCaracteristica"),
+                        buildSkill("Reflejos de ladron", "2 turnos en la primera ronda si no estas sorprendido", "puedes actuar dos veces al inicio del combate, lo que te permite abrir con gran ventaja.", "CPicaro;17,Ladron,Iniciativa"),
+                        buildSkill("Golpe mortal", null, "cuando atacas e impactas a una criatura sorprendida, debe superar una salvacion de constitucion o el daño del ataque contra ella se duplica.", "CPicaro;17,Asesino,Daño+,Critico+"),
+                        buildSkill("Ladron de conjuros", null, "inmediatamente despues de que una criatura lance un conjuro que te tenga como objetivo o incluya tu area, puedes usar tu reaccion para anular su efecto sobre ti y robar temporalmente el conocimiento de ese conjuro.", "CPicaro;17,EmbaucadorArcano,Conjuro,Reaccion"),
+                        buildSkill("Elusivo", null, "ninguna tirada de ataque hecha contra ti tendra ventaja mientras no estes incapacitado.", "CPicaro;18,Defensa"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CPicaro;19,MejoraCaracteristica"),
+                        buildSkill("Golpe de suerte", "convierte un fallo en exito", "puedes transformar un ataque fallido en impacto o una prueba fallida en un 20 natural.", "CPicaro;20,Pruebas,Ataque+"),
+                        buildSkill("Conjuro de hechicero", "CAR para conjuros; foco: foco arcano", "accedes a la magia innata del hechicero y usas carisma para lanzar tus conjuros.", "CHechicero;1,Conjuro,Carisma"),
+                        buildSkill("Origen sobrenatural", null, "eliges el origen de tu poder. Puedes manifestar un linaje dracónico o magia salvaje.", "CHechicero;1,Subclase"),
+                        buildSkill("Ancestro draconico", null, "eliges un tipo de dragón ancestral que determina tus afinidades de daño futuras; además aprendes dracónico y destacas al tratar con dragones.", "CHechicero;1,Draconico,Dragon,Idioma"),
+                        buildSkill("Resiliencia draconica", "+1 PG por nivel; CA 13 + DES sin armadura", "tu herencia draconica refuerza tu cuerpo con mas aguante y escamas protectoras.", "CHechicero;1,Draconico,Defensa,Constitucion"),
+                        buildSkill("Fuente de magia", "puntos de hechiceria = nivel indicado", "obtienes puntos de hechiceria para crear espacios de conjuro o convertir espacios en puntos.", "CHechicero;2,Hechiceria,Conjuro"),
+                        buildSkill("Metamagia", "2 opciones al 3; otra al 10 y 17", "aprendes a modificar el alcance, duracion, objetivos o forma de tus conjuros usando puntos de hechiceria.", "CHechicero;3,Metamagia,Conjuro"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CHechicero;4,MejoraCaracteristica"),
+                        buildSkill("Afinidad elemental", "+CAR a una tirada de dano del tipo de tu dragon; 1 punto para resistencia", "tus conjuros del tipo asociado a tu linaje son mas intensos y puedes ganar resistencia temporal a ese tipo de dano.", "CHechicero;6,Draconico,Daño+,Resistencia,Carisma"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CHechicero;8,MejoraCaracteristica"),
+                        buildSkill("Metamagia", "+1 opcion", "aprendes una opcion adicional de metamagia.", "CHechicero;10,Metamagia,Conjuro"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CHechicero;12,MejoraCaracteristica"),
+                        buildSkill("Alas draconicas", "velocidad de vuelo = tu velocidad", "puedes manifestar alas de dragon y obtener velocidad de vuelo mientras no lleves armadura incompatible.", "CHechicero;14,Draconico,Vuelo,Movimiento"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CHechicero;16,MejoraCaracteristica"),
+                        buildSkill("Metamagia", "+1 opcion", "aprendes una nueva opcion de metamagia.", "CHechicero;17,Metamagia,Conjuro"),
+                        buildSkill("Presencia draconica", "5 puntos de hechiceria; aura de miedo o fascinacion", "puedes irradiar majestuosidad draconica para hechizar o asustar a enemigos hostiles cercanos.", "CHechicero;18,Draconico,Control,Miedo,Hechizado"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CHechicero;19,MejoraCaracteristica"),
+                        buildSkill("Restauracion sobrenatural", "recuperas 4 puntos de hechiceria en descanso corto", "cada descanso corto te devuelve parte de tu reserva de hechiceria.", "CHechicero;20,Hechiceria,Descanso"),
+                        buildSkill("Patrono sobrenatural", null, "eliges la fuente de tu pacto. Entre las opciones disponibles están el señor feérico, el infernal y el primigenio.", "CBrujo;1,Subclase"),
+                        buildSkill("Magia de pacto", "CAR para conjuros; espacios se recuperan en descanso corto", "tu magia usa pocos espacios pero se recargan rapido y todos comparten el mismo nivel.", "CBrujo;1,Conjuro,Carisma,Descanso"),
+                        buildSkill("Bendicion del oscuro", "PG temporales = CAR + nivel de brujo", "cuando reduces a un enemigo hostil a 0 puntos de golpe, obtienes puntos de golpe temporales.", "CBrujo;1,Infernal,Supervivencia,Curacion"),
+                        buildSkill("Invocaciones misticas", null, "aprendes invocaciones que alteran tus capacidades con efectos permanentes o lanzamientos especiales.", "CBrujo;2,Invocacion"),
+                        buildSkill("Don del pacto", null, "eliges entre pacto de la cadena, la hoja o el tomo para definir una parte central de tu estilo.", "CBrujo;3,Pacto"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBrujo;4,MejoraCaracteristica"),
+                        buildSkill("Suerte del oscuro", "1d10 a una prueba o salvacion", "puedes invocar a tu patron para sumar un d10 a una prueba de caracteristica o salvacion despues de ver la tirada.", "CBrujo;6,Infernal,Pruebas,Salvacion"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBrujo;8,MejoraCaracteristica"),
+                        buildSkill("Resistencia infernal", "eliges 1 tipo de dano por descanso", "al terminar un descanso eliges un tipo de dano al que resistes hasta cambiarlo de nuevo.", "CBrujo;10,Infernal,Resistencia"),
+                        buildSkill("Arcano mistico (6)", "1 conjuro de nivel 6 por descanso largo", "aprendes un conjuro de nivel 6 que puedes lanzar una vez por descanso largo sin gastar espacios de magia de pacto.", "CBrujo;11,Conjuro,ArcanoMistico"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBrujo;12,MejoraCaracteristica"),
+                        buildSkill("Arcano mistico (7)", "1 conjuro de nivel 7 por descanso largo", "obtienes un conjuro de nivel 7 utilizable una vez por descanso largo.", "CBrujo;13,Conjuro,ArcanoMistico"),
+                        buildSkill("Arrojar al infierno", "10d10 psiquico al volver si no es infernal", "cuando golpeas a una criatura puedes desterrarla brevemente a una vision infernal devastadora.", "CBrujo;14,Infernal,Control,Daño+"),
+                        buildSkill("Arcano mistico (8)", "1 conjuro de nivel 8 por descanso largo", "obtienes un conjuro de nivel 8 utilizable una vez por descanso largo.", "CBrujo;15,Conjuro,ArcanoMistico"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBrujo;16,MejoraCaracteristica"),
+                        buildSkill("Arcano mistico (9)", "1 conjuro de nivel 9 por descanso largo", "obtienes un conjuro de nivel 9 utilizable una vez por descanso largo.", "CBrujo;17,Conjuro,ArcanoMistico"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CBrujo;19,MejoraCaracteristica"),
+                        buildSkill("Maestro eldritch", "recuperas todos los espacios tras 1 minuto de suplica", "puedes pedir ayuda a tu patron para restaurar todos tus espacios de magia de pacto.", "CBrujo;20,Conjuro,Descanso"),
+                        buildSkill("Conjuro de mago", "INT para conjuros; foco: foco arcano", "dominas el lanzamiento de conjuros arcanos mediante estudio y memoria.", "CMago;1,Conjuro,Inteligencia"),
+                        buildSkill("Libro de conjuros", "empiezas con 6 conjuros de nivel 1", "tu grimorio contiene los conjuros que conoces y puedes ampliarlo con aprendizaje y copia.", "CMago;1,Conjuro,Grimorio"),
+                        buildSkill("Recuperacion arcana", "recuperas espacios con nivel total <= la mitad de tu nivel", "una vez al dia, tras un descanso corto, recuperas parte de tu energia magica.", "CMago;1,Conjuro,Descanso"),
+                        buildSkill("Tradicion arcana", null, "eliges una escuela de magia. Entre las opciones disponibles están abjuración, conjuración, adivinación, encantamiento, evocación, ilusión, nigromancia y transmutación.", "CMago;2,Subclase"),
+                        buildSkill("Erudito de evocacion", "copiar conjuros de evocacion cuesta la mitad", "reducen a la mitad el tiempo y el oro necesarios para copiar conjuros de evocacion en tu libro.", "CMago;2,Evocacion,Grimorio"),
+                        buildSkill("Esculpir conjuros", null, "puedes proteger a criaturas visibles dentro de tus conjuros de evocacion para que eviten el peor efecto.", "CMago;2,Evocacion,Conjuro,Apoyo"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMago;4,MejoraCaracteristica"),
+                        buildSkill("Truco potente", null, "tus trucos ofensivos siguen afectando parcialmente a objetivos que superan su salvacion.", "CMago;6,Evocacion,Truco,Daño+"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMago;8,MejoraCaracteristica"),
+                        buildSkill("Evocacion potenciada", "+INT a una tirada de dano de evocacion", "anades tu modificador de inteligencia a una tirada de dano de un conjuro de evocacion de mago.", "CMago;10,Evocacion,Daño+,Inteligencia"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMago;12,MejoraCaracteristica"),
+                        buildSkill("Sobrecanalizar", "maximizas dano de conjuros de nivel 1-5", "puedes lanzar ciertos conjuros ofensivos de forma sobrecargada para infligir su dano maximo, a costa de desgaste si repites.", "CMago;14,Evocacion,Daño+"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMago;16,MejoraCaracteristica"),
+                        buildSkill("Dominio de conjuros", "1 conjuro de nivel 1 y 1 de nivel 2 a voluntad", "eliges conjuros menores que puedes lanzar repetidamente sin gastar espacios, siempre que los tengas preparados.", "CMago;18,Conjuro"),
+                        buildSkill("Mejora de puntuación de característica", null, "puedes aumentar una característica en 2 puntos, o dos características en 1 punto cada una, respetando el máximo habitual.", "CMago;19,MejoraCaracteristica"),
+                        buildSkill("Conjuros distintivos", "2 conjuros de nivel 3 con 1 uso gratis por descanso corto o largo", "dominas dos conjuros de nivel 3 que siempre tienes preparados y puedes lanzar con especial facilidad.", "CMago;20,Conjuro")));
 
                 objetoRepository.saveAll(List.of(
                     buildInitialObject("CatalogoAMCuerpo", "Arma marcial cuerpo a cuerpo", "varía según el arma elegida", "**Objeto genérico de elección**.\n\n* representa cualquier arma marcial cuerpo a cuerpo permitida por el equipo inicial\n* su perfil final depende de la elección del jugador", TipoObjeto.OBJETO_INTERNO),
@@ -1256,28 +1270,28 @@ public class DevelopmentDataSeeder {
 
                 // ── Pasivas ───────────────────────────────────────────────────
                 List<Habilidad> pasivas = habilidadRepository.saveAll(List.of(
-                    buildSkill("Inmunidad a estados", null, null,
+                    buildSkill("Inmunidad a estados", null,
                         "Asustado, hechizado.",
                         "NPC,PASIVA"),
-                    buildSkill("Resistencias al daño", null, null,
+                    buildSkill("Resistencias al daño", null,
                         "Frío, necrótico; daño contundente, cortante y perforante de ataques no mágicos.",
                         "NPC,PASIVA"),
-                    buildSkill("Sentidos", null, null,
+                    buildSkill("Sentidos", null,
                         "Visión en la oscuridad 120 pies, Percepción pasiva 16.",
                         "NPC,PASIVA"),
-                    buildSkill("Presencia Devoradora", null, null,
+                    buildSkill("Presencia Devoradora", null,
                         "Las criaturas a 30 pies de La Bestia tienen desventaja en tiradas de salvación contra miedo. " +
                         "Las llamas no mágicas dentro de ese rango se atenúan o se extinguen.",
                         "NPC,PASIVA"),
-                    buildSkill("Amo del Bosque Perdido", null, null,
+                    buildSkill("Amo del Bosque Perdido", null,
                         "Mientras esté en bosques o zonas oscuras, La Bestia puede intentar esconderse incluso " +
                         "estando parcialmente visible.",
                         "NPC,PASIVA"),
-                    buildSkill("Susurros de Desesperación", null, null,
+                    buildSkill("Susurros de Desesperación", null,
                         "Al inicio de cada turno de una criatura que pueda oír a La Bestia, esta debe superar una " +
                         "salvación de Sabiduría CD 16 o sufrir desventaja en su siguiente tirada de ataque.",
                         "NPC,PASIVA"),
-                    buildSkill("Forma Incierta", null, null,
+                    buildSkill("Forma Incierta", null,
                         "La Bestia puede atravesar criaturas y objetos como si fueran terreno difícil. " +
                         "Recibe (1d10) de daño de fuerza si termina su turno dentro de un objeto.",
                         "NPC,PASIVA")
@@ -1304,11 +1318,11 @@ public class DevelopmentDataSeeder {
                 // Los ataques con arma llevan "DND,ARMA,OBJETO,{id}" en sus tags
                 // para que el sistema pueda extraer el bono de ataque del arma equipada.
                 List<Habilidad> acciones = habilidadRepository.saveAll(List.of(
-                    buildSkill("Garras de Edelwood", null, "2d10 + 4 + 2d6",
+                    buildSkill("Garras de Edelwood", "2d10 + 4 + 2d6",
                         "Ataque de arma cuerpo a cuerpo: +7 al ataque, alcance 10 pies, un objetivo.\n" +
                         "Impacto: (2d10 + 4) puntos de daño cortante más (2d6) de daño necrótico.",
                         "NPC,ACCION,DND,ARMA,OBJETO," + garras.getId()),
-                    buildSkill("Mirada del Extraviado (Recarga 5)", null, null,
+                    buildSkill("Mirada del Extraviado (Recarga 5)", null,
                         "La Bestia fija sus innumerables ojos sobre una criatura a 60 pies.\n\n" +
                         "El objetivo debe realizar una tirada de salvación de Sabiduría CD 16.\n\n" +
                         "- Si falla, queda asustado durante 1 minuto.\n" +
@@ -1316,21 +1330,21 @@ public class DevelopmentDataSeeder {
                         "o promesas de descanso.\n" +
                         "- Puede repetir la salvación al final de cada turno.",
                         "NPC,ACCION"),
-                    buildSkill("Consumir Esperanza", null, "6d6",
+                    buildSkill("Consumir Esperanza", "6d6",
                         "La Bestia elige una criatura asustada o inconsciente a 5 pies.\n\n" +
                         "El objetivo recibe (6d6) de daño psíquico y La Bestia recupera una cantidad de puntos " +
                         "de golpe igual al daño causado.",
                         "NPC,ACCION,DND,ARMA,OBJETO," + consumirEsperanzaObj.getId()),
-                    buildSkill("Deslizarse entre Sombras (acción adicional)", null, null,
+                    buildSkill("Deslizarse entre Sombras (acción adicional)", null,
                         "La Bestia se teletransporta hasta 30 pies a un espacio en penumbra u oscuridad que pueda ver.",
                         "NPC,ACCION")
                 ));
 
                 // ── Idiomas ───────────────────────────────────────────────────
                 List<Habilidad> idiomasBestia = habilidadRepository.saveAll(List.of(
-                    buildSkill("Idioma: Común", null, null, null, "NPC,IDIOMA"),
-                    buildSkill("Idioma: Silvano", null, null, null, "NPC,IDIOMA"),
-                    buildSkill("Idioma: Telepatía 120 pies", null, null, null, "NPC,IDIOMA")
+                    buildSkill("Idioma: Común", null, null, "NPC,IDIOMA"),
+                    buildSkill("Idioma: Silvano", null, null, "NPC,IDIOMA"),
+                    buildSkill("Idioma: Telepatía 120 pies", null, null, "NPC,IDIOMA")
                 ));
 
                 // ── Vincular habilidades al personaje ─────────────────────────
@@ -1406,20 +1420,20 @@ public class DevelopmentDataSeeder {
                 ));
 
                 List<Habilidad> pasivasGolem = habilidadRepository.saveAll(List.of(
-                    buildSkill("Tirada de salvación", null, null, "Constitución +5", "NPC,PASIVA"),
-                    buildSkill("Resistencias al daño", null, null,
+                    buildSkill("Tirada de salvación", null, "Constitución +5", "NPC,PASIVA"),
+                    buildSkill("Resistencias al daño", null,
                         "Perforante y cortante de ataques no mágicos.",
                         "NPC,PASIVA"),
-                    buildSkill("Inmunidades a condiciones", null, null,
+                    buildSkill("Inmunidades a condiciones", null,
                         "Envenenado, agotamiento, asustado, encantado.",
                         "NPC,PASIVA"),
-                    buildSkill("Sentidos", null, null,
+                    buildSkill("Sentidos", null,
                         "Visión en la oscuridad 60 pies, Percepción pasiva 10.",
                         "NPC,PASIVA"),
-                    buildSkill("Cuerpo de Petricita", null, null,
+                    buildSkill("Cuerpo de Petricita", null,
                         "El golem tiene ventaja en tiradas de salvación contra efectos que alterarían su forma física o lo moverían contra su voluntad.",
                         "NPC,PASIVA"),
-                    buildSkill("Guardián Incansable", null, null,
+                    buildSkill("Guardián Incansable", null,
                         "El golem no necesita dormir, comer ni respirar.",
                         "NPC,PASIVA")
                 ));
@@ -1433,20 +1447,20 @@ public class DevelopmentDataSeeder {
                     .build());
 
                 List<Habilidad> accionesGolem = habilidadRepository.saveAll(List.of(
-                    buildSkill("Multiataque", null, null,
+                    buildSkill("Multiataque", null,
                         "El golem realiza dos ataques de Golpe de Piedra.",
                         "NPC,ACCION"),
-                    buildSkill("Golpe de Piedra", null, "1d8+4",
+                    buildSkill("Golpe de Piedra", "1d8+4",
                         "Ataque de arma cuerpo a cuerpo: +6 al ataque, alcance 5 pies, un objetivo.\n\n" +
                         "Daño: 1d8 + 4 de daño contundente.",
                         "NPC,ACCION,DND,ARMA,OBJETO," + golpePiedraObj.getId()),
-                    buildSkill("Pisotón Sísmico (Recarga 3)", null, null,
+                    buildSkill("Pisotón Sísmico (Recarga 3)", null,
                         "El golem golpea el suelo violentamente. Todas las criaturas a 10 pies deben superar una tirada de salvación de Destreza CD 13 o recibir 3d6 de daño contundente y quedar derribadas. Si superan la salvación, reciben la mitad del daño y no caen.",
                         "NPC,ACCION")
                 ));
 
                 List<Habilidad> idiomasGolem = habilidadRepository.saveAll(List.of(
-                    buildSkill("Idioma: Entiende los idiomas de su creador pero no puede hablar", null, null, null, "NPC,IDIOMA")
+                    buildSkill("Idioma: Entiende los idiomas de su creador pero no puede hablar", null, null, "NPC,IDIOMA")
                 ));
 
                 List<Habilidad> todasGolem = new ArrayList<>();
@@ -1497,14 +1511,14 @@ public class DevelopmentDataSeeder {
                 ));
 
                 List<Habilidad> pasivasCultista = habilidadRepository.saveAll(List.of(
-                    buildSkill("Tirada de salvación", null, null, "Sabiduría +3", "NPC,PASIVA"),
-                    buildSkill("Devoción Fanática", null, null,
+                    buildSkill("Tirada de salvación", null, "Sabiduría +3", "NPC,PASIVA"),
+                    buildSkill("Devoción Fanática", null,
                         "El cultista tiene ventaja en tiradas de salvación contra ser asustado.",
                         "NPC,PASIVA"),
-                    buildSkill("Sentidos", null, null,
+                    buildSkill("Sentidos", null,
                         "Percepción pasiva 11.",
                         "NPC,PASIVA"),
-                    buildSkill("Reservas de Divinidad", null, null,
+                    buildSkill("Reservas de Divinidad", null,
                         "El cultista comienza el combate con 0 puntos de divinidad. Algunas habilidades requieren gastar divinidad.",
                         "NPC,PASIVA")
                 ));
@@ -1518,30 +1532,30 @@ public class DevelopmentDataSeeder {
                     .build());
 
                 List<Habilidad> accionesCultista = habilidadRepository.saveAll(List.of(
-                    buildSkill("Daga Sacrificial", null, "1d4+2",
+                    buildSkill("Daga Sacrificial", "1d4+2",
                         "Ataque de arma cuerpo a cuerpo o a distancia: +4 al ataque, alcance 5 pies.\n\n" +
                         "El cultista realiza un corte rápido con una daga ceremonial cubierta de sangre seca y runas oscuras.\n\n" +
                         "Daño: 1d4 + 2 de daño perforante.",
                         "NPC,ACCION,DND,ARMA,OBJETO," + dagaSacrificialObj.getId()),
-                    buildSkill("Sacrificio Profano", null, null,
+                    buildSkill("Sacrificio Profano", null,
                         "El cultista sacrifica su propia carne o la de un aliado voluntario a 5 pies.\n\n" +
                         "El objetivo pierde la mitad de sus puntos de golpe actuales y el cultista obtiene 2 puntos de divinidad.\n\n" +
                         "Si una criatura muere mediante este efecto, el cultista obtiene ventaja en su siguiente tirada de ataque.",
                         "NPC,ACCION"),
-                    buildSkill("Llama del Eclipse (Consume 1 Divinidad)", null, null,
+                    buildSkill("Llama del Eclipse (Consume 1 Divinidad)", null,
                         "El cultista invoca fuego oscuro desde sus manos hacia una criatura a 30 pies.\n\n" +
                         "El objetivo debe realizar una tirada de salvación de Destreza CD 12. Si falla, recibe 3d6 de daño necrótico y no puede recuperar puntos de golpe hasta el inicio del próximo turno del cultista.\n\n" +
                         "Si supera la salvación, recibe la mitad del daño.",
                         "NPC,ACCION"),
-                    buildSkill("Marca del Hereje (Consume 1 Divinidad)", null, null,
+                    buildSkill("Marca del Hereje (Consume 1 Divinidad)", null,
                         "El cultista señala a una criatura que pueda ver a 30 pies mientras pronuncia una plegaria maldita.\n\n" +
                         "Hasta el final del siguiente turno del cultista, la criatura marcada tiene desventaja en tiradas de salvación de Sabiduría y recibe 1d4 de daño necrótico cada vez que realiza un ataque.",
                         "NPC,ACCION")
                 ));
 
                 List<Habilidad> idiomasCultista = habilidadRepository.saveAll(List.of(
-                    buildSkill("Idioma: Común", null, null, null, "NPC,IDIOMA"),
-                    buildSkill("Idioma: Infernal", null, null, null, "NPC,IDIOMA")
+                    buildSkill("Idioma: Común", null, null, "NPC,IDIOMA"),
+                    buildSkill("Idioma: Infernal", null, null, "NPC,IDIOMA")
                 ));
 
                 List<Habilidad> todasCultista = new ArrayList<>();
@@ -1592,20 +1606,20 @@ public class DevelopmentDataSeeder {
                 ));
 
                 List<Habilidad> pasivasCultistaCorrupto = habilidadRepository.saveAll(List.of(
-                    buildSkill("Tirada de salvación", null, null, "Constitución +5", "NPC,PASIVA"),
-                    buildSkill("Resistencia Oscura", null, null,
+                    buildSkill("Tirada de salvación", null, "Constitución +5", "NPC,PASIVA"),
+                    buildSkill("Resistencia Oscura", null,
                         "Resistencia al daño necrótico.",
                         "NPC,PASIVA"),
-                    buildSkill("Inmunidades a condiciones", null, null,
+                    buildSkill("Inmunidades a condiciones", null,
                         "Asustado.",
                         "NPC,PASIVA"),
-                    buildSkill("Sentidos", null, null,
+                    buildSkill("Sentidos", null,
                         "Visión en la oscuridad 60 pies, Percepción pasiva 11.",
                         "NPC,PASIVA"),
-                    buildSkill("Reservas de Divinidad", null, null,
+                    buildSkill("Reservas de Divinidad", null,
                         "El cultista comienza el combate con 0 puntos de divinidad. Algunas habilidades requieren gastar divinidad.",
                         "NPC,PASIVA"),
-                    buildSkill("Sangre Corrupta", null, null,
+                    buildSkill("Sangre Corrupta", null,
                         "Cuando una criatura golpea al cultista corrupto con un ataque cuerpo a cuerpo estando a 5 pies, recibe 2 de daño necrótico.",
                         "NPC,PASIVA")
                 ));
@@ -1619,22 +1633,22 @@ public class DevelopmentDataSeeder {
                     .build());
 
                 List<Habilidad> accionesCultistaCorrupto = habilidadRepository.saveAll(List.of(
-                    buildSkill("Garra Corrupta", null, "1d10+3",
+                    buildSkill("Garra Corrupta", "1d10+3",
                         "Ataque de arma cuerpo a cuerpo: +5 al ataque, alcance 5 pies, un objetivo.\n\n" +
                         "El cultista ataca con su brazo mutado cubierto de venas negras y energía maldita, desgarrando carne y drenando vitalidad.\n\n" +
                         "Daño: 1d10 + 3 de daño cortante más 1d4 de daño necrótico.",
                         "NPC,ACCION,DND,ARMA,OBJETO," + garraCorruptaObj.getId()),
-                    buildSkill("Sacrificio de Carne", null, null,
+                    buildSkill("Sacrificio de Carne", null,
                         "El cultista desgarra parte de su propio cuerpo o consume la esencia vital de un aliado voluntario a 5 pies.\n\n" +
                         "El objetivo pierde la mitad de sus puntos de golpe actuales y el cultista obtiene 2 puntos de divinidad.\n\n" +
                         "Hasta el final de su siguiente turno, el cultista obtiene +2 a las tiradas de daño.",
                         "NPC,ACCION"),
-                    buildSkill("Terreno Profano (Consume 1 Divinidad)", null, null,
+                    buildSkill("Terreno Profano (Consume 1 Divinidad)", null,
                         "El cultista golpea el suelo liberando corrupción oscura que cubre un área de 15 pies centrada en él durante 3 turnos.\n\n" +
                         "El área se considera terreno difícil para criaturas que no adoren a la entidad del cultista.\n\n" +
                         "Además, cualquier criatura hostil que comience su turno dentro del área recibe 1d6 de daño necrótico.",
                         "NPC,ACCION"),
-                    buildSkill("Mirada del Abismo (Consume 1 Divinidad)", null, null,
+                    buildSkill("Mirada del Abismo (Consume 1 Divinidad)", null,
                         "El cultista fija sus ojos deformados en una criatura a 30 pies.\n\n" +
                         "El objetivo debe superar una tirada de salvación de Sabiduría CD 13 o quedar asustado hasta el final de su siguiente turno.\n\n" +
                         "Mientras esté asustado de esta forma, su velocidad se reduce en 10 pies.",
@@ -1642,8 +1656,8 @@ public class DevelopmentDataSeeder {
                 ));
 
                 List<Habilidad> idiomasCultistaCorrupto = habilidadRepository.saveAll(List.of(
-                    buildSkill("Idioma: Común", null, null, null, "NPC,IDIOMA"),
-                    buildSkill("Idioma: Infernal", null, null, null, "NPC,IDIOMA")
+                    buildSkill("Idioma: Común", null, null, "NPC,IDIOMA"),
+                    buildSkill("Idioma: Infernal", null, null, "NPC,IDIOMA")
                 ));
 
                 List<Habilidad> todasCultistaCorrupto = new ArrayList<>();
@@ -1694,17 +1708,17 @@ public class DevelopmentDataSeeder {
                 ));
 
                 List<Habilidad> pasivasEsqueleto = habilidadRepository.saveAll(List.of(
-                    buildSkill("Tirada de salvación", null, null, "Destreza +4", "NPC,PASIVA"),
-                    buildSkill("Vulnerabilidad", null, null,
+                    buildSkill("Tirada de salvación", null, "Destreza +4", "NPC,PASIVA"),
+                    buildSkill("Vulnerabilidad", null,
                         "Daño contundente.",
                         "NPC,PASIVA"),
-                    buildSkill("Inmunidades a condiciones", null, null,
+                    buildSkill("Inmunidades a condiciones", null,
                         "Agotamiento, envenenado.",
                         "NPC,PASIVA"),
-                    buildSkill("Sentidos", null, null,
+                    buildSkill("Sentidos", null,
                         "Visión en la oscuridad 60 pies, Percepción pasiva 9.",
                         "NPC,PASIVA"),
-                    buildSkill("Naturaleza No Muerta", null, null,
+                    buildSkill("Naturaleza No Muerta", null,
                         "El esqueleto no necesita dormir, comer ni respirar.",
                         "NPC,PASIVA")
                 ));
@@ -1726,12 +1740,12 @@ public class DevelopmentDataSeeder {
                     .build());
 
                 List<Habilidad> accionesEsqueleto = habilidadRepository.saveAll(List.of(
-                    buildSkill("Espada Oxidada", null, "1d6+2",
+                    buildSkill("Espada Oxidada", "1d6+2",
                         "Ataque de arma cuerpo a cuerpo: +4 al ataque, alcance 5 pies, un objetivo.\n\n" +
                         "El esqueleto corta con una espada corroída por el tiempo, moviéndose con precisión antinatural.\n\n" +
                         "Daño: 1d6 + 2 de daño cortante.",
                         "NPC,ACCION,DND,ARMA,OBJETO," + espadaOxidadaObj.getId()),
-                    buildSkill("Arco Quebrado", null, "1d6+2",
+                    buildSkill("Arco Quebrado", "1d6+2",
                         "Ataque de arma a distancia: +4 al ataque, alcance 80/320 pies, un objetivo.\n\n" +
                         "El esqueleto dispara una flecha astillada desde un arco antiguo cubierto de polvo y grietas.\n\n" +
                         "Daño: 1d6 + 2 de daño perforante.",
@@ -1739,7 +1753,7 @@ public class DevelopmentDataSeeder {
                 ));
 
                 List<Habilidad> idiomasEsqueleto = habilidadRepository.saveAll(List.of(
-                    buildSkill("Idioma: Entiende los idiomas que conoció en vida pero no puede hablar", null, null, null, "NPC,IDIOMA")
+                    buildSkill("Idioma: Entiende los idiomas que conoció en vida pero no puede hablar", null, null, "NPC,IDIOMA")
                 ));
 
                 List<Habilidad> todasEsqueleto = new ArrayList<>();
@@ -1791,17 +1805,17 @@ public class DevelopmentDataSeeder {
                 ));
 
                 List<Habilidad> pasivasZombie = habilidadRepository.saveAll(List.of(
-                    buildSkill("Tirada de salvación", null, null, "Constitución +5", "NPC,PASIVA"),
-                    buildSkill("Fortaleza No Muerta", null, null,
+                    buildSkill("Tirada de salvación", null, "Constitución +5", "NPC,PASIVA"),
+                    buildSkill("Fortaleza No Muerta", null,
                         "Cuando el zombie es reducido a 0 puntos de golpe, debe realizar una tirada de salvación de Constitución CD 5 + el daño recibido, a menos que el daño sea radiante o de un golpe crítico. Si tiene éxito, cae a 1 punto de golpe en lugar de 0.",
                         "NPC,PASIVA"),
-                    buildSkill("Inmunidades a condiciones", null, null,
+                    buildSkill("Inmunidades a condiciones", null,
                         "Agotamiento, envenenado.",
                         "NPC,PASIVA"),
-                    buildSkill("Sentidos", null, null,
+                    buildSkill("Sentidos", null,
                         "Visión en la oscuridad 60 pies, Percepción pasiva 8.",
                         "NPC,PASIVA"),
-                    buildSkill("Hediondez Cadavérica", null, null,
+                    buildSkill("Hediondez Cadavérica", null,
                         "Las criaturas que comiencen su turno a 5 pies del zombie deben superar una tirada de salvación de Constitución CD 10 o tener desventaja en su siguiente tirada de ataque debido al nauseabundo olor.",
                         "NPC,PASIVA")
                 ));
@@ -1823,12 +1837,12 @@ public class DevelopmentDataSeeder {
                     .build());
 
                 List<Habilidad> accionesZombie = habilidadRepository.saveAll(List.of(
-                    buildSkill("Golpe Podrido", null, "1d6+1",
+                    buildSkill("Golpe Podrido", "1d6+1",
                         "Ataque de arma cuerpo a cuerpo: +3 al ataque, alcance 5 pies, un objetivo.\n\n" +
                         "El zombie lanza un lento pero brutal golpe con sus brazos putrefactos y cubiertos de sangre seca.\n\n" +
                         "Daño: 1d6 + 1 de daño contundente.",
                         "NPC,ACCION,DND,ARMA,OBJETO," + golpePudridoObj.getId()),
-                    buildSkill("Mordida Infecta", null, "1d8+1",
+                    buildSkill("Mordida Infecta", "1d8+1",
                         "Ataque de arma cuerpo a cuerpo: +3 al ataque, alcance 5 pies, un objetivo derribado o incapacitado.\n\n" +
                         "El zombie clava sus dientes ennegrecidos en la carne de la víctima intentando desgarrarla y propagar su corrupción.\n\n" +
                         "Daño: 1d8 + 1 de daño perforante.\n\n" +
@@ -1837,7 +1851,7 @@ public class DevelopmentDataSeeder {
                 ));
 
                 List<Habilidad> idiomasZombie = habilidadRepository.saveAll(List.of(
-                    buildSkill("Idioma: Entiende los idiomas que conoció en vida pero no puede hablar", null, null, null, "NPC,IDIOMA")
+                    buildSkill("Idioma: Entiende los idiomas que conoció en vida pero no puede hablar", null, null, "NPC,IDIOMA")
                 ));
 
                 List<Habilidad> todasZombie = new ArrayList<>();
@@ -1870,6 +1884,11 @@ public class DevelopmentDataSeeder {
                     passwordEncoder.encode("Sistema2024!"),
                     null
                 )));
+
+            seedMapIfMissing(mapaRepository,
+                "mapa_base",
+                "https://res.cloudinary.com/doxqtmi46/image/upload/v1778449741/imagen_base_pesta%C3%B1a_xgtcmo.jpg",
+                false, "sistema,base", sistema);
 
             seedMapIfMissing(mapaRepository,
                 "Templo Druídico",
@@ -2006,14 +2025,12 @@ public class DevelopmentDataSeeder {
 
     private Habilidad buildSkill(
             String nombre,
-            String imagen,
             String formula,
             String descripcion,
             String tags
     ) {
         return Habilidad.builder()
                 .nombre(nombre)
-                .imagen(imagen)
                 .formula(formula)
                 .descripcion(descripcion)
                 .tags(tags)
@@ -2168,7 +2185,6 @@ public class DevelopmentDataSeeder {
             if (existente == null) {
                 habilidadRepository.save(buildSkill(
                         habilidad.nombre(),
-                        null,
                         habilidad.formula(),
                         habilidad.descripcion(),
                         habilidad.tags()
@@ -2197,7 +2213,6 @@ public class DevelopmentDataSeeder {
             }
 
             existente.setNombre(habilidad.getNombre());
-            existente.setImagen(habilidad.getImagen());
             existente.setFormula(habilidad.getFormula());
             existente.setDescripcion(habilidad.getDescripcion());
             existente.setTags(habilidad.getTags());
@@ -2532,16 +2547,16 @@ public class DevelopmentDataSeeder {
 
     private List<Objeto> buildMbWeaponList() {
         return List.of(
-            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;1",  "Fémur",             "d4+fuerza",    "Hueso largo usado como arma. Contundente y primitivo.",           TipoObjeto.ARMA),
-            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;2",  "Bastón",            "d4+fuerza",    "Palo de madera resistente, equilibrado y versátil.",              TipoObjeto.ARMA),
-            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;3",  "Espada corta",      "d4+fuerza",    "Hoja corta de filo recto, ligera y fácil de manejar.",            TipoObjeto.ARMA),
-            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;4",  "Cuchillo",          "d4+fuerza",    "Hoja pequeña y afilada, fácil de ocultar.",                       TipoObjeto.ARMA),
-            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;5",  "Martillo de guerra","d6+fuerza",    "Pesado martillo diseñado para aplastar huesos y armaduras.",      TipoObjeto.ARMA),
-            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;6",  "Espada",            "d6+fuerza",    "Hoja larga de doble filo, equilibrada para ataque y defensa.",    TipoObjeto.ARMA),
-            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;7",  "Arco",              "d6+presencia", "Arma a distancia. Requiere flechas.",                             TipoObjeto.ARMA),
-            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;8",  "Mayal",             "d8+fuerza",    "Cadena con pesa. Difícil de bloquear.",                           TipoObjeto.ARMA),
-            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;9",  "Ballesta",          "d8+presencia", "Arma de tiro mecánico. Potente y precisa.",                       TipoObjeto.ARMA),
-            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;10", "Zweihänder",        "d10+fuerza",   "Espadón a dos manos de devastador alcance.",                      TipoObjeto.ARMA),
+            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;1",  "Fémur",             "1d4+fuerza",    "Hueso largo usado como arma. Contundente y primitivo.",           TipoObjeto.ARMA),
+            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;2",  "Bastón",            "1d4+fuerza",    "Palo de madera resistente, equilibrado y versátil.",              TipoObjeto.ARMA),
+            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;3",  "Espada corta",      "1d4+fuerza",    "Hoja corta de filo recto, ligera y fácil de manejar.",            TipoObjeto.ARMA),
+            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;4",  "Cuchillo",          "1d4+fuerza",    "Hoja pequeña y afilada, fácil de ocultar.",                       TipoObjeto.ARMA),
+            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;5",  "Martillo de guerra","1d6+fuerza",    "Pesado martillo diseñado para aplastar huesos y armaduras.",      TipoObjeto.ARMA),
+            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;6",  "Espada",            "1d6+fuerza",    "Hoja larga de doble filo, equilibrada para ataque y defensa.",    TipoObjeto.ARMA),
+            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;7",  "Arco",              "1d6+presencia", "Arma a distancia. Requiere flechas.",                             TipoObjeto.ARMA),
+            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;8",  "Mayal",             "1d8+fuerza",    "Cadena con pesa. Difícil de bloquear.",                           TipoObjeto.ARMA),
+            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;9",  "Ballesta",          "1d8+presencia", "Arma de tiro mecánico. Potente y precisa.",                       TipoObjeto.ARMA),
+            buildInitialObject(MB_WEAPON_CATALOG_TAG + ",ArmaIdx;10", "Zweihänder",        "1d10+fuerza",   "Espadón a dos manos de devastador alcance.",                      TipoObjeto.ARMA),
             // ── Armas especiales (equipo de clase / botín único) ─────────────────
             buildInitialObject(MB_SPECIAL_WEAPON_CATALOG_TAG + ",DesertorColmilludo,DesertorItemIdx;2", "La cimitarra marrón de Galgenbeck", "d6+fuerza",
                 "Una espada apestosa que sacaste de una letrina militar. DR10 ataque y defensa mientras la manejas. Hay una probabilidad de 1 entre 6 de que un enemigo herido sufra una potente sepsis y muera en 10 minutos.",
@@ -2549,7 +2564,7 @@ public class DevelopmentDataSeeder {
             buildInitialObject(MB_SPECIAL_WEAPON_CATALOG_TAG + ",DesertorColmilludo,DesertorItemIdx;4", "Honda del viejo Sigûrd", "2d4+presencia",
                 "Sigûrd fue el hombre más fuerte al que le has roído la garganta. Tejida con su larga cabellera gris, esta honda nunca te ha fallado. Requiere rocas del tamaño de un puño que, quizás lamentablemente, están por todas partes.",
                 TipoObjeto.ARMA),
-            buildInitialObject(MB_SPECIAL_WEAPON_CATALOG_TAG + ",DesertorColmilludo,DesertorItemIdx;6", "La herradura del caballo de la Muerte", "d4+presencia",
+            buildInitialObject(MB_SPECIAL_WEAPON_CATALOG_TAG + ",DesertorColmilludo,DesertorItemIdx;6", "La herradura del caballo de la Muerte", "1d4+presencia",
                 "Parece normal, pero desde que la encontraste en una oscura cripta estás convencido de que esta herradura proviene del mismísimo caballo de la Muerte. Golpea con CD10. Hay una probabilidad de 1 entre 6 de que la herradura rompa el cráneo, matando instantáneamente a criaturas de tamaño pequeño o mediano. La herradura vuelve a tu mano como un bumerán.",
                 TipoObjeto.ARMA)
         );
@@ -2557,9 +2572,9 @@ public class DevelopmentDataSeeder {
 
     private List<Objeto> buildMbArmorList() {
         return List.of(
-            buildInitialObject(MB_ARMOR_CATALOG_TAG + ",ArmaduraNivel;1", "Armadura ligera (nivel 1)", "d2", "Daño recibido -d2. Protección básica. Sin penalizaciones a la Agilidad.",                TipoObjeto.ARMADURA),
-            buildInitialObject(MB_ARMOR_CATALOG_TAG + ",ArmaduraNivel;2", "Armadura media (nivel 2)",  "d4", "Daño recibido -d4. CD+2 en pruebas de Agilidad, incluida la defensa.",                   TipoObjeto.ARMADURA),
-            buildInitialObject(MB_ARMOR_CATALOG_TAG + ",ArmaduraNivel;3", "Armadura pesada (nivel 3)", "d6", "Daño recibido -d6. CD+4 en la prueba de Agilidad, la defensa es CD+2.",                  TipoObjeto.ARMADURA),
+            buildInitialObject(MB_ARMOR_CATALOG_TAG + ",ArmaduraNivel;1", "Armadura ligera (nivel 1)", "1d2", "Daño recibido -1d2. Protección básica. Sin penalizaciones a la Agilidad.",                TipoObjeto.ARMADURA),
+            buildInitialObject(MB_ARMOR_CATALOG_TAG + ",ArmaduraNivel;2", "Armadura media (nivel 2)",  "1d4", "Daño recibido -1d4. CD+2 en pruebas de Agilidad, incluida la defensa.",                   TipoObjeto.ARMADURA),
+            buildInitialObject(MB_ARMOR_CATALOG_TAG + ",ArmaduraNivel;3", "Armadura pesada (nivel 3)", "1d6", "Daño recibido -1d6. CD+4 en la prueba de Agilidad, la defensa es CD+2.",                  TipoObjeto.ARMADURA),
             buildInitialObject(MB_ARMOR_CATALOG_TAG + ",EscudoMB,ItemSinClase2;9", "Escudo",            "-1", "-1 PV de daño o hace que el escudo se rompa para ignorar un ataque.", TipoObjeto.ARMADURA)
         );
     }
@@ -2621,65 +2636,65 @@ public class DevelopmentDataSeeder {
     private void seedMbScrollCatalogEntries(HabilidadRepository habilidadRepository) {
         List<Habilidad> scrolls = List.of(
             // ── Pergaminos Impuros ─────────────────────────────────────────────
-            buildSkill("Las palmeras abren la Puerta del Sur",    null, null,
+            buildSkill("Las palmeras abren la Puerta del Sur",    null,
                 "Una bola de fuego golpea a d2 criaturas e inflige d8 de daño por criatura.",
                 MB_SCROLL_IMPURE_CATALOG_TAG + ",PergaminoImpuroIdx;1"),
-            buildSkill("Lengua de Eris",                          null, null,
+            buildSkill("Lengua de Eris",                          null,
                 "Una criatura de tu elección queda confundida durante 10 minutos.",
                 MB_SCROLL_IMPURE_CATALOG_TAG + ",PergaminoImpuroIdx;2"),
-            buildSkill("Te-le-kin-esis",                          null, null,
+            buildSkill("Te-le-kin-esis",                          null,
                 "Mueves un objeto hacia arriba 1d10 × 10 pies durante d6 minutos.",
                 MB_SCROLL_IMPURE_CATALOG_TAG + ",PergaminoImpuroIdx;3"),
-            buildSkill("Levitación de Lucy-Fire",                 null, null,
+            buildSkill("Levitación de Lucy-Fire",                 null,
                 "Flotar durante Presencia + d10 asaltos.",
                 MB_SCROLL_IMPURE_CATALOG_TAG + ",PergaminoImpuroIdx;4"),
-            buildSkill("Demonio de los capilares",                null, null,
+            buildSkill("Demonio de los capilares",                null,
                 "Una criatura se asfixia durante d6 asaltos, perdiendo d4 PV por asalto.",
                 MB_SCROLL_IMPURE_CATALOG_TAG + ",PergaminoImpuroIdx;5"),
-            buildSkill("Nueve señales violetas desatan la tormenta", null, null,
+            buildSkill("Nueve señales violetas desatan la tormenta", null,
                 "Produce d2 rayos que infligen d6 de daño cada uno.",
                 MB_SCROLL_IMPURE_CATALOG_TAG + ",PergaminoImpuroIdx;6"),
-            buildSkill("Metzhuotl ciega tu ojo",                  null, null,
+            buildSkill("Metzhuotl ciega tu ojo",                  null,
                 "Una criatura se vuelve invisible durante d6 asaltos o hasta que reciba daño, ataca/defiende con CD6.",
                 MB_SCROLL_IMPURE_CATALOG_TAG + ",PergaminoImpuroIdx;7"),
-            buildSkill("Psicopompo asqueroso",                    null, null,
+            buildSkill("Psicopompo asqueroso",                    null,
                 "Invoca (d6): 1-3 d4 esqueletos, 4-6 d4 zombis.",
                 MB_SCROLL_IMPURE_CATALOG_TAG + ",PergaminoImpuroIdx;8"),
-            buildSkill("El párpado que ciega la mente",           null, null,
+            buildSkill("El párpado que ciega la mente",           null,
                 "d4 criaturas se quedan dormidas durante una hora a menos que superen una prueba de CD14.",
                 MB_SCROLL_IMPURE_CATALOG_TAG + ",PergaminoImpuroIdx;9"),
-            buildSkill("Muerte",                                  null, null,
+            buildSkill("Muerte",                                  null,
                 "Todas las criaturas en un radio de 30 pies pierden un total de 4d10 PV.",
                 MB_SCROLL_IMPURE_CATALOG_TAG + ",PergaminoImpuroIdx;10"),
             // ── Pergaminos Sagrados ────────────────────────────────────────────
-            buildSkill("Gracia del santo muerto",                 null, null,
+            buildSkill("Gracia del santo muerto",                 null,
                 "d2 criaturas recuperan d10 PV cada una.",
                 MB_SCROLL_SACRED_CATALOG_TAG + ",PergaminoSagradoIdx;1"),
-            buildSkill("Gracia por un pecador",                   null, null,
+            buildSkill("Gracia por un pecador",                   null,
                 "Una criatura de tu elección obtiene +d6 en una tirada (daño, prueba, etc.)",
                 MB_SCROLL_SACRED_CATALOG_TAG + ",PergaminoSagradoIdx;2"),
-            buildSkill("Susurros a través de la puerta",          null, null,
+            buildSkill("Susurros a través de la puerta",          null,
                 "Haz tres preguntas a una criatura fallecida.",
                 MB_SCROLL_SACRED_CATALOG_TAG + ",PergaminoSagradoIdx;3"),
-            buildSkill("Égida del dolor",                         null, null,
+            buildSkill("Égida del dolor",                         null,
                 "Una criatura de tu elección gana 2d6 PV extra durante 10 asaltos.",
                 MB_SCROLL_SACRED_CATALOG_TAG + ",PergaminoSagradoIdx;4"),
-            buildSkill("Destino insatisfecho",                    null, null,
+            buildSkill("Destino insatisfecho",                    null,
                 "Una criatura, muerta desde hace no más de una semana, se despierta con terribles recuerdos.",
                 MB_SCROLL_SACRED_CATALOG_TAG + ",PergaminoSagradoIdx;5"),
-            buildSkill("Discurso bestial",                        null, null,
+            buildSkill("Discurso bestial",                        null,
                 "Puede hablar con animales durante d20 minutos.",
                 MB_SCROLL_SACRED_CATALOG_TAG + ",PergaminoSagradoIdx;6"),
-            buildSkill("Falso amanecer/carruaje de la noche",     null, null,
+            buildSkill("Falso amanecer/carruaje de la noche",     null,
                 "Luz u oscuridad total durante 3d10 minutos.",
                 MB_SCROLL_SACRED_CATALOG_TAG + ",PergaminoSagradoIdx;7"),
-            buildSkill("Paso hermético",                          null, null,
+            buildSkill("Paso hermético",                          null,
                 "Encuentras todas las trampas en tu camino durante 2d10 minutos.",
                 MB_SCROLL_SACRED_CATALOG_TAG + ",PergaminoSagradoIdx;8"),
-            buildSkill("Resplandor consumidor de Roskoe",         null, null,
+            buildSkill("Resplandor consumidor de Roskoe",         null,
                 "d4 criaturas pierden d8 PV cada una.",
                 MB_SCROLL_SACRED_CATALOG_TAG + ",PergaminoSagradoIdx;9"),
-            buildSkill("Sintaxis",                                null, null,
+            buildSkill("Sintaxis",                                null,
                 "Una enoquiana criatura obedece ciegamente una sola orden.",
                 MB_SCROLL_SACRED_CATALOG_TAG + ",PergaminoSagradoIdx;10")
         );
@@ -2703,66 +2718,66 @@ public class DevelopmentDataSeeder {
     private void seedMbHabilidadCatalogEntries(HabilidadRepository habilidadRepository) {
         List<Habilidad> habilidades = List.of(
             // ── Escoria nacida en las alcantarillas ───────────────────────────
-            buildSkill("El pinchazo del cobarde", null, null,
+            buildSkill("El pinchazo del cobarde", null,
                 "Al atacar por sorpresa, haz una prueba de Agilidad CD10. Si tienes éxito, golpeas automáticamente una vez con un arma ligera de una mano, lo que causa daño normal +3.",
                 MB_ESCORIA_SKILL_TAG + ",EscEspecialidadIdx;1"),
-            buildSkill("Dedos sucios", null, null,
+            buildSkill("Dedos sucios", null,
                 "Tus pequeños dedos serpenteantes se meten en los bolsillos y abren cerraduras con una prueba de Agilidad CD8. ¡También comienzas con ganzúas!",
                 MB_ESCORIA_SKILL_TAG + ",EscEspecialidadIdx;2"),
-            buildSkill("Escupidor abominable", null, null,
+            buildSkill("Escupidor abominable", null,
                 "Tu flema es viscosa, grumosa, vil y balísticamente precisa a corta distancia. Puedes escupir d2 veces durante una pelea. Realiza una prueba de Presencia CD8 para atinar. Los objetivos quedan cegados, con arcadas y vómitos durante d4 asaltos. Cualquiera que sea testigo, amigos y enemigos, debe hacer una prueba de Resistencia para no vomitar también (CD10 para PJs, CD12 para enemigos).",
                 MB_ESCORIA_SKILL_TAG + ",EscEspecialidadIdx;3"),
-            buildSkill("Escapar del destino", null, null,
+            buildSkill("Escapar del destino", null,
                 "Cada vez que uses un presagio, hay un 50% de probabilidad de que no se gaste.",
                 MB_ESCORIA_SKILL_TAG + ",EscEspecialidadIdx;4"),
-            buildSkill("Sigilo excretor", null, null,
+            buildSkill("Sigilo excretor", null,
                 "Tienes una habilidad asombrosa, casi sobrenatural, para esconderte en el lodo, los escombros y la suciedad. Cuando estás oculto en estas condiciones, se requiere una prueba de Presencia CD16 para descubrirte.",
                 MB_ESCORIA_SKILL_TAG + ",EscEspecialidadIdx;5"),
-            buildSkill("Esquivar la muerte", null, null,
+            buildSkill("Esquivar la muerte", null,
                 "Eres tan desagradable, irrelevante, repugnante y vil que incluso la Muerte preferiría evitarte si pudiera. Al morir, si existe la más mínima posibilidad de que hayas sobrevivido, hay un 50% de probabilidad de que lo hayas hecho. Si tienes éxito, después de 10 asaltos vuelves a aparecer con d4 PV y una explicación poco probable de tu escapatoria.",
                 MB_ESCORIA_SKILL_TAG + ",EscEspecialidadIdx;6"),
             // ── Desertor Colmilludo ───────────────────────────────────────────
-            buildSkill("Viejo sabueso", null, null,
+            buildSkill("Viejo sabueso", null,
                 "Asmática, engañada y en sus últimas patas, esta criatura arrugada todavía tiene un olfato soberbio y puede olfatear tesoros en los escombros más repugnantes. Ataca con CD10 (mordisco d6). Defiende con CD12, 10 PV. Se vuelve frenético cuando hay goblins y berserkers alrededor.",
                 MB_DESERTOR_SKILL_TAG + ",DesertorItemIdx;5"),
             // ── Ermitaño esotérico ────────────────────────────────────────────
-            buildSkill("Maestro del Destino", null, null,
+            buildSkill("Maestro del Destino", null,
                 "¿De qué sirven los mapas cuando la sustancia de la causalidad misma está abierta a ti? Conoces el camino correcto con una prueba de Presencia CD8.",
                 MB_ERMITANO_SKILL_TAG + ",ErmitanoEspecialidadIdx;1"),
-            buildSkill("Portavoz de verdades", null, null,
+            buildSkill("Portavoz de verdades", null,
                 "Dos veces al día usa tu sabiduría, conocimiento, consejo y calma interior para aportar claridad a una criatura que elijas. La CD de la siguiente prueba que realice se reduce en 4.",
                 MB_ERMITANO_SKILL_TAG + ",ErmitanoEspecialidadIdx;3"),
-            buildSkill("Iniciado del Colegio Invisible", null, null,
+            buildSkill("Iniciado del Colegio Invisible", null,
                 "Una vez al día puedes invocar D2 pergaminos cuyo poder solo se puede usar una vez. Tira un d4: con 1-2 los pergaminos son sagrados; con 3-4, impuros. Si no se usan antes del amanecer, se convierten en cenizas.",
                 MB_ERMITANO_SKILL_TAG + ",ErmitanoEspecialidadIdx;4"),
-            buildSkill("Bardo de los Eternos", null, null,
+            buildSkill("Bardo de los Eternos", null,
                 "Aprendiste tus melodías en el Otro Mundo. La música de tu arpa da +D4 en las tiradas de reacción.",
                 MB_ERMITANO_SKILL_TAG + ",ErmitanoEspecialidadIdx;5"),
-            buildSkill("Halcón como arma", null, null,
+            buildSkill("Halcón como arma", null,
                 "Tu astuto halcón casi inteligente es leal solo a ti. Incluso sin compartir lenguaje, entiendes sus gritos mientras vigila, explora y ataca a los enemigos. Ataca/defiende CD10 (garras/mordisco D4), PV 8.",
                 MB_ERMITANO_SKILL_TAG + ",ErmitanoEspecialidadIdx;6"),
             // ── Realeza en desgracia ──────────────────────────────────────────
-            buildSkill("\"Poltroon\" el bufón de la Corte", null, null,
+            buildSkill("\"Poltroon\" el bufón de la Corte", null,
                 "Si bien es prácticamente inútil, personalmente irritante y emocionalmente agotador, las cabriolas de Poltroon en realidad hacen que los enemigos pierdan la concentración en combate. Durante los dos primeros asaltos, tú y tus aliados obtenéis +2 en ataque/defensa.",
                 MB_REALEZA_SKILL_TAG + ",RealezaItemIdx;2"),
-            buildSkill("Barbarister el caballo increíble", null, null,
+            buildSkill("Barbarister el caballo increíble", null,
                 "Barbarister es mágico, inteligente, arrogante y vanidoso. También puede hablar. Si puedes persuadirle de que se involucre, Barbarister ocasionalmente suma +2 a las pruebas de Presencia que impliquen lógica e intelecto. El caballo puede ser más inteligente que tú y es muy consciente de ello.",
                 MB_REALEZA_SKILL_TAG + ",RealezaItemIdx;3"),
-            buildSkill("Hamfund el escudero", null, null,
+            buildSkill("Hamfund el escudero", null,
                 "Este sirviente intensamente cobarde actúa solo como guardián de la vaina de la espada maldita Eurekia. Una vez por combate, si se puede encontrar a Ham, se puede desenvainar a Eurekia. La espada hace 2d6 de daño y por cada golpe tira un d6. Con un 1, el escudero muere y Eurekia desaparece para siempre.",
                 MB_REALEZA_SKILL_TAG + ",RealezaItemIdx;4"),
             // ── Herborista Ocultista ──────────────────────────────────────────
-            buildSkill("Creación de decocciones", null, null,
+            buildSkill("Creación de decocciones", null,
                 "Diariamente tiene los materiales para crear dos decocciones determinadas al azar. Puede preparar un total de d4 dosis. Si no se usan, pierden vitalidad después de 24 horas.",
                 MB_HERBORISTA_SKILL_TAG + ",HerboristaHabilidadIdx;1"),
             // ── Compañeros animales (Sin Clase) ──────────────────────────────
-            buildSkill("Burro", null, null,
+            buildSkill("Burro", null,
                 "Animal de carga. Puede transportar tu equipo.",
                 MB_HABILIDAD_CATALOG_TAG + ",ContenedorSinClase;6"),
-            buildSkill("Perro pequeño pero feroz", null, null,
+            buildSkill("Perro pequeño pero feroz", null,
                 "d6+2 PV, mordisco d4. Solo obedece a su dueño.",
                 MB_HABILIDAD_CATALOG_TAG + ",ItemSinClase2;3"),
-            buildSkill("Monos", null, null,
+            buildSkill("Monos", null,
                 "Monos que te ignoran pero te quieren (d4+2 PV, puñetazo/mordisco d4).",
                 MB_HABILIDAD_CATALOG_TAG + ",ItemSinClase2;4")
         );
@@ -3028,7 +3043,6 @@ public class DevelopmentDataSeeder {
                 .findFirst();
 
         if (existingOpt.isPresent()) {
-            // Update existing enemy: fix habilidad formulas and biography
             Personaje existing = existingOpt.get();
             boolean dirty = false;
             if (biografia != null && !biografia.equals(existing.getBiografia())) {
@@ -3037,12 +3051,24 @@ public class DevelopmentDataSeeder {
             }
             if (dirty) personajeRepository.save(existing);
             for (com.fosteriaVTT.fosteriaVTT_backend.Habilidad.Habilidad h : existing.getHabilidades()) {
-                if (h.getFormula() == null) continue;
-                String fixed = fixMBFormula(h.getFormula());
-                if (!fixed.equals(h.getFormula())) {
-                    h.setFormula(fixed);
-                    habilidadRepository.save(h);
+                boolean changed = false;
+                if (h.getFormula() != null) {
+                    String fixed = fixMBFormula(h.getFormula());
+                    if (!fixed.equals(h.getFormula())) {
+                        h.setFormula(fixed);
+                        changed = true;
+                    }
                 }
+                // Para armas y armaduras de enemigos el dado está en descripcion, no en formula
+                if (h.getDescripcion() != null && h.getTags() != null
+                        && (h.getTags().contains("MBEnemyArma") || h.getTags().contains("MBEnemyArmadura"))) {
+                    String fixed = fixMBFormula(h.getDescripcion());
+                    if (!fixed.equals(h.getDescripcion())) {
+                        h.setDescripcion(fixed);
+                        changed = true;
+                    }
+                }
+                if (changed) habilidadRepository.save(h);
             }
             return;
         }
@@ -3073,28 +3099,28 @@ public class DevelopmentDataSeeder {
         // Habilidades
         for (String[] arma : armas) {
             boolean esEspecial = Boolean.parseBoolean(arma[2]);
-            Habilidad h = buildSkill(arma[0], null, arma[1], null,
+            Habilidad h = buildSkill(arma[0], null, arma[1],
                     esEspecial ? MB_ENEMY_ARMA_ESP_TAG : MB_ENEMY_ARMA_TAG);
             h = habilidadRepository.save(h);
             personaje.getHabilidades().add(h);
         }
         for (String[] armadura : armaduras) {
-            Habilidad h = buildSkill(armadura[0], null, armadura[1], null, MB_ENEMY_ARMADURA_TAG);
+            Habilidad h = buildSkill(armadura[0], null, armadura[1], MB_ENEMY_ARMADURA_TAG);
             h = habilidadRepository.save(h);
             personaje.getHabilidades().add(h);
         }
         if (rasgo != null && !rasgo.isBlank()) {
-            Habilidad h = buildSkill("Rasgos", null, null, rasgo, MB_ENEMY_RASGO_TAG);
+            Habilidad h = buildSkill("Rasgos", null, rasgo, MB_ENEMY_RASGO_TAG);
             h = habilidadRepository.save(h);
             personaje.getHabilidades().add(h);
         }
         if (especial != null && !especial.isBlank()) {
-            Habilidad h = buildSkill("Especial", null, null, especial, MB_ENEMY_ESPECIAL_TAG);
+            Habilidad h = buildSkill("Especial", null, especial, MB_ENEMY_ESPECIAL_TAG);
             h = habilidadRepository.save(h);
             personaje.getHabilidades().add(h);
         }
         if (loot != null && !loot.isBlank()) {
-            Habilidad h = buildSkill("Loot", null, null, loot, MB_ENEMY_LOOT_TAG);
+            Habilidad h = buildSkill("Loot", null, loot, MB_ENEMY_LOOT_TAG);
             h = habilidadRepository.save(h);
             personaje.getHabilidades().add(h);
         }

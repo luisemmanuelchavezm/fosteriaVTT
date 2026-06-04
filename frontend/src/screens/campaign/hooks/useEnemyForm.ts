@@ -5,6 +5,11 @@ import {
   addHabilidadNpc,
   type CreatedCharacterResponse,
 } from "../../personaje/utils/dndApi";
+import {
+  crearNpcAdmin,
+  addHabilidadNpcAdmin,
+  addDndInventoryAdmin,
+} from "../../../lib/adminApi";
 import { ABILITY_STATS } from "../../personaje/creatednd/utils/statisticsUtils";
 import {
   SKILL_ROWS,
@@ -29,6 +34,7 @@ export function useEnemyForm(
   sistemaDeJuego: string,
   onCreated: (character: CreatedCharacterResponse) => void,
   onClose: () => void,
+  adminMode = false,
 ) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -322,33 +328,37 @@ export function useEnemyForm(
         estadisticas[`Salvacion de ${sv.ability}`] = sv.bonus;
       }
 
-      const result = await crearNpc(
-        token,
-        {
-          nombre: nombre.trim(),
-          tipo,
-          sistemaDeJuego,
-          vd: vd.trim() || undefined,
-          biografia: biografia.trim() || undefined,
-          estadisticas,
-        },
-        portrait,
-      );
+      const npcPayload = {
+        nombre: nombre.trim(),
+        tipo,
+        sistemaDeJuego,
+        vd: vd.trim() || undefined,
+        biografia: biografia.trim() || undefined,
+        estadisticas,
+      };
+
+      const result = adminMode
+        ? await crearNpcAdmin(token, npcPayload, portrait)
+        : await crearNpc(token, npcPayload, portrait);
 
       const npcId = result.id;
+      const addInventory = adminMode
+        ? addDndInventoryAdmin
+        : addDndCharacterInventoryItem;
+      const addHabilidad = adminMode ? addHabilidadNpcAdmin : addHabilidadNpc;
 
       for (const w of weapons) {
-        await addDndCharacterInventoryItem(token, npcId, w.payload);
+        await addInventory(token, npcId, w.payload);
       }
       for (const p of pasivas) {
-        await addHabilidadNpc(token, npcId, {
+        await addHabilidad(token, npcId, {
           nombre: p.nombre.trim(),
           descripcion: p.descripcion.trim() || null,
           tags: "NPC,PASIVA",
         });
       }
       for (const a of acciones) {
-        await addHabilidadNpc(token, npcId, {
+        await addHabilidad(token, npcId, {
           nombre: a.nombre.trim(),
           descripcion: a.descripcion.trim() || null,
           tags: "NPC,ACCION",
@@ -359,7 +369,7 @@ export function useEnemyForm(
           .split(",")
           .map((i) => i.trim())
           .filter(Boolean)) {
-          await addHabilidadNpc(token, npcId, {
+          await addHabilidad(token, npcId, {
             nombre: `Idioma: ${idioma}`,
             descripcion: null,
             tags: "NPC,IDIOMA",

@@ -15,6 +15,8 @@ public interface JugadorRepository extends JpaRepository<Jugador, Long> {
 
     List<Jugador> findTop5ByUsuarioIdOrderByUltimaVezAccedidoDesc(Long usuarioId);
 
+    long countByUsuarioId(Long usuarioId);
+
     List<Jugador> findByUsuarioIdOrderByUltimaVezAccedidoDesc(Long usuarioId);
 
     List<Jugador> findByCampañaIdOrderByUsuarioUsernameAsc(Long campañaId);

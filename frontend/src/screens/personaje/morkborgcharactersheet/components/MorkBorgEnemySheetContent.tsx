@@ -170,6 +170,13 @@ export default function MorkBorgEnemySheetContent({
     nombre: string,
     hasSpecial: boolean,
   ) => {
+    // Strip ability modifiers (@mb_fuerza or +fuerza style) — enemies have no character stats
+    const cleanFormula =
+      formula
+        .replace(/\s*[+]\s*@?mb_\w+/gi, "")
+        .replace(/@?mb_\w+\s*[+]\s*/gi, "")
+        .replace(/\s*[+]\s*(?:fuerza|agilidad|presencia|resistencia)\b/gi, "")
+        .trim() || "1d4";
     setArmorDisplaySummary(null);
     pendingRollRef.current = {
       expr: `${nombre} (${formula})`,
@@ -177,7 +184,7 @@ export default function MorkBorgEnemySheetContent({
       isArmor: false,
       armorSides: 0,
     };
-    rollExpression(nombre, formula);
+    rollExpression(nombre, cleanFormula);
   };
 
   const handleRollArmor = (formula: string, nombre: string) => {
@@ -374,12 +381,15 @@ export default function MorkBorgEnemySheetContent({
                     onClick={() =>
                       handleRollWeapon(w.formula ?? "d4", w.nombre, isEspecial)
                     }
-                    className="flex w-full items-center justify-between rounded-[12px] border border-red-500/30 bg-red-900/30 px-3 py-2 text-left transition hover:bg-red-900/50"
+                    className="flex w-full items-start gap-2 rounded-[12px] border border-red-500/30 bg-red-900/30 px-3 py-2 text-left transition hover:bg-red-900/50"
                   >
-                    <span className="font-semibold text-amber-200">
+                    <span className="min-w-0 flex-1 break-words font-semibold text-amber-200">
                       {w.nombre}
                     </span>
-                    <span className="font-mono text-sm text-red-300">
+                    <span
+                      className="ml-1 shrink-0 max-w-[45%] truncate font-mono text-sm text-red-300"
+                      title={w.formula ?? ""}
+                    >
                       {w.formula}
                     </span>
                   </button>
@@ -402,12 +412,15 @@ export default function MorkBorgEnemySheetContent({
                   key={a.id}
                   type="button"
                   onClick={() => handleRollArmor(a.formula ?? "1d2", a.nombre)}
-                  className="flex w-full items-center justify-between rounded-[12px] border border-amber-600/30 bg-amber-900/20 px-3 py-2 text-left transition hover:bg-amber-900/40"
+                  className="flex w-full items-start gap-2 rounded-[12px] border border-amber-600/30 bg-amber-900/20 px-3 py-2 text-left transition hover:bg-amber-900/40"
                 >
-                  <span className="font-semibold text-amber-200">
+                  <span className="min-w-0 flex-1 break-words font-semibold text-amber-200">
                     {a.nombre}
                   </span>
-                  <span className="font-mono text-sm text-amber-300">
+                  <span
+                    className="ml-1 shrink-0 max-w-[45%] truncate font-mono text-sm text-amber-300"
+                    title={a.formula ?? ""}
+                  >
                     {a.formula}
                   </span>
                 </button>

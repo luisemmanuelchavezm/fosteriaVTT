@@ -10,6 +10,7 @@ interface CharacterSheetModalProps {
   onGoHome: () => void;
   onGoCampaigns: () => void;
   onClose: () => void;
+  compact?: boolean;
 }
 
 /** Modal que muestra la hoja de personaje completa encima del tablero. */
@@ -22,16 +23,17 @@ export default function CharacterSheetModal({
   onGoHome,
   onGoCampaigns,
   onClose,
+  compact = false,
 }: CharacterSheetModalProps) {
   const isMB = sistemaDeJuego === "Mork Borg";
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6 backdrop-blur-sm"
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm ${compact ? "p-6 pt-16" : "p-6"}`}
       onClick={onClose}
     >
       <div
-        className="relative h-[92vh] w-[min(1500px,96vw)] overflow-hidden rounded-[28px] border border-white/15 bg-[linear-gradient(180deg,rgba(18,18,18,0.98)_0%,rgba(10,10,10,0.99)_100%)] shadow-[0_32px_90px_rgba(0,0,0,0.55)]"
+        className={`relative overflow-hidden rounded-[28px] border border-white/15 bg-[linear-gradient(180deg,rgba(18,18,18,0.98)_0%,rgba(10,10,10,0.99)_100%)] shadow-[0_32px_90px_rgba(0,0,0,0.55)] ${compact ? "h-[80vh] w-[min(1200px,90vw)]" : "h-[92vh] w-[min(1500px,96vw)]"}`}
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -42,7 +44,7 @@ export default function CharacterSheetModal({
           Cerrar
         </button>
 
-        <div className="h-full overflow-auto">
+        <div className="h-full overflow-y-auto overflow-x-hidden">
           {isMB ? (
             <MorkBorgCharacterSheetScreen
               username={username}

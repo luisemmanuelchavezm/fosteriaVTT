@@ -12,7 +12,12 @@ interface FormState {
 }
 
 interface LoginScreenProps {
-  onLoginSuccess: (token: string, username: string, avatarUrl: string) => void;
+  onLoginSuccess: (
+    token: string,
+    username: string,
+    avatarUrl: string,
+    role: string,
+  ) => void;
   onSwitchToRegister: () => void;
   onGoHome?: () => void;
   joinMessage?: string;
@@ -61,7 +66,12 @@ export default function LoginScreen({
       localStorage.setItem("avatar", data.avatar);
       setMessage(`¡Bienvenido ${data.username ?? form.username}!`);
       setTimeout(() => {
-        onLoginSuccess(data.token, data.username ?? form.username, data.avatar);
+        onLoginSuccess(
+          data.token,
+          data.username ?? form.username,
+          data.avatar,
+          data.role ?? "USER",
+        );
       }, 1000);
       setForm({ username: "", password: "" });
     } catch (error) {

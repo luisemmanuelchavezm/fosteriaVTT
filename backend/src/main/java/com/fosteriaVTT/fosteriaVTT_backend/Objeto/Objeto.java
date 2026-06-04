@@ -24,9 +24,6 @@ public class Objeto extends NamedEntity {
 
     private String formula;
 
-    @Column(length = 500)
-    private String imagen;
-
     @Column(nullable = false, columnDefinition = "TEXT")
     private String descripcion;
 

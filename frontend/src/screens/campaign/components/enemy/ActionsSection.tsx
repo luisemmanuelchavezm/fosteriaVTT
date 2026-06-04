@@ -60,7 +60,7 @@ export default function ActionsSection({
                   type="text"
                   value={entry.nombre}
                   onChange={(e) =>
-                    updatePasiva(index, "nombre", e.target.value)
+                    updatePasiva(index, "nombre", e.target.value.slice(0, 100))
                   }
                   placeholder="Nombre de la pasiva"
                   maxLength={100}
@@ -125,7 +125,7 @@ export default function ActionsSection({
                   type="text"
                   value={entry.nombre}
                   onChange={(e) =>
-                    updateAccion(index, "nombre", e.target.value)
+                    updateAccion(index, "nombre", e.target.value.slice(0, 100))
                   }
                   placeholder="Nombre de la acción"
                   maxLength={100}

@@ -46,7 +46,9 @@ export default function CharacterDetailModal({
             {subtitle ? (
               <p className="text-sm font-medium text-sky-200/80">{subtitle}</p>
             ) : null}
-            <h3 className="mt-2 text-2xl font-bold text-white">{title}</h3>
+            <h3 className="mt-2 break-all text-2xl font-bold text-white">
+              {title}
+            </h3>
           </div>
 
           <button
@@ -110,7 +112,7 @@ export default function CharacterDetailModal({
             <h4 className="text-lg font-semibold text-amber-100">
               Descripción
             </h4>
-            <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-stone-100/90">
+            <p className="mt-4 break-all whitespace-pre-wrap text-sm leading-7 text-stone-100/90">
               {description?.trim() || "No hay descripción disponible."}
             </p>
           </div>

@@ -47,7 +47,8 @@ export default function NpcInfoTab({
             <input
               type="text"
               value={editVd}
-              onChange={(e) => onEditVdChange(e.target.value)}
+              onChange={(e) => onEditVdChange(e.target.value.slice(0, 20))}
+              maxLength={20}
               placeholder="Ej. 5 (1.800 PX)"
               className="flex-1 rounded-lg border border-amber-400/30 bg-black/30 px-2 py-1 text-sm font-bold text-amber-200 outline-none placeholder:text-amber-400/30 focus:border-amber-400/60"
             />
@@ -110,22 +111,35 @@ export default function NpcInfoTab({
                   <input
                     type="text"
                     value={newIdioma}
-                    onChange={(e) => onNewIdiomaChange(e.target.value)}
+                    onChange={(e) =>
+                      onNewIdiomaChange(e.target.value.slice(0, 50))
+                    }
                     onKeyDown={(e) => {
                       if (e.key === "Enter") onAddIdioma();
                     }}
+                    maxLength={50}
                     placeholder="Ej. Común, Élfico…"
-                    className="flex-1 rounded-lg border border-white/20 bg-black/30 px-3 py-1.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-amber-400/60"
+                    disabled={idiomaHabilidades.length >= 20}
+                    className="flex-1 rounded-lg border border-white/20 bg-black/30 px-3 py-1.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-amber-400/60 disabled:opacity-40"
                   />
                   <button
                     type="button"
                     onClick={onAddIdioma}
-                    disabled={!newIdioma.trim() || isAddingIdioma}
+                    disabled={
+                      !newIdioma.trim() ||
+                      isAddingIdioma ||
+                      idiomaHabilidades.length >= 20
+                    }
                     className="rounded-lg bg-amber-600/25 px-3 py-1.5 text-xs font-semibold text-amber-200 transition hover:bg-amber-600/40 disabled:opacity-40"
                   >
                     {isAddingIdioma ? "…" : "+ Agregar"}
                   </button>
                 </div>
+                {idiomaHabilidades.length >= 20 && (
+                  <p className="mt-1.5 text-xs text-rose-400">
+                    Límite de 20 idiomas alcanzado
+                  </p>
+                )}
               </>
             ) : (
               <p className="text-sm text-white/80">{idiomaNames.join(", ")}</p>
@@ -137,12 +151,22 @@ export default function NpcInfoTab({
       {/* Descripción / Biografía */}
       {isEditMode ? (
         <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-          <p className="mb-2 text-xs font-bold uppercase tracking-widest text-amber-400">
-            Descripción
-          </p>
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-xs font-bold uppercase tracking-widest text-amber-400">
+              Descripción
+            </p>
+            <span
+              className={`text-[10px] ${editBiografia.length >= 500 ? "text-rose-400" : editBiografia.length >= 400 ? "text-amber-400" : "text-white/30"}`}
+            >
+              {editBiografia.length}/500
+            </span>
+          </div>
           <textarea
             value={editBiografia}
-            onChange={(e) => onEditBiografiaChange(e.target.value)}
+            onChange={(e) =>
+              onEditBiografiaChange(e.target.value.slice(0, 500))
+            }
+            maxLength={500}
             rows={6}
             className="w-full rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-sm text-white outline-none focus:border-amber-400/60"
             placeholder="Descripción del NPC..."
@@ -153,7 +177,7 @@ export default function NpcInfoTab({
           <p className="mb-2 text-xs font-bold uppercase tracking-widest text-amber-400">
             Descripción
           </p>
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-white/80">
+          <p className="break-words whitespace-pre-wrap text-sm leading-relaxed text-white/80">
             {character.biografia}
           </p>
         </div>

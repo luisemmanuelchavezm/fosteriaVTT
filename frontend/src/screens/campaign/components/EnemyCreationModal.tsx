@@ -15,6 +15,7 @@ interface EnemyCreationModalProps {
   sistemaDeJuego: string;
   onClose: () => void;
   onCreated: (character: CreatedCharacterResponse) => void;
+  adminMode?: boolean;
 }
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
@@ -24,8 +25,9 @@ function DndEnemyCreationModal({
   sistemaDeJuego,
   onClose,
   onCreated,
+  adminMode = false,
 }: EnemyCreationModalProps) {
-  const form = useEnemyForm(sistemaDeJuego, onCreated, onClose);
+  const form = useEnemyForm(sistemaDeJuego, onCreated, onClose, adminMode);
 
   if (!isOpen) return null;
 
@@ -88,13 +90,13 @@ function DndEnemyCreationModal({
   } = form;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-2">
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={handleClose}
       />
 
-      <div className="relative z-10 flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/15 bg-stone-950 shadow-2xl">
+      <div className="relative z-10 flex max-h-full w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/15 bg-stone-950 shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <h2 className="text-lg font-black text-white">Crear NPC</h2>

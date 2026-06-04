@@ -8,6 +8,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import com.fosteriaVTT.fosteriaVTT_backend.Jugador.JugadorRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.Mapa.Mapa;
 import com.fosteriaVTT.fosteriaVTT_backend.Mapa.MapaRepository;
+import com.fosteriaVTT.fosteriaVTT_backend.Mapa.MapaService;
 import com.fosteriaVTT.fosteriaVTT_backend.Pestaña.Pestaña;
 import com.fosteriaVTT.fosteriaVTT_backend.Pestaña.PestañaRepository;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.AsignarMapaCapaRequest;
@@ -26,6 +27,7 @@ public class CapaService {
 	private final CapaRepository capaRepository;
 	private final PestañaRepository pestañaRepository;
 	private final MapaRepository mapaRepository;
+	private final MapaService mapaService;
 	private final JugadorRepository jugadorRepository;
 	private final SimpMessagingTemplate messagingTemplate;
 
@@ -33,12 +35,14 @@ public class CapaService {
 			CapaRepository capaRepository,
 			PestañaRepository pestañaRepository,
 			MapaRepository mapaRepository,
+			MapaService mapaService,
 			JugadorRepository jugadorRepository,
 			SimpMessagingTemplate messagingTemplate
 	) {
 		this.capaRepository = capaRepository;
 		this.pestañaRepository = pestañaRepository;
 		this.mapaRepository = mapaRepository;
+		this.mapaService = mapaService;
 		this.jugadorRepository = jugadorRepository;
 		this.messagingTemplate = messagingTemplate;
 	}
@@ -78,7 +82,21 @@ public class CapaService {
 				})
 				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "No se encontró el mapa seleccionado"));
 
-		capaMapa.setMapa(mapa);
+		// Si es un mapa público (del marketplace) creamos una copia privada para esta campaña
+		// para que el original pueda borrarse libremente sin afectar a la campaña.
+		Mapa mapaAAsignar = mapa.isEsPublico()
+				? mapaService.crearInstanciaParaCampaña(mapa, username)
+				: mapa;
+
+		// Si la capa ya tenía una instancia de campaña anterior, la borramos
+		Mapa mapaActual = capaMapa.getMapa();
+		if (MapaService.esInstanciaDeCampaña(mapaActual)) {
+			capaMapa.setMapa(null);
+			capaRepository.save(capaMapa);
+			mapaRepository.delete(mapaActual);
+		}
+
+		capaMapa.setMapa(mapaAAsignar);
 		Capa guardada = capaRepository.save(capaMapa);
 
 		return new CapaMapaResponse(

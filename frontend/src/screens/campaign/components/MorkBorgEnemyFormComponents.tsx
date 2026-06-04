@@ -107,13 +107,15 @@ export function EquipmentList({
               key={`${entry.nombre}-${entry.formula}-${index}`}
               className="flex items-start justify-between gap-3 rounded-[16px] border border-white/10 bg-black/25 px-3 py-3"
             >
-              <div className="min-w-0">
-                <p className="font-semibold text-white">{entry.nombre}</p>
-                <p className="mt-1 font-mono text-sm text-amber-200">
+              <div className="min-w-0 overflow-hidden">
+                <p className="break-words font-semibold text-white">
+                  {entry.nombre}
+                </p>
+                <p className="mt-1 truncate font-mono text-sm text-amber-200">
                   {entry.formula}
                 </p>
                 {entry.descripcion ? (
-                  <p className="mt-2 text-sm leading-6 text-stone-300">
+                  <p className="mt-2 line-clamp-3 break-words text-sm leading-6 text-stone-300">
                     {entry.descripcion}
                   </p>
                 ) : null}

@@ -162,7 +162,7 @@ export function PassiveRows({
             <button
               type="button"
               onClick={() => onOpenPassiveDetails(ability)}
-              className="truncate text-left font-semibold text-white transition hover:text-amber-100"
+              className="break-all text-left font-semibold text-white transition hover:text-amber-100"
             >
               {ability.nombre}
             </button>
