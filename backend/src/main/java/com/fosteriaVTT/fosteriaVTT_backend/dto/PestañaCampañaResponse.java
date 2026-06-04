@@ -9,8 +9,6 @@ public record PestañaCampañaResponse(
         Integer nCuadriculasY,
         Integer distanciaCasilla,
         String sistemaMetrico,
-        String nieblaDeGuerra,
-        String imagenBaseUrl,
         String mapaCapaUrl,
         LocalDateTime ultimaVezUsada,
         String dmUsername

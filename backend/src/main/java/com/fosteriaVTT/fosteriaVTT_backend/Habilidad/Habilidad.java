@@ -18,9 +18,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class Habilidad extends NamedEntity {
 
-    @Column(length = 500)
-    private String imagen;
-
     private String formula;
 
     @Column(columnDefinition = "TEXT")

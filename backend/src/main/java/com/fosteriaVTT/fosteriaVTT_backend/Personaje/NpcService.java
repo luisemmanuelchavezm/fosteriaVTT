@@ -154,29 +154,27 @@ public class NpcService {
 		}
 		Personaje personaje = obtenerPersonajeUsuario(personajeId, username);
 
+		// Truncar el nombre al límite de la columna para evitar DataIntegrityViolationException
+		String nombreSeguro = request.nombre().trim();
+		if (nombreSeguro.length() > 100) {
+			nombreSeguro = nombreSeguro.substring(0, 100);
+		}
+
 		String baseTags = (request.tags() != null && !request.tags().isBlank())
 				? request.tags().trim() : "NPC";
 		String finalTags = (request.bonificacion() != null)
 				? baseTags + ",BONO;" + request.bonificacion()
 				: baseTags;
 
-		Habilidad habilidad;
-		if (baseTags.toUpperCase().contains("ARMA")) {
-			String exclusiveTags = finalTags + ",PROPIA;" + personajeId;
-			habilidad = dndAbilityUtils.crearHabilidadArmaExclusiva(
-					request.nombre().trim(),
-					request.descripcion() != null ? request.descripcion().trim() : null,
-					request.formula(),
-					exclusiveTags
-			);
-		} else {
-			habilidad = dndAbilityUtils.resolverORegistrarHabilidad(
-					request.nombre().trim(),
-					request.descripcion() != null ? request.descripcion().trim() : null,
-					null,
-					finalTags
-			);
-		}
+		// Always create a new exclusive record; global name lookup would return catalog abilities with wrong tags.
+		String exclusiveTags = finalTags + ",PROPIA;" + personajeId;
+		String formula = baseTags.toUpperCase().contains("ARMA") ? request.formula() : null;
+		Habilidad habilidad = dndAbilityUtils.crearHabilidadArmaExclusiva(
+				nombreSeguro,
+				request.descripcion() != null ? request.descripcion().trim() : null,
+				formula,
+				exclusiveTags
+		);
 		dndAbilityUtils.agregarHabilidadSiNoExiste(personaje, habilidad);
 		personajeRepository.save(personaje);
 		emitirActualizacionPersonaje(personajeId);

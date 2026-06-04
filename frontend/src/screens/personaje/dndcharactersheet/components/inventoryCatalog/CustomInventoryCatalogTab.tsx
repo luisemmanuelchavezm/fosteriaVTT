@@ -54,6 +54,10 @@ interface CustomInventoryCatalogTabProps {
   ) => void;
   onAbilityModifiersChange: (updater: (current: string[]) => string[]) => void;
   sanitizePositiveNumericInput: (value: string, max: number) => string;
+  // Opcionales: tipo de daño para armas (solo admin)
+  damageType?: string;
+  onDamageTypeChange?: (value: string) => void;
+  damageTypeOptions?: Array<{ value: string; label: string }>;
 }
 
 export default function CustomInventoryCatalogTab(
@@ -86,6 +90,9 @@ export default function CustomInventoryCatalogTab(
     onDicePartsChange,
     onAbilityModifiersChange,
     sanitizePositiveNumericInput,
+    damageType,
+    onDamageTypeChange,
+    damageTypeOptions,
   } = props;
 
   return (
@@ -132,6 +139,23 @@ export default function CustomInventoryCatalogTab(
               <option value="Media">Armadura media</option>
               <option value="Pesada">Armadura pesada</option>
               <option value="Escudo">Escudo</option>
+            </select>
+          </label>
+        ) : customType === "ARMA" && damageTypeOptions && onDamageTypeChange ? (
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-stone-200">
+              Tipo de daño
+            </span>
+            <select
+              value={damageType}
+              onChange={(e) => onDamageTypeChange(e.target.value)}
+              className="w-full rounded-[16px] border border-white/10 bg-black/25 px-4 py-3 text-sm text-white outline-none"
+            >
+              {damageTypeOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
           </label>
         ) : null}

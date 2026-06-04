@@ -7,6 +7,11 @@ import {
 } from "../../personaje/utils/dndApi";
 import { saveMBEnemyTraits } from "../../personaje/utils/mbApi";
 import {
+  crearNpcAdmin,
+  addHabilidadNpcAdmin,
+  saveMBEnemyTraitsAdmin,
+} from "../../../lib/adminApi";
+import {
   EquipmentPickerModal,
   type EquipmentEntry,
 } from "./MorkBorgEnemyEquipmentPicker";
@@ -36,6 +41,7 @@ interface MorkBorgEnemyCreationModalProps {
   sistemaDeJuego: string;
   onClose: () => void;
   onCreated: (character: CreatedCharacterResponse) => void;
+  adminMode?: boolean;
 }
 
 export default function MorkBorgEnemyCreationModal({
@@ -43,6 +49,7 @@ export default function MorkBorgEnemyCreationModal({
   sistemaDeJuego,
   onClose,
   onCreated,
+  adminMode = false,
 }: MorkBorgEnemyCreationModalProps) {
   const token = localStorage.getItem("jwtToken") ?? "";
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -168,7 +175,11 @@ export default function MorkBorgEnemyCreationModal({
         estadisticas["Moral maxima"] = moral;
       }
 
-      const result = await crearNpc(
+      const npcCreator = adminMode ? crearNpcAdmin : crearNpc;
+      const addHabilidad = adminMode ? addHabilidadNpcAdmin : addHabilidadNpc;
+      const saveTraits = adminMode ? saveMBEnemyTraitsAdmin : saveMBEnemyTraits;
+
+      const result = await npcCreator(
         token,
         {
           nombre: nombre.trim(),
@@ -183,10 +194,10 @@ export default function MorkBorgEnemyCreationModal({
       const tagsToAdd = ["MORK_BORG"];
       if (moral === 0) tagsToAdd.push("MBMoralNA");
       if (biografiaPayload) tagsToAdd.push("MBRasgosAleatorios");
-      await saveMBEnemyTraits(token, result.id, tagsToAdd.join(","));
+      await saveTraits(token, result.id, tagsToAdd.join(","));
 
       for (const weapon of weapons) {
-        await addHabilidadNpc(token, result.id, {
+        await addHabilidad(token, result.id, {
           nombre: weapon.nombre,
           descripcion: weapon.descripcion,
           formula: weapon.formula,
@@ -195,7 +206,7 @@ export default function MorkBorgEnemyCreationModal({
       }
 
       for (const armor of armors) {
-        await addHabilidadNpc(token, result.id, {
+        await addHabilidad(token, result.id, {
           nombre: armor.nombre,
           descripcion: armor.descripcion,
           formula: armor.formula,
@@ -204,7 +215,7 @@ export default function MorkBorgEnemyCreationModal({
       }
 
       if (normalizedRasgos.length <= 1) {
-        await addHabilidadNpc(token, result.id, {
+        await addHabilidad(token, result.id, {
           nombre: "Rasgos",
           descripcion: buildStaticText(normalizedRasgos),
           formula: null,
@@ -213,7 +224,7 @@ export default function MorkBorgEnemyCreationModal({
       }
 
       if (normalizedEspecialidades.length <= 1) {
-        await addHabilidadNpc(token, result.id, {
+        await addHabilidad(token, result.id, {
           nombre: "Especial",
           descripcion: buildStaticText(normalizedEspecialidades),
           formula: null,
@@ -221,7 +232,7 @@ export default function MorkBorgEnemyCreationModal({
         });
       }
 
-      await addHabilidadNpc(token, result.id, {
+      await addHabilidad(token, result.id, {
         nombre: "Loot",
         descripcion: loot.trim() || "Nada",
         formula: null,
@@ -245,13 +256,13 @@ export default function MorkBorgEnemyCreationModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-2">
         <div
           className="absolute inset-0 bg-black/70 backdrop-blur-sm"
           onClick={handleClose}
         />
 
-        <div className="relative z-10 flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-[28px] border border-white/15 bg-stone-950 shadow-2xl">
+        <div className="relative z-10 flex max-h-full w-full max-w-4xl flex-col overflow-hidden rounded-[28px] border border-white/15 bg-stone-950 shadow-2xl">
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-rose-300/70">
@@ -331,7 +342,7 @@ export default function MorkBorgEnemyCreationModal({
                   type="text"
                   value={nombre}
                   onChange={(event) => {
-                    setNombre(event.target.value.slice(0, MAX_TEXT_LENGTH));
+                    setNombre(event.target.value.slice(0, 100));
                     if (fieldErrors.nombre) {
                       setFieldErrors((current) => ({
                         ...current,
@@ -339,7 +350,7 @@ export default function MorkBorgEnemyCreationModal({
                       }));
                     }
                   }}
-                  maxLength={MAX_TEXT_LENGTH}
+                  maxLength={100}
                   placeholder="Nombre del enemigo o PNJ"
                   className={`w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-white/40 ${fieldErrors.nombre ? "border-red-400/70" : "border-white/20"}`}
                 />
@@ -347,9 +358,7 @@ export default function MorkBorgEnemyCreationModal({
                   <span className="text-red-400">
                     {fieldErrors.nombre ?? ""}
                   </span>
-                  <span className="text-white/30">
-                    {nombre.length}/{MAX_TEXT_LENGTH}
-                  </span>
+                  <span className="text-white/30">{nombre.length}/100</span>
                 </div>
               </div>
 

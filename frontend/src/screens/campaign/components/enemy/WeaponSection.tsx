@@ -8,6 +8,8 @@ import { type WeaponEntry } from "../../utils/enemyUtils";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
+const MAX_WEAPONS = 15;
+
 const WEAPON_ABILITY_OPTIONS = [
   { value: "@fuerza", label: "Fuerza" },
   { value: "@destreza", label: "Destreza" },
@@ -66,7 +68,14 @@ export default function WeaponSection({
         { nombre: search.trim() || undefined, tipo: "ARMA" },
         abortController.signal,
       )
-        .then(setCatalogItems)
+        .then((items) =>
+          setCatalogItems(
+            items.filter((item) => {
+              const tags = (item.tags ?? "").toLowerCase();
+              return !tags.includes("mork_borg");
+            }),
+          ),
+        )
         .catch((err) => {
           if ((err as Error).name !== "AbortError") {
             setCatalogError("No se pudo cargar el catálogo.");
@@ -98,6 +107,7 @@ export default function WeaponSection({
   }, [diceParts, baseBonus, abilityModifiers]);
 
   const addFromCatalog = (item: ObjectCatalogResponse) => {
+    if (weapons.length >= MAX_WEAPONS) return;
     const key = keyCounter.current++;
     onWeaponsChange((prev) => [
       ...prev,
@@ -110,6 +120,10 @@ export default function WeaponSection({
   };
 
   const addCustomWeapon = () => {
+    if (weapons.length >= MAX_WEAPONS) {
+      setCustomError(`Límite de ${MAX_WEAPONS} armas alcanzado.`);
+      return;
+    }
     if (!customNombre.trim()) {
       setCustomError("El nombre es requerido");
       return;
@@ -156,6 +170,11 @@ export default function WeaponSection({
         <p className="text-xs font-bold uppercase tracking-wider text-white/60">
           Armas / Ataques
         </p>
+        <span
+          className={`text-xs font-semibold ${weapons.length >= MAX_WEAPONS ? "text-rose-400" : "text-white/30"}`}
+        >
+          {weapons.length}/{MAX_WEAPONS}
+        </span>
       </div>
 
       {/* Tabs */}
@@ -236,14 +255,24 @@ export default function WeaponSection({
         <div className="rounded-xl border border-white/10 bg-black/20 p-3 space-y-3">
           {/* Nombre */}
           <div>
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
-              Nombre del arma
-            </label>
+            <div className="mb-1 flex items-baseline justify-between">
+              <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
+                Nombre del arma
+              </label>
+              {customNombre.length > 70 && (
+                <span
+                  className={`text-[9px] ${customNombre.length >= 100 ? "text-red-400" : "text-amber-400"}`}
+                >
+                  {customNombre.length}/100
+                </span>
+              )}
+            </div>
             <input
               type="text"
               value={customNombre}
-              onChange={(e) => setCustomNombre(e.target.value)}
+              onChange={(e) => setCustomNombre(e.target.value.slice(0, 100))}
               placeholder="Ej. Espada del Caos"
+              maxLength={100}
               className="w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-amber-400/60"
             />
           </div>
@@ -354,9 +383,16 @@ export default function WeaponSection({
                 <input
                   type="number"
                   min={0}
-                  max={999}
+                  max={100}
                   value={baseBonus}
-                  onChange={(e) => setBaseBonus(e.target.value)}
+                  onChange={(e) => {
+                    const v = parseInt(e.target.value, 10);
+                    setBaseBonus(
+                      Number.isNaN(v)
+                        ? ""
+                        : String(Math.max(0, Math.min(100, v))),
+                    );
+                  }}
                   placeholder="0"
                   className="w-20 rounded border border-white/15 bg-black/30 px-2 py-1 text-center text-xs text-white outline-none"
                 />
@@ -416,14 +452,26 @@ export default function WeaponSection({
 
           {/* Description */}
           <div>
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
-              Descripción
-            </label>
+            <div className="mb-1 flex items-baseline justify-between">
+              <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
+                Descripción
+              </label>
+              {customDescripcion.length > 180 && (
+                <span
+                  className={`text-[9px] ${customDescripcion.length >= 250 ? "text-red-400" : "text-amber-400"}`}
+                >
+                  {customDescripcion.length}/250
+                </span>
+              )}
+            </div>
             <textarea
               value={customDescripcion}
-              onChange={(e) => setCustomDescripcion(e.target.value)}
+              onChange={(e) =>
+                setCustomDescripcion(e.target.value.slice(0, 250))
+              }
               placeholder="Descripción del arma (opcional)"
               rows={2}
+              maxLength={250}
               className="w-full resize-none rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-amber-400/60"
             />
           </div>

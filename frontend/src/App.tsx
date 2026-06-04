@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import LoginScreen from "./screens/LoginScreen";
+import AdminPanelScreen from "./screens/AdminPanelScreen";
 import RegisterScreen from "./screens/RegisterScreen";
 import HomeScreen from "./screens/HomeScreen";
 import CharactersScreen from "./screens/CharactersScreen";
@@ -18,6 +19,7 @@ type AuthMode =
   | "login"
   | "register"
   | "home"
+  | "admin-panel"
   | "campaigns"
   | "campaign-create"
   | "campaign-home"
@@ -178,13 +180,14 @@ function App() {
     newToken: string,
     user: string,
     newAvatarUrl: string,
+    role: string,
   ) => {
     setToken(newToken);
     setUsername(user);
     setAvatarUrl(newAvatarUrl);
     localStorage.setItem("username", user);
     localStorage.setItem("avatar", newAvatarUrl);
-    setMode("home");
+    setMode(role === "ADMIN" ? "admin-panel" : "home");
   };
 
   const handleRegisterSuccess = () => {
@@ -233,6 +236,14 @@ function App() {
           onGoCharacters={handleGoCharacters}
           onCreateCampaign={handleGoCreateCampaign}
           onOpenCampaignHome={handleOpenCampaignHome}
+        />
+      )}
+      {mode === "admin-panel" && token && (
+        <AdminPanelScreen
+          token={token}
+          username={username}
+          avatarUrl={avatarUrl}
+          onLogout={handleLogout}
         />
       )}
       {mode === "campaigns" && token && (

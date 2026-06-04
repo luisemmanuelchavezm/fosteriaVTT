@@ -95,12 +95,66 @@ public class ObjetoService {
 				.build());
 	}
 
+	public ObjetoCatalogoResponse crearObjetoDeCatalogo(
+			String nombre, String formula, String descripcion,
+			TipoObjeto tipoObjeto, String sistema) {
+		String sistemaTag = "MORK_BORG".equalsIgnoreCase(sistema) ? "MORK_BORG,AdminCreado" : "DND,AdminCreado";
+		String indice = sistemaTag + "," + VISIBILITY_TAG + ";" + OFFICIAL_VISIBILITY;
+		Objeto obj = objetoRepository.save(Objeto.builder()
+				.nombre(nombre.trim())
+				.formula(formula == null || formula.isBlank() ? null : formula.trim())
+				.descripcion(descripcion == null || descripcion.isBlank() ? "" : descripcion.trim())
+				.tipoObjeto(tipoObjeto)
+				.indice(indice)
+				.build());
+		return new ObjetoCatalogoResponse(obj.getId(), obj.getNombre(), obj.getFormula(),
+				obj.getDescripcion(), obj.getTipoObjeto().name(), obj.getIndice());
+	}
+
+	public List<ObjetoCatalogoResponse> obtenerTodoElCatalogo() {
+		return objetoRepository.findAll().stream()
+				.filter(objeto -> {
+					String vis = TagUtils.extractTagValue(objeto.getIndice(), VISIBILITY_TAG);
+					return !PRIVATE_VISIBILITY.equalsIgnoreCase(vis != null ? vis.trim() : null);
+				})
+				.filter(objeto -> objeto.getTipoObjeto() != TipoObjeto.OBJETO_INTERNO)
+				.filter(objeto -> tieneTagsDeCatalogo(objeto.getIndice()))
+				.sorted(java.util.Comparator.comparing(Objeto::getNombre, String.CASE_INSENSITIVE_ORDER))
+				.map(objeto -> new ObjetoCatalogoResponse(
+						objeto.getId(),
+						objeto.getNombre(),
+						objeto.getFormula(),
+						objeto.getDescripcion(),
+						objeto.getTipoObjeto().name(),
+						objeto.getIndice()
+				))
+				.toList();
+	}
+
+	public void eliminarObjetoDeCatalogo(Long id) {
+		Objeto obj = objetoRepository.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(
+						org.springframework.http.HttpStatus.NOT_FOUND, "Objeto no encontrado"));
+		String indice = obj.getIndice() == null ? "" : obj.getIndice();
+		boolean esDeAdmin = java.util.Arrays.stream(indice.split(","))
+				.map(String::trim)
+				.anyMatch(t -> t.equalsIgnoreCase("AdminCreado"));
+		if (!esDeAdmin) {
+			throw new ResponseStatusException(
+					org.springframework.http.HttpStatus.FORBIDDEN,
+					"Solo se pueden eliminar objetos creados por administradores");
+		}
+		objetoRepository.deleteById(id);
+	}
+
 	public List<ObjetoCatalogoResponse> buscarObjetos(String nombre, String tipo, String username) {
 		String nombreNormalizado = nombre == null ? "" : nombre.trim();
 		String tipoNormalizado = tipo == null ? "" : tipo.trim();
 
 		return objetoRepository.findAll().stream()
 				.filter(objeto -> esVisibleParaUsuario(objeto, username))
+				.filter(objeto -> objeto.getTipoObjeto() != TipoObjeto.OBJETO_INTERNO)
+				.filter(objeto -> tieneTagsDeCatalogo(objeto.getIndice()))
 				.filter(objeto -> nombreNormalizado.isBlank()
 						|| objeto.getNombre().toLowerCase(java.util.Locale.ROOT).contains(nombreNormalizado.toLowerCase(java.util.Locale.ROOT)))
 				.filter(objeto -> tipoNormalizado.isBlank()
@@ -129,6 +183,19 @@ public class ObjetoService {
 
 		String owner = TagUtils.extractTagValue(objeto.getIndice(), OWNER_TAG);
 		return owner != null && TagUtils.normalizeText(owner).equals(TagUtils.normalizeText(username));
+	}
+
+	private boolean tieneTagsDeCatalogo(String indice) {
+		if (indice == null || indice.isBlank()) return false;
+		return java.util.Arrays.stream(indice.split(","))
+				.map(String::trim)
+				.anyMatch(tag -> !tag.isBlank()
+						&& !tag.startsWith("VISIBILIDAD;")
+						&& !tag.startsWith("PROPIETARIO;")
+						&& !tag.startsWith("BONO_ATAQUE=")
+						&& !tag.startsWith("BONO_DAÑO=")
+						&& !tag.equalsIgnoreCase("dnd-inicial")
+				);
 	}
 
 	private String anexarMetadato(String indice, String key, String value) {

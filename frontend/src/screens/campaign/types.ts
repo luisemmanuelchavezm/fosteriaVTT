@@ -32,8 +32,6 @@ export interface CampaignPestañaResponse {
   nCuadriculasY: number;
   distanciaCasilla: number;
   sistemaMetrico: string;
-  nieblaDeGuerra: string;
-  imagenBaseUrl: string;
   mapaCapaUrl?: string;
   dmUsername?: string;
 }

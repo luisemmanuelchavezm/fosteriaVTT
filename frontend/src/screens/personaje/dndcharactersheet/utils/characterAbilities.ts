@@ -45,8 +45,10 @@ export function getWeaponDamageParts(formula: string | null | undefined) {
     return { damage: "--", damageType: "--" };
   }
 
+  // Match: <expression ending in digit> <space(s)> <alphabetic damage type>
+  // Handles multiple terms: "1d6 + 2 + 3 perforante", negative resolved mods: "1d6 - 1 perforante"
   const standardMatch = rawFormula.match(
-    /^(\d+d\d+(?:\s*[+-]\s*\d+)?)\s+([a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+)$/,
+    /^(.*\d)\s+([a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+(?:\s+[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ]+)*)$/,
   );
   if (standardMatch) {
     return {
@@ -280,20 +282,23 @@ export function resolveCharacterFormula(
     return null;
   }
 
-  return rawFormula.replace(/@([a-z]+)/gi, (_, rawKey: string) => {
-    const key = normalizeText(rawKey);
-    const mapping: Record<string, string> = {
-      fuerza: "Fuerza",
-      destreza: "Destreza",
-      constitucion: "Constitucion",
-      inteligencia: "Inteligencia",
-      sabiduria: "Sabiduria",
-      carisma: "Carisma",
-    };
-    const statName = mapping[key];
-    if (!statName) {
-      return "0";
-    }
-    return String(getAbilityModifierByName(character, statName));
-  });
+  return rawFormula
+    .replace(/@([a-z]+)/gi, (_, rawKey: string) => {
+      const key = normalizeText(rawKey);
+      const mapping: Record<string, string> = {
+        fuerza: "Fuerza",
+        destreza: "Destreza",
+        constitucion: "Constitucion",
+        inteligencia: "Inteligencia",
+        sabiduria: "Sabiduria",
+        carisma: "Carisma",
+      };
+      const statName = mapping[key];
+      if (!statName) {
+        return "0";
+      }
+      return String(getAbilityModifierByName(character, statName));
+    })
+    .replace(/\+\s*-(\d)/g, "- $1")
+    .replace(/-\s*-(\d)/g, "+ $1");
 }

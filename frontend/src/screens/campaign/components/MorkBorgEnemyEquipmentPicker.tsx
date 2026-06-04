@@ -1,11 +1,13 @@
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   fetchObjectCatalog,
   type ObjectCatalogResponse,
 } from "../../personaje/utils/dndApi";
 import { MB_WEAPONS } from "../../personaje/createmorkborg/utils/morkBorgUtils";
 
+const CUSTOM_MAX_DICE = 3;
+const CUSTOM_MAX_DICE_COUNT = 10;
 const MAX_TEXT_LENGTH = 500;
 
 type EquipmentKind = "ARMA" | "ARMADURA";
@@ -79,7 +81,7 @@ function isValidMbFormula(
 ) {
   if (!formula) return false;
   if (kind === "ARMA") return /\d+d\d+/i.test(formula);
-  return /^-\d+d\d+$/i.test(formula);
+  return /^(?:-\d+d\d+)+$/i.test(formula);
 }
 
 export function EquipmentPickerModal({
@@ -101,9 +103,48 @@ export function EquipmentPickerModal({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [customName, setCustomName] = useState("");
-  const [customFormula, setCustomFormula] = useState("");
   const [customDescription, setCustomDescription] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Dice builder
+  const [diceParts, setDiceParts] = useState<
+    { count: string; sides: string }[]
+  >([]);
+  const [weaponBaseBonus, setWeaponBaseBonus] = useState("");
+  const [showWeaponBonus, setShowWeaponBonus] = useState(false);
+  const builtFormula = useMemo(() => {
+    if (kind === "ARMADURA") {
+      const parts = diceParts
+        .map((d) => ({
+          c: Number.parseInt(d.count, 10),
+          s: Number.parseInt(d.sides, 10),
+        }))
+        .filter(
+          (d) => !Number.isNaN(d.c) && !Number.isNaN(d.s) && d.c > 0 && d.s > 0,
+        )
+        .map((d) => `-${d.c}d${d.s}`);
+      return parts.join("") || null;
+    }
+    // ARMA
+    const parts: string[] = diceParts
+      .map((d) => ({
+        c: Number.parseInt(d.count, 10),
+        s: Number.parseInt(d.sides, 10),
+      }))
+      .filter(
+        (d) => !Number.isNaN(d.c) && !Number.isNaN(d.s) && d.c > 0 && d.s > 0,
+      )
+      .map((d) => `${d.c}d${d.s}`);
+    const bonus = Number.parseInt(weaponBaseBonus, 10);
+    if (!Number.isNaN(bonus) && bonus > 0) parts.push(String(bonus));
+    return parts.join(" + ").trim() || null;
+  }, [diceParts, kind, weaponBaseBonus]);
+
+  const sanitize = (value: string, max: number) => {
+    const digits = value.replace(/\D+/g, "");
+    if (!digits) return "";
+    return String(Math.min(max, Number.parseInt(digits, 10)));
+  };
 
   useEffect(() => {
     if (!isOpen || isCustomMode || !token) return;
@@ -165,9 +206,11 @@ export function EquipmentPickerModal({
     setItems([]);
     setError(null);
     setCustomName("");
-    setCustomFormula("");
     setCustomDescription("");
     setSubmitError(null);
+    setDiceParts([]);
+    setWeaponBaseBonus("");
+    setShowWeaponBonus(false);
     onClose();
   };
 
@@ -184,22 +227,21 @@ export function EquipmentPickerModal({
 
   const handleCreateCustom = () => {
     const nombre = customName.trim();
-    const formula = normalizeDiceFormula(customFormula, kind);
     if (!nombre) {
       setSubmitError(`Debes indicar un nombre para la ${singularTitle}.`);
       return;
     }
-    if (!isValidMbFormula(formula, kind)) {
+    if (!builtFormula || !isValidMbFormula(builtFormula, kind)) {
       setSubmitError(
         kind === "ARMA"
-          ? "La fórmula del arma debe ser una tirada válida, por ejemplo 1d6 o 1d8+2."
-          : "La fórmula de armadura debe ser una tirada como -1d2, -1d4 o -1d6.",
+          ? "Añade al menos un dado para el arma."
+          : "Añade al menos un dado para la armadura.",
       );
       return;
     }
     onAdd({
       nombre,
-      formula,
+      formula: builtFormula,
       descripcion: customDescription.trim() || null,
     });
     resetAndClose();
@@ -208,8 +250,8 @@ export function EquipmentPickerModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm">
-      <div className="flex max-h-[88vh] w-full max-w-3xl flex-col overflow-hidden rounded-[26px] border border-white/15 bg-stone-950 text-white shadow-2xl">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/75 px-4 py-2 backdrop-blur-sm">
+      <div className="flex max-h-full w-full max-w-3xl flex-col overflow-hidden rounded-[26px] border border-white/15 bg-stone-950 text-white shadow-2xl">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-rose-300/70">
@@ -312,60 +354,171 @@ export function EquipmentPickerModal({
             </>
           ) : (
             <div className="space-y-4">
-              <label className="block">
-                <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
-                  Nombre
-                </span>
+              {/* Nombre */}
+              <div>
+                <div className="mb-1 flex items-baseline justify-between">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
+                    Nombre
+                  </span>
+                  {customName.length > 70 && (
+                    <span
+                      className={`text-[9px] ${customName.length >= 100 ? "text-red-400" : "text-amber-400"}`}
+                    >
+                      {customName.length}/100
+                    </span>
+                  )}
+                </div>
                 <input
                   type="text"
                   value={customName}
-                  onChange={(event) =>
-                    setCustomName(event.target.value.slice(0, MAX_TEXT_LENGTH))
-                  }
-                  maxLength={MAX_TEXT_LENGTH}
+                  onChange={(e) => setCustomName(e.target.value.slice(0, 100))}
+                  maxLength={100}
                   className="w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white outline-none"
                 />
-              </label>
+              </div>
 
-              <label className="block">
-                <span className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
-                  Fórmula
-                </span>
-                <input
-                  type="text"
-                  value={customFormula}
-                  onChange={(event) =>
-                    setCustomFormula(
-                      event.target.value.slice(0, MAX_TEXT_LENGTH),
-                    )
-                  }
-                  maxLength={MAX_TEXT_LENGTH}
-                  placeholder={kind === "ARMA" ? "1d6" : "-1d2"}
-                  className="w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white outline-none"
-                />
-              </label>
+              {/* Constructor de fórmula */}
+              <div className="rounded-[20px] border border-white/10 bg-black/20 p-4">
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
+                      Fórmula
+                    </span>
+                    <div className="rounded-[14px] border border-white/10 bg-black/25 px-3 py-2 text-sm text-white">
+                      {builtFormula ?? (
+                        <span className="text-stone-500">Sin fórmula</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 lg:justify-end lg:pt-6">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (diceParts.length >= CUSTOM_MAX_DICE) {
+                          setSubmitError(`Máximo ${CUSTOM_MAX_DICE} dados.`);
+                          return;
+                        }
+                        setDiceParts((p) => [...p, { count: "", sides: "" }]);
+                        setSubmitError(null);
+                      }}
+                      disabled={diceParts.length >= CUSTOM_MAX_DICE}
+                      className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-stone-100 disabled:opacity-40"
+                    >
+                      + Dado
+                    </button>
+                    {kind === "ARMA" &&
+                      !showWeaponBonus &&
+                      !weaponBaseBonus && (
+                        <button
+                          type="button"
+                          onClick={() => setShowWeaponBonus(true)}
+                          className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-stone-100"
+                        >
+                          + Bonif.
+                        </button>
+                      )}
+                  </div>
+                </div>
 
-              <label className="block">
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {kind === "ARMA" && (showWeaponBonus || weaponBaseBonus) && (
+                    <label className="min-w-[140px] flex-1 space-y-1 md:max-w-[180px]">
+                      <span className="text-xs uppercase tracking-[0.18em] text-stone-400">
+                        Bonif. base
+                      </span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={weaponBaseBonus}
+                        onChange={(e) =>
+                          setWeaponBaseBonus(sanitize(e.target.value, 999))
+                        }
+                        placeholder="0"
+                        className="w-full rounded-[14px] border border-white/10 bg-black/25 px-3 py-2 text-sm text-white outline-none placeholder:text-stone-500"
+                      />
+                    </label>
+                  )}
+
+                  {diceParts.map((die, index) => (
+                    <div
+                      key={`die-${index}`}
+                      className="grid min-w-[240px] flex-1 grid-cols-[minmax(0,1fr)_20px_minmax(0,1fr)_auto] items-end gap-2 md:max-w-[300px]"
+                    >
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={die.count}
+                        onChange={(e) => {
+                          const v = sanitize(
+                            e.target.value,
+                            CUSTOM_MAX_DICE_COUNT,
+                          );
+                          setDiceParts((p) =>
+                            p.map((d, i) =>
+                              i === index ? { ...d, count: v } : d,
+                            ),
+                          );
+                        }}
+                        placeholder={`máx ${CUSTOM_MAX_DICE_COUNT}`}
+                        className="rounded-[14px] border border-white/10 bg-black/25 px-3 py-2 text-center text-sm text-white outline-none placeholder:text-stone-500"
+                      />
+                      <span className="pb-2 text-center text-lg font-bold text-white">
+                        d
+                      </span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={die.sides}
+                        onChange={(e) => {
+                          const v = sanitize(e.target.value, 100);
+                          setDiceParts((p) =>
+                            p.map((d, i) =>
+                              i === index ? { ...d, sides: v } : d,
+                            ),
+                          );
+                        }}
+                        placeholder="máx 100"
+                        className="rounded-[14px] border border-white/10 bg-black/25 px-3 py-2 text-center text-sm text-white outline-none placeholder:text-stone-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setDiceParts((p) => p.filter((_, i) => i !== index))
+                        }
+                        className="rounded-full border border-rose-300/20 px-3 py-2 text-xs font-semibold text-rose-100"
+                      >
+                        Quitar
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Descripción */}
+              <div>
                 <div className="mb-1 flex items-baseline justify-between">
                   <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
-                    Descripción
+                    Descripción{" "}
+                    <span className="text-white/30">(opcional)</span>
                   </span>
-                  <span className="text-[10px] text-white/30">
-                    {customDescription.length}/{MAX_TEXT_LENGTH}
-                  </span>
+                  {customDescription.length > 180 && (
+                    <span
+                      className={`text-[9px] ${customDescription.length >= 250 ? "text-red-400" : "text-amber-400"}`}
+                    >
+                      {customDescription.length}/250
+                    </span>
+                  )}
                 </div>
                 <textarea
                   value={customDescription}
-                  onChange={(event) =>
-                    setCustomDescription(
-                      event.target.value.slice(0, MAX_TEXT_LENGTH),
-                    )
+                  onChange={(e) =>
+                    setCustomDescription(e.target.value.slice(0, 250))
                   }
-                  rows={4}
-                  maxLength={MAX_TEXT_LENGTH}
+                  rows={3}
+                  maxLength={250}
                   className="w-full resize-none rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-sm text-white outline-none"
                 />
-              </label>
+              </div>
 
               {submitError ? (
                 <div className="rounded-[16px] border border-rose-300/30 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">

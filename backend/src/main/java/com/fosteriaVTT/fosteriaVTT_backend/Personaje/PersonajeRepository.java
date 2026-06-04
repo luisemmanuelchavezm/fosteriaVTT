@@ -45,6 +45,25 @@ public interface PersonajeRepository extends JpaRepository<Personaje, Long> {
 			Pageable pageable
 	);
 
+	long countByUsuarioUsername(String username);
+
+	@Query("""
+			select p from Personaje p
+			where p.usuario.username = :username
+			and p.esPublico = true
+			and (lower(p.tags) like '%enemigo%' or lower(p.tags) like '%pnj%')
+			order by p.usado desc
+			""")
+	List<Personaje> findPublicNpcEnemiesByUsuarioUsername(@Param("username") String username);
+
+	@Query("""
+			select p from Personaje p
+			where p.esPublico = true
+			and (lower(p.tags) like '%enemigo%' or lower(p.tags) like '%pnj%')
+			order by p.usado desc
+			""")
+	List<Personaje> findAllPublicNpcEnemies();
+
 	@Modifying
 	@Query(value = "DELETE FROM personaje_habilidad WHERE personaje_id = :personajeId", nativeQuery = true)
 	void deleteHabilidadesByPersonajeId(@Param("personajeId") Long personajeId);

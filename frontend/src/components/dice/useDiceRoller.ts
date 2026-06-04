@@ -64,9 +64,9 @@ function parseRollExpression(
     return null;
   }
 
-  const diceMatch = normalized.match(/^(\d+)d(\d+)(?:\s*([+-])\s*(\d+))?$/i);
+  const diceMatch = normalized.match(/^(\d*)d(\d+)(?:\s*([+-])\s*(\d+))?$/i);
   if (diceMatch) {
-    const diceCount = Number.parseInt(diceMatch[1], 10);
+    const diceCount = diceMatch[1] ? Number.parseInt(diceMatch[1], 10) : 1;
     const diceFaces = Number.parseInt(diceMatch[2], 10);
     const modifierMagnitude = Number.parseInt(diceMatch[4] ?? "0", 10);
     const modifier =
@@ -381,7 +381,9 @@ export function useDiceRoller() {
     const parsed = parseRollExpression(expression);
 
     if (!parsed) {
-      setDiceBoxError(`No se pudo interpretar la tirada: ${expression}`);
+      setDiceBoxError(
+        `El número máximo de dados que se pueden tirar a la vez son ${MAX_VISIBLE_DICE}.`,
+      );
       return;
     }
 
@@ -397,7 +399,7 @@ export function useDiceRoller() {
       if (parsed.notation) {
         if (parsed.diceCount > MAX_VISIBLE_DICE) {
           setDiceBoxError(
-            `El numero de dados maximos que puedes tirar es ${MAX_VISIBLE_DICE}.`,
+            `El número máximo de dados que se pueden tirar a la vez son ${MAX_VISIBLE_DICE}.`,
           );
           return;
         }

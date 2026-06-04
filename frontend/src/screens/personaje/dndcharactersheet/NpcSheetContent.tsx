@@ -125,7 +125,8 @@ export default function NpcSheetContent({
           <input
             type="text"
             value={edit.editNombre}
-            onChange={(e) => edit.setEditNombre(e.target.value)}
+            onChange={(e) => edit.setEditNombre(e.target.value.slice(0, 100))}
+            maxLength={100}
             className="rounded-lg border border-white/20 bg-white/5 px-3 py-1.5 text-center text-xl font-bold text-white outline-none focus:border-amber-400/60"
           />
         ) : (

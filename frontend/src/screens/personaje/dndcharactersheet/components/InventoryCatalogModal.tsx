@@ -66,7 +66,14 @@ export default function InventoryCatalogModal({
         },
         abortController.signal,
       )
-        .then(setItems)
+        .then((all) =>
+          setItems(
+            all.filter((item) => {
+              const tags = item.tags ?? "";
+              return !tags.split(",").some((t) => t.trim() === "MORK_BORG");
+            }),
+          ),
+        )
         .catch((fetchError) => {
           if ((fetchError as Error).name === "AbortError") {
             return;

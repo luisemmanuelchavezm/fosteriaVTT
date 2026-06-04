@@ -209,6 +209,32 @@ public class MapaService {
 	return toResumen(guardado);
     }
 
+    /**
+     * Crea una copia privada de un mapa público para ser usada en una campaña.
+     * La copia lleva tags fuenteId;{sourceId},mapaInstancia y es invisible
+     * en la lista de mapas del DM.
+     */
+    @Transactional
+    public Mapa crearInstanciaParaCampaña(Mapa source, String dmUsername) {
+        Usuario dm = userRepository.findByUsername(dmUsername)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Usuario no encontrado"));
+        String copiaTags = "fuenteId;" + source.getId() + ",mapaInstancia";
+        return mapaRepository.save(Mapa.builder()
+                .nombre(source.getNombre())
+                .mapa(source.getMapa())
+                .esPublico(false)
+                .tags(copiaTags)
+                .usuario(dm)
+                .build());
+    }
+
+    public static boolean esInstanciaDeCampaña(Mapa mapa) {
+        if (mapa == null || mapa.getTags() == null) return false;
+        return java.util.Arrays.stream(mapa.getTags().split(","))
+                .map(String::trim)
+                .anyMatch(t -> t.equalsIgnoreCase("mapaInstancia"));
+    }
+
     @Transactional
     public void eliminarMapa(Long mapaId, String username) {
 	Mapa mapa = mapaRepository.findById(mapaId)

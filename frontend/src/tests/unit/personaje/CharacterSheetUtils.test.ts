@@ -297,6 +297,14 @@ describe("hoja de personaje - utilidades", () => {
       damage: "1d8 + 3",
       damageType: "cortante",
     });
+    expect(getWeaponDamageParts("10d100 + 10 + 2 perforante")).toEqual({
+      damage: "10d100 + 10 + 2",
+      damageType: "perforante",
+    });
+    expect(getWeaponDamageParts("1d6 - 1 contundente")).toEqual({
+      damage: "1d6 - 1",
+      damageType: "contundente",
+    });
     expect(getWeaponDamageParts("10d100 + 10d100 + @fuerza")).toEqual({
       damage: "10d100 + 10d100 + @fuerza",
       damageType: "custom",
@@ -323,6 +331,10 @@ describe("hoja de personaje - utilidades", () => {
     expect(
       resolveCharacterFormula(baseCharacter, "1d20 + @destreza + @sabiduria"),
     ).toBe("1d20 + 3 + 2");
+    // Carisma = 8 → mod -1, should normalize "+ -1" to "- 1"
+    expect(
+      resolveCharacterFormula(baseCharacter, "1d6 + @carisma perforante"),
+    ).toBe("1d6 - 1 perforante");
   });
 
   it("maneja daño, descansos y recursos de combate", () => {
@@ -361,6 +373,36 @@ describe("hoja de personaje - utilidades", () => {
       damage: "10d100 + 10d100 + 1 + 1 + 1",
       damageType: "custom",
       expression: "10d100 + 10d100 + 1 + 1 + 1",
+    });
+    // Admin-created weapon with negative stat mod: "1d6 + @carisma perforante" (Carisma mod = -1)
+    expect(
+      getActionDamageParts(baseCharacter, {
+        id: 901,
+        nombre: "Varita admin",
+        bonificacion: 0,
+        formula: "1d6 + @carisma perforante",
+        descripcion: null,
+        tags: "DND,ARMA,OBJETO",
+      }),
+    ).toEqual({
+      damage: "1d6 - 1",
+      damageType: "perforante",
+      expression: "1d6 - 1",
+    });
+    // Multiple flat bonuses in formula (e.g. from admin form with baseBonus + abilityModifier resolved)
+    expect(
+      getActionDamageParts(baseCharacter, {
+        id: 902,
+        nombre: "Arma multi",
+        bonificacion: 0,
+        formula: "10d100 + 10 + @fuerza perforante",
+        descripcion: null,
+        tags: "DND,ARMA,OBJETO",
+      }),
+    ).toEqual({
+      damage: "10d100 + 10 + 1",
+      damageType: "perforante",
+      expression: "10d100 + 10 + 1",
     });
     expect(shouldResetAbilityUsageOnRest(longRestAbility, "short")).toBe(false);
     expect(shouldResetAbilityUsageOnRest(longRestAbility, "long")).toBe(true);

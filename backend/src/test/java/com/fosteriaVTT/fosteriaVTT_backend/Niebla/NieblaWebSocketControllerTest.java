@@ -39,7 +39,7 @@ class NieblaWebSocketControllerTest {
 
     private Pestaña pestañaVacia(Long id) {
         Pestaña p = new Pestaña();
-        p.setNieblaEstadoJson(null);
+        p.setNieblaDeGuerra(null);
         return p;
     }
 

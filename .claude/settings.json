@@ -1,12 +1,24 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(git checkout *)",
+      "Bash(git clean *)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\emman\\\\OneDrive\\\\Escritorio\\\\fosteriaVTT\" -Directory)",
+      "Bash(Select-Object Name)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\emman\\\\OneDrive\\\\Escritorio\\\\fosteriaVTT\" -Directory)",
+      "Bash(grep -E \"\\(Campaña|Jugador|Mapa|Pestaña|Personaje|Habilidad|Objeto|Mochila|Capa|Dibujo|Punto|Posicion|Niebla|Chat|Estadistica|Usuario\\)\\\\.java$\")",
+      "PowerShell(cd \"C:\\\\Users\\\\emman\\\\OneDrive\\\\Escritorio\\\\fosteriaVTT\\\\backend\"; .\\\\mvnw.cmd compile 2>&1 | Where-Object { $_ -match \"error\" } | Select-Object -First 20)",
+      "Bash(python -c ' *)"
+    ]
+  },
   "hooks": {
     "Stop": [
       {
         "hooks": [
           {
             "type": "command",
-            "shell": "powershell",
             "command": "$d = git diff --stat HEAD 2>$null; if ($d) { $t = \"Archivos modificados:`n\" + ($d -join \"`n\") + \"`n`nPara revertir todos los cambios: git stash\"; @{systemMessage=$t} | ConvertTo-Json -Compress }",
+            "shell": "powershell",
             "statusMessage": "Calculando cambios..."
           }
         ]

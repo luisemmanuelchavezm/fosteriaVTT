@@ -13,8 +13,6 @@ const makePestaña = (
   nCuadriculasY: 25,
   distanciaCasilla: 10,
   sistemaMetrico: "ft",
-  nieblaDeGuerra: "false",
-  imagenBaseUrl: "",
   ...overrides,
 });
 

@@ -95,6 +95,7 @@ public class AuthController {
         body.put("token", jwt);
         body.put("username", request.getUsername());
         body.put("avatar", usuario.getAvatar());
+        body.put("role", usuario.getRole().name());
         return ResponseEntity.ok(body);
     }
 }

@@ -1,5 +1,6 @@
 package com.fosteriaVTT.fosteriaVTT_backend.Mapa;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ public interface MapaRepository extends JpaRepository<Mapa, Long> {
 	    where m.usuario.username = :username
 	    and (:nombre = '' or lower(m.nombre) like concat('%', :nombre, '%'))
 	    and not (m.esPublico = true and lower(m.tags) like '%fuenteid;%')
+	    and not (lower(m.tags) like '%mapainstancia%')
 	    order by m.updatedAt desc
 	    """)
     Page<Mapa> buscarMapasPorUsuario(
@@ -24,6 +26,14 @@ public interface MapaRepository extends JpaRepository<Mapa, Long> {
     );
 
     Optional<Mapa> findByIdAndUsuarioUsername(Long id, String username);
+
+    Optional<Mapa> findByNombreAndUsuarioUsername(String nombre, String username);
+
+    List<Mapa> findByUsuarioUsernameAndEsPublico(String username, boolean esPublico);
+
+    List<Mapa> findByEsPublicoTrueOrderByUpdatedAtDesc();
+
+    List<Mapa> findByUsuarioId(Long usuarioId);
 
     /** Comprueba si el usuario ya tiene una copia del mapa con id {@code sourceId} (usando tag fuenteId). */
     @Query("""
