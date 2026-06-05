@@ -5,18 +5,21 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card } from "../components/ui/card";
 import LogoLayout from "../components/LogoLayout";
+import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
 import { buildApiUrl } from "../lib/api";
 
 interface FormState {
   username: string;
   email: string;
   password: string;
+  confirmPassword: string;
 }
 
 interface FormErrors {
   username?: string[];
   email?: string[];
   password?: string[];
+  confirmPassword?: string[];
 }
 
 interface RegisterScreenProps {
@@ -34,10 +37,13 @@ export default function RegisterScreen({
     username: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [message, setMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [accepted, setAccepted] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
 
   const handleChange =
     (key: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,6 +81,10 @@ export default function RegisterScreen({
 
     if (form.password.length < 8) {
       newErrors.password = ["Mínimo 8 caracteres requeridos"];
+    }
+
+    if (form.confirmPassword !== form.password) {
+      newErrors.confirmPassword = ["Las contraseñas no coinciden"];
     }
 
     return newErrors;
@@ -138,7 +148,7 @@ export default function RegisterScreen({
     >
       <LogoLayout onLogoClick={onGoHome}>
         <div className="relative z-10 w-full max-w-md mt-16 mx-4">
-          <Card className="border-none shadow-2xl overflow-hidden bg-transparent">
+          <Card className="border-none ring-0 shadow-2xl overflow-hidden bg-transparent">
             <div
               className="relative p-0 min-h-[520px] w-full flex flex-col"
               style={{
@@ -222,10 +232,57 @@ export default function RegisterScreen({
                     ))}
                   </div>
 
+                  {/* REPETIR CONTRASEÑA */}
+                  <div className="space-y-0.5">
+                    <label className="block text-[10px] font-bold text-black uppercase tracking-wider">
+                      Repetir contraseña
+                    </label>
+                    <Input
+                      type="password"
+                      placeholder="Repite tu contraseña"
+                      value={form.confirmPassword}
+                      onChange={handleChange("confirmPassword")}
+                      className={`h-8 bg-black/10 text-black border-none placeholder:text-black/40 focus:ring-0 focus-visible:ring-0 ${errors.confirmPassword ? "ring-2 ring-red-600" : ""}`}
+                    />
+                    {errors.confirmPassword?.map((err, i) => (
+                      <div key={i} className="w-full flex justify-start">
+                        <p className="text-[12px] max-w-xs text-red-800 font-extrabold mt-1 bg-red-100/90 border border-red-400 shadow-md px-3 py-1 rounded-md drop-shadow animate-pulse transition-all duration-300">
+                          {err}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Privacy consent */}
+                  <div className="flex items-start gap-2 pt-1">
+                    <input
+                      id="privacy-accept"
+                      type="checkbox"
+                      checked={accepted}
+                      onChange={(e) => setAccepted(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 shrink-0 accent-red-900 cursor-pointer"
+                    />
+                    <label
+                      htmlFor="privacy-accept"
+                      className="text-[11px] text-black/70 leading-snug cursor-pointer"
+                    >
+                      He leído y acepto la{" "}
+                      <button
+                        type="button"
+                        onClick={() => setShowPrivacy(true)}
+                        className="font-bold text-black underline hover:text-red-900 transition-colors"
+                      >
+                        Política de Privacidad
+                      </button>{" "}
+                      y el tratamiento de mis datos personales. Confirmo tener
+                      al menos 16 años.
+                    </label>
+                  </div>
+
                   <Button
                     type="submit"
-                    disabled={isLoading}
-                    className="w-full h-9 bg-red-950/90 hover:bg-black text-white mt-2 border border-red-800/50 transition-all font-bold"
+                    disabled={isLoading || !accepted}
+                    className="w-full h-9 bg-red-950/90 hover:bg-black text-white mt-2 border border-red-800/50 transition-all font-bold disabled:opacity-40"
                   >
                     {isLoading ? "PROCESANDO..." : "REGISTRARSE"}
                   </Button>
@@ -255,6 +312,11 @@ export default function RegisterScreen({
                   </button>
                 </div>
               </form>
+
+              <PrivacyPolicyModal
+                isOpen={showPrivacy}
+                onClose={() => setShowPrivacy(false)}
+              />
             </div>
           </Card>
         </div>

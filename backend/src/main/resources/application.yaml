@@ -26,6 +26,10 @@ spring:
         format_sql: true
     show-sql: true
 
+admin:
+  username: ${ADMIN_USERNAME:}
+  password: ${ADMIN_PASSWORD:}
+
 app:
   cloudinary:
     cloud-name: ${CLOUDINARY_CLOUD_NAME:}
@@ -36,6 +40,11 @@ app:
   jwt:
     secret: ${JWT_SECRET:}
     expiration: ${JWT_EXPIRATION:}
+
+sendgrid:
+  api-key: ${SENDGRID_API_KEY:}
+  from-email: ${SENDGRID_FROM_EMAIL:}
+  from-name: ${SENDGRID_FROM_NAME:}
 
 server:
   address: ${SERVER_ADDRESS:0.0.0.0}

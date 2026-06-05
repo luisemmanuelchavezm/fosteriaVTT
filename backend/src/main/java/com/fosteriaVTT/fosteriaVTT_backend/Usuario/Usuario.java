@@ -5,6 +5,7 @@ import com.fosteriaVTT.fosteriaVTT_backend.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -31,4 +32,10 @@ public class Usuario extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Rol role = Rol.USER;
+
+    @Column
+    private String recoverCode;
+
+    @Column
+    private LocalDateTime expiration;
 }

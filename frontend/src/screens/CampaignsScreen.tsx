@@ -3,6 +3,7 @@ import HomeNavbar, { type NavTab } from "../components/HomeNavbar";
 import LogoLayout from "../components/LogoLayout";
 import UserMenu from "../components/UserMenu";
 import CampaignSystemSelectorModal from "../components/CampaignSystemSelectorModal";
+import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
 import type { CampaignCreationSystem } from "../components/campaignSystem";
 import { buildApiUrl } from "../lib/api";
 
@@ -521,11 +522,60 @@ export default function CampaignsScreen({
                 </div>
               ) : null}
             </section>
+
+            <InlineFooter />
           </div>
         </div>
 
         <HomeNavbar activeTab="campaigns" onTabChange={handleNavChange} />
       </>
     </LogoLayout>
+  );
+}
+
+function InlineFooter() {
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  return (
+    <>
+      <div className="mt-10 border-t border-white/10 pt-5 pb-1 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between text-sm text-stone-400">
+        <div className="flex flex-col gap-1.5">
+          <span className="text-xs font-bold uppercase tracking-widest text-amber-300/60 mb-0.5">
+            FosteriaVTT
+          </span>
+          <a
+            href="mailto:fosteriavtt@gmail.com"
+            className="hover:text-amber-300 transition-colors"
+          >
+            <span className="text-stone-500">Correo de soporte: </span>
+            fosteriavtt@gmail.com
+          </a>
+          <a
+            href="https://github.com/luisemmanuelchavezm/fosteriaVTT"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-amber-300 transition-colors"
+          >
+            <span className="text-stone-500">Link del proyecto: </span>
+            github.com/luisemmanuelchavezm/fosteriaVTT
+          </a>
+        </div>
+        <div className="flex flex-col gap-1 sm:text-right sm:items-end">
+          <span className="text-xs font-bold uppercase tracking-widest text-amber-300/60 mb-0.5">
+            Legal
+          </span>
+          <button
+            type="button"
+            onClick={() => setPrivacyOpen(true)}
+            className="hover:text-amber-300 transition-colors text-left sm:text-right"
+          >
+            Política de Privacidad
+          </button>
+        </div>
+      </div>
+      <PrivacyPolicyModal
+        isOpen={privacyOpen}
+        onClose={() => setPrivacyOpen(false)}
+      />
+    </>
   );
 }

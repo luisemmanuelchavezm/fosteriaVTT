@@ -47,6 +47,20 @@ function App() {
     null,
   );
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { username: newUsername, avatar: newAvatar } = (e as CustomEvent)
+        .detail;
+      setUsername(newUsername);
+      setAvatarUrl(newAvatar);
+      localStorage.setItem("username", newUsername);
+      localStorage.setItem("avatar", newAvatar);
+    };
+    window.addEventListener("fosteria:profile-updated", handler);
+    return () =>
+      window.removeEventListener("fosteria:profile-updated", handler);
+  }, []);
+
   // Detección de link de invitación: ?join={campaignId}
   const [pendingJoinId, setPendingJoinId] = useState<string | null>(() => {
     return new URLSearchParams(window.location.search).get("join");

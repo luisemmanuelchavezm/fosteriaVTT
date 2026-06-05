@@ -59,7 +59,7 @@ describe("lanzamiento de dados - useDiceRoller", () => {
     });
 
     expect(result.current.diceBoxError).toBe(
-      "No se pudo interpretar la tirada: foo",
+      "El número máximo de dados que se pueden tirar a la vez son 20.",
     );
   });
 
@@ -212,7 +212,7 @@ describe("lanzamiento de dados - useDiceRoller", () => {
 
     await waitFor(() => {
       expect(result.current.diceBoxError).toBe(
-        "El numero de dados maximos que puedes tirar es 20.",
+        "El número máximo de dados que se pueden tirar a la vez son 20.",
       );
     });
   });

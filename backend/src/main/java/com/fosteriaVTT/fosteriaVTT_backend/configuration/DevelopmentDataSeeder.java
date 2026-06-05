@@ -1,4 +1,4 @@
-﻿package com.fosteriaVTT.fosteriaVTT_backend.configuration;
+package com.fosteriaVTT.fosteriaVTT_backend.configuration;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +40,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,6 +53,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class DevelopmentDataSeeder {
+
+    @Value("${admin.username:}")
+    private String adminUsername;
+
+    @Value("${admin.password:}")
+    private String adminPassword;
 
     private static final String DND_ARTISAN_TOOL_CATALOG_TAG = "DND,HerramientaArtesano,CatalogoHerramientasArtesanoDnd";
     private static final String DND_GAME_CATALOG_TAG = "DND,Juego,CatalogoJuegosDnd";
@@ -655,21 +662,24 @@ public class DevelopmentDataSeeder {
             ));
     }
 
-    // TODO: quitar cuando el admin se cree via .env
     @Bean
     @Order(0)
     CommandLineRunner seedAdminUser(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder
     ) {
-        return args -> userRepository.findByUsername("Admin").orElseGet(() ->
-            userRepository.save(Usuario.builder()
-                .username("Admin")
-                .email("admin@fosteria.dev")
-                .password(passwordEncoder.encode("123456789"))
-                .role(Rol.ADMIN)
-                .build())
-        );
+        return args -> {
+            if (adminUsername == null || adminUsername.isBlank() ||
+                adminPassword == null || adminPassword.isBlank()) return;
+            userRepository.findByUsername(adminUsername).orElseGet(() ->
+                userRepository.save(Usuario.builder()
+                    .username(adminUsername)
+                    .email("fosteriavtt@gmail.com")
+                    .password(passwordEncoder.encode(adminPassword))
+                    .role(Rol.ADMIN)
+                    .build())
+            );
+        };
     }
 
     @Bean

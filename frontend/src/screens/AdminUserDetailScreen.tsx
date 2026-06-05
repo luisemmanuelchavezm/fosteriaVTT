@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Pencil } from "lucide-react";
 import { buildApiUrl } from "../lib/api";
 import CharacterSheetModal from "./campaign/components/CharacterSheetModal";
 
@@ -27,15 +27,6 @@ interface AdminUserDetailScreenProps {
   token: string;
   userId: number;
   onBack: () => void;
-}
-
-function censorEmail(email: string): string {
-  const at = email.indexOf("@");
-  if (at < 0) return email;
-  const local = email.substring(0, at);
-  const domain = email.substring(at);
-  const visible = local.substring(0, Math.min(2, local.length));
-  return `${visible}***${domain}`;
 }
 
 interface DeleteConfirmModalProps {
@@ -155,6 +146,15 @@ export default function AdminUserDetailScreen({
     null,
   );
 
+  // Edit user fields
+  const [editUsername, setEditUsername] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [usernameEditable, setUsernameEditable] = useState(false);
+  const [emailEditable, setEmailEditable] = useState(false);
+  const [showConfirmEdit, setShowConfirmEdit] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
   useEffect(() => {
     fetch(buildApiUrl(`/api/admin/users/${userId}`), {
       headers: { Authorization: `Bearer ${token}` },
@@ -165,6 +165,8 @@ export default function AdminUserDetailScreen({
       })
       .then((data) => {
         setDetail(data);
+        setEditUsername(data.username);
+        setEditEmail(data.email);
         setItems([
           ...data.publishedMaps.map((m) => ({ ...m, type: "map" as const })),
           ...data.publishedPersonajes.map((p) => ({
@@ -176,6 +178,42 @@ export default function AdminUserDetailScreen({
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false));
   }, [token, userId]);
+
+  const hasChanges = detail
+    ? editUsername.trim() !== detail.username ||
+      editEmail.trim().toLowerCase() !== detail.email
+    : false;
+
+  async function handleSaveUser() {
+    if (!detail) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const res = await fetch(buildApiUrl(`/api/admin/users/${detail.id}`), {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          username: editUsername.trim(),
+          email: editEmail.trim().toLowerCase(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al guardar");
+      setDetail((prev) =>
+        prev ? { ...prev, username: data.username, email: data.email } : prev,
+      );
+      setUsernameEditable(false);
+      setEmailEditable(false);
+      setShowConfirmEdit(false);
+    } catch (e: unknown) {
+      setSaveError(e instanceof Error ? e.message : "Error al guardar");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   function handleDelete() {
     if (!pendingDelete) return;
@@ -239,21 +277,99 @@ export default function AdminUserDetailScreen({
 
       {detail && (
         <div className="flex flex-col gap-8">
-          <div className="flex items-center gap-6">
+          <div className="flex items-start gap-6">
             <img
               src={detail.avatar}
               alt={detail.username}
               className="h-24 w-24 rounded-full object-cover border-4 border-amber-400/40 shadow-lg flex-shrink-0"
             />
-            <div className="flex flex-col gap-1">
-              <h2 className="text-2xl font-bold text-gray-100">
-                {detail.username}
-              </h2>
-              <p className="text-sm text-gray-400">
-                {censorEmail(detail.email)}
-              </p>
+            <div className="flex flex-col gap-2 flex-1">
+              {/* Username */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={editUsername}
+                  disabled={!usernameEditable}
+                  onChange={(e) => setEditUsername(e.target.value)}
+                  className={`text-2xl font-bold bg-transparent text-gray-100 border-b border-transparent outline-none transition w-full max-w-xs ${usernameEditable ? "border-amber-400/50 bg-white/5 px-1 rounded" : ""} disabled:opacity-100`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setUsernameEditable(true)}
+                  title="Editar usuario"
+                  className={`transition-colors ${usernameEditable ? "text-amber-400" : "text-amber-400/40 hover:text-amber-300"}`}
+                >
+                  <Pencil size={13} />
+                </button>
+              </div>
+              {/* Email */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="email"
+                  value={editEmail}
+                  disabled={!emailEditable}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  className={`text-sm bg-transparent text-gray-400 border-b border-transparent outline-none transition w-full max-w-xs ${emailEditable ? "border-amber-400/50 bg-white/5 px-1 rounded text-gray-100" : ""} disabled:opacity-100`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setEmailEditable(true)}
+                  title="Editar email"
+                  className={`transition-colors ${emailEditable ? "text-amber-400" : "text-amber-400/40 hover:text-amber-300"}`}
+                >
+                  <Pencil size={13} />
+                </button>
+              </div>
+              {/* Save button */}
+              {saveError && <p className="text-xs text-red-400">{saveError}</p>}
+              <button
+                type="button"
+                disabled={!hasChanges || saving}
+                onClick={() => {
+                  setSaveError(null);
+                  setShowConfirmEdit(true);
+                }}
+                className="mt-1 self-start px-4 py-1.5 rounded-lg text-sm font-semibold text-white bg-amber-700/70 hover:bg-amber-600 border border-amber-500/30 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                {saving ? "Guardando..." : "Guardar cambios"}
+              </button>
             </div>
           </div>
+
+          {/* Confirm edit modal */}
+          {showConfirmEdit && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+              onClick={() => setShowConfirmEdit(false)}
+            >
+              <div
+                className="bg-[#1a1a1a] border border-white/10 rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 flex flex-col gap-4"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 className="text-base font-semibold text-gray-100">
+                  ¿Estás seguro que quieres modificar a este usuario?
+                </h3>
+                <div className="flex gap-3 justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmEdit(false)}
+                    disabled={saving}
+                    className="px-4 py-2 rounded-lg text-sm text-gray-300 bg-white/5 hover:bg-white/10 transition-colors disabled:opacity-50"
+                  >
+                    No
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveUser}
+                    disabled={saving}
+                    className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-amber-700/80 hover:bg-amber-600 transition-colors disabled:opacity-50"
+                  >
+                    {saving ? "Guardando..." : "Sí, modificar"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="flex gap-6">
             <div className="bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-center">

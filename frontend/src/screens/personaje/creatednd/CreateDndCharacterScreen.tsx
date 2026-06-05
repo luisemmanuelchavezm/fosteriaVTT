@@ -1,4 +1,5 @@
 import { AlertTriangle, ChevronLeft, ChevronRight, Flame } from "lucide-react";
+import { useState } from "react";
 import DiceRollOverlay from "../../../components/dice/DiceRollOverlay";
 import HomeNavbar, { type NavTab } from "../../../components/HomeNavbar";
 import LogoLayout from "../../../components/LogoLayout";
@@ -15,6 +16,52 @@ import { useCreateDndCharacter } from "./hooks/useCreateDndCharacter";
 import { useCreateDndCharacterWorkflow } from "./hooks/useCreateDndCharacterWorkflow";
 import { CREATION_PHASES } from "./utils/createDndScreenUtils";
 import { useSpellDetailInteractions } from "../utils/useSpellDetailInteractions";
+import imgDragon from "../../../assets/fondos/dragones.png";
+import imgArma from "../../../assets/fondos/arma.png";
+
+// ── Decoraciones: dragones (bordes) + armas (atmósfera) ───────────────────────
+interface DecorSlot {
+  top?: string;
+  bottom?: string;
+  left?: string;
+  right?: string;
+  rotate: number;
+  size: number;
+  opacity: number;
+  kind: "dragon" | "weapon";
+}
+
+const DRAGON_POOL: Omit<DecorSlot, "kind">[] = [
+  { top: "-80px", left: "-80px", rotate: -15, size: 280, opacity: 0.45 },
+  { top: "-65px", right: "-80px", rotate: 20, size: 265, opacity: 0.42 },
+  { bottom: "-75px", left: "-65px", rotate: 10, size: 270, opacity: 0.44 },
+  { bottom: "-65px", right: "-75px", rotate: -12, size: 255, opacity: 0.4 },
+  { top: "20%", left: "-75px", rotate: -8, size: 225, opacity: 0.35 },
+  { top: "20%", right: "-75px", rotate: 15, size: 215, opacity: 0.33 },
+  { top: "58%", left: "-60px", rotate: 5, size: 205, opacity: 0.36 },
+  { top: "58%", right: "-60px", rotate: -10, size: 210, opacity: 0.34 },
+  { top: "8%", left: "22%", rotate: -5, size: 155, opacity: 0.2 },
+  { top: "8%", right: "22%", rotate: 8, size: 150, opacity: 0.2 },
+  { top: "44%", left: "18%", rotate: 3, size: 140, opacity: 0.17 },
+  { bottom: "14%", left: "35%", rotate: -6, size: 145, opacity: 0.18 },
+];
+
+const WEAPON_POOL: Omit<DecorSlot, "kind">[] = [
+  { top: "5%", left: "42%", rotate: -10, size: 200, opacity: 0.24 },
+  { top: "37%", left: "44%", rotate: 15, size: 220, opacity: 0.21 },
+  { bottom: "9%", right: "38%", rotate: -5, size: 195, opacity: 0.27 },
+  { top: "-28px", left: "46%", rotate: 8, size: 235, opacity: 0.3 },
+  { bottom: "-18px", right: "42%", rotate: -12, size: 215, opacity: 0.26 },
+];
+
+function pickRandom<T>(arr: T[], n: number): T[] {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1);
+    [copy[i], copy[j]] = [copy[j]!, copy[i]!];
+  }
+  return copy.slice(0, n);
+}
 
 interface CreateDndCharacterScreenProps {
   username: string;
@@ -35,6 +82,17 @@ export default function CreateDndCharacterScreen({
   onGoCharacters,
   onCharacterCreated,
 }: CreateDndCharacterScreenProps) {
+  const [decors] = useState<DecorSlot[]>(() => [
+    ...pickRandom(DRAGON_POOL, 7).map((d) => ({
+      ...d,
+      kind: "dragon" as const,
+    })),
+    ...pickRandom(WEAPON_POOL, 2).map((d) => ({
+      ...d,
+      kind: "weapon" as const,
+    })),
+  ]);
+
   const creation = useCreateDndCharacter();
   const workflow = useCreateDndCharacterWorkflow({
     creation,
@@ -111,9 +169,31 @@ export default function CreateDndCharacterScreen({
         />
 
         <div className="relative z-10 w-full px-4 pt-28 pb-32 md:px-8 md:pb-36">
-          <div className="relative overflow-hidden rounded-[32px] border border-stone-300/10 bg-[linear-gradient(180deg,rgba(12,10,9,0.96)_0%,rgba(28,25,23,0.9)_48%,rgba(10,10,10,0.98)_100%)] p-6 text-stone-50 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-md md:p-8">
+          <div className="relative rounded-[32px] border border-stone-300/10 bg-[linear-gradient(180deg,rgba(12,10,9,0.96)_0%,rgba(28,25,23,0.9)_48%,rgba(10,10,10,0.98)_100%)] p-6 text-stone-50 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-md md:p-8">
             <div className="pointer-events-none absolute -top-20 right-[-40px] h-56 w-56 rounded-full bg-stone-400/8 blur-3xl" />
             <div className="pointer-events-none absolute bottom-[-90px] left-[-20px] h-64 w-64 rounded-full bg-amber-300/10 blur-3xl" />
+
+            {/* Decoraciones: dragones (bordes) + armas (atmósfera) */}
+            {decors.map((d, i) => (
+              <img
+                key={i}
+                src={d.kind === "dragon" ? imgDragon : imgArma}
+                alt=""
+                aria-hidden="true"
+                className="pointer-events-none absolute select-none z-0"
+                style={{
+                  top: d.top,
+                  bottom: d.bottom,
+                  left: d.left,
+                  right: d.right,
+                  width: d.size,
+                  height: d.size,
+                  opacity: d.opacity,
+                  transform: `rotate(${d.rotate}deg)`,
+                  objectFit: "contain",
+                }}
+              />
+            ))}
 
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
