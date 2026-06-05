@@ -52,7 +52,7 @@ public class UserController {
         Usuario current = userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         boolean takenByOther = userRepository.existsByEmail(email.trim().toLowerCase())
-                && !email.trim().toLowerCase().equals(current.getEmail());
+                && !email.trim().equalsIgnoreCase(current.getEmail());
         return ResponseEntity.ok(Map.of("available", !takenByOther));
     }
 
