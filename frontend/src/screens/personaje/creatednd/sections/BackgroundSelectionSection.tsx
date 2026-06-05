@@ -492,11 +492,17 @@ export default function BackgroundSelectionSection({
                   </label>
                   <textarea
                     value={personalHistory}
-                    onChange={(event) => setPersonalHistory(event.target.value)}
+                    onChange={(event) =>
+                      setPersonalHistory(event.target.value.slice(0, 500))
+                    }
                     rows={6}
+                    maxLength={500}
                     placeholder="Opcional"
                     className="w-full rounded-[18px] border border-stone-300/15 bg-black/45 px-4 py-3 text-sm text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-300/50 focus:bg-stone-950"
                   />
+                  <p className="mt-1 text-right text-xs text-stone-500">
+                    {personalHistory.length}/500
+                  </p>
                 </div>
               </div>
             </div>

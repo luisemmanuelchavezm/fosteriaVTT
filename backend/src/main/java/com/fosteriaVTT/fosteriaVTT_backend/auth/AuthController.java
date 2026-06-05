@@ -18,8 +18,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -29,15 +32,23 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final SendGridEmailService emailService;
+    private final SecureRandom secureRandom = new SecureRandom();
 
     public AuthController(UserRepository userRepository,
                           PasswordEncoder passwordEncoder,
                           AuthenticationManager authenticationManager,
-                          JwtUtil jwtUtil) {
+                          JwtUtil jwtUtil,
+                          SendGridEmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.emailService = emailService;
+    }
+
+    private String generateCode() {
+        return String.format("%06d", secureRandom.nextInt(1_000_000));
     }
 
     @PostMapping("/register")
@@ -97,5 +108,72 @@ public class AuthController {
         body.put("avatar", usuario.getAvatar());
         body.put("role", usuario.getRole().name());
         return ResponseEntity.ok(body);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        if (email == null || email.isBlank())
+            return ResponseEntity.badRequest().body(Map.of("error", "El email es requerido"));
+
+        Optional<Usuario> userOpt = userRepository.findByEmail(email.trim().toLowerCase());
+        if (userOpt.isEmpty())
+            return ResponseEntity.status(404).body(Map.of("error", "Email incorrecto, usuario no encontrado"));
+
+        Usuario candidate = userOpt.get();
+        if (candidate.getRole() == Rol.ADMIN || candidate.getUsername().equalsIgnoreCase("sistema"))
+            return ResponseEntity.status(403).body(Map.of("error", "Usuario restringido, no permite modificaciones"));
+
+        String code = generateCode();
+        Usuario user = userOpt.get();
+        user.setRecoverCode(passwordEncoder.encode(code));
+        user.setExpiration(LocalDateTime.now().plusMinutes(30));
+        userRepository.save(user);
+        emailService.sendResetCode(user.getEmail(), user.getUsername(), code);
+        return ResponseEntity.ok(Map.of("message", "Código enviado correctamente"));
+    }
+
+    @PostMapping("/verify-reset-code")
+    public ResponseEntity<?> verifyResetCode(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String code = body.get("code");
+        if (email == null || code == null)
+            return ResponseEntity.badRequest().body(Map.of("error", "Email y código son requeridos"));
+
+        Optional<Usuario> userOpt = userRepository.findByEmail(email.trim().toLowerCase());
+        if (userOpt.isEmpty()) return ResponseEntity.badRequest().body(Map.of("error", "Código inválido o expirado"));
+
+        Usuario user = userOpt.get();
+        if (user.getRecoverCode() == null || user.getExpiration() == null
+                || LocalDateTime.now().isAfter(user.getExpiration())
+                || !passwordEncoder.matches(code.trim(), user.getRecoverCode()))
+            return ResponseEntity.badRequest().body(Map.of("error", "Código inválido o expirado"));
+
+        return ResponseEntity.ok(Map.of("message", "Código válido"));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String code = body.get("code");
+        String newPassword = body.get("newPassword");
+
+        if (newPassword == null || newPassword.length() < 8 || newPassword.length() > 100)
+            return ResponseEntity.badRequest().body(Map.of("error", "La contraseña debe tener entre 8 y 100 caracteres"));
+
+        Optional<Usuario> userOpt = userRepository.findByEmail(email.trim().toLowerCase());
+        if (userOpt.isEmpty()) return ResponseEntity.badRequest().body(Map.of("error", "Código inválido o expirado"));
+
+        Usuario user = userOpt.get();
+        if (user.getRecoverCode() == null || user.getExpiration() == null
+                || LocalDateTime.now().isAfter(user.getExpiration())
+                || !passwordEncoder.matches(code.trim(), user.getRecoverCode()))
+            return ResponseEntity.badRequest().body(Map.of("error", "Código inválido o expirado"));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setRecoverCode(null);
+        user.setExpiration(null);
+        userRepository.save(user);
+        return ResponseEntity.ok(Map.of("message", "Contraseña actualizada correctamente"));
     }
 }

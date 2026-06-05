@@ -249,7 +249,12 @@ export default function AdminPanelScreen({
     >
       <div className="absolute inset-0 bg-black/50 pointer-events-none" />
 
-      <UserMenu username={username} avatarUrl={avatarUrl} onLogout={onLogout} />
+      <UserMenu
+        username={username}
+        avatarUrl={avatarUrl}
+        onLogout={onLogout}
+        hideEditProfile
+      />
 
       <div
         className="fixed inset-x-0 top-0 z-40 flex items-end pb-3 pl-6"

@@ -35,6 +35,14 @@ vi.mock("../../../components/ui/input", () => ({
   ),
 }));
 
+vi.mock("../../../components/PrivacyPolicyModal", () => ({
+  default: () => null,
+}));
+
+function acceptPrivacy() {
+  fireEvent.click(screen.getByRole("checkbox"));
+}
+
 describe("RegisterScreen", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", vi.fn());
@@ -57,6 +65,7 @@ describe("RegisterScreen", () => {
     fireEvent.change(screen.getByPlaceholderText("********"), {
       target: { value: "1234" },
     });
+    acceptPrivacy();
     fireEvent.click(screen.getByRole("button", { name: "REGISTRARSE" }));
 
     expect(
@@ -88,6 +97,10 @@ describe("RegisterScreen", () => {
     fireEvent.change(screen.getByPlaceholderText("********"), {
       target: { value: "12345678" },
     });
+    fireEvent.change(screen.getByPlaceholderText("Repite tu contraseña"), {
+      target: { value: "12345678" },
+    });
+    acceptPrivacy();
     fireEvent.click(screen.getByRole("button", { name: "REGISTRARSE" }));
 
     expect(await screen.findByText("Este email ya existe")).toBeInTheDocument();
@@ -118,6 +131,10 @@ describe("RegisterScreen", () => {
     fireEvent.change(screen.getByPlaceholderText("********"), {
       target: { value: "12345678" },
     });
+    fireEvent.change(screen.getByPlaceholderText("Repite tu contraseña"), {
+      target: { value: "12345678" },
+    });
+    acceptPrivacy();
     fireEvent.click(screen.getByRole("button", { name: "REGISTRARSE" }));
 
     await act(async () => {

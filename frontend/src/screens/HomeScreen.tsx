@@ -3,9 +3,10 @@ import HomeNavbar, { type NavTab } from "../components/HomeNavbar";
 import LogoLayout from "../components/LogoLayout";
 import UserMenu from "../components/UserMenu";
 import CampaignSystemSelectorModal from "../components/CampaignSystemSelectorModal";
+import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
 import type { CampaignCreationSystem } from "../components/campaignSystem";
 import dndImage from "../assets/DND.png";
-import morkBorgImage from "../assets/COC.png";
+import morkBorgImage from "../assets/MÖRK BORG.png";
 import { buildApiUrl } from "../lib/api";
 
 interface HomeScreenProps {
@@ -47,9 +48,21 @@ function formatLastPlayed(lastPlayedAt: string) {
   }).format(parsedDate);
 }
 
-const featuredCampaigns: FeaturedCampaign[] = [
-  { id: "dnd", title: "Dungeons & Dragons", image: dndImage },
-  { id: "mork-borg", title: "Mork Borg", image: morkBorgImage },
+const featuredCampaigns: Array<
+  FeaturedCampaign & { system: CampaignCreationSystem }
+> = [
+  {
+    id: "dnd",
+    title: "Dungeons & Dragons",
+    image: dndImage,
+    system: "Dungeons and Dragons",
+  },
+  {
+    id: "mork-borg",
+    title: "Mork Borg",
+    image: morkBorgImage,
+    system: "Mork Borg",
+  },
 ];
 
 export default function HomeScreen({
@@ -235,10 +248,7 @@ export default function HomeScreen({
               </div>
 
               <div className="grid gap-4 md:grid-cols-[minmax(0,1.75fr)_minmax(220px,0.85fr)]">
-                <button
-                  type="button"
-                  className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-stone-900 text-left shadow-2xl"
-                >
+                <div className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-stone-900 text-left shadow-2xl">
                   <img
                     src={featuredCampaign.image}
                     alt={featuredCampaign.title}
@@ -252,11 +262,17 @@ export default function HomeScreen({
                     <h3 className="mt-2 text-3xl font-bold text-white md:text-4xl">
                       {featuredCampaign.title}
                     </h3>
-                    <span className="mt-4 inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onCreateCampaign?.(featuredCampaign.system)
+                      }
+                      className="mt-4 inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/25"
+                    >
                       Crear campaña
-                    </span>
+                    </button>
                   </div>
-                </button>
+                </div>
 
                 <div className="grid gap-4 sm:grid-cols-3 md:grid-cols-1">
                   {featuredCampaigns.map((campaign, index) => (
@@ -385,11 +401,60 @@ export default function HomeScreen({
                 })}
               </div>
             </section>
+
+            <InlineFooter />
           </div>
         </div>
       </>
 
       <HomeNavbar activeTab="home" onTabChange={handleNavChange} />
     </LogoLayout>
+  );
+}
+
+function InlineFooter() {
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  return (
+    <>
+      <div className="mt-10 border-t border-white/10 pt-5 pb-1 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between text-sm text-stone-400">
+        <div className="flex flex-col gap-1.5">
+          <span className="text-xs font-bold uppercase tracking-widest text-amber-300/60 mb-0.5">
+            FosteriaVTT
+          </span>
+          <a
+            href="mailto:fosteriavtt@gmail.com"
+            className="hover:text-amber-300 transition-colors"
+          >
+            <span className="text-stone-500">Correo de soporte: </span>
+            fosteriavtt@gmail.com
+          </a>
+          <a
+            href="https://github.com/luisemmanuelchavezm/fosteriaVTT"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-amber-300 transition-colors"
+          >
+            <span className="text-stone-500">Link del proyecto: </span>
+            github.com/luisemmanuelchavezm/fosteriaVTT
+          </a>
+        </div>
+        <div className="flex flex-col gap-1 sm:text-right sm:items-end">
+          <span className="text-xs font-bold uppercase tracking-widest text-amber-300/60 mb-0.5">
+            Legal
+          </span>
+          <button
+            type="button"
+            onClick={() => setPrivacyOpen(true)}
+            className="hover:text-amber-300 transition-colors text-left sm:text-right"
+          >
+            Política de Privacidad
+          </button>
+        </div>
+      </div>
+      <PrivacyPolicyModal
+        isOpen={privacyOpen}
+        onClose={() => setPrivacyOpen(false)}
+      />
+    </>
   );
 }

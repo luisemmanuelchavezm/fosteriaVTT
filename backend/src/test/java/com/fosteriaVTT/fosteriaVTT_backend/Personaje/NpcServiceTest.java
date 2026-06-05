@@ -238,11 +238,11 @@ class NpcServiceTest {
     void agregarHabilidadNpc_resuelveHabilidadNormalParaTagNPC() {
         Usuario usuario = buildUsuario("daria");
         Personaje personaje = buildPersonaje(1L, "Goblin", usuario, "enemigo");
-        Habilidad rasgo = buildHabilidad(21L, "Sigilo", "NPC");
+        Habilidad rasgo = buildHabilidad(21L, "Sigilo", "NPC,PROPIA;1");
 
         when(personajeRepository.findByIdAndUsuarioUsername(1L, "daria"))
                 .thenReturn(Optional.of(personaje));
-        when(dndAbilityUtils.resolverORegistrarHabilidad(anyString(), any(), any(), anyString()))
+        when(dndAbilityUtils.crearHabilidadArmaExclusiva(anyString(), any(), any(), anyString()))
                 .thenReturn(rasgo);
         when(dndAbilityUtils.agregarHabilidadSiNoExiste(any(), any())).thenReturn(true);
         when(personajeRepository.save(any())).thenReturn(personaje);
@@ -251,9 +251,9 @@ class NpcServiceTest {
                 "Sigilo", "Se mueve sigilosamente", "NPC", null, null);
         npcService.agregarHabilidadNpc(1L, request, "daria");
 
-        verify(dndAbilityUtils).resolverORegistrarHabilidad(
+        verify(dndAbilityUtils).crearHabilidadArmaExclusiva(
                 eq("Sigilo"), eq("Se mueve sigilosamente"), eq(null), anyString());
-        verify(dndAbilityUtils, never()).crearHabilidadArmaExclusiva(anyString(), any(), any(), anyString());
+        verify(dndAbilityUtils, never()).resolverORegistrarHabilidad(anyString(), any(), any(), anyString());
     }
 
     // ─────────────────────────────────────────────

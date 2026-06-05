@@ -132,6 +132,42 @@ public class AdminController {
     }
 
     @Transactional
+    @PutMapping("/users/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id,
+                                        @RequestBody Map<String, String> body) {
+        return userRepository.findById(id)
+                .map(u -> {
+                    String newUsername = body.get("username");
+                    String newEmail = body.get("email");
+
+                    if (newUsername != null && !newUsername.isBlank()) {
+                        String trimmed = newUsername.trim();
+                        if (trimmed.length() < 3)
+                            return ResponseEntity.badRequest().body(Map.of("error", "Mínimo 3 caracteres para el usuario"));
+                        if (trimmed.length() > 50)
+                            return ResponseEntity.badRequest().body(Map.of("error", "Máximo 50 caracteres para el usuario"));
+                        if (!trimmed.equals(u.getUsername()) && userRepository.existsByUsername(trimmed))
+                            return ResponseEntity.badRequest().body(Map.of("error", "Username already exists"));
+                        u.setUsername(trimmed);
+                    }
+
+                    if (newEmail != null && !newEmail.isBlank()) {
+                        String trimmed = newEmail.trim().toLowerCase();
+                        if (!trimmed.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"))
+                            return ResponseEntity.badRequest().body(Map.of("error", "Formato de email no válido"));
+                        if (trimmed.length() > 100)
+                            return ResponseEntity.badRequest().body(Map.of("error", "Máximo 100 caracteres para el email"));
+                        if (!trimmed.equals(u.getEmail()) && userRepository.existsByEmail(trimmed))
+                            return ResponseEntity.badRequest().body(Map.of("error", "Email already exists"));
+                        u.setEmail(trimmed);
+                    }
+
+                    userRepository.save(u);
+                    return ResponseEntity.ok(Map.of("username", u.getUsername(), "email", u.getEmail()));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id,
                                         org.springframework.security.core.Authentication authentication) {
