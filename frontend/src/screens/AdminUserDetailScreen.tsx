@@ -19,8 +19,9 @@ interface UserDetail {
   campañaCount: number;
   personajeCount: number;
   publishedMaps: Omit<PublishedItem, "type">[];
-  publishedPersonajes: Omit<PublishedItem, "type" | "sistemaDeJuego"> &
-    { sistemaDeJuego: string }[];
+  publishedPersonajes: (Omit<PublishedItem, "type" | "sistemaDeJuego"> & {
+    sistemaDeJuego: string;
+  })[];
 }
 
 interface AdminUserDetailScreenProps {
