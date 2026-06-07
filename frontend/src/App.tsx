@@ -335,6 +335,7 @@ function App() {
           onGoHome={handleGoHome}
           onGoCampaigns={handleGoCampaigns}
           onGoCharacters={handleGoCharacters}
+          onCharacterCreated={handleOpenMorkBorgCharacterSheet}
         />
       )}
       {mode === "character-sheet-dnd" && token && selectedCharacterId && (

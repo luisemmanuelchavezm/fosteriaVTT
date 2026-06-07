@@ -203,8 +203,11 @@ export default function CreateMorkBorgCharacterScreen({
       try {
         const created = (await resp.json()) as { id: number };
         onCharacterCreated?.(String(created.id));
-      } catch {
-        console.warn("[MorkBorg] No se pudo leer el ID del personaje creado");
+      } catch (e) {
+        console.warn(
+          "[MorkBorg] No se pudo leer el ID del personaje creado",
+          e,
+        );
       }
       onGoCharacters();
     } catch (e) {
