@@ -13,6 +13,7 @@ import {
   MORK_BORG_CREATION_PHASES,
 } from "./utils/morkBorgUtils";
 import { useState } from "react";
+import { buildApiUrl } from "../../../lib/api";
 import imgCalavera from "../../../assets/fondos/calavera.png";
 import imgSol from "../../../assets/fondos/sol.png";
 
@@ -187,7 +188,7 @@ export default function CreateMorkBorgCharacterScreen({
         new Blob([JSON.stringify(payload)], { type: "application/json" }),
       );
 
-      resp = await fetch("/api/personajes/mork-borg", {
+      resp = await fetch(buildApiUrl("/api/personajes/mork-borg"), {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
