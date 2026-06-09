@@ -1,14 +1,24 @@
 package com.fosteriaVTT.fosteriaVTT_backend.Personaje;
 
+import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarArmaHabilidadNpcRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarExperienciaPersonajeRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarHojaPersonajeRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarItemMochilaRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarNpcRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.ActualizarRecursosPersonajeRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.AgregarHabilidadNpcRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.AgregarHabilidadPersonajeRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.AgregarItemMochilaRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.BajarNivelPersonajeRequest;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PagedResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PersonajeDetalleResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.PersonajeResumenResponse;
 import com.fosteriaVTT.fosteriaVTT_backend.dto.SubirNivelPersonajeRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.ActualizarHPMBRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.ActualizarSuministrosMBRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.AgregarRasgoCustomMBRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.EscoriaEspecialidadRequest;
+import com.fosteriaVTT.fosteriaVTT_backend.dto.morkborg.MejorarPersonajeMBRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +41,9 @@ class PersonajeControllerTest {
 
     @Mock
     private PersonajeService personajeService;
+
+    @Mock
+    private PersonajeMBService personajeMBService;
 
     @Mock
     private NpcService npcService;
@@ -279,6 +292,29 @@ class PersonajeControllerTest {
     }
 
     // ─────────────────────────────────────────────
+    // actualizarHojaPersonaje
+    // ─────────────────────────────────────────────
+
+    @Test
+    void actualizarHoja_delegaEnPersonajeService() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+        ActualizarHojaPersonajeRequest request = new ActualizarHojaPersonajeRequest(
+                "Nuevo Nombre", null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null);
+        PersonajeDetalleResponse detalle = new PersonajeDetalleResponse(
+                3L, "Nuevo Nombre", null, null, "Dungeons and Dragons",
+                null, null, List.of(), null, Map.of(), List.of(), List.of(),
+                LocalDateTime.now(), "personaje", null, "daria", null);
+        when(personajeService.actualizarHojaPersonaje(3L, request, "daria")).thenReturn(detalle);
+
+        PersonajeDetalleResponse result = personajeController.actualizarHojaPersonaje(3L, request, auth);
+
+        assertEquals(detalle, result);
+        verify(personajeService).actualizarHojaPersonaje(3L, request, "daria");
+    }
+
+    // ─────────────────────────────────────────────
     // actualizarRecursosPersonaje / actualizarExperiencia
     // ─────────────────────────────────────────────
 
@@ -310,5 +346,266 @@ class PersonajeControllerTest {
 
         assertEquals(detalle, result);
         verify(personajeService).actualizarExperiencia(3L, request, "daria");
+    }
+
+    // ─────────────────────────────────────────────
+    // Mochila
+    // ─────────────────────────────────────────────
+
+    @Test
+    void agregarItemMochila_delegaEnPersonajeService() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+        AgregarItemMochilaRequest request = new AgregarItemMochilaRequest(1L, null, null, null, null, null, 1);
+        PersonajeDetalleResponse detalle = new PersonajeDetalleResponse(
+                3L, "Aria", null, null, "Dungeons and Dragons",
+                null, null, List.of(), null, Map.of(), List.of(), List.of(),
+                LocalDateTime.now(), "personaje", null, "daria", null);
+        when(personajeService.agregarItemMochila(3L, request, "daria")).thenReturn(detalle);
+
+        PersonajeDetalleResponse result = personajeController.agregarItemMochila(3L, request, auth);
+
+        assertEquals(detalle, result);
+        verify(personajeService).agregarItemMochila(3L, request, "daria");
+    }
+
+    @Test
+    void actualizarItemMochila_delegaEnPersonajeService() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+        ActualizarItemMochilaRequest request = new ActualizarItemMochilaRequest(true, 2);
+        PersonajeDetalleResponse detalle = new PersonajeDetalleResponse(
+                3L, "Aria", null, null, "Dungeons and Dragons",
+                null, null, List.of(), null, Map.of(), List.of(), List.of(),
+                LocalDateTime.now(), "personaje", null, "daria", null);
+        when(personajeService.actualizarItemMochila(3L, 10L, request, "daria")).thenReturn(detalle);
+
+        PersonajeDetalleResponse result = personajeController.actualizarItemMochila(3L, 10L, request, auth);
+
+        assertEquals(detalle, result);
+        verify(personajeService).actualizarItemMochila(3L, 10L, request, "daria");
+    }
+
+    @Test
+    void eliminarItemMochila_delegaEnPersonajeService() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+        PersonajeDetalleResponse detalle = new PersonajeDetalleResponse(
+                3L, "Aria", null, null, "Dungeons and Dragons",
+                null, null, List.of(), null, Map.of(), List.of(), List.of(),
+                LocalDateTime.now(), "personaje", null, "daria", null);
+        when(personajeService.eliminarItemMochila(3L, 10L, "daria")).thenReturn(detalle);
+
+        PersonajeDetalleResponse result = personajeController.eliminarItemMochila(3L, 10L, auth);
+
+        assertEquals(detalle, result);
+        verify(personajeService).eliminarItemMochila(3L, 10L, "daria");
+    }
+
+    // ─────────────────────────────────────────────
+    // Habilidades
+    // ─────────────────────────────────────────────
+
+    @Test
+    void agregarHabilidad_delegaEnPersonajeService() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+        AgregarHabilidadPersonajeRequest request = new AgregarHabilidadPersonajeRequest(5L);
+        PersonajeDetalleResponse detalle = new PersonajeDetalleResponse(
+                3L, "Aria", null, null, "Dungeons and Dragons",
+                null, null, List.of(), null, Map.of(), List.of(), List.of(),
+                LocalDateTime.now(), "personaje", null, "daria", null);
+        when(personajeService.agregarHabilidad(3L, request, "daria")).thenReturn(detalle);
+
+        PersonajeDetalleResponse result = personajeController.agregarHabilidad(3L, request, auth);
+
+        assertEquals(detalle, result);
+        verify(personajeService).agregarHabilidad(3L, request, "daria");
+    }
+
+    @Test
+    void eliminarHabilidad_delegaEnPersonajeService() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+        PersonajeDetalleResponse detalle = new PersonajeDetalleResponse(
+                3L, "Aria", null, null, "Dungeons and Dragons",
+                null, null, List.of(), null, Map.of(), List.of(), List.of(),
+                LocalDateTime.now(), "personaje", null, "daria", null);
+        when(personajeService.eliminarHabilidad(3L, 5L, "daria")).thenReturn(detalle);
+
+        PersonajeDetalleResponse result = personajeController.eliminarHabilidad(3L, 5L, auth);
+
+        assertEquals(detalle, result);
+        verify(personajeService).eliminarHabilidad(3L, 5L, "daria");
+    }
+
+    // ─────────────────────────────────────────────
+    // NPC habilidad arma
+    // ─────────────────────────────────────────────
+
+    @Test
+    void actualizarArmaHabilidadNpc_delegaEnNpcService() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+        ActualizarArmaHabilidadNpcRequest request = new ActualizarArmaHabilidadNpcRequest("Espada", "1d8+3", 3);
+        PersonajeDetalleResponse detalle = new PersonajeDetalleResponse(
+                3L, "Aria", null, null, "Dungeons and Dragons",
+                null, null, List.of(), null, Map.of(), List.of(), List.of(),
+                LocalDateTime.now(), "personaje", null, "daria", null);
+        when(npcService.actualizarArmaHabilidadNpc(3L, 7L, request, "daria")).thenReturn(detalle);
+
+        PersonajeDetalleResponse result = personajeController.actualizarArmaHabilidadNpc(3L, 7L, request, auth);
+
+        assertEquals(detalle, result);
+        verify(npcService).actualizarArmaHabilidadNpc(3L, 7L, request, "daria");
+    }
+
+    // ─────────────────────────────────────────────
+    // MB enemy traits / moral
+    // ─────────────────────────────────────────────
+
+    @Test
+    void guardarMBEnemyTraits_sinTagsNoLlamaAlServicio() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+
+        personajeController.guardarMBEnemyTraits(3L, Map.of("tagsToAdd", "  "), auth);
+
+        verify(npcService, org.mockito.Mockito.never()).appendTagsToEnemy(
+                org.mockito.ArgumentMatchers.anyLong(),
+                org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString());
+    }
+
+    @Test
+    void guardarMBEnemyTraits_conTagsLlamaAlServicio() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+        doNothing().when(npcService).appendTagsToEnemy(3L, "TagNuevo", "daria");
+
+        personajeController.guardarMBEnemyTraits(3L, Map.of("tagsToAdd", "TagNuevo"), auth);
+
+        verify(npcService).appendTagsToEnemy(3L, "TagNuevo", "daria");
+    }
+
+    @Test
+    void guardarMBEnemyTraits_lanza401SiNoHayAutenticacion() {
+        org.junit.jupiter.api.Assertions.assertThrows(
+                org.springframework.web.server.ResponseStatusException.class,
+                () -> personajeController.guardarMBEnemyTraits(3L, Map.of(), null));
+    }
+
+    @Test
+    void actualizarMBEnemyMoral_conMoralLlamaAlServicio() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+        doNothing().when(npcService).actualizarMoralMBEnemy(3L, 8, "daria");
+
+        personajeController.actualizarMBEnemyMoral(3L, Map.of("moralActual", 8), auth);
+
+        verify(npcService).actualizarMoralMBEnemy(3L, 8, "daria");
+    }
+
+    @Test
+    void actualizarMBEnemyMoral_lanza401SiNoHayAutenticacion() {
+        org.junit.jupiter.api.Assertions.assertThrows(
+                org.springframework.web.server.ResponseStatusException.class,
+                () -> personajeController.actualizarMBEnemyMoral(3L, Map.of("moralActual", 5), null));
+    }
+
+    // ─────────────────────────────────────────────
+    // MB service endpoints
+    // ─────────────────────────────────────────────
+
+    @Test
+    void actualizarHPMB_delegaEnPersonajeMBService() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+        ActualizarHPMBRequest request = new ActualizarHPMBRequest(10);
+        doNothing().when(personajeMBService).actualizarHPMB(3L, request, "daria");
+
+        personajeController.actualizarHPMB(3L, request, auth);
+
+        verify(personajeMBService).actualizarHPMB(3L, request, "daria");
+    }
+
+    @Test
+    void agregarRasgoClaseMB_delegaEnPersonajeMBService() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+        AgregarHabilidadPersonajeRequest request = new AgregarHabilidadPersonajeRequest(5L);
+        PersonajeDetalleResponse detalle = new PersonajeDetalleResponse(
+                3L, "Aria", null, null, "Mork Borg",
+                null, null, List.of(), null, Map.of(), List.of(), List.of(),
+                LocalDateTime.now(), "personaje", null, "daria", null);
+        when(personajeMBService.agregarRasgoClaseMB(3L, 5L, "daria")).thenReturn(detalle);
+
+        PersonajeDetalleResponse result = personajeController.agregarRasgoClaseMB(3L, request, auth);
+
+        assertEquals(detalle, result);
+        verify(personajeMBService).agregarRasgoClaseMB(3L, 5L, "daria");
+    }
+
+    @Test
+    void crearRasgoCustomMB_delegaEnPersonajeMBService() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+        AgregarRasgoCustomMBRequest request = new AgregarRasgoCustomMBRequest("Rasgo Especial", "Un rasgo cool");
+        PersonajeDetalleResponse detalle = new PersonajeDetalleResponse(
+                3L, "Aria", null, null, "Mork Borg",
+                null, null, List.of(), null, Map.of(), List.of(), List.of(),
+                LocalDateTime.now(), "personaje", null, "daria", null);
+        when(personajeMBService.crearRasgoCustomMB(3L, request, "daria")).thenReturn(detalle);
+
+        PersonajeDetalleResponse result = personajeController.crearRasgoCustomMB(3L, request, auth);
+
+        assertEquals(detalle, result);
+        verify(personajeMBService).crearRasgoCustomMB(3L, request, "daria");
+    }
+
+    @Test
+    void intercambiarEscoriaEspecialidad_delegaEnPersonajeMBService() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+        EscoriaEspecialidadRequest request = new EscoriaEspecialidadRequest(List.of(1L), List.of(2));
+        PersonajeDetalleResponse detalle = new PersonajeDetalleResponse(
+                3L, "Aria", null, null, "Mork Borg",
+                null, null, List.of(), null, Map.of(), List.of(), List.of(),
+                LocalDateTime.now(), "personaje", null, "daria", null);
+        when(personajeMBService.intercambiarEscoriaEspecialidad(3L, request, "daria")).thenReturn(detalle);
+
+        PersonajeDetalleResponse result = personajeController.intercambiarEscoriaEspecialidad(3L, request, auth);
+
+        assertEquals(detalle, result);
+        verify(personajeMBService).intercambiarEscoriaEspecialidad(3L, request, "daria");
+    }
+
+    @Test
+    void mejorarPersonajeMB_delegaEnPersonajeMBService() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+        MejorarPersonajeMBRequest request = new MejorarPersonajeMBRequest(1, 0, 0, 0, 12, 5);
+        PersonajeDetalleResponse detalle = new PersonajeDetalleResponse(
+                3L, "Aria", null, null, "Mork Borg",
+                null, null, List.of(), null, Map.of(), List.of(), List.of(),
+                LocalDateTime.now(), "personaje", null, "daria", null);
+        when(personajeMBService.mejorarPersonajeMB(3L, request, "daria")).thenReturn(detalle);
+
+        PersonajeDetalleResponse result = personajeController.mejorarPersonajeMB(3L, request, auth);
+
+        assertEquals(detalle, result);
+        verify(personajeMBService).mejorarPersonajeMB(3L, request, "daria");
+    }
+
+    @Test
+    void actualizarSuministrosMB_delegaEnPersonajeMBService() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("daria", null);
+        auth.setAuthenticated(true);
+        ActualizarSuministrosMBRequest request = new ActualizarSuministrosMBRequest(10, 3, Map.of());
+        doNothing().when(personajeMBService).actualizarSuministrosMB(3L, request, "daria");
+
+        personajeController.actualizarSuministrosMB(3L, request, auth);
+
+        verify(personajeMBService).actualizarSuministrosMB(3L, request, "daria");
     }
 }
