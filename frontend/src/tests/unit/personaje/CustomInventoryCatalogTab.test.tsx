@@ -312,11 +312,11 @@ describe("CustomInventoryCatalogTab", () => {
         customArmorSubtype="Ligera"
       />,
     );
-    expect(screen.getByText("CA base")).toBeInTheDocument();
+    expect(screen.getByText("Armadura base")).toBeInTheDocument();
     expect(screen.getByText("Mod. característica")).toBeInTheDocument();
   });
 
-  it("shows Bono CA instead of CA base when ARMADURA with Escudo subtype", () => {
+  it("shows Bono Armadura instead of Armadura base when ARMADURA with Escudo subtype", () => {
     render(
       <CustomInventoryCatalogTab
         {...BASE_PROPS}
@@ -324,7 +324,7 @@ describe("CustomInventoryCatalogTab", () => {
         customArmorSubtype="Escudo"
       />,
     );
-    expect(screen.getByText("Bono CA")).toBeInTheDocument();
+    expect(screen.getByText("Bono Armadura")).toBeInTheDocument();
     expect(screen.queryByText("Mod. característica")).not.toBeInTheDocument();
   });
 

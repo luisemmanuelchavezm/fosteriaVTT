@@ -109,7 +109,9 @@ export default function CreateMorkBorgCharacterScreen({
   const classError =
     hasAttemptedCreation && !creation.selectedClass
       ? "Debes elegir una clase antes de continuar."
-      : null;
+      : hasAttemptedCreation && !creation.claseOpcionesComplete
+        ? "Debes tirar el dado de característica de tu clase."
+        : null;
 
   const statsError =
     hasAttemptedCreation && !creation.allStatsComplete
@@ -148,7 +150,8 @@ export default function CreateMorkBorgCharacterScreen({
     const isClassOk =
       !!creation.name.trim() &&
       !!creation.portraitPreview &&
-      !!creation.selectedClass;
+      !!creation.selectedClass &&
+      creation.claseOpcionesComplete;
     const isStatsOk = creation.allStatsComplete;
     const isEquipOk = creation.equipmentComplete;
 
@@ -312,7 +315,12 @@ export default function CreateMorkBorgCharacterScreen({
                       }`}
                     >
                       <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold">{phase.title}</p>
+                        <p className="text-sm font-semibold">
+                          <span className="mr-1 text-stone-500">
+                            {index + 1}.
+                          </span>
+                          {phase.title}
+                        </p>
                         {phaseHasError ? (
                           <AlertTriangle className="h-4 w-4 shrink-0" />
                         ) : null}
@@ -347,6 +355,7 @@ export default function CreateMorkBorgCharacterScreen({
                   selectedClass={creation.selectedClass}
                   hasError={classError !== null}
                   selectionError={classError ?? undefined}
+                  hasAttemptedCreation={hasAttemptedCreation}
                   onClassClick={creation.selectClass}
                   onClearSelection={creation.clearClass}
                   onOpcionRolled={creation.notifyClaseOpcionRolled}
@@ -363,6 +372,7 @@ export default function CreateMorkBorgCharacterScreen({
                 <MorkBorgStatsSection
                   selectedClass={creation.selectedClass}
                   hasError={statsError !== null}
+                  hasAttemptedCreation={hasAttemptedCreation}
                   onPresenciaRolled={creation.notifyPresenciaRolled}
                   onAllMainStatsRolled={creation.notifyAllMainStatsRolled}
                   onAllStatsComplete={creation.notifyAllStatsComplete}
@@ -382,6 +392,7 @@ export default function CreateMorkBorgCharacterScreen({
                   presenciaModifier={creation.presenciaModifier}
                   allStatsRolled={creation.allMainStatsRolled}
                   hasError={equipmentError !== null}
+                  hasAttemptedCreation={hasAttemptedCreation}
                   onEquipmentComplete={creation.notifyEquipmentComplete}
                 />
               </div>

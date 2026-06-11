@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import CampaignChatPanel from "./components/CampaignChatPanel";
 import CampaignPlayersPanel from "./components/CampaignPlayersPanel";
 import { useWebSocketChat } from "./hooks/useWebSocketChat";
+import { buildApiUrl } from "../../lib/api";
 
 const CAMPAIGN_BACKGROUND_URL =
   "https://res.cloudinary.com/doxqtmi46/image/upload/v1775178243/campa%C3%B1aPlaceHolder_fhrfx2.png";
@@ -65,6 +66,15 @@ export default function CampaignHomeScreen({
       setUsername("");
     }
   }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("jwtToken");
+    if (!token || !campaignId) return;
+    void fetch(buildApiUrl(`/api/campanas/${campaignId}/acceder`), {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }, [campaignId]);
 
   // Close invite popover on outside click
   useEffect(() => {

@@ -43,6 +43,7 @@ interface MorkBorgEquipmentSectionProps {
   presenciaModifier: number | null;
   allStatsRolled: boolean;
   hasError?: boolean;
+  hasAttemptedCreation?: boolean;
   /** Llamado cuando cambia si el equipo obligatorio está completo. Incluye snapshot cuando complete=true. */
   onEquipmentComplete?: (
     complete: boolean,
@@ -55,6 +56,7 @@ export default function MorkBorgEquipmentSection({
   presenciaModifier,
   allStatsRolled,
   hasError = false,
+  hasAttemptedCreation = false,
   onEquipmentComplete,
 }: MorkBorgEquipmentSectionProps) {
   const classId = selectedClass?.id;
@@ -239,13 +241,20 @@ export default function MorkBorgEquipmentSection({
                 </p>
               </div>
             ) : (
-              <SubRollButton
-                label="Tirar 1d10 (pergamino)"
-                onClick={() =>
-                  roll(Z_IMPURO_IDX, "1d10", "Pergamino impuro al azar")
-                }
-                disabled={isRolling}
-              />
+              <>
+                <SubRollButton
+                  label="Tirar 1d10 (pergamino)"
+                  onClick={() =>
+                    roll(Z_IMPURO_IDX, "1d10", "Pergamino impuro al azar")
+                  }
+                  disabled={isRolling}
+                />
+                {hasAttemptedCreation ? (
+                  <p className="mt-2 animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]">
+                    ⚠ Tirada pendiente
+                  </p>
+                ) : null}
+              </>
             )}
           </div>
         );
@@ -263,13 +272,20 @@ export default function MorkBorgEquipmentSection({
                 <span className="ml-1 text-xs text-stone-200">botellas</span>
               </p>
             ) : (
-              <SubRollButton
-                label="Tirar d4 (botellas)"
-                onClick={() =>
-                  roll(Z_VENENO_CANT, "1d4", "Número de botellas de veneno")
-                }
-                disabled={isRolling || isZ(Z_VENENO_CANT)}
-              />
+              <>
+                <SubRollButton
+                  label="Tirar d4 (botellas)"
+                  onClick={() =>
+                    roll(Z_VENENO_CANT, "1d4", "Número de botellas de veneno")
+                  }
+                  disabled={isRolling || isZ(Z_VENENO_CANT)}
+                />
+                {hasAttemptedCreation ? (
+                  <p className="mt-2 animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]">
+                    ⚠ Tirada pendiente
+                  </p>
+                ) : null}
+              </>
             )}
           </div>
         );
@@ -356,13 +372,20 @@ export default function MorkBorgEquipmentSection({
                 <span className="ml-1 text-xs text-stone-200">elixires</span>
               </p>
             ) : (
-              <SubRollButton
-                label="Tirar d4 (elixires)"
-                onClick={() =>
-                  roll(Z_ELIXIR_CANT, "1d4", "Número de elixires de vida")
-                }
-                disabled={isRolling || isZ(Z_ELIXIR_CANT)}
-              />
+              <>
+                <SubRollButton
+                  label="Tirar d4 (elixires)"
+                  onClick={() =>
+                    roll(Z_ELIXIR_CANT, "1d4", "Número de elixires de vida")
+                  }
+                  disabled={isRolling || isZ(Z_ELIXIR_CANT)}
+                />
+                {hasAttemptedCreation ? (
+                  <p className="mt-2 animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]">
+                    ⚠ Tirada pendiente
+                  </p>
+                ) : null}
+              </>
             )}
           </div>
         );
@@ -384,13 +407,20 @@ export default function MorkBorgEquipmentSection({
                 </p>
               </div>
             ) : (
-              <SubRollButton
-                label="Tirar 1d10 (pergamino)"
-                onClick={() =>
-                  roll(Z_SAGRADO_IDX, "1d10", "Pergamino sagrado al azar")
-                }
-                disabled={isRolling || isZ(Z_SAGRADO_IDX)}
-              />
+              <>
+                <SubRollButton
+                  label="Tirar 1d10 (pergamino)"
+                  onClick={() =>
+                    roll(Z_SAGRADO_IDX, "1d10", "Pergamino sagrado al azar")
+                  }
+                  disabled={isRolling || isZ(Z_SAGRADO_IDX)}
+                />
+                {hasAttemptedCreation ? (
+                  <p className="mt-2 animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]">
+                    ⚠ Tirada pendiente
+                  </p>
+                ) : null}
+              </>
             )}
           </div>
         );
@@ -408,11 +438,18 @@ export default function MorkBorgEquipmentSection({
                 <span className="ml-1 text-xs text-stone-200">monos</span>
               </p>
             ) : (
-              <SubRollButton
-                label="Tirar d4 (monos)"
-                onClick={() => roll(Z_MONOS_CANT, "1d4", "Número de monos")}
-                disabled={isRolling || isZ(Z_MONOS_CANT)}
-              />
+              <>
+                <SubRollButton
+                  label="Tirar d4 (monos)"
+                  onClick={() => roll(Z_MONOS_CANT, "1d4", "Número de monos")}
+                  disabled={isRolling || isZ(Z_MONOS_CANT)}
+                />
+                {hasAttemptedCreation ? (
+                  <p className="mt-2 animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]">
+                    ⚠ Tirada pendiente
+                  </p>
+                ) : null}
+              </>
             )}
           </div>
         );
@@ -477,84 +514,108 @@ export default function MorkBorgEquipmentSection({
             <div className="flex flex-col gap-2">
               {/* Plata */}
               <div
-                className={`flex flex-1 items-center gap-3 rounded-2xl border px-5 py-4 ${plataValue !== null ? "border-amber-300/60 bg-gradient-to-r from-stone-900/95 to-amber-400/12" : "border-[#4A3520] bg-[#2A1F12]"}`}
+                className={`flex flex-1 flex-col gap-2 rounded-2xl border px-5 py-4 ${plataValue !== null ? "border-amber-300/60 bg-gradient-to-r from-stone-900/95 to-amber-400/12" : "border-[#4A3520] bg-[#2A1F12]"}`}
               >
-                <p className="shrink-0 text-sm font-bold uppercase tracking-wider text-amber-300/80">
-                  Plata
-                </p>
-                <p className="text-xs font-semibold text-stone-200">
-                  {plataExpr} × 10
-                </p>
-                <div className="ml-auto flex items-center gap-3">
-                  {isZ(Z_PLATA) ? (
-                    <span className="text-lg font-bold text-stone-500 animate-pulse">
-                      …
-                    </span>
-                  ) : plataValue !== null ? (
-                    <span className="text-lg font-bold text-white">
-                      {plataValue}
-                      <span className="ml-1 text-xs font-semibold text-stone-200">
-                        s
+                <div className="flex items-center gap-3">
+                  <p className="shrink-0 text-sm font-bold uppercase tracking-wider text-amber-300/80">
+                    Plata
+                  </p>
+                  <p className="text-xs font-semibold text-stone-200">
+                    {plataExpr} × 10
+                  </p>
+                  <div className="ml-auto flex items-center gap-3">
+                    {isZ(Z_PLATA) ? (
+                      <span className="text-lg font-bold text-stone-500 animate-pulse">
+                        …
                       </span>
-                    </span>
-                  ) : (
-                    <span className="text-lg font-bold text-stone-600">—</span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => roll(Z_PLATA, plataExpr, "Tirada de Plata")}
-                    disabled={isRolling}
-                    className="shrink-0 rounded-full border border-stone-600 bg-stone-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
-                  >
-                    {isZ(Z_PLATA)
-                      ? "…"
-                      : plataValue !== null
-                        ? "🎲"
-                        : "🎲 Tirar"}
-                  </button>
+                    ) : plataValue !== null ? (
+                      <span className="text-lg font-bold text-white">
+                        {plataValue}
+                        <span className="ml-1 text-xs font-semibold text-stone-200">
+                          s
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="text-lg font-bold text-stone-600">
+                        —
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        roll(Z_PLATA, plataExpr, "Tirada de Plata")
+                      }
+                      disabled={isRolling}
+                      className="shrink-0 rounded-full border border-stone-600 bg-stone-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
+                    >
+                      {isZ(Z_PLATA)
+                        ? "…"
+                        : plataValue !== null
+                          ? "🎲"
+                          : "🎲 Tirar"}
+                    </button>
+                  </div>
                 </div>
+                {hasAttemptedCreation &&
+                plataValue === null &&
+                !isZ(Z_PLATA) ? (
+                  <p className="animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]">
+                    ⚠ Tirada pendiente
+                  </p>
+                ) : null}
               </div>
 
               {/* Comida */}
               <div
-                className={`flex flex-1 items-center gap-3 rounded-2xl border px-5 py-4 ${comidaValue !== null ? "border-amber-300/60 bg-gradient-to-r from-stone-900/95 to-amber-400/12" : "border-[#4A3520] bg-[#2A1F12]"}`}
+                className={`flex flex-1 flex-col gap-2 rounded-2xl border px-5 py-4 ${comidaValue !== null ? "border-amber-300/60 bg-gradient-to-r from-stone-900/95 to-amber-400/12" : "border-[#4A3520] bg-[#2A1F12]"}`}
               >
-                <p className="shrink-0 text-sm font-bold uppercase tracking-wider text-amber-300/80">
-                  Comida
-                </p>
-                <p className="text-xs font-semibold text-stone-200">
-                  {comidaExpr}
-                </p>
-                <div className="ml-auto flex items-center gap-3">
-                  {isZ(Z_COMIDA) ? (
-                    <span className="text-lg font-bold text-stone-500 animate-pulse">
-                      …
-                    </span>
-                  ) : comidaValue !== null ? (
-                    <span className="text-lg font-bold text-white">
-                      {comidaValue}
-                      <span className="ml-1 text-xs font-semibold text-stone-200">
-                        {comidaValue === 1 ? "ración" : "raciones"}
+                <div className="flex items-center gap-3">
+                  <p className="shrink-0 text-sm font-bold uppercase tracking-wider text-amber-300/80">
+                    Comida
+                  </p>
+                  <p className="text-xs font-semibold text-stone-200">
+                    {comidaExpr}
+                  </p>
+                  <div className="ml-auto flex items-center gap-3">
+                    {isZ(Z_COMIDA) ? (
+                      <span className="text-lg font-bold text-stone-500 animate-pulse">
+                        …
                       </span>
-                    </span>
-                  ) : (
-                    <span className="text-lg font-bold text-stone-600">—</span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      roll(Z_COMIDA, comidaExpr, "Tirada de Comida")
-                    }
-                    disabled={isRolling}
-                    className="shrink-0 rounded-full border border-stone-600 bg-stone-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
-                  >
-                    {isZ(Z_COMIDA)
-                      ? "…"
-                      : comidaValue !== null
-                        ? "🎲"
-                        : "🎲 Tirar"}
-                  </button>
+                    ) : comidaValue !== null ? (
+                      <span className="text-lg font-bold text-white">
+                        {comidaValue}
+                        <span className="ml-1 text-xs font-semibold text-stone-200">
+                          {comidaValue === 1 ? "ración" : "raciones"}
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="text-lg font-bold text-stone-600">
+                        —
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        roll(Z_COMIDA, comidaExpr, "Tirada de Comida")
+                      }
+                      disabled={isRolling}
+                      className="shrink-0 rounded-full border border-stone-600 bg-stone-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
+                    >
+                      {isZ(Z_COMIDA)
+                        ? "…"
+                        : comidaValue !== null
+                          ? "🎲"
+                          : "🎲 Tirar"}
+                    </button>
+                  </div>
                 </div>
+                {hasAttemptedCreation &&
+                comidaValue === null &&
+                !isZ(Z_COMIDA) ? (
+                  <p className="animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]">
+                    ⚠ Tirada pendiente
+                  </p>
+                ) : null}
               </div>
             </div>
 
@@ -643,6 +704,11 @@ export default function MorkBorgEquipmentSection({
                     ? "🎲 Volver a tirar"
                     : "🎲 Tirar"}
               </button>
+              {hasAttemptedCreation && !armaResult && !isZ(Z_ARMA) ? (
+                <p className="animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]">
+                  ⚠ Tirada pendiente
+                </p>
+              ) : null}
             </div>
           </div>
 
@@ -674,44 +740,61 @@ export default function MorkBorgEquipmentSection({
                     tu dado de armadura se reducirá a 1d2
                   </p>
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        roll(Z_PER_TIPO, "1d4", "Tipo de pergamino")
-                      }
-                      disabled={isRolling}
-                      className="flex items-center gap-1 rounded-full border border-stone-600 bg-stone-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
-                    >
-                      {isZ(Z_PER_TIPO)
-                        ? "Tirando…"
-                        : perScrollTipo !== null
-                          ? "🎲 Volver a tirar"
-                          : "🎲 1d2 (tipo)"}
-                    </button>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          roll(Z_PER_TIPO, "1d4", "Tipo de pergamino")
+                        }
+                        disabled={isRolling}
+                        className="flex items-center gap-1 rounded-full border border-stone-600 bg-stone-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
+                      >
+                        {isZ(Z_PER_TIPO)
+                          ? "Tirando…"
+                          : perScrollTipo !== null
+                            ? "🎲 Volver a tirar"
+                            : "🎲 1d2 (tipo)"}
+                      </button>
 
-                    {perScrollTipo !== null && !isZ(Z_PER_TIPO) ? (
-                      <>
-                        <ResultChip>
-                          {perScrollTipo === 1
-                            ? "🕊 Pergamino sagrado"
-                            : "💀 Pergamino impuro"}
-                        </ResultChip>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            roll(Z_PER_IDX, "1d10", "Pergamino al azar")
-                          }
-                          disabled={isRolling}
-                          className="flex items-center gap-1 rounded-full border border-stone-600 bg-stone-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
-                        >
-                          {isZ(Z_PER_IDX)
-                            ? "Tirando…"
-                            : perScrollIdx !== null
-                              ? "🎲 Tirar de nuevo"
-                              : "🎲 Tirar"}
-                        </button>
-                      </>
+                      {perScrollTipo !== null && !isZ(Z_PER_TIPO) ? (
+                        <>
+                          <ResultChip>
+                            {perScrollTipo === 1
+                              ? "🕊 Pergamino sagrado"
+                              : "💀 Pergamino impuro"}
+                          </ResultChip>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              roll(Z_PER_IDX, "1d10", "Pergamino al azar")
+                            }
+                            disabled={isRolling}
+                            className="flex items-center gap-1 rounded-full border border-stone-600 bg-stone-900 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
+                          >
+                            {isZ(Z_PER_IDX)
+                              ? "Tirando…"
+                              : perScrollIdx !== null
+                                ? "🎲 Tirar de nuevo"
+                                : "🎲 Tirar"}
+                          </button>
+                        </>
+                      ) : null}
+                    </div>
+
+                    {hasAttemptedCreation &&
+                    perScrollTipo === null &&
+                    !isZ(Z_PER_TIPO) ? (
+                      <p className="animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]">
+                        ⚠ Tirada pendiente — elige el tipo de pergamino
+                      </p>
+                    ) : hasAttemptedCreation &&
+                      perScrollTipo !== null &&
+                      perScrollIdx === null &&
+                      !isZ(Z_PER_IDX) ? (
+                      <p className="animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]">
+                        ⚠ Tirada pendiente — tira para obtener el pergamino
+                      </p>
                     ) : null}
                   </div>
 
@@ -853,6 +936,11 @@ export default function MorkBorgEquipmentSection({
                     ? "🎲 Volver a tirar"
                     : "🎲 Tirar"}
               </button>
+              {hasAttemptedCreation && !armaduraRolled && !isZ(Z_ARMADURA) ? (
+                <p className="animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]">
+                  ⚠ Tirada pendiente
+                </p>
+              ) : null}
             </div>
           </div>
 
@@ -969,6 +1057,11 @@ export default function MorkBorgEquipmentSection({
                     roll(Z_CONTENEDOR, "1d6", "Elección de contenedor")
                   }
                   tableInfo={D6_CONTAINER_INFO}
+                  pendingWarning={
+                    hasAttemptedCreation &&
+                    contenedor === null &&
+                    !isZ(Z_CONTENEDOR)
+                  }
                 >
                   {renderContenedor()}
                 </TableBox>
@@ -983,6 +1076,9 @@ export default function MorkBorgEquipmentSection({
                     roll(Z_ITEM1, "1d12", "Elección de objeto (tabla 1)")
                   }
                   tableInfo={D12_TABLE1_INFO}
+                  pendingWarning={
+                    hasAttemptedCreation && item1 === null && !isZ(Z_ITEM1)
+                  }
                 >
                   {renderItem1()}
                 </TableBox>
@@ -997,6 +1093,9 @@ export default function MorkBorgEquipmentSection({
                     roll(Z_ITEM2, "1d12", "Elección de objeto (tabla 2)")
                   }
                   tableInfo={D12_TABLE2_INFO}
+                  pendingWarning={
+                    hasAttemptedCreation && item2 === null && !isZ(Z_ITEM2)
+                  }
                 >
                   {renderItem2()}
                 </TableBox>

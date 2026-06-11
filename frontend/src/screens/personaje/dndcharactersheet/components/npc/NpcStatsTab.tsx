@@ -12,7 +12,7 @@ function fmtBonus(value: number): string {
 }
 
 const SECONDARY_STATS_DISPLAY = [
-  { key: "CA", label: "CA", unit: "", min: 0, max: 100 },
+  { key: "CA", label: "Armadura", unit: "", min: 0, max: 100 },
   { key: "Movimiento", label: "Movimiento", unit: " m", min: 0, max: 999 },
   { key: "Iniciativa", label: "Iniciativa", unit: "", min: -1, max: 100 },
 ] as const;

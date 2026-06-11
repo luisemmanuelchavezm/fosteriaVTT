@@ -82,7 +82,7 @@ describe("NpcStatsTab", () => {
 
   it("renders secondary stat labels", () => {
     render(<NpcStatsTab {...BASE_PROPS} />);
-    expect(screen.getByText("CA")).toBeInTheDocument();
+    expect(screen.getByText("Armadura")).toBeInTheDocument();
     expect(screen.getByText("Movimiento")).toBeInTheDocument();
     expect(screen.getByText("Iniciativa")).toBeInTheDocument();
   });

@@ -4,16 +4,37 @@ interface CampaignSystemSelectorModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (system: CampaignCreationSystem) => void;
+  context?: "campaign" | "character";
 }
+
+const LABELS = {
+  campaign: {
+    eyebrow: "Nueva campaña",
+    title: "Elige el sistema de juego",
+    subtitle: "Selecciona el sistema para comenzar la campaña.",
+    dndDescription: "Crea una campaña de D&D.",
+    mbDescription: "Crea una campaña de Mork Borg.",
+  },
+  character: {
+    eyebrow: "Nuevo personaje",
+    title: "Elige el sistema de juego",
+    subtitle: "Elige el sistema para empezar a crear tu personaje.",
+    dndDescription: "Crear personaje por fases.",
+    mbDescription: "Crear personaje por fases.",
+  },
+};
 
 export default function CampaignSystemSelectorModal({
   isOpen,
   onClose,
   onSelect,
+  context = "campaign",
 }: CampaignSystemSelectorModalProps) {
   if (!isOpen) {
     return null;
   }
+
+  const labels = LABELS[context];
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
@@ -21,14 +42,12 @@ export default function CampaignSystemSelectorModal({
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs uppercase tracking-[0.28em] text-amber-200/80">
-              Nueva campaña
+              {labels.eyebrow}
             </p>
             <h3 className="mt-2 text-2xl font-bold text-white">
-              Elige el sistema de juego
+              {labels.title}
             </h3>
-            <p className="mt-2 text-sm text-stone-300">
-              Selecciona el sistema para comenzar la campaña.
-            </p>
+            <p className="mt-2 text-sm text-stone-300">{labels.subtitle}</p>
           </div>
 
           <button
@@ -54,7 +73,7 @@ export default function CampaignSystemSelectorModal({
               Dungeons and Dragons
             </h4>
             <p className="mt-2 text-sm text-stone-300">
-              Crea una campaña de D&D.
+              {labels.dndDescription}
             </p>
           </button>
 
@@ -70,7 +89,7 @@ export default function CampaignSystemSelectorModal({
               Mork Borg
             </h4>
             <p className="mt-2 text-sm text-stone-300">
-              Crea una campaña de Mork Borg.
+              {labels.mbDescription}
             </p>
           </button>
         </div>

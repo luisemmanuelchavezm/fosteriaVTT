@@ -151,10 +151,10 @@ export default function ResourcesPanel({
       {resourceTab === "money" ? (
         <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
           {[
-            { key: "ppt", label: "PPT" },
-            { key: "po", label: "PO" },
-            { key: "pp", label: "PP" },
-            { key: "pc", label: "PC" },
+            { key: "ppt", label: "Platino" },
+            { key: "po", label: "Oro" },
+            { key: "pp", label: "Plata" },
+            { key: "pc", label: "Cobre" },
           ].map((currency) => (
             <article
               key={currency.key}

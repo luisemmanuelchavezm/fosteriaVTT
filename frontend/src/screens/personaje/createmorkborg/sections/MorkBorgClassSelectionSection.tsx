@@ -22,6 +22,7 @@ interface MorkBorgClassSelectionSectionProps {
   selectedClass: MorkBorgClass | null;
   hasError?: boolean;
   selectionError?: string;
+  hasAttemptedCreation?: boolean;
   onClassClick: (item: MorkBorgClass) => void;
   onClearSelection?: () => void;
   /** Llamado cada vez que se obtiene una opción de clase (índices 0-based). */
@@ -33,6 +34,7 @@ export default function MorkBorgClassSelectionSection({
   selectedClass,
   hasError = false,
   selectionError,
+  hasAttemptedCreation = false,
   onClassClick,
   onClearSelection,
   onOpcionRolled,
@@ -61,15 +63,26 @@ export default function MorkBorgClassSelectionSection({
 
   const isHerborista = selectedClass?.id === ID_HERBORISTA;
   const isRealeza = selectedClass?.id === ID_REALEZA;
+  const isRealezaRef = useRef(isRealeza);
+  const opcionesLengthRef = useRef(selectedClass?.opciones?.length);
+  useEffect(() => {
+    isRealezaRef.current = isRealeza;
+    opcionesLengthRef.current = selectedClass?.opciones?.length;
+  }, [isRealeza, selectedClass?.opciones?.length]);
 
   // Resetear al cambiar de clase
   useEffect(() => {
     setRolledIndices([]);
   }, [selectedClass?.id]);
 
+  // ID del último summary procesado — evita reprocesar cuando cambian otras deps
+  const lastProcessedSummaryIdRef = useRef<number | null>(null);
+
   // Capturar resultado — distingue entre tirada de clase y tirada de opción
   useEffect(() => {
     if (!summary || isRolling) return;
+    if (lastProcessedSummaryIdRef.current === summary.id) return;
+    lastProcessedSummaryIdRef.current = summary.id;
 
     // ── Tirada 1d6 de selección de clase ──
     if (d6ClassRef.current) {
@@ -81,11 +94,11 @@ export default function MorkBorgClassSelectionSection({
     }
 
     // ── Tirada de opciones de clase ──
-    if (isRealeza) {
+    if (isRealezaRef.current) {
       const [v1, initialV2] = summary.diceValues;
       let v2 = initialV2;
       if (v1 === v2) {
-        const max = selectedClass?.opciones?.length ?? 6;
+        const max = opcionesLengthRef.current ?? 6;
         do {
           v2 = (crypto.getRandomValues(new Uint32Array(1))[0] % max) + 1;
         } while (v2 === v1);
@@ -98,7 +111,7 @@ export default function MorkBorgClassSelectionSection({
       setRolledIndices(indices);
       onOpcionRolledRef.current?.(indices);
     }
-  }, [summary, isRolling, isRealeza, selectedClass?.opciones?.length]);
+  }, [summary, isRolling]);
 
   const handleRollClass = () => {
     if (isRolling || selectedClass) return;
@@ -222,8 +235,8 @@ export default function MorkBorgClassSelectionSection({
         </div>
 
         {selectionError ? (
-          <p className="mt-4 rounded-xl border border-rose-400/50 bg-rose-950/20 px-4 py-3 text-sm font-semibold text-rose-300">
-            {selectionError}
+          <p className="mt-4 animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-4 py-3 text-sm font-bold text-red-300 shadow-[0_0_16px_rgba(220,38,38,0.3)]">
+            ⚠ {selectionError}
           </p>
         ) : null}
 
@@ -329,6 +342,17 @@ export default function MorkBorgClassSelectionSection({
                       </div>
                     ) : null}
                   </div>
+                ) : null}
+
+                {/* Aviso de tirada pendiente */}
+                {hasAttemptedCreation &&
+                showDiceButton &&
+                !hasResult &&
+                !isRolling ? (
+                  <p className="mt-3 animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-4 py-2.5 text-xs font-bold text-red-300 shadow-[0_0_14px_rgba(220,38,38,0.3)]">
+                    ⚠ Tirada pendiente — tira el dado para obtener tu
+                    característica de clase
+                  </p>
                 ) : null}
 
                 {/* Grid de opciones — alternancia por FILA (marrón/negro), resultado en ROJO */}

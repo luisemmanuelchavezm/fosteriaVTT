@@ -300,7 +300,7 @@ export default function TokenCharacterCard({
           <div className="mt-2.5 grid grid-cols-3 gap-0 border-t border-white/10 pt-2">
             <div className="text-center">
               <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-white/70">
-                CA
+                Armadura
               </p>
               <p className="text-sm font-bold text-white">{armorClass}</p>
             </div>

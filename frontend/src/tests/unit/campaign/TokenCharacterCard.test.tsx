@@ -108,9 +108,9 @@ describe("TokenCharacterCard", () => {
     expect(screen.getByText("0/50")).toBeInTheDocument();
   });
 
-  it("renders CA stat", () => {
+  it("renders Armadura stat", () => {
     render(<TokenCharacterCard {...DEFAULT_PROPS} />);
-    expect(screen.getByText("CA")).toBeInTheDocument();
+    expect(screen.getByText("Armadura")).toBeInTheDocument();
     expect(screen.getByText("16")).toBeInTheDocument();
   });
 

@@ -4,6 +4,7 @@ import LogoLayout from "../components/LogoLayout";
 import UserMenu from "../components/UserMenu";
 import CampaignSystemSelectorModal from "../components/CampaignSystemSelectorModal";
 import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
+import MorkBorgDisclaimerModal from "../components/MorkBorgDisclaimerModal";
 import type { CampaignCreationSystem } from "../components/campaignSystem";
 import dndImage from "../assets/DND.png";
 import morkBorgImage from "../assets/MÖRK BORG.png";
@@ -414,6 +415,7 @@ export default function HomeScreen({
 
 function InlineFooter() {
   const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [disclaimerOpen, setDisclaimerOpen] = useState(false);
   return (
     <>
       <div className="mt-10 border-t border-white/10 pt-5 pb-1 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between text-sm text-stone-400">
@@ -449,11 +451,22 @@ function InlineFooter() {
           >
             Política de Privacidad
           </button>
+          <button
+            type="button"
+            onClick={() => setDisclaimerOpen(true)}
+            className="hover:text-amber-300 transition-colors text-left sm:text-right"
+          >
+            Disclaimer Mork Borg
+          </button>
         </div>
       </div>
       <PrivacyPolicyModal
         isOpen={privacyOpen}
         onClose={() => setPrivacyOpen(false)}
+      />
+      <MorkBorgDisclaimerModal
+        isOpen={disclaimerOpen}
+        onClose={() => setDisclaimerOpen(false)}
       />
     </>
   );

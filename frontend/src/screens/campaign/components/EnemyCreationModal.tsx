@@ -232,7 +232,7 @@ function DndEnemyCreationModal({
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <div>
                 <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.08em] text-white/60">
-                  CA
+                  Armadura
                 </label>
                 <input
                   type="number"

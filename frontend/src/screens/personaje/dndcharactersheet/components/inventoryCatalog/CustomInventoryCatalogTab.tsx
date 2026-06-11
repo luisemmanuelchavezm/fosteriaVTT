@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 interface CustomDiePart {
   count: string;
   sides: string;
@@ -63,6 +65,15 @@ interface CustomInventoryCatalogTabProps {
 export default function CustomInventoryCatalogTab(
   props: CustomInventoryCatalogTabProps,
 ) {
+  const errorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (props.submitError)
+      errorRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+  }, [props.submitError]);
+
   const {
     customName,
     customDescription,
@@ -215,7 +226,9 @@ export default function CustomInventoryCatalogTab(
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <label className="space-y-2">
               <span className="text-xs uppercase tracking-[0.18em] text-stone-400">
-                {customArmorSubtype === "Escudo" ? "Bono CA" : "CA base"}
+                {customArmorSubtype === "Escudo"
+                  ? "Bono Armadura"
+                  : "Armadura base"}
               </span>
               <input
                 type="text"
@@ -376,8 +389,11 @@ export default function CustomInventoryCatalogTab(
       </label>
 
       {submitError ? (
-        <div className="mt-4 rounded-[16px] border border-rose-300/30 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
-          {submitError}
+        <div
+          ref={errorRef}
+          className="mt-4 animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-4 py-3 text-sm font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]"
+        >
+          ⚠ {submitError}
         </div>
       ) : null}
     </div>

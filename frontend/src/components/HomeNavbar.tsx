@@ -23,7 +23,7 @@ const imageItems: Array<{
   { id: "home", label: "Home", onImage: homeOnImage, offImage: homeOffImage },
   {
     id: "campaigns",
-    label: "Campañas",
+    label: "Campaña",
     onImage: campaignsOnImage,
     offImage: campaignsOffImage,
   },
@@ -70,14 +70,19 @@ export default function HomeNavbar({
                   onClick={() => handleTabChange(item.id)}
                   aria-pressed={isActive}
                   aria-label={`Ir a ${item.label}`}
-                  className="flex h-full flex-1 items-center justify-center rounded-full bg-transparent transition duration-200 hover:-translate-y-1"
+                  className="flex h-full flex-1 flex-col items-center justify-center rounded-full bg-transparent transition duration-200 hover:-translate-y-1"
                 >
                   <img
                     src={isActive ? item.onImage : item.offImage}
                     alt={item.label}
-                    className="max-h-[68%] w-auto object-contain select-none"
+                    className="max-h-[55%] w-auto object-contain select-none"
                     draggable={false}
                   />
+                  <span
+                    className={`mt-0.5 text-[10px] font-semibold leading-none tracking-wide ${isActive ? "text-amber-200" : "text-white/50"}`}
+                  >
+                    {item.label}
+                  </span>
                 </button>
               );
             })}
