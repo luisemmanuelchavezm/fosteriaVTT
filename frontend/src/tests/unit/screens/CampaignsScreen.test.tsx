@@ -388,7 +388,8 @@ describe("CampaignsScreen", () => {
     await waitFor(() =>
       expect(screen.getByText("Campaña Click")).toBeInTheDocument(),
     );
-    fireEvent.click(screen.getByText("Campaña Click").closest("button")!);
+    // The campaign card is now a <div> with onClick; clicking the title text triggers the event via bubbling
+    fireEvent.click(screen.getByText("Campaña Click"));
     expect(onOpenCampaignHome).toHaveBeenCalledWith("99");
   });
 

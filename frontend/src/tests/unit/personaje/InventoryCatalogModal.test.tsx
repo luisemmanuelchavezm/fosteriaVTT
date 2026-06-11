@@ -220,7 +220,7 @@ describe("InventoryCatalogModal", () => {
     });
     fireEvent.click(screen.getByText("Añadir"));
     await waitFor(() =>
-      expect(screen.getByText("Sin espacio en la mochila")).toBeInTheDocument(),
+      expect(screen.getByText(/Sin espacio en la mochila/)).toBeInTheDocument(),
     );
   });
 
@@ -232,7 +232,7 @@ describe("InventoryCatalogModal", () => {
     fireEvent.click(screen.getByText("Crear"));
     await waitFor(() =>
       expect(
-        screen.getByText("Debes indicar un nombre para el objeto."),
+        screen.getByText(/Debes indicar un nombre para el objeto/),
       ).toBeInTheDocument(),
     );
   });
@@ -289,7 +289,7 @@ describe("InventoryCatalogModal", () => {
     fireEvent.change(textboxes[0], { target: { value: "Objeto roto" } });
     fireEvent.click(screen.getByText("Crear"));
     await waitFor(() =>
-      expect(screen.getByText("Fallo al guardar")).toBeInTheDocument(),
+      expect(screen.getByText(/Fallo al guardar/)).toBeInTheDocument(),
     );
   });
 

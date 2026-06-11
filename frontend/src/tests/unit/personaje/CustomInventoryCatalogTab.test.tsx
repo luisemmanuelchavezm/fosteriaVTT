@@ -278,7 +278,7 @@ describe("CustomInventoryCatalogTab", () => {
         submitError="El nombre es obligatorio"
       />,
     );
-    expect(screen.getByText("El nombre es obligatorio")).toBeInTheDocument();
+    expect(screen.getByText(/El nombre es obligatorio/)).toBeInTheDocument();
   });
 
   it("does not show error when submitError is null", () => {

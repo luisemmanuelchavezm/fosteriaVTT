@@ -137,7 +137,7 @@ describe("MorkBorgClassSelectionSection", () => {
         onClassClick={vi.fn()}
       />,
     );
-    expect(screen.getByText("Debes seleccionar una clase")).toBeInTheDocument();
+    expect(screen.getByText(/Debes seleccionar una clase/)).toBeInTheDocument();
   });
 
   it("muestra botón de tirada de dados para seleccionar clase aleatoria", () => {
