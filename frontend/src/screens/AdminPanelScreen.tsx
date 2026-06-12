@@ -94,7 +94,7 @@ export default function AdminPanelScreen({
 
     const e = createForm.email.trim();
     if (!e) errs.email = "El email es obligatorio";
-    else if (e.length > 254) errs.email = "Máximo 254 caracteres";
+    else if (e.length > 100) errs.email = "Máximo 100 caracteres";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))
       errs.email = "Formato de email no válido";
     else if (/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u.test(e))

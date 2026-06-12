@@ -71,7 +71,9 @@ export default function RegisterScreen({
           form.email,
         );
 
-      if (!emailRegex.test(form.email)) {
+      if (form.email.length > 100) {
+        emailErrors.push("Máximo 100 caracteres");
+      } else if (!emailRegex.test(form.email)) {
         emailErrors.push("Formato de email no válido");
       } else if (tieneEmoji) {
         emailErrors.push("No se permiten emojis en el email");
