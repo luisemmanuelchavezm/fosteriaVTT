@@ -38,6 +38,9 @@ export default function MorkBorgScrollCatalogModal({
           ),
         ),
       )
+      .catch((err: unknown) => {
+        console.error(err);
+      })
       .finally(() => setIsLoading(false));
   }, [token, fetchCatalog]);
 
