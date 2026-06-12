@@ -140,16 +140,16 @@ describe("EnemyCreationModal", () => {
   it("renders modal when isOpen is true", () => {
     render(<EnemyCreationModal {...DEFAULT_PROPS} />);
     expect(
-      screen.getByRole("heading", { name: "Crear NPC" }),
+      screen.getByRole("heading", { name: "Crear PNJ" }),
     ).toBeInTheDocument();
   });
 
   // ── Header ─────────────────────────────────────────────────────────────────
 
-  it("renders 'Crear NPC' heading", () => {
+  it("renders 'Crear PNJ' heading", () => {
     render(<EnemyCreationModal {...DEFAULT_PROPS} />);
     expect(
-      screen.getByRole("heading", { name: "Crear NPC" }),
+      screen.getByRole("heading", { name: "Crear PNJ" }),
     ).toBeInTheDocument();
   });
 
@@ -283,10 +283,10 @@ describe("EnemyCreationModal", () => {
 
   // ── Submit ─────────────────────────────────────────────────────────────────
 
-  it("renders 'Crear NPC' submit button in footer", () => {
+  it("renders 'Crear PNJ' submit button in footer", () => {
     render(<EnemyCreationModal {...DEFAULT_PROPS} />);
-    // There's the heading "Crear NPC" and a submit button "Crear NPC"
-    const buttons = screen.getAllByText("Crear NPC");
+    // There's the heading "Crear PNJ" and a submit button "Crear PNJ"
+    const buttons = screen.getAllByText("Crear PNJ");
     expect(buttons.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -299,8 +299,8 @@ describe("EnemyCreationModal", () => {
   it("calls handleSubmit when submit button is clicked", () => {
     render(<EnemyCreationModal {...DEFAULT_PROPS} />);
     // The submit button has class bg-amber-600 — find by label (not heading)
-    // Both heading and submit button say "Crear NPC", use getAllByText
-    const btns = screen.getAllByText("Crear NPC");
+    // Both heading and submit button say "Crear PNJ", use getAllByText
+    const btns = screen.getAllByText("Crear PNJ");
     // The submit button is the one that is a <button> element
     const submitBtn = btns.find(
       (el) => el.tagName === "BUTTON",
