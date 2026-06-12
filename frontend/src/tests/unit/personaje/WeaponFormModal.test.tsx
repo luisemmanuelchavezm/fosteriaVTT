@@ -201,7 +201,7 @@ describe("WeaponFormModal", () => {
       (el) => el.tagName.toLowerCase() === "button",
     );
     if (submitBtn) fireEvent.click(submitBtn);
-    expect(screen.getByText("El nombre es requerido")).toBeInTheDocument();
+    expect(screen.getByText(/El nombre es requerido/)).toBeInTheDocument();
   });
 
   it("shows error when formula is empty on confirm", async () => {
@@ -221,7 +221,7 @@ describe("WeaponFormModal", () => {
     );
     if (submitBtn) fireEvent.click(submitBtn);
     expect(
-      screen.getByText("La fórmula de daño es obligatoria"),
+      screen.getByText(/La fórmula de daño es obligatoria/),
     ).toBeInTheDocument();
   });
 

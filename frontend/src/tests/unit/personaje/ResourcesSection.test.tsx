@@ -102,7 +102,7 @@ describe("ResourcesSection", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Dinero" }));
 
-    const goldCard = screen.getByText("PO").closest("article");
+    const goldCard = screen.getByText("Oro").closest("article");
     expect(goldCard).not.toBeNull();
 
     const buttons = within(goldCard as HTMLElement).getAllByRole("button");

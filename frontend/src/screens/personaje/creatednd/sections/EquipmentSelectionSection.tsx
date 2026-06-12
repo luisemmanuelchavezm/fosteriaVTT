@@ -72,6 +72,31 @@ function EquipmentOriginCard({
       </summary>
 
       <div className="border-t border-stone-300/10 px-5 py-5">
+        {equipment.fijos.length > 0 ? (
+          <div className="mb-4 space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200/75">
+              Objetos incluidos
+            </p>
+            {equipment.fijos.map((item) => (
+              <div
+                key={item.id}
+                className="rounded-[18px] border border-stone-300/10 bg-black/20 p-4"
+              >
+                <p className="text-sm font-semibold text-white">
+                  {formatEquipmentOption(item)}
+                </p>
+                {buildEquipmentMeta(item.objeto).map((meta) => (
+                  <p
+                    key={`${item.id}-${meta}`}
+                    className="mt-1 text-xs leading-5 text-stone-400"
+                  >
+                    {meta}
+                  </p>
+                ))}
+              </div>
+            ))}
+          </div>
+        ) : null}
         {equipment.gruposEleccion.length > 0 ? (
           <div className="space-y-4">
             {equipment.gruposEleccion.map((group, groupIndex) =>

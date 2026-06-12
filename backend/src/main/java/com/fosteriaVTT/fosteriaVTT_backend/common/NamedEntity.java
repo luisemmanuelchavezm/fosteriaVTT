@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder // Fundamental para que el Builder arrastre el ID y el Nombre
+@SuperBuilder 
 public abstract class NamedEntity extends BaseEntity {
 
     @Column(nullable = false, length = 100)

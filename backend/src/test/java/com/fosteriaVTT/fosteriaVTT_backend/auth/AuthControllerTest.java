@@ -32,11 +32,17 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import java.util.Map;
 import java.util.Optional;
 
+import com.fosteriaVTT.fosteriaVTT_backend.auth.SendGridEmailService;
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -67,6 +73,9 @@ class AuthControllerTest {
 
     @Mock
     private UserDetails userDetails;
+
+    @Mock
+    private SendGridEmailService emailService;
 
     @InjectMocks
     private AuthController authController;
@@ -281,6 +290,226 @@ class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Usuario no encontrado"));
+    }
+
+    // ─── forgotPassword ──────────────────────────────────────────────────────────
+
+    @Test
+    void forgotPassword_retornaBadRequestSiEmailEsBlanco() throws Exception {
+        mockMvc.perform(post("/api/auth/forgot-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("El email es requerido"));
+    }
+
+    @Test
+    void forgotPassword_retornaNotFoundSiUsuarioNoExiste() throws Exception {
+        when(userRepository.findByEmail("noexiste@test.com")).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/api/auth/forgot-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"noexiste@test.com\"}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").exists());
+    }
+
+    @Test
+    void forgotPassword_retornaForbiddenSiEsAdmin() throws Exception {
+        Usuario adminUser = Usuario.builder()
+                .username("adminuser")
+                .email("admin@test.com")
+                .password("encoded")
+                .role(Rol.ADMIN)
+                .build();
+        when(userRepository.findByEmail("admin@test.com")).thenReturn(Optional.of(adminUser));
+
+        mockMvc.perform(post("/api/auth/forgot-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"admin@test.com\"}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").exists());
+    }
+
+    @Test
+    void forgotPassword_retornaForbiddenSiEsUsuarioSistema() throws Exception {
+        Usuario sistemaUser = Usuario.builder()
+                .username("sistema")
+                .email("sistema@test.com")
+                .password("encoded")
+                .role(Rol.USER)
+                .build();
+        when(userRepository.findByEmail("sistema@test.com")).thenReturn(Optional.of(sistemaUser));
+
+        mockMvc.perform(post("/api/auth/forgot-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"sistema@test.com\"}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").exists());
+    }
+
+    @Test
+    void forgotPassword_enviaCodigoConExito() throws Exception {
+        Usuario user = Usuario.builder()
+                .username("daria")
+                .email("daria@test.com")
+                .password("encoded")
+                .role(Rol.USER)
+                .build();
+        when(userRepository.findByEmail("daria@test.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded-code");
+        doNothing().when(emailService).sendResetCode(anyString(), anyString(), anyString());
+
+        mockMvc.perform(post("/api/auth/forgot-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"daria@test.com\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Código enviado correctamente"));
+
+        verify(userRepository).save(user);
+        verify(emailService).sendResetCode(eq("daria@test.com"), eq("daria"), anyString());
+    }
+
+    // ─── verifyResetCode ─────────────────────────────────────────────────────────
+
+    @Test
+    void verifyResetCode_retornaBadRequestSiCamposSonNulos() throws Exception {
+        mockMvc.perform(post("/api/auth/verify-reset-code")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"daria@test.com\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").exists());
+    }
+
+    @Test
+    void verifyResetCode_retornaBadRequestSiUsuarioNoExiste() throws Exception {
+        when(userRepository.findByEmail("noexiste@test.com")).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/api/auth/verify-reset-code")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"noexiste@test.com\",\"code\":\"123456\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").exists());
+    }
+
+    @Test
+    void verifyResetCode_retornaBadRequestSiCodigoEsNulo() throws Exception {
+        Usuario user = Usuario.builder()
+                .username("daria")
+                .email("daria@test.com")
+                .password("encoded")
+                .role(Rol.USER)
+                .build();
+        when(userRepository.findByEmail("daria@test.com")).thenReturn(Optional.of(user));
+
+        mockMvc.perform(post("/api/auth/verify-reset-code")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"daria@test.com\",\"code\":\"123456\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").exists());
+    }
+
+    @Test
+    void verifyResetCode_retornaBadRequestSiCodigoExpirado() throws Exception {
+        Usuario user = Usuario.builder()
+                .username("daria")
+                .email("daria@test.com")
+                .password("encoded")
+                .role(Rol.USER)
+                .build();
+        user.setRecoverCode("encoded-code");
+        user.setExpiration(LocalDateTime.now().minusMinutes(5));
+        when(userRepository.findByEmail("daria@test.com")).thenReturn(Optional.of(user));
+
+        mockMvc.perform(post("/api/auth/verify-reset-code")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"daria@test.com\",\"code\":\"123456\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").exists());
+    }
+
+    @Test
+    void verifyResetCode_retornaOkSiCodigoEsValido() throws Exception {
+        Usuario user = Usuario.builder()
+                .username("daria")
+                .email("daria@test.com")
+                .password("encoded")
+                .role(Rol.USER)
+                .build();
+        user.setRecoverCode("encoded-code");
+        user.setExpiration(LocalDateTime.now().plusMinutes(25));
+        when(userRepository.findByEmail("daria@test.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("123456", "encoded-code")).thenReturn(true);
+
+        mockMvc.perform(post("/api/auth/verify-reset-code")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"daria@test.com\",\"code\":\"123456\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Código válido"));
+    }
+
+    // ─── resetPassword ───────────────────────────────────────────────────────────
+
+    @Test
+    void resetPassword_retornaBadRequestSiPasswordEsMuyCorta() throws Exception {
+        mockMvc.perform(post("/api/auth/reset-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"daria@test.com\",\"code\":\"123456\",\"newPassword\":\"1234\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").exists());
+    }
+
+    @Test
+    void resetPassword_retornaBadRequestSiUsuarioNoExiste() throws Exception {
+        when(userRepository.findByEmail("noexiste@test.com")).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/api/auth/reset-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"noexiste@test.com\",\"code\":\"123456\",\"newPassword\":\"password123\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").exists());
+    }
+
+    @Test
+    void resetPassword_retornaBadRequestSiCodigoExpirado() throws Exception {
+        Usuario user = Usuario.builder()
+                .username("daria")
+                .email("daria@test.com")
+                .password("encoded")
+                .role(Rol.USER)
+                .build();
+        user.setRecoverCode("encoded-code");
+        user.setExpiration(LocalDateTime.now().minusMinutes(5));
+        when(userRepository.findByEmail("daria@test.com")).thenReturn(Optional.of(user));
+
+        mockMvc.perform(post("/api/auth/reset-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"daria@test.com\",\"code\":\"123456\",\"newPassword\":\"password123\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").exists());
+    }
+
+    @Test
+    void resetPassword_actualizaPasswordConExito() throws Exception {
+        Usuario user = Usuario.builder()
+                .username("daria")
+                .email("daria@test.com")
+                .password("old-encoded")
+                .role(Rol.USER)
+                .build();
+        user.setRecoverCode("encoded-code");
+        user.setExpiration(LocalDateTime.now().plusMinutes(25));
+        when(userRepository.findByEmail("daria@test.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("123456", "encoded-code")).thenReturn(true);
+        when(passwordEncoder.encode("newpassword123")).thenReturn("new-encoded");
+
+        mockMvc.perform(post("/api/auth/reset-password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"daria@test.com\",\"code\":\"123456\",\"newPassword\":\"newpassword123\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Contraseña actualizada correctamente"));
+
+        verify(userRepository).save(user);
     }
 
     @Test

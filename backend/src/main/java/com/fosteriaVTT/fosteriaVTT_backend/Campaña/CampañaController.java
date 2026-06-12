@@ -8,7 +8,9 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -66,6 +68,30 @@ return campañaService.crearCampaña(payload, cover, authentication.getName());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
         }
         campañaService.unirseCampaña(campaniaId, authentication.getName());
+    }
+
+    @PatchMapping("/{campaniaId}/acceder")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void registrarAcceso(
+            @PathVariable Long campaniaId,
+            Authentication authentication
+    ) {
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
+        }
+        campañaService.registrarAcceso(campaniaId, authentication.getName());
+    }
+
+    @DeleteMapping("/{campaniaId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void eliminarCampaña(
+            @PathVariable Long campaniaId,
+            Authentication authentication
+    ) {
+        if (authentication == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
+        }
+        campañaService.eliminarCampaña(campaniaId, authentication.getName());
     }
 
     @GetMapping

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Trash2 } from "lucide-react";
 import type { ObjectCatalogResponse } from "../../../utils/dndApi";
@@ -93,6 +93,14 @@ export default function WeaponFormModal({
     initialBonificacion !== 0 ? String(initialBonificacion) : "",
   );
   const [customError, setCustomError] = useState<string | null>(null);
+  const errorRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (customError)
+      errorRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+  }, [customError]);
 
   // Búsqueda en catálogo con debounce
   useEffect(() => {
@@ -141,6 +149,16 @@ export default function WeaponFormModal({
   const handleCustomConfirm = () => {
     if (!nombre.trim()) {
       setCustomError("El nombre es requerido");
+      return;
+    }
+    const totalDice = diceParts.reduce(
+      (sum, d) => sum + (parseInt(d.count, 10) || 0),
+      0,
+    );
+    if (totalDice > 20) {
+      setCustomError(
+        `La cantidad máxima de dados es 20 (actualmente ${totalDice})`,
+      );
       return;
     }
     if (!builtFormula) {
@@ -303,7 +321,12 @@ export default function WeaponFormModal({
                   className={`w-full rounded-lg border bg-white/5 px-3 py-2 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-amber-400/60 ${customError ? "border-red-400/70" : "border-white/20"}`}
                 />
                 {customError && (
-                  <p className="mt-1 text-xs text-red-400">{customError}</p>
+                  <p
+                    ref={errorRef}
+                    className="mt-2 animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]"
+                  >
+                    ⚠ {customError}
+                  </p>
                 )}
               </div>
 

@@ -3,6 +3,7 @@ import HomeNavbar, { type NavTab } from "../components/HomeNavbar";
 import LogoLayout from "../components/LogoLayout";
 import UserMenu from "../components/UserMenu";
 import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
+import CampaignSystemSelectorModal from "../components/CampaignSystemSelectorModal";
 import { buildApiUrl } from "../lib/api";
 import { markCharacterAsUsed } from "./personaje/utils/dndApi";
 
@@ -323,68 +324,15 @@ export default function CharactersScreen({
           onLogout={onLogout}
         />
 
-        {isCreateModalOpen ? (
-          <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-            <div className="w-full max-w-2xl rounded-[30px] border border-white/15 bg-stone-950/95 p-6 text-stone-50 shadow-[0_30px_80px_rgba(0,0,0,0.55)] md:p-8">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.28em] text-amber-200/80">
-                    Nuevo personaje
-                  </p>
-                  <h3 className="mt-2 text-2xl font-bold text-white md:text-3xl">
-                    Elige el sistema de juego
-                  </h3>
-                  <p className="mt-2 text-sm text-stone-300">
-                    Elige el sistema para empezar a crear tu personaje.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setIsCreateModalOpen(false)}
-                  aria-label="Cerrar modal de creación"
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/10 text-xl text-white transition hover:bg-white/20"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div className="mt-6 grid gap-4 md:grid-cols-3">
-                <button
-                  type="button"
-                  onClick={handleCreateDnd}
-                  className="group rounded-[24px] border border-amber-200/40 bg-amber-200/10 p-5 text-left transition hover:border-amber-200/70 hover:bg-amber-200/15"
-                >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-200/20 text-lg font-bold text-amber-100">
-                    D&D
-                  </div>
-                  <h4 className="mt-4 text-lg font-semibold text-white">
-                    Dungeons and Dragons
-                  </h4>
-                  <p className="mt-2 text-sm text-stone-300">
-                    Crear personaje por fases.
-                  </p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleCreateMorkBorg}
-                  className="group rounded-[24px] border border-red-500/40 bg-red-900/10 p-5 text-left transition hover:border-red-400/70 hover:bg-red-900/20"
-                >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-900/30 text-lg font-bold text-red-200">
-                    MB
-                  </div>
-                  <h4 className="mt-4 text-lg font-semibold text-white">
-                    Mork Borg
-                  </h4>
-                  <p className="mt-2 text-sm text-stone-300">
-                    Crear personaje por fases.
-                  </p>
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : null}
+        <CampaignSystemSelectorModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSelect={(system) => {
+            if (system === "Dungeons and Dragons") handleCreateDnd();
+            else handleCreateMorkBorg();
+          }}
+          context="character"
+        />
 
         <div className="relative z-10 w-full px-4 pt-28 pb-32 md:px-8 md:pb-36">
           <div className="rounded-[32px] border border-white/15 bg-stone-950/70 p-6 text-stone-50 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-md md:p-8">

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { AddDndCharacterInventoryItemRequest } from "../../utils/dndApi";
 import {
   buildMbCustomIndice,
@@ -40,6 +40,14 @@ export default function MorkBorgCustomItemForm({
   const [showWeaponBonus, setShowWeaponBonus] = useState(false);
 
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (submitError)
+      errorRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+  }, [submitError]);
 
   const builtFormula = useMemo(() => {
     if (customType === "OTROS") return null;
@@ -108,6 +116,16 @@ export default function MorkBorgCustomItemForm({
   const handleCreate = async () => {
     if (!customName.trim()) {
       setSubmitError("Debes indicar un nombre para el objeto.");
+      return;
+    }
+    const totalDice = diceParts.reduce(
+      (sum, d) => sum + (Number.parseInt(d.count, 10) || 0),
+      0,
+    );
+    if (totalDice > 20) {
+      setSubmitError(
+        `La cantidad máxima de dados es 20 (actualmente ${totalDice})`,
+      );
       return;
     }
     try {
@@ -356,8 +374,11 @@ export default function MorkBorgCustomItemForm({
       </label>
 
       {submitError && (
-        <div className="rounded-[16px] border border-rose-300/30 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
-          {submitError}
+        <div
+          ref={errorRef}
+          className="animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-4 py-3 text-sm font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]"
+        >
+          ⚠ {submitError}
         </div>
       )}
 

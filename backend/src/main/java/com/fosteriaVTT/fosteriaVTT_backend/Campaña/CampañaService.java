@@ -216,6 +216,25 @@ public class CampañaService {
 	}
 
 	@Transactional
+	public void registrarAcceso(Long campañaId, String username) {
+		jugadorRepository.buscarPorUsuarioYCampaniaId(username, campañaId)
+				.ifPresent(jugador -> {
+					jugador.setUltimaVezAccedido(java.time.LocalDateTime.now());
+					jugadorRepository.save(jugador);
+				});
+	}
+
+	@Transactional
+	public void eliminarCampaña(Long campañaId, String username) {
+		Campaña campaña = campañaRepository.findById(campañaId)
+				.orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Campaña no encontrada"));
+		if (!campaña.getDm().getUsername().equals(username)) {
+			throw new ResponseStatusException(FORBIDDEN, "Solo el DM puede eliminar la campaña");
+		}
+		eliminarCampañaAdmin(campañaId);
+	}
+
+	@Transactional
 	public void eliminarCampañasPorDm(Long dmId) {
 		campañaRepository.findByDmId(dmId).forEach(c -> eliminarCampañaAdmin(c.getId()));
 	}

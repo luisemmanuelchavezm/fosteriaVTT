@@ -518,7 +518,7 @@ export default function MorkBorgEnemyCreationModal({
               disabled={isSubmitting}
               className="flex-1 rounded-lg bg-rose-700 py-2.5 text-sm font-bold text-white transition hover:bg-rose-600 disabled:opacity-60"
             >
-              {isSubmitting ? "Creando..." : "Crear NPC"}
+              {isSubmitting ? "Creando..." : "Crear PNJ"}
             </button>
           </div>
         </div>

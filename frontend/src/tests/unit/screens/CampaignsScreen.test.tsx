@@ -388,7 +388,8 @@ describe("CampaignsScreen", () => {
     await waitFor(() =>
       expect(screen.getByText("Campaña Click")).toBeInTheDocument(),
     );
-    fireEvent.click(screen.getByText("Campaña Click").closest("button")!);
+    // The campaign card is now a <div> with onClick; clicking the title text triggers the event via bubbling
+    fireEvent.click(screen.getByText("Campaña Click"));
     expect(onOpenCampaignHome).toHaveBeenCalledWith("99");
   });
 
@@ -495,5 +496,120 @@ describe("CampaignsScreen", () => {
     render(<CampaignsScreen {...DEFAULT_PROPS} />);
     await new Promise((r) => setTimeout(r, 50));
     expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  // ── Delete modal ───────────────────────────────────────────────────────────
+
+  const deleteCampaignResponse = {
+    ok: true,
+    json: async () => ({
+      items: [
+        {
+          id: 7,
+          nombre: "Campaña Borrar",
+          sistemaDeJuego: "D&D",
+          dmUsername: "dm",
+          ultimaVezAccedido: "2024-01-01T00:00:00Z",
+        },
+      ],
+      hasMore: false,
+    }),
+  } as Response;
+
+  it("abre el modal de borrado al hacer clic en el icono de papelera", async () => {
+    vi.mocked(fetch).mockResolvedValue(deleteCampaignResponse);
+    render(<CampaignsScreen {...DEFAULT_PROPS} />);
+    await waitFor(() => screen.getByText("Campaña Borrar"));
+
+    fireEvent.click(screen.getByLabelText("Eliminar campaña"));
+
+    expect(
+      screen.getByRole("heading", { name: "Eliminar campaña" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Cancelar")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("borrar")).toBeInTheDocument();
+  });
+
+  it("cierra el modal de borrado al hacer clic en Cancelar", async () => {
+    vi.mocked(fetch).mockResolvedValue(deleteCampaignResponse);
+    render(<CampaignsScreen {...DEFAULT_PROPS} />);
+    await waitFor(() => screen.getByText("Campaña Borrar"));
+    fireEvent.click(screen.getByLabelText("Eliminar campaña"));
+    expect(screen.getByText("Cancelar")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Cancelar"));
+
+    expect(screen.queryByText("Cancelar")).not.toBeInTheDocument();
+  });
+
+  it("cierra el modal de borrado al hacer clic en ×", async () => {
+    vi.mocked(fetch).mockResolvedValue(deleteCampaignResponse);
+    render(<CampaignsScreen {...DEFAULT_PROPS} />);
+    await waitFor(() => screen.getByText("Campaña Borrar"));
+    fireEvent.click(screen.getByLabelText("Eliminar campaña"));
+    expect(screen.getByText("Cancelar")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("×"));
+
+    expect(screen.queryByText("Cancelar")).not.toBeInTheDocument();
+  });
+
+  it("el botón de confirmar borrado está desactivado sin escribir 'borrar'", async () => {
+    vi.mocked(fetch).mockResolvedValue(deleteCampaignResponse);
+    render(<CampaignsScreen {...DEFAULT_PROPS} />);
+    await waitFor(() => screen.getByText("Campaña Borrar"));
+    fireEvent.click(screen.getByLabelText("Eliminar campaña"));
+
+    const allDeleteBtns = screen.getAllByRole("button", {
+      name: "Eliminar campaña",
+    });
+    const confirmBtn = allDeleteBtns[allDeleteBtns.length - 1];
+    expect(confirmBtn).toBeDisabled();
+
+    fireEvent.change(screen.getByPlaceholderText("borrar"), {
+      target: { value: "otra cosa" },
+    });
+    expect(confirmBtn).toBeDisabled();
+  });
+
+  it("el botón de confirmar borrado se activa al escribir 'borrar'", async () => {
+    vi.mocked(fetch).mockResolvedValue(deleteCampaignResponse);
+    render(<CampaignsScreen {...DEFAULT_PROPS} />);
+    await waitFor(() => screen.getByText("Campaña Borrar"));
+    fireEvent.click(screen.getByLabelText("Eliminar campaña"));
+
+    fireEvent.change(screen.getByPlaceholderText("borrar"), {
+      target: { value: "borrar" },
+    });
+
+    const allDeleteBtns = screen.getAllByRole("button", {
+      name: "Eliminar campaña",
+    });
+    expect(allDeleteBtns[allDeleteBtns.length - 1]).not.toBeDisabled();
+  });
+
+  it("borra la campaña y la elimina de la lista al confirmar", async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(deleteCampaignResponse)
+      .mockResolvedValueOnce({ ok: true } as Response);
+
+    render(<CampaignsScreen {...DEFAULT_PROPS} />);
+    await waitFor(() => screen.getByText("Campaña Borrar"));
+    fireEvent.click(screen.getByLabelText("Eliminar campaña"));
+    fireEvent.change(screen.getByPlaceholderText("borrar"), {
+      target: { value: "borrar" },
+    });
+
+    const allDeleteBtns = screen.getAllByRole("button", {
+      name: "Eliminar campaña",
+    });
+    await act(async () => {
+      fireEvent.click(allDeleteBtns[allDeleteBtns.length - 1]);
+    });
+
+    await waitFor(() =>
+      expect(screen.queryByText("Campaña Borrar")).not.toBeInTheDocument(),
+    );
+    expect(screen.queryByText("Cancelar")).not.toBeInTheDocument();
   });
 });

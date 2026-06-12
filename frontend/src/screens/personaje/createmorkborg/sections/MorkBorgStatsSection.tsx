@@ -41,6 +41,7 @@ interface CalculatedStatBoxProps {
   canRoll: boolean; // se muestra el botón solo cuando el prerrequisito está tirado
   isRollingThis: boolean;
   isRollingAny: boolean;
+  pendingWarning?: boolean;
   onRoll: () => void;
 }
 
@@ -51,43 +52,52 @@ function CalculatedStatBox({
   canRoll,
   isRollingThis,
   isRollingAny,
+  pendingWarning = false,
   onRoll,
 }: CalculatedStatBoxProps) {
   return (
-    <div className="flex flex-wrap items-center gap-4 rounded-[22px] border border-[#4A3520] bg-[#2A1F12] px-6 py-4">
-      {/* Nombre */}
-      <p className="w-44 text-sm font-bold uppercase tracking-[0.18em] text-amber-300/80">
-        {label}
-      </p>
+    <div className="flex flex-col gap-3 rounded-[22px] border border-[#4A3520] bg-[#2A1F12] px-6 py-4">
+      <div className="flex flex-wrap items-center gap-4">
+        {/* Nombre */}
+        <p className="w-44 text-sm font-bold uppercase tracking-[0.18em] text-amber-300/80">
+          {label}
+        </p>
 
-      {/* Número */}
-      <div className="flex h-12 w-20 items-center justify-center rounded-[14px] border border-stone-300/15 bg-stone-900/65 text-2xl font-bold">
-        {isRollingThis ? (
-          <span className="text-stone-500 animate-pulse">…</span>
-        ) : value !== null ? (
-          <span className="text-white">{value}</span>
-        ) : (
-          <span className="text-stone-600">—</span>
-        )}
+        {/* Número */}
+        <div className="flex h-12 w-20 items-center justify-center rounded-[14px] border border-stone-300/15 bg-stone-900/65 text-2xl font-bold">
+          {isRollingThis ? (
+            <span className="text-stone-500 animate-pulse">…</span>
+          ) : value !== null ? (
+            <span className="text-white">{value}</span>
+          ) : (
+            <span className="text-stone-600">—</span>
+          )}
+        </div>
+
+        {/* Fórmula */}
+        {canRoll ? <p className="text-xs text-stone-200">{formula}</p> : null}
+
+        {/* Botón — solo cuando se cumple el prerrequisito */}
+        {canRoll ? (
+          <button
+            type="button"
+            onClick={onRoll}
+            disabled={isRollingAny}
+            className="ml-auto rounded-full border border-stone-600 bg-stone-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
+          >
+            {isRollingThis
+              ? "Tirando…"
+              : value !== null
+                ? "🎲 Volver a tirar"
+                : "🎲 Tirar"}
+          </button>
+        ) : null}
       </div>
 
-      {/* Fórmula */}
-      {canRoll ? <p className="text-xs text-stone-200">{formula}</p> : null}
-
-      {/* Botón — solo cuando se cumple el prerrequisito */}
-      {canRoll ? (
-        <button
-          type="button"
-          onClick={onRoll}
-          disabled={isRollingAny}
-          className="ml-auto rounded-full border border-stone-600 bg-stone-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
-        >
-          {isRollingThis
-            ? "Tirando…"
-            : value !== null
-              ? "🎲 Volver a tirar"
-              : "🎲 Tirar"}
-        </button>
+      {pendingWarning ? (
+        <p className="animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]">
+          ⚠ Tirada pendiente
+        </p>
       ) : null}
     </div>
   );
@@ -100,6 +110,7 @@ interface MainStatBoxProps {
   value: StatValue | undefined;
   isRollingThis: boolean;
   isRollingAny: boolean;
+  pendingWarning?: boolean;
   onRoll: () => void;
 }
 
@@ -109,6 +120,7 @@ function MainStatBox({
   value,
   isRollingThis,
   isRollingAny,
+  pendingWarning = false,
   onRoll,
 }: MainStatBoxProps) {
   const hasValue = value !== undefined;
@@ -161,6 +173,12 @@ function MainStatBox({
             ? "🎲 Volver a tirar"
             : "🎲 Tirar"}
       </button>
+
+      {pendingWarning ? (
+        <p className="w-full animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-center text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]">
+          ⚠ Tirada pendiente
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -171,6 +189,7 @@ import type { MbStatsSnapshot } from "../hooks/useCreateMorkBorgCharacter";
 interface MorkBorgStatsSectionProps {
   selectedClass: MorkBorgClass | null;
   hasError?: boolean;
+  hasAttemptedCreation?: boolean;
   /** Llamado cada vez que se tira (o re-tira) Presencia con su modificador. */
   onPresenciaRolled?: (modifier: number) => void;
   /** Llamado cuando las 4 estadísticas principales ya tienen valor. */
@@ -184,6 +203,7 @@ interface MorkBorgStatsSectionProps {
 export default function MorkBorgStatsSection({
   selectedClass,
   hasError = false,
+  hasAttemptedCreation = false,
   onPresenciaRolled,
   onAllMainStatsRolled,
   onAllStatsComplete,
@@ -409,6 +429,12 @@ export default function MorkBorgStatsSection({
                 canRoll={!!resValue}
                 isRollingThis={activeStatId === ROLL_VIDA && isRolling}
                 isRollingAny={isRolling}
+                pendingWarning={
+                  hasAttemptedCreation &&
+                  !!resValue &&
+                  vidaValue === null &&
+                  !(activeStatId === ROLL_VIDA && isRolling)
+                }
                 onRoll={handleRollVida}
               />
               <CalculatedStatBox
@@ -418,6 +444,11 @@ export default function MorkBorgStatsSection({
                 canRoll={true}
                 isRollingThis={activeStatId === ROLL_PRESAGIOS && isRolling}
                 isRollingAny={isRolling}
+                pendingWarning={
+                  hasAttemptedCreation &&
+                  presagiosValue === null &&
+                  !(activeStatId === ROLL_PRESAGIOS && isRolling)
+                }
                 onRoll={handleRollPresagios}
               />
             </div>
@@ -436,6 +467,11 @@ export default function MorkBorgStatsSection({
                   value={statValues[stat.id]}
                   isRollingThis={activeStatId === stat.id && isRolling}
                   isRollingAny={isRolling}
+                  pendingWarning={
+                    hasAttemptedCreation &&
+                    statValues[stat.id] === undefined &&
+                    !(activeStatId === stat.id && isRolling)
+                  }
                   onRoll={() => handleRollStat(stat.id, stat.label)}
                 />
               ))}

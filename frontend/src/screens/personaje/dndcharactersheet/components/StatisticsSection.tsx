@@ -91,7 +91,7 @@ export default function StatisticsSection({
     },
     {
       key: "armor-class",
-      label: "CA",
+      label: "Armadura",
       value: String(armorClass),
       onClick: undefined,
     },

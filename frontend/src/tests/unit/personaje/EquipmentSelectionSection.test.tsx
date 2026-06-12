@@ -51,6 +51,7 @@ const backgroundEquipment = {
       etiqueta: "Piezas de oro",
       cantidad: 15,
       objeto: null,
+      opcionesCatalogo: [],
     },
   ],
   gruposEleccion: [],

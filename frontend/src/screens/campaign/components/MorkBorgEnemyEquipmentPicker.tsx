@@ -1,5 +1,5 @@
 import { X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   fetchObjectCatalog,
   type ObjectCatalogResponse,
@@ -105,6 +105,14 @@ export function EquipmentPickerModal({
   const [customName, setCustomName] = useState("");
   const [customDescription, setCustomDescription] = useState("");
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const errorRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (submitError)
+      errorRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+  }, [submitError]);
 
   // Dice builder
   const [diceParts, setDiceParts] = useState<
@@ -229,6 +237,16 @@ export function EquipmentPickerModal({
     const nombre = customName.trim();
     if (!nombre) {
       setSubmitError(`Debes indicar un nombre para la ${singularTitle}.`);
+      return;
+    }
+    const totalDice = diceParts.reduce(
+      (sum, d) => sum + (Number.parseInt(d.count, 10) || 0),
+      0,
+    );
+    if (totalDice > 20) {
+      setSubmitError(
+        `La cantidad máxima de dados es 20 (actualmente ${totalDice})`,
+      );
       return;
     }
     if (!builtFormula || !isValidMbFormula(builtFormula, kind)) {
@@ -521,8 +539,11 @@ export function EquipmentPickerModal({
               </div>
 
               {submitError ? (
-                <div className="rounded-[16px] border border-rose-300/30 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
-                  {submitError}
+                <div
+                  ref={errorRef}
+                  className="animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-4 py-3 text-sm font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]"
+                >
+                  ⚠ {submitError}
                 </div>
               ) : null}
 

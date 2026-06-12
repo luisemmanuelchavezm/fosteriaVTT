@@ -60,11 +60,13 @@ const DEFAULT_PROPS = {
 };
 
 beforeEach(() => {
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
   vi.clearAllMocks();
   localStorage.setItem("username", "testuser");
 });
 
 afterEach(() => {
+  vi.unstubAllGlobals();
   localStorage.clear();
 });
 

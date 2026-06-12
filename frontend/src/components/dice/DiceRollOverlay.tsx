@@ -76,7 +76,10 @@ export default function DiceRollOverlay({
             <p className="text-center text-xs font-semibold uppercase tracking-[0.22em] text-amber-200/80">
               Resultado
             </p>
-            <h3 className="mt-2 text-center text-xl font-bold text-white">
+            <h3
+              className="mt-2 truncate text-center text-xl font-bold text-white"
+              title={summary.title}
+            >
               {summary.title}
             </h3>
             <p className="mt-1 text-center text-sm text-stone-300">

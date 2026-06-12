@@ -38,3 +38,4 @@ test-results-snapshots/
 
 # --- Claude Code (configuración local con permisos de sesión) ---
 .claude/settings.local.json
+.claude/worktrees/

@@ -8,7 +8,8 @@
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\emman\\\\OneDrive\\\\Escritorio\\\\fosteriaVTT\" -Directory)",
       "Bash(grep -E \"\\(Campaña|Jugador|Mapa|Pestaña|Personaje|Habilidad|Objeto|Mochila|Capa|Dibujo|Punto|Posicion|Niebla|Chat|Estadistica|Usuario\\)\\\\.java$\")",
       "PowerShell(cd \"C:\\\\Users\\\\emman\\\\OneDrive\\\\Escritorio\\\\fosteriaVTT\\\\backend\"; .\\\\mvnw.cmd compile 2>&1 | Where-Object { $_ -match \"error\" } | Select-Object -First 20)",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "Bash(echo \"EXIT:$?\")"
     ]
   },
   "hooks": {

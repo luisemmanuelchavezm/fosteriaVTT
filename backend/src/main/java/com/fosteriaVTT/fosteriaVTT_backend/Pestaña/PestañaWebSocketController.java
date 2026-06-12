@@ -29,4 +29,12 @@ public class PestañaWebSocketController {
         messagingTemplate.convertAndSend(
                 "/topic/campanas/" + campañaId + "/pestana/config", payload);
     }
+
+    @MessageMapping("/campanas/{campañaId}/pestana/cambio")
+    public void broadcastCambioPestana(
+            @DestinationVariable Long campañaId,
+            @Payload Map<String, Object> payload) {
+        messagingTemplate.convertAndSend(
+                "/topic/campanas/" + campañaId + "/pestana/cambio", payload);
+    }
 }

@@ -56,6 +56,7 @@ export interface TableBoxProps {
   onRoll: () => void;
   children: React.ReactNode;
   tableInfo?: TableInfo[];
+  pendingWarning?: boolean;
 }
 
 export function TableBox({
@@ -67,6 +68,7 @@ export function TableBox({
   onRoll,
   children,
   tableInfo,
+  pendingWarning = false,
 }: TableBoxProps) {
   const [showModal, setShowModal] = useState(false);
 
@@ -141,6 +143,12 @@ export function TableBox({
             ? "🎲 Volver a tirar"
             : "🎲 Tirar"}
       </button>
+
+      {pendingWarning ? (
+        <p className="animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)]">
+          ⚠ Tirada pendiente
+        </p>
+      ) : null}
     </div>
   );
 }

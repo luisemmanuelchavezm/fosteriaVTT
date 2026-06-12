@@ -14,7 +14,7 @@ describe("HomeNavbar", () => {
 
     render(<HomeNavbar activeTab="home" onTabChange={onTabChange} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Ir a Campañas" }));
+    fireEvent.click(screen.getByRole("button", { name: "Ir a Campaña" }));
 
     expect(onTabChange).toHaveBeenCalledWith("campaigns");
   });

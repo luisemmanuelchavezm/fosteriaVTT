@@ -93,6 +93,8 @@ export interface EquipmentRollsState {
   rollArmadura: () => void;
   // Scroll reset helpers
   resetScrollState: () => void;
+  // Pending sub-rolls indicator
+  hasSubRollsPending: boolean;
 }
 
 export function useMorkBorgEquipmentRolls({
@@ -178,12 +180,19 @@ export function useMorkBorgEquipmentRolls({
 
     const basicEquip = contenedor !== null && item1 !== null && item2 !== null;
 
+    const subRollsOk =
+      (item1 === null || item1.result !== 5 || impuroIdx !== null) &&
+      (item1 === null || item1.result !== 11 || venenoCant !== null) &&
+      (item2 === null || item2.result !== 1 || elixirCant !== null) &&
+      (item2 === null || item2.result !== 2 || sagradoIdx !== null) &&
+      (item2 === null || item2.result !== 4 || monosCant !== null);
+
     const scrollOk =
       !wantsScroll || (perScrollTipo !== null && perScrollIdx !== null);
 
     const esotOk = classId !== "ermitano-esoterico" || esotScrollIdx !== null;
 
-    const complete = base && basicEquip && scrollOk && esotOk;
+    const complete = base && basicEquip && subRollsOk && scrollOk && esotOk;
     if (complete) {
       onEquipmentCompleteRef.current?.(true, {
         plata: plataValue!,
@@ -210,7 +219,12 @@ export function useMorkBorgEquipmentRolls({
     comidaValue,
     contenedor,
     item1,
+    impuroIdx,
+    venenoCant,
     item2,
+    sagradoIdx,
+    elixirCant,
+    monosCant,
     wantsScroll,
     perScrollTipo,
     perScrollIdx,
@@ -348,6 +362,13 @@ export function useMorkBorgEquipmentRolls({
     setPerScrollIdx(null);
   }
 
+  const hasSubRollsPending =
+    (item1?.result === 5 && impuroIdx === null) ||
+    (item1?.result === 11 && venenoCant === null) ||
+    (item2?.result === 1 && elixirCant === null) ||
+    (item2?.result === 2 && sagradoIdx === null) ||
+    (item2?.result === 4 && monosCant === null);
+
   return {
     diceBoxHostId,
     diceBoxError,
@@ -388,5 +409,6 @@ export function useMorkBorgEquipmentRolls({
     setShowArmModal,
     rollArmadura,
     resetScrollState,
+    hasSubRollsPending,
   };
 }

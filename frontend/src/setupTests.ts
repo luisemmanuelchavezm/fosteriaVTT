@@ -11,3 +11,6 @@ expect.extend(matchers);
 afterEach(() => {
   cleanup();
 });
+
+// 3. Mock global de scrollIntoView — jsdom no lo implementa
+window.HTMLElement.prototype.scrollIntoView = function () {};

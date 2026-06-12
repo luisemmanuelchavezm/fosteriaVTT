@@ -525,10 +525,10 @@ describe("ResourcesPanel", () => {
         resourceMoney={{ ppt: 5, po: 10, pp: 2, pc: 100 }}
       />,
     );
-    expect(screen.getByText("PPT")).toBeInTheDocument();
-    expect(screen.getByText("PO")).toBeInTheDocument();
-    expect(screen.getByText("PP")).toBeInTheDocument();
-    expect(screen.getByText("PC")).toBeInTheDocument();
+    expect(screen.getByText("Platino")).toBeInTheDocument();
+    expect(screen.getByText("Oro")).toBeInTheDocument();
+    expect(screen.getByText("Plata")).toBeInTheDocument();
+    expect(screen.getByText("Cobre")).toBeInTheDocument();
     expect(screen.getByText("10")).toBeInTheDocument();
   });
 

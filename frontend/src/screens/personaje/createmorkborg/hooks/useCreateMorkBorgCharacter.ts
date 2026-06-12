@@ -115,6 +115,14 @@ export function useCreateMorkBorgCharacter() {
     setEquipmentSnapshot(null);
   };
 
+  const claseRequiereOpcion =
+    !!selectedClass &&
+    selectedClass.id !== "herborista-ocultista" &&
+    !!(selectedClass.opciones && selectedClass.opciones.length > 0);
+
+  const claseOpcionesComplete =
+    !claseRequiereOpcion || claseOpciones.length > 0;
+
   return {
     // identidad
     name,
@@ -129,6 +137,7 @@ export function useCreateMorkBorgCharacter() {
     selectClass,
     clearClass,
     claseOpciones,
+    claseOpcionesComplete,
     notifyClaseOpcionRolled: setClaseOpciones,
     // estadísticas
     presenciaModifier,
