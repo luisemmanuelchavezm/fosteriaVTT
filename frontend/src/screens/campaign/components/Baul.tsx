@@ -516,7 +516,7 @@ export default function Baul({
               onClick={() => setIsNpcModalOpen(true)}
               className="h-9 rounded-lg border border-amber-400/50 bg-amber-700/20 px-3 text-xs font-bold text-amber-100 transition hover:bg-amber-700/35"
             >
-              Crear NPC
+              Crear PNJ
             </button>
           ) : chestSourceTab === "mine" && chestContentTab === "map" ? (
             <button

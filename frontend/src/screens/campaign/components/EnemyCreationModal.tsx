@@ -99,7 +99,7 @@ function DndEnemyCreationModal({
       <div className="relative z-10 flex max-h-full w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/15 bg-stone-950 shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-          <h2 className="text-lg font-black text-white">Crear NPC</h2>
+          <h2 className="text-lg font-black text-white">Crear PNJ</h2>
           <button
             type="button"
             onClick={handleClose}
@@ -407,7 +407,7 @@ function DndEnemyCreationModal({
             disabled={isSubmitting}
             className="flex-1 rounded-lg bg-amber-600 py-2.5 text-sm font-bold text-white transition hover:bg-amber-500 disabled:opacity-60"
           >
-            {isSubmitting ? "Creando..." : "Crear NPC"}
+            {isSubmitting ? "Creando..." : "Crear PNJ"}
           </button>
         </div>
       </div>
