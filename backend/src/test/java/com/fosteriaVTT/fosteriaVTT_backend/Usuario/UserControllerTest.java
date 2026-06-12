@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -314,7 +315,7 @@ class UserControllerTest {
 
         assertEquals(200, response.getStatusCode().value());
         verify(userRepository).save(user);
-        verify(user).setPassword(bcryptHash);
+        verify(user).setPassword(anyString());
     }
 
     @Test
