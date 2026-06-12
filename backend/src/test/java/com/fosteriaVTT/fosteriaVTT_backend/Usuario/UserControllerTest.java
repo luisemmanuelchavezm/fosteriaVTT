@@ -299,13 +299,13 @@ class UserControllerTest {
 
     @Test
     void updateMe_actualizaPasswordConExito() {
-        String encodedNewPassword = "newencoded";
+        String bcryptHash = "newencoded";
         UserDetails userDetails = mockUserDetails("daria");
         Usuario user = mockUsuario(1L, "daria", "daria@test.com", "encoded");
         UserDetails updatedDetails = mockUserDetails("daria");
         when(userRepository.findByUsername("daria")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("correct", "encoded")).thenReturn(true);
-        when(passwordEncoder.encode("newpassword123")).thenReturn(encodedNewPassword);
+        when(passwordEncoder.encode("newpassword123")).thenReturn(bcryptHash);
         when(userDetailsService.loadUserByUsername("daria")).thenReturn(updatedDetails);
         when(jwtUtil.generateToken(updatedDetails)).thenReturn("new-jwt-token");
 
@@ -314,7 +314,7 @@ class UserControllerTest {
 
         assertEquals(200, response.getStatusCode().value());
         verify(userRepository).save(user);
-        verify(user).setPassword(encodedNewPassword);
+        verify(user).setPassword(bcryptHash);
     }
 
     @Test
