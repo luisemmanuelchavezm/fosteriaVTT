@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { secureRandomBase36, secureRandomInt } from "../../lib/secureRandom";
 
 interface DiceBoxInstance {
@@ -241,6 +241,7 @@ export function useDiceRoller() {
   const activeRollCountRef = useRef(0);
   const hasVisibleSummaryRef = useRef(false);
   const summaryIdRef = useRef(0);
+  const rollGenerationRef = useRef(0);
   const [isDiceBoxReady, setIsDiceBoxReady] = useState(false);
   const [diceBoxError, setDiceBoxError] = useState<string | null>(null);
   const [isRolling, setIsRolling] = useState(false);
@@ -378,6 +379,7 @@ export function useDiceRoller() {
   );
 
   const runRoll = async (title: string, expression: string) => {
+    const generation = rollGenerationRef.current;
     const parsed = parseRollExpression(expression);
 
     if (!parsed) {
@@ -422,6 +424,7 @@ export function useDiceRoller() {
           typeof (rollResult as Promise<unknown>).then === "function"
         ) {
           const resolved = await (rollResult as Promise<unknown>);
+          if (rollGenerationRef.current !== generation) return;
           diceValues = extractDiceValues(resolved);
         } else {
           // roll() returned non-promise — instance may be broken, reset it
@@ -455,6 +458,7 @@ export function useDiceRoller() {
       });
       scheduleDiceClear();
     } catch (error) {
+      if (rollGenerationRef.current !== generation) return;
       diceBoxInstanceRef.current = null; // forzar re-init en el siguiente roll
       setIsDiceBoxReady(false);
       const message =
@@ -462,8 +466,13 @@ export function useDiceRoller() {
       setDiceBoxError(`Dice-Box no pudo mostrar la tirada: ${message}`);
       scheduleDiceClear();
     } finally {
-      activeRollCountRef.current = Math.max(0, activeRollCountRef.current - 1);
-      setIsRolling(activeRollCountRef.current > 0);
+      if (rollGenerationRef.current === generation) {
+        activeRollCountRef.current = Math.max(
+          0,
+          activeRollCountRef.current - 1,
+        );
+        setIsRolling(activeRollCountRef.current > 0);
+      }
     }
   };
 
@@ -474,6 +483,7 @@ export function useDiceRoller() {
     modifierDisplay = null,
     totalLabel = null,
   }: DicePoolRequest): Promise<DiceRollSummary | null> => {
+    const generation = rollGenerationRef.current;
     const normalizedPools = dicePools.filter(
       (pool) => pool.count > 0 && pool.faces > 0,
     );
@@ -513,6 +523,7 @@ export function useDiceRoller() {
         typeof (rollResult as Promise<unknown>).then === "function"
       ) {
         const resolved = await (rollResult as Promise<unknown>);
+        if (rollGenerationRef.current !== generation) return null;
         diceValues = extractDiceValues(resolved);
       } else {
         // roll() returned non-promise — instance may be broken, reset it
@@ -547,6 +558,7 @@ export function useDiceRoller() {
       scheduleDiceClear();
       return summary;
     } catch (error) {
+      if (rollGenerationRef.current !== generation) return null;
       diceBoxInstanceRef.current = null; // forzar re-init en el siguiente roll
       setIsDiceBoxReady(false);
       const message =
@@ -555,10 +567,36 @@ export function useDiceRoller() {
       scheduleDiceClear();
       return null;
     } finally {
-      activeRollCountRef.current = Math.max(0, activeRollCountRef.current - 1);
-      setIsRolling(activeRollCountRef.current > 0);
+      if (rollGenerationRef.current === generation) {
+        activeRollCountRef.current = Math.max(
+          0,
+          activeRollCountRef.current - 1,
+        );
+        setIsRolling(activeRollCountRef.current > 0);
+      }
     }
   };
+
+  const resetRolling = useCallback(() => {
+    rollGenerationRef.current += 1;
+    if (summaryTimeoutRef.current !== null) {
+      window.clearTimeout(summaryTimeoutRef.current);
+      summaryTimeoutRef.current = null;
+    }
+    if (diceClearTimeoutRef.current !== null) {
+      window.clearTimeout(diceClearTimeoutRef.current);
+      diceClearTimeoutRef.current = null;
+    }
+    summaryQueueRef.current = [];
+    hasVisibleSummaryRef.current = false;
+    activeDiceCountRef.current = 0;
+    activeRollCountRef.current = 0;
+    diceBoxInstanceRef.current = null;
+    setIsDiceBoxReady(false);
+    setIsRolling(false);
+    setSummary(null);
+    setDiceBoxError(null);
+  }, []);
 
   return {
     diceBoxHostId: diceBoxHostIdRef.current,
@@ -580,6 +618,7 @@ export function useDiceRoller() {
     },
     dismissSummary,
     rollTwoD20ForAdvantage: async (): Promise<[number, number]> => {
+      const generation = rollGenerationRef.current;
       clearDiceTimer();
       dismissSummary();
       setDiceBoxError(null);
@@ -602,6 +641,8 @@ export function useDiceRoller() {
           typeof (rollResult as Promise<unknown>).then === "function"
         ) {
           const resolved = await (rollResult as Promise<unknown>);
+          if (rollGenerationRef.current !== generation)
+            return [secureRandomInt(1, 20), secureRandomInt(1, 20)];
           diceValues = extractDiceValues(resolved);
         } else {
           diceValues = rollLocally(2, 20);
@@ -621,13 +662,16 @@ export function useDiceRoller() {
         scheduleDiceClear();
         return [secureRandomInt(1, 20), secureRandomInt(1, 20)];
       } finally {
-        activeRollCountRef.current = Math.max(
-          0,
-          activeRollCountRef.current - 1,
-        );
-        setIsRolling(activeRollCountRef.current > 0);
+        if (rollGenerationRef.current === generation) {
+          activeRollCountRef.current = Math.max(
+            0,
+            activeRollCountRef.current - 1,
+          );
+          setIsRolling(activeRollCountRef.current > 0);
+        }
       }
     },
     formatModifier,
+    resetRolling,
   };
 }
