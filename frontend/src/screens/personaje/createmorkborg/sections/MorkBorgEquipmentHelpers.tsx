@@ -41,6 +41,23 @@ export function ResultChip({ children }: { children: React.ReactNode }) {
   );
 }
 
+// ── PendingRollWarning ────────────────────────────────────────────────────────
+export function PendingRollWarning({
+  message = "Tirada pendiente",
+  className = "",
+}: {
+  message?: string;
+  className?: string;
+}) {
+  return (
+    <p
+      className={`animate-pulse rounded-xl border border-red-500/60 bg-red-950/80 px-3 py-2 text-xs font-bold text-red-300 shadow-[0_0_12px_rgba(220,38,38,0.3)] ${className}`}
+    >
+      ⚠ {message}
+    </p>
+  );
+}
+
 // ── TableBox ──────────────────────────────────────────────────────────────────
 interface TableInfo {
   label: string;
