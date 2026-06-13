@@ -142,11 +142,11 @@ class AuthControllerTest {
         RegisterRequest request = new RegisterRequest();
         request.setUsername("daria");
         request.setEmail("daria@test.com");
-        request.setPassword("12345678");
+        request.setPassword("test".repeat(2));
         when(bindingResult.hasErrors()).thenReturn(false);
         when(userRepository.existsByUsername("daria")).thenReturn(false);
         when(userRepository.existsByEmail("daria@test.com")).thenReturn(false);
-        when(passwordEncoder.encode("12345678")).thenReturn("encoded-password");
+        when(passwordEncoder.encode(anyString())).thenReturn("encoded-password");
 
         ResponseEntity<?> response = authController.register(request, bindingResult);
         ArgumentCaptor<Usuario> userCaptor = ArgumentCaptor.forClass(Usuario.class);
@@ -268,7 +268,6 @@ class AuthControllerTest {
         RegisterRequest request = new RegisterRequest();
         request.setUsername("ab");
         request.setEmail("mail@test.com");
-        request.setPassword("1234");
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
