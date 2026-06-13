@@ -55,7 +55,7 @@ describe("CharacterPortrait", () => {
   it("renders SVG fallback when retrato is null", () => {
     render(
       <CharacterPortrait
-        selectedPosition={makePosition({ retrato: null })}
+        selectedPosition={makePosition()}
         portraitFailed={false}
         onPortraitError={vi.fn()}
       />,
