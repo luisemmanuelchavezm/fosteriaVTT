@@ -65,21 +65,25 @@ vi.mock(
   () => ({ default: () => <div data-testid="mb-rasgos-panel" /> }),
 );
 
-vi.mock("../../../components/dice/useDiceRoller", () => ({
-  useDiceRoller: vi.fn(() => ({
-    diceBoxHostId: "dice-host",
-    diceBoxError: null,
-    isRolling: false,
-    summary: null,
-    rollD20Check: vi.fn(),
-    rollExpression: vi.fn(),
-    rollDicePool: vi.fn(),
-    rollExpressionsSequence: vi.fn(),
-    dismissSummary: vi.fn(),
-    rollTwoD20ForAdvantage: vi.fn().mockResolvedValue([10, 15]),
-    formatModifier: vi.fn((n: number) => (n >= 0 ? `+${n}` : `${n}`)),
-  })),
-}));
+vi.mock("../../../components/dice/useDiceRoller", () => {
+  const resetRolling = vi.fn();
+  return {
+    useDiceRoller: vi.fn(() => ({
+      diceBoxHostId: "dice-host",
+      diceBoxError: null,
+      isRolling: false,
+      summary: null,
+      rollD20Check: vi.fn(),
+      rollExpression: vi.fn(),
+      rollDicePool: vi.fn(),
+      rollExpressionsSequence: vi.fn(),
+      dismissSummary: vi.fn(),
+      rollTwoD20ForAdvantage: vi.fn().mockResolvedValue([10, 15]),
+      formatModifier: vi.fn((n: number) => (n >= 0 ? `+${n}` : `${n}`)),
+      resetRolling,
+    })),
+  };
+});
 
 vi.mock("../../../screens/personaje/utils/dndApi", () => ({
   fetchDndCharacterDetail: vi.fn(),
