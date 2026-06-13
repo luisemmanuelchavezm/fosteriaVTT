@@ -327,6 +327,9 @@ export default function QuickActionBar({
 
   if (!selectedPosition) return null;
 
+  const toggleAction = (key: ActionKind) =>
+    setActiveAction((c) => (c === key ? null : key));
+
   return (
     <div className="absolute bottom-0 left-0 right-0 z-20 flex justify-center pb-4 pointer-events-none">
       <div
@@ -425,11 +428,7 @@ export default function QuickActionBar({
                 <ActionButton
                   action={action}
                   label={isMBPlayer ? "Estadísticas" : undefined}
-                  onClick={() =>
-                    setActiveAction((c) =>
-                      c === "habilidad" ? null : "habilidad",
-                    )
-                  }
+                  onClick={() => toggleAction("habilidad")}
                 />
               </div>
             );
@@ -445,11 +444,7 @@ export default function QuickActionBar({
                 )}
                 <ActionButton
                   action={action}
-                  onClick={() =>
-                    setActiveAction((c) =>
-                      c === "rasgos-clase" ? null : "rasgos-clase",
-                    )
-                  }
+                  onClick={() => toggleAction("rasgos-clase")}
                 />
               </div>
             );
@@ -465,11 +460,7 @@ export default function QuickActionBar({
                 )}
                 <ActionButton
                   action={action}
-                  onClick={() =>
-                    setActiveAction((c) =>
-                      c === "especialidad" ? null : "especialidad",
-                    )
-                  }
+                  onClick={() => toggleAction("especialidad")}
                 />
               </div>
             );
@@ -485,9 +476,7 @@ export default function QuickActionBar({
                 )}
                 <ActionButton
                   action={action}
-                  onClick={() =>
-                    setActiveAction((c) => (c === "botin" ? null : "botin"))
-                  }
+                  onClick={() => toggleAction("botin")}
                 />
               </div>
             );
@@ -543,11 +532,7 @@ export default function QuickActionBar({
                 )}
                 <ActionButton
                   action={action}
-                  onClick={() =>
-                    setActiveAction((c) =>
-                      c === "recursos" ? null : "recursos",
-                    )
-                  }
+                  onClick={() => toggleAction("recursos")}
                 />
               </div>
             );
@@ -570,11 +555,7 @@ export default function QuickActionBar({
                 )}
                 <ActionButton
                   action={action}
-                  onClick={() =>
-                    setActiveAction((c) =>
-                      c === "hechizos" ? null : "hechizos",
-                    )
-                  }
+                  onClick={() => toggleAction("hechizos")}
                 />
               </div>
             );

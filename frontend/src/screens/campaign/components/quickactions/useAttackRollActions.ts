@@ -84,41 +84,35 @@ export function useAttackRollActions({
 
   const attackRollActions = useMemo<AttackRollAction[]>(() => {
     if (!selectedWeapon) return [];
+    const { name: weaponName } = selectedWeapon;
     const attackModifier = selectedWeapon.attackBonus ?? 0;
     const damageExpr = selectedWeapon.damageExpression;
     const critExpr = buildCriticalExpression(damageExpr);
 
+    const dmgNeutral: AttackRollAction = {
+      id: "dmg-neutral",
+      label: "Daño",
+      image: imgDanoNeutral,
+      onClick: () => {
+        if (damageExpr)
+          diceRoller.rollExpression(`Daño · ${weaponName}`, damageExpr);
+      },
+    };
+
+    const mbCritDmg: AttackRollAction = {
+      id: "dmg-crit",
+      label: "Daño crítico",
+      image: imgDanoVentaja,
+      onClick: () => {
+        if (damageExpr) {
+          pendingMBCritRef.current = true;
+          diceRoller.rollExpression(`Daño crítico · ${weaponName}`, damageExpr);
+        }
+      },
+    };
+
     if (isMBEnemy) {
-      return [
-        {
-          id: "dmg-neutral",
-          label: "Daño",
-          image: imgDanoNeutral,
-          onClick: () => {
-            if (damageExpr) {
-              pendingMBCritRef.current = false;
-              diceRoller.rollExpression(
-                `Daño · ${selectedWeapon.name}`,
-                damageExpr,
-              );
-            }
-          },
-        },
-        {
-          id: "dmg-crit",
-          label: "Daño crítico",
-          image: imgDanoVentaja,
-          onClick: () => {
-            if (damageExpr) {
-              pendingMBCritRef.current = true;
-              diceRoller.rollExpression(
-                `Daño crítico · ${selectedWeapon.name}`,
-                damageExpr,
-              );
-            }
-          },
-        },
-      ];
+      return [dmgNeutral, mbCritDmg];
     }
 
     if (isMB) {
@@ -128,37 +122,10 @@ export function useAttackRollActions({
           label: "Ataque",
           image: imgAtaque,
           onClick: () =>
-            diceRoller.rollD20Check(
-              `Ataque con ${selectedWeapon.name}`,
-              attackModifier,
-            ),
+            diceRoller.rollD20Check(`Ataque con ${weaponName}`, attackModifier),
         },
-        {
-          id: "dmg-neutral",
-          label: "Daño",
-          image: imgDanoNeutral,
-          onClick: () => {
-            if (damageExpr)
-              diceRoller.rollExpression(
-                `Daño · ${selectedWeapon.name}`,
-                damageExpr,
-              );
-          },
-        },
-        {
-          id: "dmg-crit",
-          label: "Daño crítico",
-          image: imgDanoVentaja,
-          onClick: () => {
-            if (damageExpr) {
-              pendingMBCritRef.current = true;
-              diceRoller.rollExpression(
-                `Daño crítico · ${selectedWeapon.name}`,
-                damageExpr,
-              );
-            }
-          },
-        },
+        dmgNeutral,
+        mbCritDmg,
       ];
     }
 
@@ -173,7 +140,7 @@ export function useAttackRollActions({
         die1,
         die2,
         modifier: attackModifier,
-        weaponName: selectedWeapon!.name,
+        weaponName,
         type,
       });
       advantageTimeoutRef.current = window.setTimeout(() => {
@@ -200,7 +167,7 @@ export function useAttackRollActions({
             const used = Math.max(die1, die2);
             onRollResultRef.current?.(
               serializeRollMessage(
-                `${selectedWeapon.name} · Con ventaja`,
+                `${weaponName} · Con ventaja`,
                 [die1],
                 attackModifier,
                 die1 + attackModifier,
@@ -210,7 +177,7 @@ export function useAttackRollActions({
             );
             onRollResultRef.current?.(
               serializeRollMessage(
-                `${selectedWeapon.name} · Con ventaja`,
+                `${weaponName} · Con ventaja`,
                 [die2],
                 attackModifier,
                 die2 + attackModifier,
@@ -225,10 +192,7 @@ export function useAttackRollActions({
         label: "Ataque",
         image: imgAtaque,
         onClick: () =>
-          diceRoller.rollD20Check(
-            `Ataque con ${selectedWeapon.name}`,
-            attackModifier,
-          ),
+          diceRoller.rollD20Check(`Ataque con ${weaponName}`, attackModifier),
       },
       {
         id: "atk-dis",
@@ -240,7 +204,7 @@ export function useAttackRollActions({
             const used = Math.min(die1, die2);
             onRollResultRef.current?.(
               serializeRollMessage(
-                `${selectedWeapon.name} · Con desventaja`,
+                `${weaponName} · Con desventaja`,
                 [die1],
                 attackModifier,
                 die1 + attackModifier,
@@ -250,7 +214,7 @@ export function useAttackRollActions({
             );
             onRollResultRef.current?.(
               serializeRollMessage(
-                `${selectedWeapon.name} · Con desventaja`,
+                `${weaponName} · Con desventaja`,
                 [die2],
                 attackModifier,
                 die2 + attackModifier,
@@ -260,28 +224,14 @@ export function useAttackRollActions({
             );
           }),
       },
-      {
-        id: "dmg-neutral",
-        label: "Daño",
-        image: imgDanoNeutral,
-        onClick: () => {
-          if (damageExpr)
-            diceRoller.rollExpression(
-              `Daño · ${selectedWeapon.name}`,
-              damageExpr,
-            );
-        },
-      },
+      dmgNeutral,
       {
         id: "dmg-crit",
         label: "Daño critico",
         image: imgDanoVentaja,
         onClick: () => {
           if (critExpr)
-            diceRoller.rollExpression(
-              `Daño critico · ${selectedWeapon.name}`,
-              critExpr,
-            );
+            diceRoller.rollExpression(`Daño critico · ${weaponName}`, critExpr);
         },
       },
     ];
