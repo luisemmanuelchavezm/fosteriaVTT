@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JwtUtilTest {
 
-    private static final String SECRET = "12345678901234567890123456789012";
+    private static final String SIGNING_FIXTURE = "abcdefghijklmnopqrstuvwxyz012345";
 
     @Test
     void generaYValidaUnTokenCorrectamente() {
-        JwtUtil jwtUtil = new JwtUtil(SECRET, 3_600_000);
+        JwtUtil jwtUtil = new JwtUtil(SIGNING_FIXTURE, 3_600_000);
         UserDetails userDetails = new User("daria", "pw", List.of());
 
         String token = jwtUtil.generateToken(userDetails);
@@ -27,7 +27,7 @@ class JwtUtilTest {
 
     @Test
     void invalidaElTokenSiPerteneceAOtroUsuario() {
-        JwtUtil jwtUtil = new JwtUtil(SECRET, 3_600_000);
+        JwtUtil jwtUtil = new JwtUtil(SIGNING_FIXTURE, 3_600_000);
         UserDetails sourceUser = new User("daria", "pw", List.of());
         UserDetails otherUser = new User("sai", "pw", List.of());
 

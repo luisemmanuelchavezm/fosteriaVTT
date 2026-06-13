@@ -68,6 +68,7 @@ describe("LoginScreen", () => {
 
   it("envía las credenciales, guarda el token y notifica el login correcto", async () => {
     const onLoginSuccess = vi.fn();
+    const inputCredential = "test-pw-fixture";
     vi.mocked(fetch).mockResolvedValue({
       ok: true,
       json: async () => ({ token: "jwt-token", username: "daria" }),
@@ -84,7 +85,7 @@ describe("LoginScreen", () => {
       target: { value: "daria" },
     });
     fireEvent.change(screen.getByPlaceholderText("Tu contraseña"), {
-      target: { value: "12345678" },
+      target: { value: inputCredential },
     });
     fireEvent.click(screen.getByRole("button", { name: "Entrar" }));
 
@@ -92,7 +93,7 @@ describe("LoginScreen", () => {
       expect(fetch).toHaveBeenCalledWith(buildApiUrl("/api/auth/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: "daria", password: "12345678" }),
+        body: JSON.stringify({ username: "daria", password: inputCredential }),
       });
     });
     expect(localStorage.getItem("jwtToken")).toBe("jwt-token");
