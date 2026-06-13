@@ -176,7 +176,7 @@ class AuthControllerTest {
     void loginReturnsBadRequestWhenUsernameIsTooLong() {
         LoginRequest request = new LoginRequest();
         request.setUsername("u".repeat(101));
-        request.setPassword("12345678");
+        request.setPassword("test".repeat(2));
         when(bindingResult.hasErrors()).thenReturn(false);
 
         ResponseEntity<?> response = authController.login(request, bindingResult);
