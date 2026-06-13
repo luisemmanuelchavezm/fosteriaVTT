@@ -20,6 +20,7 @@ const CATALOG: MBRasgoClaseItem[] = [
     descripcion: "Gana +1 ATQ",
     tags: "EscoriaAlcantarillas,MORK_BORG",
     formula: null,
+    tipo: "HABILIDAD",
   },
   {
     id: 2,
@@ -27,6 +28,7 @@ const CATALOG: MBRasgoClaseItem[] = [
     descripcion: "Ve el futuro",
     tags: "ErmitanoEsoterico,MORK_BORG",
     formula: null,
+    tipo: "HABILIDAD",
   },
   {
     id: 3,
@@ -34,6 +36,7 @@ const CATALOG: MBRasgoClaseItem[] = [
     descripcion: "Daño extra",
     tags: "MORK_BORG",
     formula: null,
+    tipo: "HABILIDAD",
   },
 ];
 

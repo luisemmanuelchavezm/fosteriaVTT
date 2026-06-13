@@ -20,6 +20,7 @@ const SCROLLS: MBRasgoClaseItem[] = [
     descripcion: "Invoca sombras oscuras",
     tags: "PergaminoImpuro,MORK_BORG",
     formula: null,
+    tipo: "HABILIDAD",
   },
   {
     id: 2,
@@ -27,6 +28,7 @@ const SCROLLS: MBRasgoClaseItem[] = [
     descripcion: "Bendición del dios muerto",
     tags: "PergaminoSagrado,MORK_BORG",
     formula: null,
+    tipo: "HABILIDAD",
   },
   {
     id: 3,
@@ -34,6 +36,7 @@ const SCROLLS: MBRasgoClaseItem[] = [
     descripcion: "Maldice al objetivo",
     tags: "PergaminoImpuro,MORK_BORG",
     formula: null,
+    tipo: "HABILIDAD",
   },
 ];
 
