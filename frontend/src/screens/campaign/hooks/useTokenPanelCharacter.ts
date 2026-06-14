@@ -4,6 +4,7 @@ import {
   updateDndCharacterResources,
   type DndCharacterDetailResponse,
 } from "../../personaje/utils/dndApi";
+import { saveCurrentHpMB } from "../../personaje/utils/mbApi";
 import { getCharacterMoney } from "../../personaje/dndcharactersheet/utils/characterInventory";
 import { applyDamage } from "../../personaje/dndcharactersheet/utils/characterResources";
 import { useDiceRoller } from "../../../components/dice/useDiceRoller";
@@ -16,8 +17,16 @@ import { CHARACTER_REMOTE_UPDATED_EVENT } from "../types";
 export function getMaxHp(stats: Record<string, number>) {
   return Math.max(
     1,
-    stats["Puntos de vida"] ?? stats["Vida maxima"] ?? stats["Vida"] ?? 1,
+    stats["MB_VidaMaxima"] ??
+      stats["Puntos de vida"] ??
+      stats["Vida maxima"] ??
+      stats["Vida"] ??
+      1,
   );
+}
+
+function isMorkBorg(character: DndCharacterDetailResponse) {
+  return character.sistemaDeJuego === "Mork Borg";
 }
 
 export function clampPercentage(value: number) {
@@ -245,13 +254,19 @@ export function useTokenPanelCharacter(
     setIsSavingHealth(true);
     setHealthSaveError(null);
 
+    const mb = isMorkBorg(character);
+    const hpStatKey = mb ? "MB_VidaActual" : "Vida actual";
+    const updatedStats: Record<string, number> = {
+      ...character.estadisticas,
+      [hpStatKey]: nextCurrentHp,
+    };
+    if (!mb) {
+      updatedStats["Vida temporal"] = nextTempHp;
+    }
+
     const nextDetail: DndCharacterDetailResponse = {
       ...character,
-      estadisticas: {
-        ...character.estadisticas,
-        "Vida actual": nextCurrentHp,
-        "Vida temporal": nextTempHp,
-      },
+      estadisticas: updatedStats,
     };
 
     setDetailsByCharacterId((current) => ({
@@ -263,13 +278,17 @@ export function useTokenPanelCharacter(
     );
 
     try {
-      await updateDndCharacterResources(token, character.id, {
-        vidaActual: nextCurrentHp,
-        vidaTemporal: nextTempHp,
-        espaciosConjuroActuales: {},
-        recursosExtraActuales: {},
-        dinero: getCharacterMoney(character),
-      });
+      if (mb) {
+        await saveCurrentHpMB(token, character.id, nextCurrentHp);
+      } else {
+        await updateDndCharacterResources(token, character.id, {
+          vidaActual: nextCurrentHp,
+          vidaTemporal: nextTempHp,
+          espaciosConjuroActuales: {},
+          recursosExtraActuales: {},
+          dinero: getCharacterMoney(character),
+        });
+      }
     } catch (error) {
       setHealthSaveError(
         error instanceof Error
@@ -286,16 +305,17 @@ export function useTokenPanelCharacter(
   ) => {
     if (!selectedHealthCharacter) return;
 
+    const mb = isMorkBorg(selectedHealthCharacter);
+    const hpStatKey = mb ? "MB_VidaActual" : "Vida actual";
     const parsedHpDelta = Number.parseInt(hpDelta, 10);
     const parsedTempHpDelta = Number.parseInt(tempHpDelta, 10);
     const currentHp = Math.max(
       0,
-      selectedHealthCharacter.estadisticas["Vida actual"] ?? 0,
+      selectedHealthCharacter.estadisticas[hpStatKey] ?? 0,
     );
-    const tempHp = Math.max(
-      0,
-      selectedHealthCharacter.estadisticas["Vida temporal"] ?? 0,
-    );
+    const tempHp = mb
+      ? 0
+      : Math.max(0, selectedHealthCharacter.estadisticas["Vida temporal"] ?? 0);
     const totalHp = getMaxHp(selectedHealthCharacter.estadisticas);
 
     let nextCurrentHp = currentHp;
