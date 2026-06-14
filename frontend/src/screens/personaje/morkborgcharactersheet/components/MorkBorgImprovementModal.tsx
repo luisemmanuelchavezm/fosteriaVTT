@@ -110,10 +110,10 @@ export default function MorkBorgImprovementModal({
   const escoriaAbilities = characterAbilities.filter((h) =>
     h.tags?.includes("EscEspecialidadIdx"),
   );
-  // slotChanges: array de slots (1 para primera mejora, 2 para siguientes)
-  const numSlots = escoriaAbilities.length === 1 ? 1 : 2;
+  // slotChanges: array de slots (1 para primera mejora o si se eliminó el rasgo, 2 para siguientes)
+  const numSlots = escoriaAbilities.length < 2 ? 1 : 2;
   const [escoriaSlots, setEscoriaSlots] = useState<EscoriaSlotChange[]>(() =>
-    escoriaAbilities.length === 1
+    escoriaAbilities.length < 2
       ? [{ eliminarId: null, nuevoIdx: null }]
       : escoriaAbilities.map((a) => ({ eliminarId: a.id, nuevoIdx: null })),
   );
@@ -343,7 +343,7 @@ export default function MorkBorgImprovementModal({
                     Especialidades
                   </p>
                   <p className="mt-1 text-xs text-stone-400">
-                    {escoriaAbilities.length === 1
+                    {escoriaAbilities.length < 2
                       ? "Primera mejora: tira 1d6 para obtener una nueva especialidad."
                       : "Puedes volver a tirar una o ambas especialidades."}
                   </p>
