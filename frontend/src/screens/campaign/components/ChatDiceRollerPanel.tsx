@@ -39,8 +39,8 @@ export default function ChatDiceRollerPanel({
       return sum + (Number.isNaN(count) ? 0 : count);
     }, 0);
 
-    if (totalDice > 20) {
-      setFormatError("No puedes tirar más de 20 dados a la vez.");
+    if (totalDice > 100) {
+      setFormatError("No puedes tirar más de 100 dados a la vez.");
       return;
     }
 

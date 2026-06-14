@@ -43,7 +43,7 @@ interface ParsedRollExpression {
   normalizedExpression: string;
 }
 
-const MAX_VISIBLE_DICE = 20;
+const MAX_VISIBLE_DICE = 100;
 
 function formatModifier(modifier: number) {
   return `${modifier >= 0 ? "+" : "-"}${Math.abs(modifier)}`;
