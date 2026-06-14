@@ -8,8 +8,7 @@ interface ChatDiceRollerPanelProps {
 }
 
 const QUICK_DICE = [100, 20, 12, 8, 6, 4] as const;
-const CUSTOM_ROLL_REGEX =
-  /^\s*\d+\s*d\s*\d+(?:\s*[+-]\s*(?:\d+\s*d\s*\d+|\d+))*\s*$/i;
+const CUSTOM_ROLL_REGEX = /^\s*\d+d\d+(?:\s*[+-]\s*(?:\d+d\d+|\d+))*\s*$/i;
 
 export default function ChatDiceRollerPanel({
   onRollExpression,
@@ -27,8 +26,21 @@ export default function ChatDiceRollerPanel({
   const handleCustomRoll = () => {
     const expression = customExpression.trim();
 
+    if (!expression) return;
+
     if (!CUSTOM_ROLL_REGEX.test(expression)) {
       setFormatError("Formato incorrecto. Ejemplo: 1d4 + 1d8 - 3d5");
+      return;
+    }
+
+    const diceTerms = expression.replace(/\s/g, "").match(/\d+d\d+/gi) ?? [];
+    const totalDice = diceTerms.reduce((sum, term) => {
+      const count = Number.parseInt(term.split(/d/i)[0], 10);
+      return sum + (Number.isNaN(count) ? 0 : count);
+    }, 0);
+
+    if (totalDice > 20) {
+      setFormatError("No puedes tirar más de 20 dados a la vez.");
       return;
     }
 
@@ -87,10 +99,11 @@ export default function ChatDiceRollerPanel({
           type="text"
           value={customExpression}
           onChange={(event) => {
-            setCustomExpression(event.target.value);
-            if (formatError) {
-              setFormatError("");
-            }
+            const filtered = event.target.value
+              .replace(/[^0-9dD+\-\s]/g, "")
+              .slice(0, 50);
+            setCustomExpression(filtered);
+            if (formatError) setFormatError("");
           }}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
@@ -99,6 +112,7 @@ export default function ChatDiceRollerPanel({
             }
           }}
           placeholder="1d4 + 1d8 - 3d5"
+          maxLength={50}
           className="mt-2 h-10 w-full rounded-xl border border-white/35 bg-transparent px-3 text-sm text-white outline-none transition placeholder:text-white/65 focus:border-white"
           disabled={disabled}
         />
