@@ -84,6 +84,7 @@ export function useTokenPanelCharacter(
 
   const diceRoller = useDiceRoller();
   const lastSeenSummaryIdRef = useRef(-1);
+  const isAdjustingRef = useRef(false);
 
   useEffect(() => {
     if (!diceRoller.summary) return;
@@ -303,7 +304,8 @@ export function useTokenPanelCharacter(
   const adjustHealth = async (
     mode: "heal" | "damage" | "tempGain" | "tempLose",
   ) => {
-    if (!selectedHealthCharacter) return;
+    if (!selectedHealthCharacter || isAdjustingRef.current) return;
+    isAdjustingRef.current = true;
 
     const mb = isMorkBorg(selectedHealthCharacter);
     const hpStatKey = mb ? "MB_VidaActual" : "Vida actual";
@@ -340,11 +342,15 @@ export function useTokenPanelCharacter(
       nextTempHp = Math.max(0, tempHp - parsedTempHpDelta);
     }
 
-    await persistHealthChange(
-      selectedHealthCharacter,
-      nextCurrentHp,
-      nextTempHp,
-    );
+    try {
+      await persistHealthChange(
+        selectedHealthCharacter,
+        nextCurrentHp,
+        nextTempHp,
+      );
+    } finally {
+      isAdjustingRef.current = false;
+    }
   };
 
   const updateCharacterStat = (
