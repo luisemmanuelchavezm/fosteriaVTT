@@ -26,7 +26,8 @@ export default function HpModal({
   onAdjust,
   isMB = false,
 }: HpModalProps) {
-  const currentHp = Math.max(0, character.estadisticas["Vida actual"] ?? 0);
+  const hpStatKey = isMB ? "MB_VidaActual" : "Vida actual";
+  const currentHp = Math.max(0, character.estadisticas[hpStatKey] ?? 0);
   const tempHp = Math.max(0, character.estadisticas["Vida temporal"] ?? 0);
   const maxHp = getMaxHp(character.estadisticas);
 
@@ -65,7 +66,8 @@ export default function HpModal({
             <button
               type="button"
               onClick={() => onAdjust("heal")}
-              className="rounded-[16px] border border-emerald-300/35 bg-emerald-400/10 px-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-400/15"
+              disabled={isSavingHealth}
+              className="rounded-[16px] border border-emerald-300/35 bg-emerald-400/10 px-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-400/15 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Curar
             </button>
@@ -109,7 +111,8 @@ export default function HpModal({
             <button
               type="button"
               onClick={() => onAdjust("damage")}
-              className="rounded-[16px] border border-rose-300/35 bg-rose-400/10 px-3 text-sm font-semibold text-rose-100 transition hover:bg-rose-400/15"
+              disabled={isSavingHealth}
+              className="rounded-[16px] border border-rose-300/35 bg-rose-400/10 px-3 text-sm font-semibold text-rose-100 transition hover:bg-rose-400/15 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Daño
             </button>
@@ -121,7 +124,8 @@ export default function HpModal({
               <button
                 type="button"
                 onClick={() => onAdjust("tempGain")}
-                className="rounded-[16px] border border-sky-300/35 bg-sky-400/10 px-3 text-sm font-semibold text-sky-100 transition hover:bg-sky-400/15"
+                disabled={isSavingHealth}
+                className="rounded-[16px] border border-sky-300/35 bg-sky-400/10 px-3 text-sm font-semibold text-sky-100 transition hover:bg-sky-400/15 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Temp +
               </button>
@@ -170,7 +174,8 @@ export default function HpModal({
               <button
                 type="button"
                 onClick={() => onAdjust("tempLose")}
-                className="rounded-[16px] border border-cyan-300/35 bg-cyan-400/10 px-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/15"
+                disabled={isSavingHealth}
+                className="rounded-[16px] border border-cyan-300/35 bg-cyan-400/10 px-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-400/15 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Temp -
               </button>
