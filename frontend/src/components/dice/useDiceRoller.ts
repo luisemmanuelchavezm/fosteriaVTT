@@ -37,7 +37,7 @@ interface DicePoolRequest {
 
 interface ParsedRollExpression {
   notation: string | string[] | null;
-  dicePools: Array<{ count: number; faces: number }>;
+  dicePools: Array<{ count: number; faces: number; sign: 1 | -1 }>;
   diceCount: number;
   modifier: number;
   normalizedExpression: string;
@@ -74,7 +74,7 @@ function parseRollExpression(
 
     return {
       notation: `${diceCount}d${diceFaces}`,
-      dicePools: [{ count: diceCount, faces: diceFaces }],
+      dicePools: [{ count: diceCount, faces: diceFaces, sign: 1 as const }],
       diceCount,
       modifier,
       normalizedExpression: buildExpression(
@@ -128,7 +128,7 @@ function parseRollExpression(
     return null;
   }
 
-  const dicePools: Array<{ count: number; faces: number }> = [];
+  const dicePools: Array<{ count: number; faces: number; sign: 1 | -1 }> = [];
   let modifier = 0;
 
   for (const term of terms) {
@@ -137,17 +137,13 @@ function parseRollExpression(
     const diceTermMatch = unsignedTerm.match(/^(\d+)d(\d+)$/i);
 
     if (diceTermMatch) {
-      if (sign < 0) {
-        return null;
-      }
-
       const count = Number.parseInt(diceTermMatch[1], 10);
       const faces = Number.parseInt(diceTermMatch[2], 10);
       if (count <= 0 || faces <= 0) {
         return null;
       }
 
-      dicePools.push({ count, faces });
+      dicePools.push({ count, faces, sign: sign as 1 | -1 });
       continue;
     }
 
@@ -169,15 +165,21 @@ function parseRollExpression(
   const notation =
     notationEntries.length === 1 ? notationEntries[0] : notationEntries;
 
+  const exprParts = dicePools.map((pool, i) => {
+    const poolStr = `${pool.count}d${pool.faces}`;
+    return i === 0 ? poolStr : `${pool.sign > 0 ? "+" : "-"} ${poolStr}`;
+  });
+  let normalizedExpression = exprParts.join(" ");
+  if (modifier !== 0) {
+    normalizedExpression += ` ${modifier > 0 ? "+" : "-"} ${Math.abs(modifier)}`;
+  }
+
   return {
     notation,
     dicePools,
     diceCount,
     modifier,
-    normalizedExpression: buildExpression(
-      notationEntries.join(" + "),
-      modifier,
-    ),
+    normalizedExpression,
   };
 }
 
@@ -442,8 +444,15 @@ export function useDiceRoller() {
         activeDiceCountRef.current += diceValues.length;
       }
 
-      const total =
-        diceValues.reduce((sum, value) => sum + value, 0) + parsed.modifier;
+      let valueIndex = 0;
+      let signedDiceTotal = 0;
+      for (const pool of parsed.dicePools) {
+        for (let i = 0; i < pool.count; i++) {
+          signedDiceTotal += pool.sign * (diceValues[valueIndex] ?? 0);
+          valueIndex++;
+        }
+      }
+      const total = signedDiceTotal + parsed.modifier;
 
       summaryIdRef.current += 1;
       enqueueSummary({
