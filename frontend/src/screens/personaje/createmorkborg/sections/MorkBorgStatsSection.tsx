@@ -57,14 +57,14 @@ function CalculatedStatBox({
 }: CalculatedStatBoxProps) {
   return (
     <div className="flex flex-col gap-3 rounded-[22px] border border-[#4A3520] bg-[#2A1F12] px-6 py-4">
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex items-center gap-3">
         {/* Nombre */}
-        <p className="w-44 text-sm font-bold uppercase tracking-[0.18em] text-amber-300/80">
+        <p className="shrink-0 text-sm font-bold uppercase tracking-[0.18em] text-amber-300/80">
           {label}
         </p>
 
         {/* Número */}
-        <div className="flex h-12 w-20 items-center justify-center rounded-[14px] border border-stone-300/15 bg-stone-900/65 text-2xl font-bold">
+        <div className="shrink-0 flex h-12 w-20 items-center justify-center rounded-[14px] border border-stone-300/15 bg-stone-900/65 text-2xl font-bold">
           {isRollingThis ? (
             <span className="text-stone-500 animate-pulse">…</span>
           ) : value !== null ? (
@@ -75,7 +75,9 @@ function CalculatedStatBox({
         </div>
 
         {/* Fórmula */}
-        {canRoll ? <p className="text-xs text-stone-200">{formula}</p> : null}
+        {canRoll ? (
+          <p className="min-w-0 shrink text-xs text-stone-200">{formula}</p>
+        ) : null}
 
         {/* Botón — solo cuando se cumple el prerrequisito */}
         {canRoll ? (
@@ -83,7 +85,7 @@ function CalculatedStatBox({
             type="button"
             onClick={onRoll}
             disabled={isRollingAny}
-            className="ml-auto rounded-full border border-stone-600 bg-stone-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
+            className="ml-auto shrink-0 rounded-full border border-stone-600 bg-stone-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-stone-800 active:scale-95 disabled:opacity-50"
           >
             {isRollingThis
               ? "Tirando…"
