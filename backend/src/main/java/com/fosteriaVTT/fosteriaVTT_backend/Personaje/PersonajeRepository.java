@@ -81,4 +81,7 @@ public interface PersonajeRepository extends JpaRepository<Personaje, Long> {
 			@Param("tipo") String tipo,
 			Pageable pageable
 	);
+
+	@Query("SELECT p FROM Personaje p LEFT JOIN FETCH p.habilidades WHERE p.id = :id")
+	Optional<Personaje> findByIdWithHabilidades(@Param("id") Long id);
 }
