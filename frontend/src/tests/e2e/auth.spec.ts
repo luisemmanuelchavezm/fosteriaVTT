@@ -15,6 +15,8 @@ test("permite registrarse y volver al login", async ({ page }) => {
   await page.getByPlaceholder("Tu nombre...").fill("daria");
   await page.getByPlaceholder("Tu correo...").fill("daria@test.com");
   await page.getByPlaceholder("********").fill("12345678");
+  await page.getByPlaceholder("Repite tu contraseña").fill("12345678");
+  await page.check("#privacy-accept");
   await page.getByRole("button", { name: "REGISTRARSE" }).click();
 
   await expect(page.getByText("¡Registro completado!")).toBeVisible();
