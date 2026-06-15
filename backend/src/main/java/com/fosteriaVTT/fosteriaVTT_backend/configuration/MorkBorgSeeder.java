@@ -598,7 +598,10 @@ public class MorkBorgSeeder {
                 .findFirst();
 
         if (existingOpt.isPresent()) {
-            Personaje existing = existingOpt.get();
+            // Re-fetch with JOIN FETCH to avoid LazyInitializationException on habilidades
+            Personaje existing = personajeRepository
+                    .findByIdWithHabilidades(existingOpt.get().getId())
+                    .orElse(existingOpt.get());
             boolean dirty = false;
             if (biografia != null && !biografia.equals(existing.getBiografia())) {
                 existing.setBiografia(biografia);
